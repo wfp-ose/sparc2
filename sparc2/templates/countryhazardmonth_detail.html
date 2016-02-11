@@ -1,0 +1,11 @@
+{% extends "map.html" %}
+
+{% block title %}SPARC - {{ country_title }} - {{ hazard_title }}{% endblock %}
+
+{% block extra_head %}
+{{ block.super }}
+{% endblock %}
+{% block extra_content %}
+{% endblock %}
+
+{% block footer %}{% include "_includes/calendar.html" %}{% endblock %}

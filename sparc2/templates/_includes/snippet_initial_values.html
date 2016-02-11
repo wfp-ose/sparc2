@@ -1,0 +1,96 @@
+<script type="text/javascript" language="Javascript">
+    var sparcApp;
+    var sparc =
+    {
+      "state": {
+        "iso3": "{{ iso3 }}",
+        "hazard": "{{ hazard }}",
+        "month": "{{ month_num }}",
+        "view": {
+          "lat": {{ state.view.latitude}},
+          "lon": {{ state.view.longitude }},
+          "z": {{ state.view.zoom }},
+          "baselayer": undefined,
+          "featurelayers": []
+        },
+        "filters": {
+            "popatrisk":
+            {
+              {% if hazard == "cyclone" %}
+              "prob_class_max": 0.1,
+              "category": "cat1_5"
+              {% elif hazard == "drought" %}
+              "prob_class_max": 0.04
+              {% elif hazard == "flood" %}
+              "rp": 200
+              {% endif %}
+            }
+        }
+      },
+      "stateschema": {
+        "iso3": "string",
+        "hazard": "string",
+        "month": "integer",
+        "view": {
+          "lat": "float",
+          "lon": "float",
+          "z": "integer"
+        },
+        "filters": {
+            "popatrisk":
+            {
+              {% if hazard == "cyclone" %}
+              "prob_class_max": "float",
+              "category": "string"
+              {% elif hazard == "drought" %}
+              "prob_class_max": "float"
+              {% elif hazard == "flood" %}
+              "rp": "integer"
+              {% endif %}
+            }
+        }
+      },
+      "data": {
+        "countries_select2": {{ SPARC_COUNTRIES_SELECT2|safe }},
+        "hazards_select2": {{ SPARC_HAZARDS_SELECT2|safe }}
+      },
+      "pages": {
+          "countryhazardmonth_detail": {
+            "url": "/country/{iso3}/hazard/{hazard}/month/{month}"
+          }
+      },
+      "layers": {
+        "popatrisk": {
+          "data": {
+            "geojson": undefined,
+            "summary": undefined
+          },
+          "style": {
+            "default": function(f, layer){
+              //
+              //var state = angular.element(document.body).injector().get('state');
+              var $scope = angular.element("#sparc-main").scope();
+              var state = $scope.state;
+              var map_config = angular.element(document.body).injector().get('map_config');
+              var popatrisk_config = angular.element(document.body).injector().get('popatrisk_config');
+              //
+              style = map_config["featurelayers"]["popatrisk"]["symbology"]["styles"]["default"];
+              if(state["hazard"]=="cyclone")
+              {
+                style["fillColor"] = color_cyclone(f, state, map_config, popatrisk_config)
+              }
+              else if(state["hazard"]=="drought")
+              {
+                style["fillColor"] = color_drought(f, state, map_config, popatrisk_config)
+              }
+              else if(state["hazard"]=="flood")
+              {
+                  style["fillColor"] = color_flood(f, state, map_config, popatrisk_config)
+              }
+              return style;
+            }
+          }
+        }
+      }
+    };
+</script>

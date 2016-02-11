@@ -1,0 +1,42 @@
+- model: wfppresencedjango.wfpregionalbureau
+  pk: 1
+  fields:
+    code: RBB
+    opweb: 1
+    name: Bangkok Regional Bureau
+    city: Bangkok, Thailand
+- model: wfppresencedjango.wfpregionalbureau
+  pk: 2
+  fields:
+    code: RBC
+    opweb: 2
+    name: Cairo Regional Bureau
+    city: Cairo, Egypt
+- model: wfppresencedjango.wfpregionalbureau
+  pk: 3
+  fields:
+    code: RBD
+    opweb: 3
+    name: Dakar Regional Bureau
+    city: Dakar, Senegal
+- model: wfppresencedjango.wfpregionalbureau
+  pk: 4
+  fields:
+    code: RBJ
+    opweb: 5
+    name: Johannnesburg Regional Bureau
+    city: Johannnesburg, South Africa
+- model: wfppresencedjango.wfpregionalbureau
+  pk: 5
+  fields:
+    code: RBN
+    opweb: 12
+    name: Nairobi Regional Bureau
+    city: Nairobi, Kenya
+- model: wfppresencedjango.wfpregionalbureau
+  pk: 6
+  fields:
+    code: RBP
+    opweb: 7
+    name: Panama Regional Bureau
+    city: Panama City, Panama

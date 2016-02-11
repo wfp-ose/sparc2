@@ -1,0 +1,57 @@
+{% load sparc2_tags %}
+<div id="{{ id }}" class="modal fade sparc-layer-legend" style="z-index:-1;color:black;" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" style="display: block;">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h4 class="modal-title" id="myModalLabel">Symbology / {{ layer.title }}</h4>
+      </div>
+      <div class="modal-body">
+        <div>
+          {% if layer.legend.symbol.type == "gradient" %}
+          <div style="display: inline-block;">Less Impact /<br>More Likely</div>
+          <svg width="300px" height="50px" version="1.0" xmlns="http://www.w3.org/2000/svg">
+          {% with numberOfColors=layer.symbology.colors|length %}
+          {% for color in layer.symbology.colors %}
+            {% with idx=forloop.counter0 %}
+            <rect
+              x="{{ idx|percent:numberOfColors }}%"
+              y="0"
+              width="{{ 1|percent:numberOfColors }}%"
+              height="50px"
+              fill="{{ color }}"
+              stroke-width="1"
+              stroke="#000000"/>
+            <text
+              x="{{ idx|as_float|addFloat:0.5|percent:numberOfColors }}%"
+              y="50%"
+              text-anchor="middle"
+              fill="white"
+              font-size="18px">{{ idx }}</text>
+            {% endwith %}
+          {% endfor %}
+          {% endwith %}
+          </svg>
+          <div style="display: inline-block;">Higher Impact /<br>Less Likely</div>
+          {% elif layer.legend.symbol.type == "graphic" %}
+            {% if layer.type == "WMS" and layer.wms.layers %}
+              {% for layer2 in layer.wms.layers %}
+                {% with idx2=forloop.counter0 %}
+                <img src="{{ layer|legendGraphic:idx2 }}" style="display:block;"/>
+                {% endwith %}
+              {% endfor %}
+            {% else %}
+              <img src="{{ layer|legendGraphic }}"/>
+            {% endif %}
+          {% endif %}
+          <br>
+          <br>
+          <span><b>Description: </b>{{ layer.legend.symbol.description|default:layer.description }}</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

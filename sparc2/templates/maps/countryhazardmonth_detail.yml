@@ -1,0 +1,370 @@
+{% extends "maps/base.yml" %}
+{% block title %}
+title: SPARC - {{ country_title }} - {{ hazard_title }}
+{% endblock %}
+{% block view %}{{ block.super }}{% endblock %}
+{% block baselayers %}{{ block.super }}{% endblock %}
+{% block featurelayers %}{% verbatim %}
+featurelayers:
+  popatrisk:
+    type: geojson
+    title: "Population at Risk"
+    description: "Population at Risk"
+    source:
+      name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
+      attribution: "WFP/OSEP/AEW&GIS"
+    urls:
+      geojson: "/data/local/country/{iso3}/hazard/{hazard}.json"
+      summary: "/data/local/country/{iso3}/hazard/{hazard}/summary.json"
+    routes:
+      geojson: "/data/local/country/:iso3/hazard/:hazard*.json"
+      summary: "/data/local/country/:iso3/hazard/:hazard/summary.json"
+    symbology:
+      colors: ['#fee5d9', '#fcbba1', '#fde79c', '#fc8d59', '#d7301f','#8162c6','#290051']
+      styles:
+        default:
+          weight: 1
+          color: "#000000"
+          opacity: 0.8
+          fillOpacity: 0.4
+        hover:
+          weight: 2
+          color: "#0000FF"
+          opacity: 0.8
+          fillOpacity: 0.3
+    legend:
+      label: "Population at Risk"
+      symbol:
+        label: "Pop At Risk"
+        description: "For a given hazard, month, and admin 2 district, the population at risk."
+        type: "gradient"
+        width: 34
+        height: 12
+  {% endverbatim %}{% if hazard == "cyclone" %}{% verbatim %}
+    description: "The population at risk of cyclone for each month aggregated at the administrative level 2 district."
+    popup:
+      template: "popatrisk"
+      chart:
+        id: "sparc-popup-chart-popatrisk"
+        label: "Population at Risk by Month"
+        type: "bar"
+        axis:
+          x:
+            type: "months"
+          y:
+            label:
+              text: 'Population at Risk'
+              position: 'outer-middle'
+        hazard: cyclone
+    filters:
+      - label: Category
+        description: "The Saffir-Simpson Hurricane Wind Scale is a 1 to 5 rating based on a hurricane's sustained wind speed. This scale estimates potential property damage. Hurricanes reaching Category 3 and higher are considered major hurricanes because of their potential for significant loss of life and damage. Category 1 and 2 storms are still dangerous, however, and require preventative measures. In the western North Pacific, the term \"super typhoon\" is used for tropical cyclones with sustained winds exceeding 150 mph."
+        height: 34px
+        type: radio
+        radio:
+          output: category
+          options:
+            - id: "sparc-cat1_5"
+              name: "cat"
+              value: "cat1_5"
+              label: "1-5"
+              checked: true
+            - id: "sparc-cat1_3"
+              name: "cat"
+              value: "cat1_3"
+              label: "1-3"
+            - id: "sparc-cat4_5"
+              name: "cat"
+              value: "cat4_5"
+              label: "4-5"
+      - label: "Probability"
+        description:  "The probability by admin2-month that a cyclone will hit."
+        line_height: 36px
+        height: 50px
+        type: slider
+        slider:
+          id: sparc-probabilities-slider
+          type: continuous
+          width: 120px
+          range: min
+          label: "&lt;= {value}"
+          value: 0.1
+          min: 0
+          max: 1.0
+          step: 0.1
+          output: prob_class_max
+  {% endverbatim %}{% elif hazard == "drought" %}{% verbatim %}
+    description: "The population at risk of drought for each month aggregated at the administrative level 2 district."
+    popup:
+      template: "popatrisk"
+      chart:
+        id: "sparc-popup-chart-popatrisk"
+        label: "Population at Risk by Month"
+        type: "bar"
+        axis:
+          x:
+            type: "months"
+          y:
+            label:
+              text: 'Population at Risk'
+              position: 'outer-middle'
+        hazard: flood
+        subtype: "bullet"
+        colors:
+          p6: "#4169E1"
+          p8: "#B0C4FF"
+          p25: "#B0C4DE"
+        group_prefix: "p"
+        group_key: "prob_max"
+        group_modifier: 1
+        groups: [6, 8, 25]
+    filters:
+      - label: "Frequency"
+        description:  "The frequency by admin2-month that a drought will happen."
+        line_height: 36px
+        height: 50px
+        type: slider
+        slider:
+          id: sparc-probabilities-slider
+          type: ordinal
+          width: 120px
+          range: min
+          value: .04
+          label: "&lt; {value} %"
+          options: [2, 4, 6, 8, 10, 15, 20, 25, 50, 100]
+          output: prob_class_max
+  {% endverbatim %}{% elif hazard == "flood" %}{% verbatim %}
+    description: "The population at risk of flood for each month aggregated at the administrative level 2 district."
+    popup:
+      template: "popatrisk"
+      chart:
+        id: "sparc-popup-chart-popatrisk"
+        label: "Population at Risk by Month"
+        type: "bar"
+        axis:
+          x:
+            type: "months"
+          y:
+            label:
+              text: 'Population at Risk'
+              position: 'outer-middle'
+        hazard: flood
+        subtype: "bullet"
+        colors:
+          rp25: "#4169E1"
+          rp100: "#B0C4FF"
+          rp1000: "#B0C4DE"
+        returnPeriods: [25, 100, 1000]
+    filters:
+      - label: "Return Period"
+        description:  "Probability is based on the concept of \"return period\".  A return period is an estimate of the likelihood of an event, such as a flood, to occur. The theoretical return period is the inverse of the probability that the event will be exceeded in any one year (or more accurately the inverse of the expected number of occurrences in a year). In this case, a 100 year flood has a 0.01 or 1% chance of being exceeded in any one year."
+        line_height: 36px
+        height: 50px
+        type: slider
+        slider:
+          id: sparc-probabilities-slider
+          type: ordinal
+          width: 100px
+          range: min
+          value: 50
+          label: "&lt;= {value} RP"
+          options: [25, 50, 100, 200, 500, 1000]
+          output: rp
+  {% endverbatim %}{% endif %}
+  landscan:
+    type: WMS
+    title: "Landscan (2013)"
+    description: "Landscan (2013)"
+    source:
+      name: "ORNL"
+      attribution: "ORNL"
+    wms:
+      version: "1.1.1"
+      layers: ["geonode:lscan13"]
+      styles: ["lscan"]
+      format: 'image/png'
+      transparent: true
+      url: "http://sparc.wfp.org/geoserver/geonode/wms"
+    legend:
+      label: "Landscan"
+      symbol:
+        type: "graphic"
+        width: 16
+        height: 8
+        preview: false
+  wfp_facilities:
+    type: WMS
+    title: "WFP Facilities"
+    description: "This layer contains locations and additional information of WFP warehouses and facilities worldwide, including warehouses, offices, and ports.  Stored on [WFP GeoNode](http://geonode.wfp.org)."
+    source:
+      name: "WFP"
+      attribution: "WFP GeoNode"
+    wms:
+      version: "1.1.1"
+      layers: ["geonode:wld_poi_facilities_wfp","geonode:wld_poi_warehouses_wfp"]
+      styles: []
+      format: 'image/png'
+      transparent: true
+      buffer: 256
+      url: "http://geonode.wfp.org/geoserver/geonode/wms"
+    legend:
+      label: "WFP Facilities"
+      symbol:
+        type: "graphic"
+        width: 16
+        height: 16
+        preview: false
+  {% if hazard == "cyclone" %}{% verbatim %}
+  cyclone_probability:
+    type: WMS
+    title: "Cyclone Probability"
+    description: "Cyclone Probability"
+    source:
+      name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
+      attribution: "WFP/OSEP/AEW&GIS"
+    wms:
+      version: "1.1.1"
+      layers: {% endverbatim %}["geonode:cat1_5_sep_cls2","geonode:cat1_5_sep_cls2","geonode:cat1_5_sep_cls2","geonode:cat1_5_sep_cls2","geonode:cat1_5_sep_cls2","geonode:cat1_5_sep_cls2","geonode:cat1_5_sep_cls2"]{% verbatim %}
+      styles: ["cyclone1","cyclone2","cyclone3","cyclone4","cyclone5","cyclone6","cyclone7"]
+      format: 'image/png'
+      transparent: true
+      url: "http://sparc.wfp.org/geoserver/geonode/wms"
+    symbology:
+      colors: ['#fee5d9', '#fcbba1', '#fde79c', '#fc8d59', '#d7301f','#8162c6','#290051']
+      styles:
+        default:
+          weight: 1
+          color: "#000000"
+          opacity: 0.8
+          fillOpacity: 0.4
+        hover:
+          weight: 2
+          color: "#0000FF"
+          opacity: 0.8
+          fillOpacity: 0.3
+    legend:
+      label: "Cyclone Probability"
+      symbol:
+        type: "graphic"
+        width: 16
+        height: 8
+        preview: false
+  {% endverbatim %}{% elif hazard == "flood" %}{% verbatim %}
+  flood_probability:
+    type: WMS
+    title: "Flood Probability"
+    description: "Flood Probability"
+    source:
+      name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
+      attribution: "WFP/OSEP/AEW&GIS"
+    wms:
+      version: "1.1.1"
+      layers: {% endverbatim %}["f_{{ iso_alpha3|lower }}","f_{{ iso_alpha3|lower }}","f_{{ iso_alpha3|lower }}","f_{{ iso_alpha3|lower }}","f_{{ iso_alpha3|lower }}","f_{{ iso_alpha3|lower }}"]{% verbatim %}
+      styles: ["RP25","RP50","RP100","RP200","RP500","RP1000"]
+      format: 'image/png'
+      transparent: true
+      url: "http://sparc.wfp.org/geoserver/geonode/wms"
+    legend:
+      label: "Flood Probability"
+      symbol:
+        type: "graphic"
+        width: 16
+        height: 8
+        preview: false
+  flood_events_heatmap:
+    enabled: false
+    type: geojson
+    title: "Flood Events (Heatmap)"
+    description: "This layer contains a heatmap of flood events."
+    source:
+      name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
+      attribution: "WFP/OSEP/AEW&GIS"
+    urls:
+      geojson: "/heatmap/local/country/{iso3}/hazard/{hazard}.json"
+      summary: "/heatmap/local/country/{iso3}/hazard/{hazard}/summary.json"
+    routes:
+      geojson: "/heatmap/local/country/:iso3/hazard/:hazard*.json"
+      summary: "/heatmap/local/country/:iso3/hazard/:hazard/summary.json"
+    legend:
+      label: "Flood Events (Heatmap)"
+      symbol:
+        label: "Frequency"
+        description: "For a given hazard, month, and admin 2 district, the frequency of flood events by visual index."
+        type: "gradient"
+        width: 34
+        height: 12
+    {% endverbatim %}{% endif %}
+{% endblock %}
+{% block legendlayers %}
+legendlayers:
+  - "popatrisk"
+  - "landscan"
+  {% if hazard == "cyclone" %}{% verbatim %}
+  - "cyclone_probability"
+  {% endverbatim %}{% elif hazard == "flood" %}{% verbatim %}
+  - "flood_probability"
+  {% endverbatim %}{% endif %}
+  - "wfp_facilities"
+  - osm
+  - osm_humanitarian
+{% endblock %}
+{% block renderlayers %}
+renderlayers:
+  - "wfp_facilities"
+  - "popatrisk"
+  {% if hazard == "cyclone" %}{% verbatim %}
+  - "cyclone_probability"
+  {% endverbatim %}{% elif hazard == "flood" %}{% verbatim %}
+  - "flood_probability"
+  {% endverbatim %}{% endif %}
+  - "landscan"
+  - "osm"
+  - "osm_humanitarian"
+{% endblock %}
+{% block charts %}
+charts:
+  - id: "sparc-sidebar-chart-popatrisk"
+    label: "Population at Risk by Month"
+    type: "bar"
+    axis:
+      x:
+        type: "months"
+      y:
+        label:
+          text: 'Population at Risk'
+          position: 'outer-middle'
+    {% if hazard == "cyclone" %}{% verbatim %}
+    hazard: cyclone
+    {% endverbatim %}{% elif hazard == "drought" %}{% verbatim %}
+    hazard: drought
+    subtype: "bullet"
+    colors:
+      p6: "#4169E1"
+      p8: "#B0C4FF"
+      p25: "#B0C4DE"
+      p100: "#FFC4DE"
+    group_prefix: "p"
+    group_key: "prob_max"
+    group_modifier: 1
+    groups: [6, 8, 25]
+    {% endverbatim %}{% elif hazard == "flood" %}{% verbatim %}
+    hazard: flood
+    subtype: "bullet"
+    colors:
+      rp25: "#4169E1"
+      rp100: "#B0C4FF"
+      rp1000: "#B0C4DE"
+    group_prefix: "rp"
+    group_key: "rp"
+    group_modifier: 1
+    groups: [25, 100, 1000]
+    {% endverbatim %}{% endif %}
+{% endblock %}
+{% block controls %}
+controls:
+  calendar: true
+  filters: true
+  legend: true
+  sidebar: true
+  zoom: true
+{% endblock %}

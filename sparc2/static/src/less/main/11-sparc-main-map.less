@@ -1,0 +1,23 @@
+@import "2-variables.less";
+
+.sparc-popup-plain {
+  word-wrap: break-word;
+  text-align:center;
+  font-family: Verdana;
+  font-size: 14px;
+
+  .sparc-popup-plain-value {
+    font-size: 18px;
+    text-decoration: underline;
+  }
+}
+
+.sparc-popup-chart {
+  width: @sparc-map-popup-chart-width;
+  height: @sparc-map-popup-chart-height;
+  margin: 0 auto;
+
+  .c3-tooltip-container {
+    z-index: @sparc-map-popup-z-index;
+  }
+}

@@ -1,0 +1,12 @@
+{% extends "wrapper_text.html" %}
+{% block text_middle %}
+<h1>Get Started!</h1>
+The Spatial Risk Calendar (SPARC) is an online tool that uses maps and charts to show where, when and how many people are at risk of being affected by floods, droughts and storms. It does this by combining GIS datasets showing how prone areas are to hazards each month, how many people live in these areas, and profiles of how vulnerable these people are.
+<br>
+<h1>How it works</h1>
+SPARC shows risk in terms of numbers of people with different chances of being affected by floods, droughts or storms. SPARC defines “affected” as living in a place that is flooded, in drought conditions, or in a storm track.
+Each dataset is made up of small squares; for example, each square in the global flood dataset is one square kilometre. Each square has a probability of flooding each month. If a square has a 1% chance of flooding, and 100 people living in the square meet a vulnerability threshold, SPARC says that there is a 1% chance of 100 people being affected. SPARC adds up all the people from each square and the chances of them being affected.
+<br>
+<br>
+<img src="{{ STATIC_URL }}assets/img/sparc_model.jpg" style="display: block; width:100%; max-width:791px; margin:0 auto;"/>
+{% endblock %}

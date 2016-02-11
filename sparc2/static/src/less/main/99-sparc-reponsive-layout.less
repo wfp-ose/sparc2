@@ -1,0 +1,38 @@
+@import "2-variables.less";
+
+.sparc-calendar {
+  display: none;
+}
+
+@media (max-width: @screen-xs-max) {
+  .sparc-main {
+    position: relative;
+    height: 400px;
+  }
+
+  .sparc-calendar {
+    display: block;
+  }
+
+  .sparc-map-calendar {
+    display: none;
+  }
+}
+@media (min-width: @screen-sm-min) and (max-width: @screen-sm-max){
+  .sparc-main {
+    position: relative;
+    height: ~"calc(100% - @{sparc-header-height})";
+  }
+}
+@media (min-width: @screen-md-min) and (max-width: @screen-md-max){
+  .sparc-main {
+    position: relative;
+    height: ~"calc(100% - @{sparc-header-height})";
+  }
+}
+@media (min-width: @screen-lg-min){
+  .sparc-main {
+    position: relative;
+    height: ~"calc(100% - @{sparc-header-height})";
+  }
+}

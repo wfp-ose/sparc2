@@ -1,0 +1,52 @@
+{% block title %}
+title: Map
+{% endblock %}
+{% block view %}
+view:
+  latitude: 0
+  longitude: 0
+  zoom: 3
+  minZoom: 0
+  maxZoom: 18
+{% endblock %}
+{% block baselayers %}
+baselayers:
+  - id: "osm"
+    title: "OpenStreetMap"
+    description: "OpenStreetMap Basemap, Standard Style"
+    source:
+      name: "OpenStreetMap"
+      attribution: "&copy; <a href=\"http://www.openstreetmap.org/copyright\">OpenStreetMap</a>"
+      url: "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+    legend:
+      label: "OpenStreetMap"
+  - id: "osm_humanitarian"
+    title: OpenStreetMap / Humanitarian
+    description: "OpenStreetMap Basemap, Humanitarian Style"
+    source:
+      name: "OpenStreetMap"
+      attribution: "&copy; <a href=\"http://www.openstreetmap.org/copyright\">OpenStreetMap</a>"
+      url: "http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"
+    legend:
+      label: "OpenStreetMap / Humanitarian"
+{% endblock %}
+{% block featurelayers %}
+featurelayers: []
+{% endblock %}
+{% block legendlayers %}
+legendlayers: []
+{% endblock %}
+{% block renderlayers %}
+renderlayers:
+{% endblock %}
+{% block charts %}
+charts: []
+{% endblock %}
+{% block controls %}
+controls:
+  calendar: false
+  filters: false
+  legend: false
+  sidebar: false
+  zoom: true
+{% endblock %}

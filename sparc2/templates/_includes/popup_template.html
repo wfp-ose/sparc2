@@ -1,0 +1,14 @@
+{% verbatim %}
+<div style="height: 300px;">
+  <h4 style="word-wrap:break-word;text-align:center;">
+    {{ admin2_name }}, {{ admin1_name }}
+  </h4>
+  <div class="sparc-popup-plain">
+    <b>Population at Risk</b> for <b>{{ month }}</b> is:
+    <br>
+    <b class="sparc-popup-plain-value">{{ popatrisk }}</b>
+  </div>
+  <hr>
+  <div id="{{ chartID }}" class="sparc-popup-chart"></div>
+</div>
+{% endverbatim %}

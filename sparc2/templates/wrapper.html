@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid">
+  {% include "_includes/header.html" %}
+  <div class="row" style="">
+    {% block content_middle %}{% endblock %}
+  </div>
+  {% block footer %}<div class="footer">{% include "_includes/footer.html" %}</div>{% endblock %}
+</div>
+{% block extra_content %}{% endblock %}
+{% endblock %}

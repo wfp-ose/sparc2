@@ -1,0 +1,20 @@
+{% load sparc2_tags %}
+<div id="{{ id }}" class="modal fade sparc-layer-more" style="z-index:-1;color:black;" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" style="display: block;">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h4 class="modal-title" id="myModalLabel">{{ layer.title }}</h4>
+      </div>
+      <div class="modal-body">
+        {{ layer.description|md2html|safe|default:"No description given." }}
+        {% if layer.source.name %}
+        <br><br><b>Source:</b> {{ layer.source.name }}
+        {% endif %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

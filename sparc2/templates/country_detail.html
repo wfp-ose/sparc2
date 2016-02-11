@@ -1,0 +1,13 @@
+{% extends "map.html" %}
+{% block title %}SPARC - {{ country_title }}{% endblock %}
+{% block extra_head %}
+{{ block.super }}
+<script>
+var geojson_layers = [];
+</script>
+{% endblock %}
+{% block extra_content %}
+<script>
+</script>
+{% endblock %}
+{% block footer %}{% include "_includes/calendar.html" %}{% endblock %}

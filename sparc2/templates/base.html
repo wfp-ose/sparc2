@@ -1,0 +1,93 @@
+<html class="svg" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="google" content="notranslate" />
+    <meta http-equiv="Content-Language" content="en_US" />
+    {% for dns in SPARC_DNS_PREFETCH %}
+    <link rel="dns-prefetch" href="{{ dns }}">
+    {% endfor %}
+    <title>{% block title %}{{ SITE_NAME }}{% endblock %}</title>
+    <link rel="shortcut icon" type="image/ico" href="{{ STATIC_URL }}/favicon.ico" />
+    <!-- Fonts / External -->
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700,400italic' rel='stylesheet' type='text/css'>
+    <!-- CSS / External-->
+    <link href="{{ STATIC_URL }}lib/jquery-ui/{{ SPARC_STATIC_DEPS.jqueryui.version }}/jquery-ui.min.css" rel="stylesheet"/>
+    <link href="{{ STATIC_URL }}lib/select2/select2-{{ SPARC_STATIC_DEPS.select2.version }}/dist/css/select2.min.css" rel="stylesheet"/>
+    <link href="{{ STATIC_URL }}/build/bootstrap/bootstrap.css" rel="stylesheet"/>
+    <link href="{{ STATIC_URL }}lib/c3/{{ SPARC_STATIC_DEPS.c3.version }}/c3.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="{{ STATIC_URL }}lib/leaflet/1.0.0-b1/leaflet.css" type="text/css" media="all" />
+    <link href="{{ STATIC_URL }}lib/font-awesome/{{ SPARC_STATIC_DEPS.fontawesome.version }}/css/font-awesome.min.css" rel="stylesheet"/>
+    <!-- CSS / Internal -->
+    <link href='{{ STATIC_URL }}/build/css/main.css?v={{ SPARC_STATIC_VERSION }}' rel='stylesheet' />
+    <style type="text/css">[ng\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}</style>
+    <!-- JavaScript / Polyfill -->
+    {% block polyfill %}
+    {% if SPARC_STATIC_DEBUG.polyfill %}
+    <script src="{{ STATIC_URL }}/build/js/polyfill.js?v={{ SPARC_STATIC_VERSION }}"></script>
+    {% else %}
+    <script src="{{ STATIC_URL }}/build/js/polyfill.min.js?v={{ SPARC_STATIC_VERSION }}"></script>
+    {% endif %}
+    {% endblock %}
+    <!-- JavaScript / External -->
+    <!--<script src="{{ STATIC_URL }}lib/jquery/1.7.2/jquery-1.7.2.js"></script>-->
+    {% if SPARC_STATIC_DEBUG.jquery %}
+    <script src="{{ STATIC_URL }}lib/jquery/{{ SPARC_STATIC_DEPS.jquery.version }}/jquery-{{ SPARC_STATIC_DEPS.jquery.version }}.js"></script>
+    <script src="{{ STATIC_URL }}lib/jquery-ui/{{ SPARC_STATIC_DEPS.jqueryui.version }}/jquery-ui.js"></script>
+    {% else %}
+    <script src="{{ STATIC_URL }}lib/jquery/{{ SPARC_STATIC_DEPS.jquery.version }}/jquery-{{ SPARC_STATIC_DEPS.jquery.version }}.min.js"></script>
+    <script src="{{ STATIC_URL }}lib/jquery-ui/{{ SPARC_STATIC_DEPS.jqueryui.version }}/jquery-ui.min.js"></script>
+    {% endif %}
+    {% if SPARC_STATIC_DEBUG.select2 %}
+    <script src="{{ STATIC_URL }}lib/select2/select2-{{ SPARC_STATIC_DEPS.select2.version }}/dist/js/select2.full.js"></script>
+    {% else %}
+    <script src="{{ STATIC_URL }}lib/select2/select2-{{ SPARC_STATIC_DEPS.select2.version }}/dist/js/select2.full.min.js"></script>
+    {% endif %}
+    {% if SPARC_STATIC_DEBUG.angular %}
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/{{ SPARC_STATIC_DEPS.angular.version }}/angular.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/{{ SPARC_STATIC_DEPS.angular.version }}/angular-route.js"></script>
+    {% else %}
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/{{ SPARC_STATIC_DEPS.angular.version }}/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/{{ SPARC_STATIC_DEPS.angular.version }}/angular-route.min.js"></script>
+    {% endif %}
+    {% if SPARC_STATIC_DEBUG.bootstrap %}
+    <script src="{{ STATIC_URL }}lib/bootstrap/3.3.5/dist/js/bootstrap.js"></script>
+    {% else %}
+    <script src="{{ STATIC_URL }}lib/bootstrap/3.3.5/dist/js/bootstrap.min.js"></script>
+    {% endif %}
+    {% if SPARC_STATIC_DEBUG.d3 %}
+    <script src="{{ STATIC_URL }}lib/d3/{{ SPARC_STATIC_DEPS.d3.version }}/d3.js"></script>
+    {% else %}
+    <script src="{{ STATIC_URL }}lib/d3/{{ SPARC_STATIC_DEPS.d3.version }}/d3.min.js"></script>
+    {% endif %}
+    {% if SPARC_STATIC_DEBUG.c3 %}
+    <script src="{{ STATIC_URL }}lib/c3/{{ SPARC_STATIC_DEPS.c3.version }}/c3.js"></script>
+    {% else %}
+    <script src="{{ STATIC_URL }}lib/c3/{{ SPARC_STATIC_DEPS.c3.version }}/c3.min.js"></script>
+    {% endif %}
+    {% if SPARC_STATIC_DEBUG.leaflet %}
+    <script src="{{ STATIC_URL }}lib/leaflet/1.0.0-b1/leaflet-src.js"></script>
+    <script src="{{ STATIC_URL }}lib/Leaflet.utfgrid/dist/leaflet.utfgrid-src.js"></script>
+    {% else %}
+    <script src="{{ STATIC_URL }}lib/leaflet/1.0.0-b1/leaflet.js"></script>
+    <script src="{{ STATIC_URL }}lib/Leaflet.utfgrid/dist/leaflet.utfgrid.js"></script>
+    {% endif %}
+    <!-- JavaScript / Internal -->
+    {% if SPARC_STATIC_DEBUG.main %}
+    <script src="{{ STATIC_URL }}/build/js/main.js?v={{ SPARC_STATIC_VERSION }}"></script>
+    {% else %}
+    <script src="{{ STATIC_URL }}/build/js/main.min.js?v={{ SPARC_STATIC_VERSION }}"></script>
+    {% endif %}
+    {% include "_includes/snippet_const.html" %}
+    {% include "_includes/snippet_initial_values.html" %}
+    {% include "_includes/snippet_utility.html" %}
+    {% block extra_head %}{% endblock %}
+    {% block init %}
+    <script type="text/javascript" language="Javascript">
+        $(function(){
+            init_main_app("mainApp","");
+        });
+    </script>
+    {% endblock %}
+  </head>
+  <body>{% block content %}{% block extra_content %}{% endblock %}{% endblock %}</body>
+</html>

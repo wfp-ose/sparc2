@@ -1,0 +1,127 @@
+@import "2-variables.less";
+
+.sparc-map-legend {
+  /* Layout */
+  position: absolute;
+  background: @sparc-map-legend-background;
+  bottom: 70px;
+  right: 4px;
+  width: @sparc-map-legend-width;
+  z-index: @sparc-map-legend-z-index;
+
+  .sparc-map-legend-label {
+    width: 100%;
+
+    a {
+      width: 100%;
+    }
+  }
+
+  .sparc-map-legend-container {
+
+    background: @sparc-map-legend-background;
+    padding: 4px;
+
+    hr {
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+
+    .sparc-map-legend-item {
+      display: block;
+      width: 100%;
+      height: 20px;
+
+      .sparc-map-legend-item-icon {
+        display: inline-block;
+        width: 20px;
+        height: 100%;
+        vertical-align: text-bottom;
+
+        font-size: 16px;
+
+        a {
+          color: white;
+          cursor: pointer;
+        }
+
+        a:hover {
+          color: black;
+        }
+      }
+
+      .sparc-map-legend-item-icon.fade {
+        opacity: 0.4;
+      }
+
+      .sparc-toggle, .sparc-radio.sparc-on {
+        .sparc-on { display: inline-block; }
+        .sparc-off { display: none; }
+      }
+      .sparc-toggle.sparc-off, .sparc-radio  {
+        .sparc-on { display: none; }
+        .sparc-off { display: inline-block; }
+      }
+
+      .sparc-map-legend-item-symbol {
+        display: inline-block;
+        width: @sparc-map-legend-item-symbol-width;
+        height: 100%;
+        text-align: center;
+        border-left: 1px solid white;
+        vertical-align: text-bottom;
+
+        a {
+          cursor: pointer;
+        }
+
+        i.fa {
+          color: black;
+        }
+
+        i.fa:hover {
+          color: blue;
+        }
+      }
+
+      .sparc-map-legend-item-label {
+        display: inline-block;
+        width: ~"calc(100% - 101px)";
+        height: 100%;
+        vertical-align: top;
+
+        span {
+          color: white;
+          vertical-align: middle;
+          width: 100%;
+          height: 100%;
+          font-family: 'Open Sans', sans-serif;
+          font-weight: 400;
+          font-size: 14px;
+        }
+      }
+    }
+
+    .sparc-map-legend-item.fade {
+      opacity: 0.3;
+    }
+
+  }
+}
+
+.sparc-layer-more, .sparc-layer-legend {
+  .modal-content {
+    font-family: 'Open Sans', sans-serif;
+    .modal-header {
+        .modal-title {
+          font-size: 18px;
+          font-weight: 700;
+          letter-spacing: 0.6;
+        }
+    }
+    .modal-body {
+      font-weight: 400;
+      font-size: 14px;
+    }
+  }
+}

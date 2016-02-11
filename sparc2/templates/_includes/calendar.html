@@ -1,0 +1,13 @@
+<nav class="sparc-calendar" style="">
+  <ul class="nav nav-justified">
+    {% for m in MONTHS_ALL %}
+    <li>
+      {% if m.num == month_num %}
+        <a class="btn btn-primary" title="{{ m.long }}" href="{% url "countryhazardmonth_detail" iso3=iso3 hazard=hazard month=m.num%}">{{ m.short3| title }}</a>
+      {% else %}
+        <a class="btn btn-default" title="{{ m.long }}" href="{% url "countryhazardmonth_detail" iso3=iso3 hazard=hazard month=m.num%}">{{ m.short3| title }}</a>
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+</nav>

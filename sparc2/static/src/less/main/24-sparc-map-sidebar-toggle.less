@@ -1,0 +1,41 @@
+@import "2-variables.less";
+
+.sparc-map-sidebar-toggle {
+  /* Layout */
+  position: absolute;
+  top: ~"calc(50% - 50px)";
+  left: 0px;
+  width: 40px;
+  height: 100px;
+  z-index: @sparc-map-control-z-index;
+
+  /* Colors & Background */
+  color: #fff;
+  background-color: #337ab7;
+
+  /* Border, Padding, & Margin */
+  padding: 0;
+  border: 0;
+  border-radius: 0px 6px 6px 0px;
+
+  /* Font */
+  font-size: 24px;
+  line-height: 100px;
+
+  .icon-arrow-lt {
+    display: none;
+  }
+  .icon-arrow-gt {
+    display: block;
+  }
+}
+
+.sparc-map-sidebar-toggle.sidebar-open {
+  .icon-arrow-lt {
+    display: block;
+  }
+
+  .icon-arrow-gt {
+    display: none;
+  }
+}

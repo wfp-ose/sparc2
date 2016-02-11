@@ -1,0 +1,86 @@
+{% load sparc2_tags %}
+<div
+  class="sparc-map-filter sparc-controller"
+  ng-controller="sparc-map-filter"
+  data-controller-name="sparc-map-filter"
+  data-controller-type="sparc-map-filter">
+  <div class="sparc-map-filter-label">
+    <a
+      class="btn btn-lg btn-primary"
+      style="border:0;"
+      title="Filter Data"
+      data-target="#sparc-map-filter-container"
+      data-toggle="collapse">Filter Data - Click to Open</a>
+  </div>
+  <div id="sparc-map-filter-container" class="collapse" style="">
+    {% for f in map_config.featurelayers.popatrisk.filters %}
+      {% if f.type == "radio" %}
+        <div class="sparc-filter sparc-filter-radio" style="height: {{ f.height }};">
+          <div class="sparc-filter-label">
+            <a data-toggle="modal" data-target="#sparc-filter-description-{{ forloop.counter0 }}"><i class="fa fa-info-circle"></i></a>
+            <span>{{ f.label }}</span> :
+          </div>
+          <div class="btn-group" style="float:left;" data-toggle="buttons">
+            {% for opt in f.radio.options %}
+            <label class="btn btn-default{% if opt.checked %} active{% endif %}">
+              <input
+                type="radio"
+                id="{{ opt.id }}"
+                name="{{ opt.name }}"
+                value="{{ opt.value }}"
+                data-output="{{ f.radio.output }}"
+                {% if opt.checked %} checked="checked"{% endif %}/>
+              {{ opt.label }}
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+      {% elif f.type == "slider" %}
+        <div class="sparc-filter sparc-filter-slider" style="height: {{ f.height }};">
+          <div class="sparc-filter-label">
+            <a data-toggle="modal" data-target="#sparc-filter-description-{{ forloop.counter0 }}"><i class="fa fa-info-circle"></i></a>
+            <span>{{ f.label }}</span> :
+          </div>
+          <div style="display:table; height:{{ f.height}};padding-left:10px;padding-right:10px;">
+            <div style="display:table-cell;vertical-align:middle;">
+              <div class="sparc-filter-slider-label" style="text-align:center;margin-bottom:4px;">{{ f.slider.label|formatLabel:f.slider.value|safe }}</div>
+              <div
+                class="sparc-filter-slider-slider"
+                style="width:{{ f.slider.width }};"
+                data-type="{{ f.slider.type }}"
+                data-value="{{ f.slider.value }}"
+                data-range="{{ f.slider.range }}"
+                data-output="{{ f.slider.output }}"
+                {% if f.slider.min != None %}data-min="{{ f.slider.min }}"{% endif %}
+                {% if f.slider.max != None %}data-max="{{ f.slider.max }}"{% endif %}
+                {% if f.slider.step %}data-step="{{ f.slider.step }}"{% endif %}
+                {% if f.slider.options %}data-options="{{ f.slider.options|safe }}"{% endif %}
+                data-label-template="{{ f.slider.label|safe }}"
+                ></div>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+  <div id="sparc-filter-modals" class="sparc-filter-modals">
+    {% for f in map_config.featurelayers.popatrisk.filters %}
+    <div style="z-index:-1;color:black;" class="modal fade" id="sparc-filter-description-{{ forloop.counter0 }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" style="display: block;">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h4 class="modal-title" id="myModalLabel">{{ f.label }}</h4>
+          </div>
+          <div class="modal-body">
+            {{ f.description|md2html|safe }}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
