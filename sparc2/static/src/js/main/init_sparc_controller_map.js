@@ -8,7 +8,7 @@ var init_sparc_controller_map = function(that, app)
   });
 
   // Initialize Children
-  $('.sparc-controller.sparc-map-map', that).each(function(){
+  $('.geosite-controller.sparc-map-map', that).each(function(){
       try
       {
         init_sparc_controller_map_map($(this), app);
@@ -19,10 +19,10 @@ var init_sparc_controller_map = function(that, app)
       }
   });
 
-  $('.sparc-controller.sparc-map-calendar', that).each(function(){
+  $('.geosite-controller.sparc-map-calendar', that).each(function(){
     try
     {
-      init_sparc_controller_map_calendar($(this), app);
+      init_sparc_controller($(this), app);
     }
     catch(err)
     {
@@ -30,7 +30,7 @@ var init_sparc_controller_map = function(that, app)
     }
   });
 
-  $('.sparc-controller.sparc-map-breadcrumb', that).each(function(){
+  $('.geosite-controller.sparc-map-breadcrumb', that).each(function(){
     try
     {
       init_sparc_controller_map_breadcrumb($(this), app);
@@ -41,7 +41,7 @@ var init_sparc_controller_map = function(that, app)
     }
   });
 
-  $('.sparc-controller.sparc-map-filter', that).each(function(){
+  $('.geosite-controller.sparc-map-filter', that).each(function(){
     try
     {
       init_sparc_controller_map_filter($(this), app);
@@ -52,10 +52,10 @@ var init_sparc_controller_map = function(that, app)
     }
   });
 
-  $('.sparc-controller.sparc-map-legend', that).each(function(){
+  $('.geosite-controller.sparc-map-legend', that).each(function(){
     try
     {
-      init_sparc_controller_map_legend($(this), app);
+      init_sparc_controller($(this), app);
     }
     catch(err)
     {

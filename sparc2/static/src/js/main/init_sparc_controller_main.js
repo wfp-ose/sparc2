@@ -121,11 +121,11 @@ var init_sparc_controller_main = function(that, app)
   });
 
   // Initialize Children
-  $('.sparc-controller.sparc-sidebar', that).each(function(){
+  $('.geosite-controller.sparc-sidebar', that).each(function(){
       init_sparc_controller_sidebar($(this), app);
   });
 
-  $('.sparc-controller.sparc-map', that).each(function(){
+  $('.geosite-controller.sparc-map', that).each(function(){
       init_sparc_controller_map($(this), app);
   });
 }

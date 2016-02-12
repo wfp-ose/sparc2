@@ -61,7 +61,7 @@ var init_main_app = function(appName)
   to load it on its own within angular.bootstrap.  That'll error out
   and is not good.  So you NEED!!! to get to it first!!!!!!
   */
-  init_sparc_controller_main($('.sparc-controller.sparc-main'), app);
+  init_sparc_controller_main($('.geosite-controller.sparc-main'), app);
 
   angular.bootstrap(document, [appName]);
 };

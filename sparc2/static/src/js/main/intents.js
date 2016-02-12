@@ -4,34 +4,34 @@ var intend = function(name, data, scope)
 };
 var init_intents = function(element, scope)
 {
-  element.on('click', '.sparc-intent', function(event) {
+  element.on('click', '.geosite-intent', function(event) {
     event.preventDefault();  // For anchor tags
     var that = $(this);
-    if(that.hasClass('sparc-toggle'))
+    if(that.hasClass('geosite-toggle'))
     {
-      if(that.hasClass('sparc-off'))
+      if(that.hasClass('geosite-off'))
       {
-        that.removeClass('sparc-off');
+        that.removeClass('geosite-off');
         intend(that.data('intent-names')[0], that.data('intent-data'), scope)
       }
       else
       {
-        that.addClass('sparc-off');
+        that.addClass('geosite-off');
         intend(that.data('intent-names')[1], that.data('intent-data'), scope)
       }
     }
-    else if(that.hasClass('sparc-radio'))
+    else if(that.hasClass('geosite-radio'))
     {
-      var siblings = that.parents('.sparc-radio-group:first').find(".sparc-radio").not(that);
-      if(!(that.hasClass('sparc-on')))
+      var siblings = that.parents('.geosite-radio-group:first').find(".geosite-radio").not(that);
+      if(!(that.hasClass('geosite-on')))
       {
-        that.addClass('sparc-on');
+        that.addClass('geosite-on');
         if(that.data("intent-class-on"))
         {
           that.addClass(that.data("intent-class-on"));
           siblings.removeClass(that.data("intent-class-on"));
         }
-        siblings.removeClass('sparc-on');
+        siblings.removeClass('geosite-on');
         if(that.data("intent-class-off"))
         {
           that.removeClass(that.data("intent-class-off"));

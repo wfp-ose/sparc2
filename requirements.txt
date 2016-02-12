@@ -18,7 +18,6 @@ django-taggit-templatetags
 django-leaflet
 django-autocomplete-light==2.3.3
 pymemcache
-git+https://github.com/perrygeo/jenks.git#egg=jenks
 bleach
 markdown
 unidecode

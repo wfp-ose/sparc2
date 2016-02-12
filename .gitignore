@@ -70,3 +70,4 @@ sparc2/static/temp
 sparc2/migrations
 *.DS_Store
 output.txt
+node_modules

@@ -1,14 +1,14 @@
 <nav
-  class="sparc-map-calendar sparc-controller"
+  class="sparc-map-calendar geosite-controller"
   ng-controller="sparc-map-calendar"
   data-controller-name="sparc-map-calendar"
   data-controller-type="sparc-map-calendar">
-  <ul class="nav nav-justified sparc-radio-group">
+  <ul class="nav nav-justified geosite-radio-group">
     {% for m in MONTHS_ALL %}
     <li>
       {% if m.num == month_num %}
         <a
-          class="btn btn-primary selected sparc-intent sparc-radio sparc-on"
+          class="btn btn-primary selected geosite-intent geosite-radio geosite-on"
           title="{{ m.long }}"
           href="{% url "countryhazardmonth_detail" iso3=iso3 hazard=hazard month=m.num%}"
           data-intent-name="stateChanged"
@@ -17,7 +17,7 @@
           data-intent-class-off="btn-default">{{ m.short3| title }}</a>
       {% else %}
         <a
-          class="btn btn-default sparc-intent sparc-radio"
+          class="btn btn-default geosite-intent geosite-radio"
           title="{{ m.long }}"
           href="{% url "countryhazardmonth_detail" iso3=iso3 hazard=hazard month=m.num%}"
           data-intent-name="stateChanged"
