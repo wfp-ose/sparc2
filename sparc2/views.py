@@ -93,7 +93,7 @@ def countryhazardmonth_detail(request, iso3=None, hazard=None, month=None):
     month_title = MONTHS_SHORT3[month_num-1]
 
     print "hazard: ", hazard
-    map_config_yml = get_template("maps/countryhazardmonth_detail.yml").render({
+    map_config_yml = get_template("sparc2/maps/countryhazardmonth_detail.yml").render({
         "iso_alpha3": iso3,
         "hazard_title": hazard_title,
         "country_title": country_title,

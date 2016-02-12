@@ -75,6 +75,8 @@ workon sparc2
 #===============#
 # Install Django Dependencies
 cd $DIR
+rm -fr /home/vagrant/.venvs/sparc2/build/  # Clear old builds if they failed for some reason
+pip install cython  # Need to have installed before running requirements for some reason
 pip install -r requirements.txt
 # cython requirement assumes apt-get install cython was already reload_countries
 # So order is apt-get install cython; pip install cython; pip install ... jenks
@@ -97,7 +99,7 @@ export DJANGO_SETTINGS_MODULE=sparc2.settings
 pip install -e sparc2.git
 sudo mkdir -p /var/www/static
 cd $DIR
-sudo ~/.venvs/sparc2/bin/python manage.py collectstatic  # need to harcode python, b/c sudo.  It's complicated.
+sudo /home/$SPARC_USER/.venvs/sparc2/bin/python manage.py collectstatic  # need to harcode python, b/c sudo.  It's complicated.
 #===============#
 # Load initial data
 ##python manage.py makemigrations sparc2

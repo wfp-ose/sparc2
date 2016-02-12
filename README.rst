@@ -61,6 +61,7 @@ Next, configure nginx with the following.  Open with:
     sudo vim /etc/nginx/sites-available/default
 
 .. code-block:: bash
+
     location / {
         proxy_pass http://localhost:8000/;
     }

@@ -78,6 +78,7 @@ WFP_APPS = (
     'wfppresencedjango',
     'lsibdjango',
     'gauldjango',
+    'geosite'
 )
 
 SPARC_APPS = (

@@ -24,7 +24,6 @@ create_schemas(){
 migrate(){
   APPS=$1
   rm -fr 'sparc2/migrations'
-  export DJANGO_SETTINGS_MODULE=sparc2.settings
   PY='/home/vagrant/.venvs/sparc2/bin/python'
   $PY manage.py migrate --fake-initial
   for APP in "${APPS[@]}"; do
@@ -38,17 +37,21 @@ migrate(){
 }
 load_fixtures(){
   FILES=$1
-  export DJANGO_SETTINGS_MODULE=sparc2.settings
   PY='/home/vagrant/.venvs/sparc2/bin/python'
   for F in "${FILES[@]}"; do
     $PY manage.py loaddata "sparc2/fixtures/$F.yml"
   done
 }
 load_fixtures_default(){
-  export DJANGO_SETTINGS_MODULE=sparc2.settings
   PY='/home/vagrant/.venvs/sparc2/bin/python'
   $PY manage.py loaddata "sparc2/fixtures/initial_data.yml"
 }
+##############
+# Load Virtual Environment
+source ~/.bash_aliases
+workon sparc2
+export DJANGO_SETTINGS_MODULE=sparc2.settings
+##############
 # Main
 U=sparc2
 sudo -u postgres psql -c "DROP DATABASE IF EXISTS sparc2;"

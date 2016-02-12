@@ -144,9 +144,9 @@ URL_VAM = {
 }
 
 TEMPLATES_BY_HAZARD = {
-    "cyclone": "countryhazardmonth_detail.html",
-    "drought": "countryhazardmonth_detail.html",
-    "flood": "countryhazardmonth_detail.html"
+    "cyclone": "sparc2/countryhazardmonth_detail.html",
+    "drought": "sparc2/countryhazardmonth_detail.html",
+    "flood": "sparc2/countryhazardmonth_detail.html"
 }
 
 POPATRISK_BY_HAZARD = {

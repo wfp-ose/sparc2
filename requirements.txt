@@ -16,11 +16,12 @@ pyyaml
 django-taggit
 django-taggit-templatetags
 django-leaflet
-django-autocomplete-light
+django-autocomplete-light==2.3.3
 pymemcache
 git+https://github.com/perrygeo/jenks.git#egg=jenks
 bleach
 markdown
+unidecode
 git+https://github.com/wfp-ose/wfp-presence-django.git#egg=wfp-presence-django
 git+https://github.com/wfp-ose/gaul-django.git#egg=gaul-django
 git+https://github.com/wfp-ose/lsib-django.git#egg=lsib-django

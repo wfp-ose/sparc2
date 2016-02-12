@@ -1,0 +1,27 @@
+{
+  "name": "sparc2-static",
+  "version": "0.0.1",
+  "author": "World Food Programme",
+  "description": "Static code and assets for SPARC 2.x",
+  "contributors": [
+    {
+      "name": "Patrick Dufour"
+    }
+  ],
+  "scripts": {
+    "test": "jshint **.js"
+  },
+  "license": "MIT",
+  "private": "false",
+  "devDependencies": {
+    "del": "*",
+    "path": "*",
+    "gulp": "^3.9.0",
+    "gulp-concat": "*",
+    "gulp-jshint": "*",
+    "gulp-minify": "*",
+    "gulp-uglify": "*",
+    "gulp-rename": "*",
+    "gulp-less": "*"
+  }
+}
