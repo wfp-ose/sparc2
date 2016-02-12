@@ -184,7 +184,7 @@ featurelayers:
       styles: ["lscan"]
       format: 'image/png'
       transparent: true
-      url: "http://sparc.wfp.org/geoserver/geonode/wms"
+      url: "http://10.11.40.84/geoserver/geonode/wms"
     legend:
       label: "Landscan"
       symbol:
@@ -228,7 +228,7 @@ featurelayers:
       styles: ["cyclone1","cyclone2","cyclone3","cyclone4","cyclone5","cyclone6","cyclone7"]
       format: 'image/png'
       transparent: true
-      url: "http://sparc.wfp.org/geoserver/geonode/wms"
+      url: "http://10.11.40.84/geoserver/geonode/wms"
     symbology:
       colors: ['#fee5d9', '#fcbba1', '#fde79c', '#fc8d59', '#d7301f','#8162c6','#290051']
       styles:
@@ -263,7 +263,7 @@ featurelayers:
       styles: ["RP25","RP50","RP100","RP200","RP500","RP1000"]
       format: 'image/png'
       transparent: true
-      url: "http://sparc.wfp.org/geoserver/geonode/wms"
+      url: "http://10.11.40.84/geoserver/geonode/wms"
     legend:
       label: "Flood Probability"
       symbol:

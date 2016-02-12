@@ -71,7 +71,7 @@ class data_local_country_admin(data_local_country):
         level = kwargs.get('level', None)
         results = None
         if level == 2:
-            q = get_template("sql/_admin2_polygons.sql").render({
+            q = get_template("sparc2/sql/_admin2_polygons.sql").render({
                 'tolerance': '.01',
                 'iso_alpha3': iso_alpha3})
             cursor.execute(q)

@@ -37,7 +37,7 @@ def get_month_number(month):
 
     return month_num
 
-def get_json_admin0(request, template="sql/_admin0_data.sql"):
+def get_json_admin0(request, template="sparc2/sql/_admin0_data.sql"):
     connection = psycopg2.connect(settings.SPARC_DB_CONN_STR)
     cursor = connection.cursor()
     q = get_template(template).render({'admin0_data': "sparc2_country"})
@@ -50,7 +50,7 @@ def get_geojson_cyclone(request, iso_alpha3=None):
     with SPARCDatabaseConnection() as sparc:
         collection = data_local_country_admin().get(cursor=sparc.cursor, iso_alpha3=iso_alpha3, level=2)
         rows = sparc.exec_query_multiple(
-            get_template("sql/_cyclone.sql").render({
+            get_template("sparc2/sql/_cyclone.sql").render({
                 'admin2_popatrisk': 'cyclone.admin2_popatrisk',
                 'iso_alpha3': iso_alpha3}))
         for feature in collection["features"]:
@@ -92,7 +92,7 @@ def get_summary_cyclone(request, table_popatrisk=None, iso_alpha3=None):
         cursor=cursor,
         iso_alpha3=iso_alpha3,
         hazard="flood",
-        template="sql/_hazard_data_all.sql",
+        template="sparc2/sql/_hazard_data_all.sql",
         table=table_popatrisk)
 
     num_breakpoints = len(settings.SPARC_MAP_DEFAULTS["symbology"]["popatrisk"]["colors"])
@@ -107,7 +107,7 @@ def get_summary_cyclone(request, table_popatrisk=None, iso_alpha3=None):
         "admin2": {}
     }
     for prob_class in ["0.01-0.1","0.1-0.2","0.2-0.3","0.3-0.4","0.4-0.5","0.5-0.6","0.6-0.7","0.7-0.8","0.8-0.9","0.9-1.0"]:
-        q2 = get_template("sql/_cyclone_data_by_prob_class_month.sql").render({
+        q2 = get_template("sparc2/sql/_cyclone_data_by_prob_class_month.sql").render({
             'admin2_popatrisk': table_popatrisk,
             'iso3': iso_alpha3,
             'prob_class': prob_class})
@@ -120,7 +120,7 @@ def get_summary_cyclone(request, table_popatrisk=None, iso_alpha3=None):
         summary["prob_class"][prob_class] = {};
         summary["prob_class"][prob_class]['by_month'] = [float(x) for x in values]
 
-        q4 = get_template("sql/_cyclone_data_by_group_prob_class_month.sql").render({
+        q4 = get_template("sparc2/sql/_cyclone_data_by_group_prob_class_month.sql").render({
             'admin2_popatrisk': table_popatrisk,
             'iso3': iso_alpha3,
             'prob_class': prob_class,
@@ -147,7 +147,7 @@ def get_geojson_drought(request, iso_alpha3=None):
 
         for month in MONTHS_SHORT3:
             rows = sparc.exec_query_multiple(
-                get_template("sql/_drought_data_by_admin2_month_asjson.sql").render({
+                get_template("sparc2/sql/_drought_data_by_admin2_month_asjson.sql").render({
                     'admin2_popatrisk': 'drought.admin2_popatrisk',
                     'iso_alpha3': iso_alpha3,
                     'month': month}))
@@ -180,7 +180,7 @@ def get_summary_drought(request, table_popatrisk=None, iso_alpha3=None):
         cursor=cursor,
         iso_alpha3=iso_alpha3,
         hazard="drought",
-        template="sql/_drought_data_all.sql",
+        template="sparc2/sql/_drought_data_all.sql",
         table=table_popatrisk)
 
     num_breakpoints = len(settings.SPARC_MAP_DEFAULTS["symbology"]["popatrisk"]["colors"])
@@ -198,7 +198,7 @@ def get_summary_drought(request, table_popatrisk=None, iso_alpha3=None):
     probability_breakpoints = [.02, .04, .06, .08, .10, .15, .20, .25, .50, 1.0]
     values_by_prob_max = {}
     for prob_max in probability_breakpoints:
-        q2 = get_template("sql/_drought_data_all_at_admin2.sql").render({
+        q2 = get_template("sparc2/sql/_drought_data_all_at_admin2.sql").render({
             'admin2_popatrisk': table_popatrisk,
             'iso3': iso_alpha3,
             'prob_max': prob_max})
@@ -218,7 +218,7 @@ def get_summary_drought(request, table_popatrisk=None, iso_alpha3=None):
             }
         }
         # Flood data by RP x month
-        q3 = get_template("sql/_drought_data_by_probmax_month.sql").render({
+        q3 = get_template("sparc2/sql/_drought_data_by_probmax_month.sql").render({
             'admin2_popatrisk': table_popatrisk,
             'iso3': iso_alpha3,
             'prob_max': prob_max})
@@ -239,7 +239,7 @@ def get_summary_drought(request, table_popatrisk=None, iso_alpha3=None):
     #################
     # Summary by Admin2 x prob_max X month
     for prob_max in probability_breakpoints:
-        q4 = get_template("sql/_drought_data_by_admin2_probmax_month.sql").render({
+        q4 = get_template("sparc2/sql/_drought_data_by_admin2_probmax_month.sql").render({
             'admin2_popatrisk': table_popatrisk,
             'iso3': iso_alpha3,
             'prob_max': prob_max})
@@ -263,7 +263,7 @@ def get_geojson_flood(request, iso_alpha3=None):
         returnPeriods = [25, 50, 100, 200, 500, 1000]
         for rp in returnPeriods:
             rows = sparc.exec_query_multiple(
-                get_template("sql/_flood_data_by_admin2_rp_month_asjson.sql").render({
+                get_template("sparc2/sql/_flood_data_by_admin2_rp_month_asjson.sql").render({
                     'admin2_popatrisk': 'flood.admin2_popatrisk',
                     'iso_alpha3': iso_alpha3,
                     'rp': rp}))
@@ -295,7 +295,7 @@ def get_summary_flood(request, table_popatrisk=None, iso_alpha3=None):
         cursor=cursor,
         iso_alpha3=iso_alpha3,
         hazard="flood",
-        template="sql/_hazard_data_all.sql",
+        template="sparc2/sql/_hazard_data_all.sql",
         table=table_popatrisk)
 
     natural = calc_breaks_natural(values, num_breakpoints)
@@ -316,7 +316,7 @@ def get_summary_flood(request, table_popatrisk=None, iso_alpha3=None):
     returnPeriods = [25, 50, 100, 200, 500, 1000]
     values_by_rp = {}
     for rp in returnPeriods:
-        q2 = get_template("sql/_flood_data_all_at_admin2.sql").render({
+        q2 = get_template("sparc2/sql/_flood_data_all_at_admin2.sql").render({
             'admin2_popatrisk': table_popatrisk,
             'iso_alpha3': iso_alpha3,
             'rp': rp})
@@ -354,7 +354,7 @@ def get_summary_flood(request, table_popatrisk=None, iso_alpha3=None):
         }
         ##########
         # Flood data by RP x month
-        q3 = get_template("sql/_flood_data_by_rp_month.sql").render({
+        q3 = get_template("sparc2/sql/_flood_data_by_rp_month.sql").render({
             'admin2_popatrisk': table_popatrisk,
             'iso3': iso_alpha3,
             'rp': rp})
@@ -367,7 +367,7 @@ def get_summary_flood(request, table_popatrisk=None, iso_alpha3=None):
         summary["rp"][str(rp)]['by_month'] = [float(x) for x in values]
         ##########
         # Flood data by admin2 x RP x month
-        q4 = get_template("sql/_flood_data_by_admin2_rp_month.sql").render({
+        q4 = get_template("sparc2/sql/_flood_data_by_admin2_rp_month.sql").render({
             'admin2_popatrisk': table_popatrisk,
             'iso3': iso_alpha3,
             'rp': rp})
@@ -384,7 +384,7 @@ def get_summary_flood(request, table_popatrisk=None, iso_alpha3=None):
 def get_events_flood(iso3=None):
     connection = psycopg2.connect(settings.SPARC_DB_CONN_STR)
     cursor = connection.cursor()
-    q = get_template("sql/_flood_events_by_admin2.sql").render(context=Context({'iso3': iso3}))
+    q = get_template("sparc2/sql/_flood_events_by_admin2.sql").render(context=Context({'iso3': iso3}))
     cursor.execute(q)
     results = cursor.fetchone()
     return results
