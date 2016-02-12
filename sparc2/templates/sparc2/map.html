@@ -1,0 +1,18 @@
+{% extends "geosite/map.html" %}
+{% load geosite_tags %}
+{% block extra_head %}
+<script>
+    var map_config = {{ map_config_json|safe }};
+    var popup_templates = {
+        "popatrisk": "{{ "sparc2/_includes/popup_template.html"|template2string|safe }}"
+    };
+</script>
+{% endblock %}
+
+{% block map_controllers %}
+{% include "sparc2/_includes/map_breadcrumb.html" %}
+{% include "geosite/_includes/map_legend.html" %}
+{% include "geosite/_includes/map_filter.html" %}
+{% include "geosite/_includes/map_sidebar_toggle.html" %}
+{% include "sparc2/_includes/geosite/map_calendar.html" %}
+{% endblock %}

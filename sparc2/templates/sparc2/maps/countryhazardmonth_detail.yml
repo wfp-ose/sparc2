@@ -1,4 +1,4 @@
-{% extends "maps/base.yml" %}
+{% extends "geosite/maps/base.yml" %}
 {% block title %}
 title: SPARC - {{ country_title }} - {{ hazard_title }}
 {% endblock %}

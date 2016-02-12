@@ -24,3 +24,4 @@ markdown
 git+https://github.com/wfp-ose/wfp-presence-django.git#egg=wfp-presence-django
 git+https://github.com/wfp-ose/gaul-django.git#egg=gaul-django
 git+https://github.com/wfp-ose/lsib-django.git#egg=lsib-django
+git+https://github.com/wfp-ose/geosite-framework-django.git#egg=geosite-framework-django
