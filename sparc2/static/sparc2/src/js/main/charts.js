@@ -113,13 +113,11 @@ var buildHazardChart = function(chartConfig, popatrisk_config, options)
     }
     else
     {
-      barConfig =
-      {
-        width:
-        {
+      barConfig = {
+        width: {
           ratio: 0.6
         }
-      }
+      };
     }
     var axisConfig = {"x":{}, "y": {}};
     if(chartConfig.axis != undefined && chartConfig.axis.x != undefined)
@@ -131,7 +129,7 @@ var buildHazardChart = function(chartConfig, popatrisk_config, options)
         };
       }
     }
-    axisConfig["y"]["label"] = chartConfig.axis.y.label
+    axisConfig["y"]["label"] = chartConfig.axis.y.label;
     axisConfig["y"]["tick"] = {format: d3.format("s,")};
     var chartActual = c3.generate({
       bindto: '#'+chartConfig.id,

@@ -1,6 +1,7 @@
 #!/bin/bash
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 SPARC_USER=vagrant
+VENV=sparc2
 bash "install/install_apt.sh"
 #===============#
 # Create Deploy Key
@@ -39,7 +40,7 @@ export DJANGO_SETTINGS_MODULE=sparc2.settings
 pip install -e sparc2.git
 sudo mkdir -p /var/www/static
 cd $DIR
-sudo /home/$SPARC_USER/.venvs/sparc2/bin/python manage.py collectstatic  --noinput -i gulpfile.js -i package.json -i temp -i node_modules
+sudo /home/$SPARC_USER/.venvs/$VENV/bin/python manage.py collectstatic  --noinput -i gulpfile.js -i package.json -i temp -i node_modules
 # need to harcode python, b/c sudo.  It's complicated.
 #===============#
 read -p "Do you want to reload the database at this time?  y/n" -n 1 -r

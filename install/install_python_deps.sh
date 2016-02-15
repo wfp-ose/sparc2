@@ -1,9 +1,10 @@
 #!/bin/bash
 source ~/.bash_aliases
-workon sparc2
+VENV=sparc2
+workon $VENV
 #############
 # Install Django Dependencies
-rm -fr /home/vagrant/.venvs/sparc2/build/  # Clear old builds if they failed for some reason
+rm -fr /home/vagrant/.venvs/$VENV/build/  # Clear old builds if they failed for some reason
 pip install cython  # Need to have installed before running requirements for some reason
 pip install -r requirements.txt
 pip install git+https://github.com/perrygeo/jenks.git#egg=jenks

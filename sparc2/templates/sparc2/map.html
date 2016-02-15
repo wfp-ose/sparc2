@@ -2,6 +2,23 @@
 
 {% load geosite_tags %}
 
+{% block head_fonts %}
+<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700,400italic' rel='stylesheet' type='text/css'>
+{% endblock %}
+
+{% block head_bootstrap_css %}
+<link href="{{ STATIC_URL }}sparc2/build/bootstrap/bootstrap.css" rel="stylesheet"/>
+{% endblock %}
+
+{% block head_main_js %}
+{{ super.block }}
+{% if SPARC_STATIC_DEBUG.main %}
+<script src="{{ STATIC_URL }}sparc2/build/js/main.js?v={{ SPARC_STATIC_VERSION }}"></script>
+{% else %}
+<script src="{{ STATIC_URL }}sparc2/build/js/main.min.js?v={{ SPARC_STATIC_VERSION }}"></script>
+{% endif %}
+{% endblock %}
+
 {% block head_inline %}
 {% include "geosite/_includes/snippet_const.html" %}
 {% include "sparc2/_includes/snippet_initial_values.html" %}

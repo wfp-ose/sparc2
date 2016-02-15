@@ -4,3 +4,4 @@ include setup.py
 include setup.cfg
 global-exclude *.pyc
 global-exclude *.pyo
+recursive-include sparc2/static *

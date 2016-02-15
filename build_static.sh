@@ -15,7 +15,7 @@ while getopts ":b" opt; do
 done
 
 echo "BUILD_BOOTSTRAP (-b): $BUILD_BOOTSTRAP"
-cd "$DIR/sparc2/static"
+cd "$DIR/sparc2/static/sparc2"
 gulp
 if [[ BUILD_BOOTSTRAP -eq 1 ]]; then
     echo "Compiling Bootstrap"

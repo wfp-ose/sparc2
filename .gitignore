@@ -66,7 +66,9 @@ supervisord.pid
 supervisord.log
 sparc2/local_settings.py
 sparc2/static/node_modules
+sparc2/static/sparc2/node_modules
 sparc2/static/temp
+sparc2/static/sparc2/temp
 sparc2/migrations
 *.DS_Store
 output.txt

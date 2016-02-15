@@ -2,6 +2,7 @@ var init_start = function(appName)
 {
   init_summary(appName);
 };
+
 var init_summary = function(appName)
 {
   var url_summary = map_config["featurelayers"]["popatrisk"]["urls"]["summary"]
@@ -16,7 +17,8 @@ var init_summary = function(appName)
       init_geojson(appName);
     }
   });
-}
+};
+
 var init_geojson = function(appName)
 {
   var url_geojson = map_config["featurelayers"]["popatrisk"]["urls"]["geojson"]
@@ -31,7 +33,8 @@ var init_geojson = function(appName)
       init_main_app(appName);
     }
   });
-}
+};
+
 var init_main_app = function(appName)
 {
   sparcApp = app = angular.module(appName, ['ngRoute']);

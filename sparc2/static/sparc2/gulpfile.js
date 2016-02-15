@@ -27,6 +27,13 @@ var compilelist =
         "dest":"./build/css/"
     },
     {
+        "name": "monkeypatch_js",
+        "type": "js",
+        "src": "./src/js/monkeypatch/*.js",
+        "outfile":"monkeypatch.js",
+        "dest":"./build/js/"
+    },
+    {
         "name": "polyfill_js",
         "type": "js",
         "src": "./src/js/polyfill/*.js",

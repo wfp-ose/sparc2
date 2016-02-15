@@ -193,7 +193,7 @@ SPARC_MEMCACHED_HOST = 'localhost'
 SPARC_MEMCACHED_PORT = 11212  # So doesn't interfer with root/built-in memcached
 #-----------------------------
 # DNS Prefetch
-SPARC_DNS_PREFETCH = [
+GEOSITE_DNS_PREFETCH = [
     '//wfp.org',
     '//mapbox.com', '//api.mapbox.com',
     '//thunderforest.com',
@@ -202,7 +202,8 @@ SPARC_DNS_PREFETCH = [
 #-----------------------------
 # Dependencies Management
 SPARC_STATIC_VERSION="1.0.0"
-SPARC_STATIC_DEPS = {
+GEOSITE_STATIC_VERSION="1.0.0"
+GEOSITE_STATIC_DEBUG = {
     "angular": {
         "version": "1.4.0-beta.4"
     },
@@ -229,6 +230,9 @@ SPARC_STATIC_DEPS = {
 #-----------------------------
 # Debugging & Testing
 SPARC_STATIC_DEBUG = {
+    "main": True
+}
+GEOSITE_STATIC_DEBUG = {
     "polyfill": False,
     "main": True,
     "angular": False,
