@@ -13,6 +13,7 @@ try:
 except ImportError:
     import json
 
+
 def sparc2(request):
     """Global values to pass to templates"""
     site = Site.objects.get_current()
@@ -25,15 +26,8 @@ def sparc2(request):
             settings,
             "DEBUG_STATIC",
             False),
-        MONTHS_NUM=MONTHS_NUM,
-        MONTHS_SHORT3=MONTHS_SHORT3,
-        MONTHS_LONG=MONTHS_LONG,
-        MONTHS_ALL=MONTHS_ALL,
-        DAYSOFTHEWEEK=DAYSOFTHEWEEK,
-        GEOSITE_STATIC_DEBUG=settings.GEOSITE_STATIC_DEBUG,
         SPARC_STATIC_VERSION=settings.SPARC_STATIC_VERSION,
-        GEOSITE_STATIC_DEBUG=settings.GEOSITE_STATIC_DEBUG,
-        GEOSITE_DNS_PREFETCH=settings.GEOSITE_DNS_PREFETCH,
+        SPARC_STATIC_DEBUG=settings.SPARC_STATIC_DEBUG,
         SPARC_BREADCRUMBS=SPARC_BREADCRUMBS,
         SPARC_HAZARDS=settings.SPARC_HAZARDS,
         SPARC_HAZARDS_CONFIG=[c for c in SPARC_HAZARDS_CONFIG if c['id'] in settings.SPARC_HAZARDS],

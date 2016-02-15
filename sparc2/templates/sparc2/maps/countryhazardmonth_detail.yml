@@ -1,9 +1,13 @@
 {% extends "geosite/maps/base.yml" %}
+
 {% block title %}
 title: SPARC - {{ country_title }} - {{ hazard_title }}
 {% endblock %}
+
 {% block view %}{{ block.super }}{% endblock %}
+
 {% block baselayers %}{{ block.super }}{% endblock %}
+
 {% block featurelayers %}{% verbatim %}
 featurelayers:
   popatrisk:
@@ -295,6 +299,7 @@ featurelayers:
         height: 12
     {% endverbatim %}{% endif %}
 {% endblock %}
+
 {% block legendlayers %}
 legendlayers:
   - "popatrisk"
@@ -308,6 +313,7 @@ legendlayers:
   - osm
   - osm_humanitarian
 {% endblock %}
+
 {% block renderlayers %}
 renderlayers:
   - "wfp_facilities"
@@ -321,6 +327,7 @@ renderlayers:
   - "osm"
   - "osm_humanitarian"
 {% endblock %}
+
 {% block charts %}
 charts:
   - id: "sparc-sidebar-chart-popatrisk"
@@ -360,6 +367,7 @@ charts:
     groups: [25, 100, 1000]
     {% endverbatim %}{% endif %}
 {% endblock %}
+
 {% block controls %}
 controls:
   calendar: true

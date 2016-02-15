@@ -7,10 +7,11 @@ try:
 except ImportError:
     import json
 
+
 def sparc_serializer(key, value):
-     if type(value) == str:
-         return value, 1
-     return json.dumps(value), 2
+    if type(value) == str:
+        return value, 1
+    return json.dumps(value), 2
 
 
 def sparc_deserializer(key, value, flags):

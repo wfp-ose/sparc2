@@ -1,4 +1,4 @@
-geosite.controller_breadcrumb = function($scope, $element, state)
+geosite.controller_breadcrumb = function($scope, $element, $controller, state)
 {
   angular.extend(this, $controller('GeositeControllerBase', {$element: $element, $scope: $scope}));
   //

@@ -1,4 +1,4 @@
-geosite.controller_filter = function($scope, $element, state, popatrisk_config, map_config, live)
+geosite.controller_filter = function($scope, $element, $controller, state, popatrisk_config, map_config, live)
 {
   angular.extend(this, $controller('GeositeControllerBase', {$element: $element, $scope: $scope}));
   // Initialize Radio Filters
@@ -11,10 +11,10 @@ geosite.controller_filter = function($scope, $element, state, popatrisk_config, 
   });
 
   // Initialize Slider Filters
-  $(".sparc-filter-slider", $($element)).each(function(){
+  $(".geosite-filter-slider", $($element)).each(function(){
 
-    var slider = $(this).find(".sparc-filter-slider-slider");
-    var label = $(this).find(".sparc-filter-slider-label");
+    var slider = $(this).find(".geosite-filter-slider-slider");
+    var label = $(this).find(".geosite-filter-slider-label");
 
     var type = slider.data('type');
     var output = slider.data('output');

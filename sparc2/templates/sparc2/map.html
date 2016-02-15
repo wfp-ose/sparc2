@@ -10,8 +10,12 @@
 <link href="{{ STATIC_URL }}sparc2/build/bootstrap/bootstrap.css" rel="stylesheet"/>
 {% endblock %}
 
+{% block head_main_css %}
+<link href='{{ STATIC_URL }}sparc2/build/css/main.css?v={{ SPARC_STATIC_VERSION }}' rel='stylesheet' />
+{% endblock %}
+
 {% block head_main_js %}
-{{ super.block }}
+{{ block.super }}
 {% if SPARC_STATIC_DEBUG.main %}
 <script src="{{ STATIC_URL }}sparc2/build/js/main.js?v={{ SPARC_STATIC_VERSION }}"></script>
 {% else %}

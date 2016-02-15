@@ -42,7 +42,7 @@ geosite.controller_map_map = function($scope, $element, $interpolate, state, pop
         "extent": live["map"].getBounds().toBBoxString(),
         "z": live["map"].getZoom()
       };
-      intend("viewChanged", delta, $scope);
+      geosite.intend("viewChanged", delta, $scope);
     },
     dragend: function(e){
       var c = live["map"].getCenter();
@@ -51,7 +51,7 @@ geosite.controller_map_map = function($scope, $element, $interpolate, state, pop
         "lat": c.lat,
         "lon": c.lng
       };
-      intend("viewChanged", delta, $scope);
+      geosite.intend("viewChanged", delta, $scope);
     },
     moveend: function(e){
       var c = live["map"].getCenter();
@@ -60,7 +60,7 @@ geosite.controller_map_map = function($scope, $element, $interpolate, state, pop
         "lat": c.lat,
         "lon": c.lng
       };
-      intend("viewChanged", delta, $scope);
+      geosite.intend("viewChanged", delta, $scope);
     }
   };
   //////////////////////////////////////
@@ -81,8 +81,8 @@ geosite.controller_map_map = function($scope, $element, $interpolate, state, pop
   $.extend(live["baselayers"], baseLayers);
   var baseLayerID = map_config["baselayers"][0].id;
   live["baselayers"][baseLayerID].addTo(live["map"]);
-  intend("viewChanged", {'baselayer': baseLayerID}, $scope);
-  intend("layerLoaded", {'layer': baseLayerID}, $scope);
+  geosite.intend("viewChanged", {'baselayer': baseLayerID}, $scope);
+  geosite.intend("layerLoaded", {'layer': baseLayerID}, $scope);
   //////////////////////////////////////
   // Feature layers
   var popupContent = function(source)
@@ -176,7 +176,7 @@ geosite.controller_map_map = function($scope, $element, $interpolate, state, pop
   });
   $.each(live["featurelayers"], function(id, fl){
     fl.addTo(live["map"]);
-    intend("layerLoaded", {'layer': id}, $scope);
+    geosite.intend("layerLoaded", {'layer': id}, $scope);
   });
   // Zoom to Data
   if(!(hasHashValue(["latitude", "lat", "longitude", "lon", "lng", "zoom", "z"])))

@@ -30,6 +30,7 @@ TEMPLATES = [
         'OPTIONS': {
             'context_processors': [
                 'sparc2.context_processors.sparc2',
+                'geosite.context_processors.geosite',
                 'django.contrib.auth.context_processors.auth',
                 'django.template.context_processors.debug',
                 'django.template.context_processors.i18n',
@@ -203,7 +204,7 @@ GEOSITE_DNS_PREFETCH = [
 # Dependencies Management
 SPARC_STATIC_VERSION="1.0.0"
 GEOSITE_STATIC_VERSION="1.0.0"
-GEOSITE_STATIC_DEBUG = {
+GEOSITE_STATIC_DEPS = {
     "angular": {
         "version": "1.4.0-beta.4"
     },
@@ -232,6 +233,7 @@ GEOSITE_STATIC_DEBUG = {
 SPARC_STATIC_DEBUG = {
     "main": True
 }
+
 GEOSITE_STATIC_DEBUG = {
     "polyfill": False,
     "main": True,

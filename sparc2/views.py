@@ -18,8 +18,10 @@ except ImportError:
 
 from wfppresencedjango.models import WFPCountry
 
+from geosite.enumerations import MONTHS_SHORT3
+
 from sparc2.cache import provision_memcached_client
-from sparc2.enumerations import URL_EMDAT_BY_HAZARD, TEMPLATES_BY_HAZARD, SPARC_HAZARDS_CONFIG, MONTHS_SHORT3, POPATRISK_BY_HAZARD
+from sparc2.enumerations import URL_EMDAT_BY_HAZARD, TEMPLATES_BY_HAZARD, SPARC_HAZARDS_CONFIG, POPATRISK_BY_HAZARD
 from sparc2.models import SPARCCountry
 from sparc2.utils import get_month_number, get_json_admin0, get_geojson_cyclone, get_geojson_drought, get_geojson_flood, get_summary_cyclone, get_summary_drought, get_summary_flood, get_events_flood
 

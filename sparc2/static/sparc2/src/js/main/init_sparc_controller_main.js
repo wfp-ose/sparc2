@@ -1,4 +1,4 @@
-geosite.controller_main = function($scope, $element, state, stateschema, popatrisk_config, live)
+geosite.controller_main = function($scope, $element, $controller, state, stateschema, popatrisk_config, live)
 {
 
     $scope.state = geosite.init_state(state, stateschema);
@@ -9,7 +9,7 @@ geosite.controller_main = function($scope, $element, state, stateschema, popatri
         console.log('event', event);
         console.log('args', args);
         //
-        var $scope = angular.element("#sparc-main").scope();
+        var $scope = angular.element("#geosite-main").scope();
         $scope.$apply(function () {
             $scope.state = $.extend($scope.state, args);
             var url = buildPageURL("countryhazardmonth_detail", state);
@@ -24,7 +24,7 @@ geosite.controller_main = function($scope, $element, state, stateschema, popatri
         console.log('event', event);
         console.log('args', args);
         //
-        var $scope = angular.element("#sparc-main").scope();
+        var $scope = angular.element("#geosite-main").scope();
         $scope.$apply(function () {
             $scope.state.filters[args["layer"]] = $.extend(
               $scope.state.filters[args["layer"]],
@@ -41,7 +41,7 @@ geosite.controller_main = function($scope, $element, state, stateschema, popatri
         console.log('event', event);
         console.log('args', args);
         //
-        var $scope = angular.element("#sparc-main").scope();
+        var $scope = angular.element("#geosite-main").scope();
         $scope.state.view = $.extend($scope.state.view, args);
         var url = buildPageURL("countryhazardmonth_detail", state);
         history.replaceState(state, "", url);
@@ -54,7 +54,7 @@ geosite.controller_main = function($scope, $element, state, stateschema, popatri
     });
 
     $scope.$on("layerLoaded", function(event, args) {
-        var $scope = angular.element("#sparc-main").scope();
+        var $scope = angular.element("#geosite-main").scope();
         var layer = args.layer;
         $scope.state.view.featurelayers.push(layer);
     });
@@ -62,7 +62,7 @@ geosite.controller_main = function($scope, $element, state, stateschema, popatri
     $scope.$on("showLayer", function(event, args) {
         console.log('event', event);
         console.log('args', args);
-        var $scope = angular.element("#sparc-main").scope();
+        var $scope = angular.element("#geosite-main").scope();
         var layer = args.layer;
         if($.inArray(layer, $scope.state.view.featurelayers) == -1)
         {
@@ -74,7 +74,7 @@ geosite.controller_main = function($scope, $element, state, stateschema, popatri
     $scope.$on("hideLayer", function(event, args) {
         console.log('event', event);
         console.log('args', args);
-        var $scope = angular.element("#sparc-main").scope();
+        var $scope = angular.element("#geosite-main").scope();
         var layer = args.layer;
         var i = $.inArray(layer, $scope.state.view.featurelayers);
         if(i != -1)
@@ -87,14 +87,14 @@ geosite.controller_main = function($scope, $element, state, stateschema, popatri
     $scope.$on("switchBaseLayer", function(event, args) {
         console.log('event', event);
         console.log('args', args);
-        var $scope = angular.element("#sparc-main").scope();
+        var $scope = angular.element("#geosite-main").scope();
         $scope.state.view.baselayer = args.layer;
         // Refresh Map
         $scope.$broadcast("refreshMap", {'state': $scope.state});
     });
 
     $scope.$on("zoomToLayer", function(event, args) {
-        var $scope = angular.element("#sparc-main").scope();
+        var $scope = angular.element("#geosite-main").scope();
         var layer = args.layer;
         var i = $.inArray(layer, $scope.state.view.featurelayers);
         if(i != -1)
@@ -109,20 +109,20 @@ var init_sparc_controller_main = function(that, app)
 {
   geosite.init_controller(that, app, geosite.controller_main);
 
-  $('.geosite-controller.sparc-sidebar', that).each(function(){
+  $('.geosite-controller.geosite-sidebar', that).each(function(){
     geosite.init_controller($(this), app, geosite.controller_sidebar);
   });
 
-  $('.geosite-controller.sparc-map', that).each(function(){
+  $('.geosite-controller.geosite-map', that).each(function(){
     // Init This
     geosite.init_controller($(this), app, geosite.controller_map);
     // Init Children
     geosite.init_controllers($(this), app, [
-      { "selector": ".geosite-controller.sparc-map-map", "controller": geosite.controller_map_map },
+      { "selector": ".geosite-controller.geosite-map-map", "controller": geosite.controller_map_map },
       { "selector": ".geosite-controller.sparc-map-calendar", "controller": undefined },
       { "selector": ".geosite-controller.sparc-map-breadcrumb", "controller": geosite.controller_breadcrumb },
-      { "selector": ".geosite-controller.sparc-map-filter", "controller": geosite.controller_filter },
-      { "selector": ".geosite-controller.sparc-map-legend", "controller": undefined },
+      { "selector": ".geosite-controller.geosite-map-filter", "controller": geosite.controller_filter },
+      { "selector": ".geosite-controller.geosite-map-legend", "controller": undefined },
     ]);
   });
 };

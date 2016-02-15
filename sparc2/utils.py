@@ -12,7 +12,8 @@ try:
 except ImportError:
     import json
 
-from sparc2.enumerations import MONTHS_SHORT3
+from geosite.enumerations import MONTHS_SHORT3
+
 from sparc2.data import SPARCDatabaseConnection, data_local_country_admin, data_local_country_hazard_all, calc_breaks_natural, insertIntoObject
 
 def get_month_number(month):

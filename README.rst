@@ -76,7 +76,7 @@ Then, restart NGINX:
 
     sudo /etc/init.d/nginx restart
 
-To add anoter Django admin user, do the following, but reload_data.sh should
+To add another Django admin user, do the following, but reload_data.sh should
 prompt to add an admin user.
 
 .. code-block:: bash
@@ -95,6 +95,8 @@ Launch SPARC!
 
 .. code-block:: bash
 
+    source /usr/local/bin/virtualenvwrapper.sh  # if haven't restarted yet since install
+    export DJANGO_SETTINGS_MODULE=sparc2.settings
     python manage.py runserver [::]:8000
 
 Production  Environment

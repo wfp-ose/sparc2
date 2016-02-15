@@ -1,15 +1,15 @@
 @import "2-variables.less";
 
-.sparc-map-legend {
+.geosite-map-legend {
   /* Layout */
   position: absolute;
-  background: @sparc-map-legend-background;
+  background: @geosite-map-legend-background;
   bottom: 70px;
   right: 4px;
-  width: @sparc-map-legend-width;
-  z-index: @sparc-map-legend-z-index;
+  width: @geosite-map-legend-width;
+  z-index: @geosite-map-legend-z-index;
 
-  .sparc-map-legend-label {
+  .geosite-map-legend-label {
     width: 100%;
 
     a {
@@ -17,9 +17,9 @@
     }
   }
 
-  .sparc-map-legend-container {
+  .geosite-map-legend-container {
 
-    background: @sparc-map-legend-background;
+    background: @geosite-map-legend-background;
     padding: 4px;
 
     hr {
@@ -27,12 +27,12 @@
       margin-bottom: 10px;
     }
 
-    .sparc-map-legend-item {
+    .geosite-map-legend-item {
       display: block;
       width: 100%;
       height: 20px;
 
-      .sparc-map-legend-item-icon {
+      .geosite-map-legend-item-icon {
         display: inline-block;
         width: 20px;
         height: 100%;
@@ -50,7 +50,7 @@
         }
       }
 
-      .sparc-map-legend-item-icon.fade {
+      .geosite-map-legend-item-icon.fade {
         opacity: 0.4;
       }
 
@@ -63,9 +63,9 @@
         .geosite-off { display: inline-block; }
       }
 
-      .sparc-map-legend-item-symbol {
+      .geosite-map-legend-item-symbol {
         display: inline-block;
-        width: @sparc-map-legend-item-symbol-width;
+        width: @geosite-map-legend-item-symbol-width;
         height: 100%;
         text-align: center;
         border-left: 1px solid white;
@@ -84,7 +84,7 @@
         }
       }
 
-      .sparc-map-legend-item-label {
+      .geosite-map-legend-item-label {
         display: inline-block;
         width: ~"calc(100% - 101px)";
         height: 100%;
@@ -102,14 +102,14 @@
       }
     }
 
-    .sparc-map-legend-item.fade {
+    .geosite-map-legend-item.fade {
       opacity: 0.3;
     }
 
   }
 }
 
-.sparc-layer-more, .sparc-layer-legend {
+.geosite-layer-more, .geosite-layer-legend {
   .modal-content {
     font-family: 'Open Sans', sans-serif;
     .modal-header {

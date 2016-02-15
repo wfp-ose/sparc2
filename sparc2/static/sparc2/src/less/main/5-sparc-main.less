@@ -1,28 +1,28 @@
 @import "2-variables.less";
 
-.sparc-main {
+.geosite-main {
   position: relative;
 
-  .sparc-sidebar {
+  .geosite-sidebar {
     position: absolute;
     top: 0px;
     left: 0px;
     width: 0px;
     height: 100%;
-    transition: all @sparc-sidebar-transition ease-in-out;
+    transition: all @geosite-sidebar-transition ease-in-out;
   }
 
-  .sparc-sidebar.sidebar-open {
-    width: @sparc-sidebar-width;
+  .geosite-sidebar.sidebar-open {
+    width: @geosite-sidebar-width;
   }
 
-  .sparc-map {
+  .geosite-map {
     position: absolute;
     top: 0px;
     left: 0px;
     right: 0px;
     height: 100%;
-    transition: all @sparc-sidebar-transition ease-in-out;
+    transition: all @geosite-sidebar-transition ease-in-out;
 
     .leaflet-container {
       position: relative;
@@ -34,13 +34,13 @@
     }
 
     .leaflet-top.leaflet-left {
-      top: @sparc-leaflet-position-top;
+      top: @geosite-leaflet-position-top;
     }
 
   }
 
-  .sparc-map.sidebar-open {
-      left: @sparc-sidebar-width;
+  .geosite-map.sidebar-open {
+      left: @geosite-sidebar-width;
   }
 
 }

@@ -1,12 +1,16 @@
+import errno
 import psycopg2
 
+from socket import error as socket_error
 from jenks import jenks
 
 from django.conf import settings
 from django.template.loader import get_template
 
+from geosite.enumerations import MONTHS_SHORT3
+
 from sparc2.cache import provision_memcached_client
-from sparc2.enumerations import MONTHS_SHORT3
+
 
 class data_local_country(object):
 
@@ -127,7 +131,7 @@ def rowsToDict(rows, keys):
             keyA, values = row
             rowsAsDict[keyA] = values
     elif keys == 2:
-        for row in cursor.fetchall():
+        for row in rows:
             keyA, keyB, values = row
             if keyA not in rowsAsDict:
                 rowsAsDict[keyA] = {}
@@ -142,6 +146,7 @@ def rowsToDict(rows, keys):
             rowsAsDict[keyA][keyB][keyC] = values
     return rowsAsDict
 
+
 def assertBranch(obj, keys):
     current = obj
     numberOfKeys = len(keys)
@@ -154,6 +159,7 @@ def assertBranch(obj, keys):
                 current[key] = None
         current = current[key]
     return obj
+
 
 def insertIntoObject(obj, keys, value):
     obj = assertBranch(obj, keys)

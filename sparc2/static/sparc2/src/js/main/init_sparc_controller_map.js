@@ -1,3 +1,3 @@
-geosite.controller_map = function($scope, $element, state, popatrisk_config, map_config) {
+geosite.controller_map = function($scope, $element, $controller, state, popatrisk_config, map_config) {
 
 };
