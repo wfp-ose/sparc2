@@ -38,6 +38,8 @@
 </script>
 {% endblock %}
 
+{% block header %}{% include "sparc2/_includes/header.html" %}{% endblock %}
+
 {% block map_controllers %}
 {% include "sparc2/_includes/map_breadcrumb.html" %}
 {% include "geosite/_includes/map_legend.html" %}
@@ -45,3 +47,5 @@
 {% include "geosite/_includes/map_sidebar_toggle.html" %}
 {% include "sparc2/_includes/map_calendar.html" %}
 {% endblock %}
+
+{% block footer %}{% include "sparc2/_includes/footer.html" %}{% endblock %}
