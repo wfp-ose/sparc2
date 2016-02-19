@@ -14,7 +14,8 @@ except ImportError:
 
 from geosite.enumerations import MONTHS_SHORT3
 
-from sparc2.data import SPARCDatabaseConnection, data_local_country_admin, data_local_country_hazard_all, calc_breaks_natural, insertIntoObject
+from geosite.data import GeositeDatabaseConnection, calc_breaks_natural, insertIntoObject
+from sparc2.data import data_local_country_admin, data_local_country_hazard_all
 
 def get_month_number(month):
     month_num = -1
@@ -39,7 +40,7 @@ def get_month_number(month):
     return month_num
 
 def get_json_admin0(request, template="sparc2/sql/_admin0_data.sql"):
-    connection = psycopg2.connect(settings.SPARC_DB_CONN_STR)
+    connection = psycopg2.connect(settings.GEOSITE_DB_CONN_STR)
     cursor = connection.cursor()
     q = get_template(template).render({'admin0_data': "sparc2_country"})
     cursor.execute(q)
@@ -48,9 +49,9 @@ def get_json_admin0(request, template="sparc2/sql/_admin0_data.sql"):
 
 def get_geojson_cyclone(request, iso_alpha3=None):
     collection = None
-    with SPARCDatabaseConnection() as sparc:
-        collection = data_local_country_admin().get(cursor=sparc.cursor, iso_alpha3=iso_alpha3, level=2)
-        rows = sparc.exec_query_multiple(
+    with GeositeDatabaseConnection() as geosite_conn:
+        collection = data_local_country_admin().get(cursor=geosite_conn.cursor, iso_alpha3=iso_alpha3, level=2)
+        rows = geosite_conn.exec_query_multiple(
             get_template("sparc2/sql/_cyclone.sql").render({
                 'admin2_popatrisk': 'cyclone.admin2_popatrisk',
                 'iso_alpha3': iso_alpha3}))
@@ -88,7 +89,7 @@ def get_summary_cyclone(table_popatrisk=None, iso_alpha3=None):
 
     summary = None
 
-    with SPARCDatabaseConnection() as sparc:
+    with GeositeDatabaseConnection() as geosite_conn:
 
         #values = data_local_country_hazard_all().get(
         #    cursor=cursor,
@@ -97,7 +98,7 @@ def get_summary_cyclone(table_popatrisk=None, iso_alpha3=None):
         #    template="sparc2/sql/_hazard_data_all.sql",
         #    table=table_popatrisk)
 
-        values = sparc.exec_query_single_aslist(
+        values = geosite_conn.exec_query_single_aslist(
             get_template("sparc2/sql/_cyclone_data_all_at_admin2.sql").render({
                 'admin2_popatrisk': table_popatrisk,
                 'iso_alpha3': iso_alpha3}))
@@ -139,7 +140,7 @@ def get_summary_cyclone(table_popatrisk=None, iso_alpha3=None):
 
         for prob_class in prob_classes:
 
-            values = sparc.exec_query_single_aslist(
+            values = geosite_conn.exec_query_single_aslist(
                 get_template("sparc2/sql/_cyclone_data_by_prob_class_month.sql").render({
                     'admin2_popatrisk': table_popatrisk,
                     'iso_alpha3': iso_alpha3,
@@ -148,7 +149,7 @@ def get_summary_cyclone(table_popatrisk=None, iso_alpha3=None):
             summary["prob_class"][prob_class] = {};
             summary["prob_class"][prob_class]['by_month'] = [float(x) for x in values]
 
-            rows = sparc.exec_query_multiple(
+            rows = geosite_conn.exec_query_multiple(
                 get_template("sparc2/sql/_cyclone_data_by_group_prob_class_month.sql").render({
                     'admin2_popatrisk': table_popatrisk,
                     'iso_alpha3': iso_alpha3,
@@ -169,13 +170,13 @@ def get_summary_cyclone(table_popatrisk=None, iso_alpha3=None):
 
 def get_geojson_drought(request, iso_alpha3=None):
     collection = None
-    with SPARCDatabaseConnection() as sparc:
-        collection = data_local_country_admin().get(cursor=sparc.cursor, iso_alpha3=iso_alpha3, level=2)
+    with GeositeDatabaseConnection() as geosite_conn:
+        collection = data_local_country_admin().get(cursor=geosite_conn.cursor, iso_alpha3=iso_alpha3, level=2)
         for feature in collection["features"]:
             feature["properties"]["addinfo"] = []
 
         for month in MONTHS_SHORT3:
-            rows = sparc.exec_query_multiple(
+            rows = geosite_conn.exec_query_multiple(
                 get_template("sparc2/sql/_drought_data_by_admin2_month_asjson.sql").render({
                     'admin2_popatrisk': 'drought.admin2_popatrisk',
                     'iso_alpha3': iso_alpha3,
@@ -202,7 +203,7 @@ def get_summary_drought(table_popatrisk=None, iso_alpha3=None):
     if (not table_popatrisk) or (not iso_alpha3):
         raise Exception("Missing table_popatrisk or iso3 for get_summary_drought.")
 
-    connection = psycopg2.connect(settings.SPARC_DB_CONN_STR)
+    connection = psycopg2.connect(settings.GEOSITE_DB_CONN_STR)
     cursor = connection.cursor()
 
     values = data_local_country_hazard_all().get(
@@ -286,12 +287,12 @@ def get_summary_drought(table_popatrisk=None, iso_alpha3=None):
 
 def get_geojson_flood(request, iso_alpha3=None):
     collection = None
-    with SPARCDatabaseConnection() as sparc:
-        collection = data_local_country_admin().get(cursor=sparc.cursor, iso_alpha3=iso_alpha3, level=2)
+    with GeositeDatabaseConnection() as geosite_conn:
+        collection = data_local_country_admin().get(cursor=geosite_conn.cursor, iso_alpha3=iso_alpha3, level=2)
 
         returnPeriods = [25, 50, 100, 200, 500, 1000]
         for rp in returnPeriods:
-            rows = sparc.exec_query_multiple(
+            rows = geosite_conn.exec_query_multiple(
                 get_template("sparc2/sql/_flood_data_by_admin2_rp_month_asjson.sql").render({
                     'admin2_popatrisk': 'flood.admin2_popatrisk',
                     'iso_alpha3': iso_alpha3,
@@ -317,7 +318,7 @@ def get_summary_flood(table_popatrisk=None, iso_alpha3=None):
 
     num_breakpoints = len(settings.SPARC_MAP_DEFAULTS["symbology"]["popatrisk"]["colors"])
 
-    connection = psycopg2.connect(settings.SPARC_DB_CONN_STR)
+    connection = psycopg2.connect(settings.GEOSITE_DB_CONN_STR)
     cursor = connection.cursor()
 
     values = data_local_country_hazard_all().get(
@@ -412,7 +413,7 @@ def get_summary_flood(table_popatrisk=None, iso_alpha3=None):
 
 
 def get_events_flood(iso3=None):
-    connection = psycopg2.connect(settings.SPARC_DB_CONN_STR)
+    connection = psycopg2.connect(settings.GEOSITE_DB_CONN_STR)
     cursor = connection.cursor()
     q = get_template("sparc2/sql/_flood_events_by_admin2.sql").render(context=Context({'iso3': iso3}))
     cursor.execute(q)

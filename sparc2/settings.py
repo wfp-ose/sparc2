@@ -188,10 +188,10 @@ SPARC_MAP_DEFAULTS = {
     }
 }
 
-SPARC_DB_CONN_STR = "dbname='sparc2' user='sparc2' host='localhost' password='sparc2'"
-SPARC_CACHE_DATA = True
-SPARC_MEMCACHED_HOST = 'localhost'
-SPARC_MEMCACHED_PORT = 11212  # So doesn't interfer with root/built-in memcached
+GEOSITE_DB_CONN_STR = "dbname='sparc2' user='sparc2' host='localhost' password='sparc2'"
+GEOSITE_CACHE_DATA = True
+GEOSITE_MEMCACHED_HOST = 'localhost'
+GEOSITE_MEMCACHED_PORT = 11212  # So doesn't interfer with root/built-in memcached
 #-----------------------------
 # DNS Prefetch
 GEOSITE_DNS_PREFETCH = [
