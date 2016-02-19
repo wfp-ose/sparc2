@@ -16,6 +16,7 @@
         "filters": {
             "popatrisk":
             {
+              "popatrisk_range": [0.0, {{ maxValue }}],
               {% if hazard == "cyclone" %}
               "prob_class_max": 0.1,
               "category": "cat1_5"
@@ -39,6 +40,7 @@
         "filters": {
             "popatrisk":
             {
+              "popatrisk_range": "integerarray",
               {% if hazard == "cyclone" %}
               "prob_class_max": "float",
               "category": "string"
@@ -74,18 +76,13 @@
               var map_config = angular.element(document.body).injector().get('map_config');
               var popatrisk_config = angular.element(document.body).injector().get('popatrisk_config');
               //
-              style = map_config["featurelayers"]["popatrisk"]["symbology"]["styles"]["default"];
-              if(state["hazard"]=="cyclone")
+              var style_static = map_config["featurelayers"]["popatrisk"]["symbology"]["styles"]["default"]["static"];
+              var style = $.extend({}, style_static);
+              var style_dynamic = map_config["featurelayers"]["popatrisk"]["symbology"]["styles"]["default"]["dynamic"];
+              var delta = angular.isFunction(geosite[style_dynamic]) ? geosite[style_dynamic](f, state, map_config, popatrisk_config) : undefined;
+              if(delta != undefined)
               {
-                style["fillColor"] = color_cyclone(f, state, map_config, popatrisk_config)
-              }
-              else if(state["hazard"]=="drought")
-              {
-                style["fillColor"] = color_drought(f, state, map_config, popatrisk_config)
-              }
-              else if(state["hazard"]=="flood")
-              {
-                  style["fillColor"] = color_flood(f, state, map_config, popatrisk_config)
+                $.extend(style, delta);
               }
               return style;
             }

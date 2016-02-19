@@ -245,7 +245,7 @@ geosite.controller_main = function($scope, $element, $controller, state, statesc
         var $scope = angular.element("#geosite-main").scope();
         $scope.$apply(function () {
             $scope.state = $.extend($scope.state, args);
-            var url = buildPageURL("countryhazardmonth_detail", state);
+            var url = buildPageURL("countryhazardmonth_detail", $scope.state);
             history.replaceState(state, "", url);
             // Refresh Map
             $scope.$broadcast("refreshMap", {'state': $scope.state});
@@ -262,7 +262,7 @@ geosite.controller_main = function($scope, $element, $controller, state, statesc
             $scope.state.filters[args["layer"]] = $.extend(
               $scope.state.filters[args["layer"]],
               args["filter"]);
-            var url = buildPageURL("countryhazardmonth_detail", state);
+            var url = buildPageURL("countryhazardmonth_detail", $scope.state);
             history.replaceState(state, "", url);
             // Refresh Map
             $scope.$broadcast("refreshMap", {'state': $scope.state});
@@ -276,7 +276,7 @@ geosite.controller_main = function($scope, $element, $controller, state, statesc
         //
         var $scope = angular.element("#geosite-main").scope();
         $scope.state.view = $.extend($scope.state.view, args);
-        var url = buildPageURL("countryhazardmonth_detail", state);
+        var url = buildPageURL("countryhazardmonth_detail", $scope.state);
         history.replaceState(state, "", url);
         // $scope.$on already wraps $scope.$apply
         /*$scope.$apply(function () {
@@ -411,8 +411,9 @@ geosite.controller_breadcrumb = function($scope, $element, $controller, state)
   });
 };
 
-geosite.controller_filter = function($scope, $element, $controller, state, popatrisk_config, map_config, live)
+  geosite.controller_filter = function($scope, $element, $controller, state, popatrisk_config, map_config, live)
 {
+  var maxValueFromSummary = popatrisk_config["data"]["summary"]["all"]["max"]["at_admin2_month"];
   angular.extend(this, $controller('GeositeControllerBase', {$element: $element, $scope: $scope}));
   // Initialize Radio Filters
   $($element).on('change', 'input:radio[name="cat"]', function(event) {
@@ -420,7 +421,7 @@ geosite.controller_filter = function($scope, $element, $controller, state, popat
     var output = $(this).data('output');
     var filter = {};
     filter[output] = this.value;
-    intend("filterChanged", {"layer":"popatrisk", "filter":filter}, $scope);
+    geosite.intend("filterChanged", {"layer": "popatrisk", "filter": filter}, $scope);
   });
 
   // Initialize Slider Filters
@@ -440,58 +441,46 @@ geosite.controller_filter = function($scope, $element, $controller, state, popat
       var options = slider.data('options');
 
       slider.data('label', label);
-      label.html(slider.data('label-template').replace('{value}', value));
-
-      slider.slider({
-        range: range,
-        value: options.indexOf(value),
-        min: 0,
-        max: options.length - 1,
-        step: 1,
-        slide: function(event, ui){
-            sparc_onslide_ordinal.apply(this, [event, ui]);
-            var newValue = slider.data('options')[ui.value];
-            var filter = {};
-            filter[output] = newValue;
-            intend("filterChanged", {"layer":"popatrisk", "filter":filter}, $scope);
-        }
-      });
+      geosite.ui_init_slider_label(slider, type, range, value);
+      geosite.ui_init_slider_slider($scope, slider, type, range, options.indexOf(value), 0, options.length - 1, 1);
     }
     else
     {
       var range = slider.data('range');
       //var value = slider.data('value');
-      var value = state["filters"]["popatrisk"][output];
-      var min = slider.data('min');
-      var max = slider.data('max');
+      var minValue = geosite.assert_float(slider.data('min-value'), undefined);
       var step = slider.data('step');
       //var label_template = slider.data('label');
 
-      var value_n = Math.floor(value * 100);
-      var min_n = Math.floor(min * 100);
-      var max_n = Math.floor(max * 100);
-      var step_n = Math.floor(step * 100);
+      if(range.toLowerCase() == "true")
+      {
+        var maxValue = maxValueFromSummary != undefined ? maxValueFromSummary : geosite.assert_float(slider.data('max-value'), undefined);
+        var values = state["filters"]["popatrisk"][output];
+        values = geosite.assert_array_length(values, 2, [minValue, maxValue]);
+        var values_n = [Math.floor(values[0]), Math.floor(values[1])];
+        var min_n = Math.floor(minValue);
+        var max_n = Math.floor(maxValue);
+        var step_n = Math.floor(step);
 
-      slider.data('label', label);
+        slider.data('label', label);
+        geosite.ui_init_slider_label(slider, type, range, values);
+        geosite.ui_init_slider_slider($scope, slider, type, range, values_n, min_n, max_n, step_n);
+        console.log(value_n, min_n, max_n, step_n, range);
+      }
+      else
+      {
+        var maxValue = geosite.assert_float(slider.data('max-value'), undefined);
+        var value = state["filters"]["popatrisk"][output];
+        var value_n = Math.floor(value * 100);
+        var min_n = Math.floor(minValue * 100);
+        var max_n = Math.floor(maxValue * 100);
+        var step_n = Math.floor(step * 100);
 
-      label.html(slider.data('label-template').replace('{value}', value));
-
-      console.log(value_n, min_n, max_n, step_n, range);
-
-      slider.slider({
-        range: range,
-        value: value_n,
-        min: min_n,
-        max: max_n,
-        step: step_n,
-        slide: function(event, ui){
-            sparc_onslide_continuous.apply(this, [event, ui]);
-            var newValue = ui.value / 100.0;
-            var filter = {};
-            filter[output] = newValue;
-            intend("filterChanged", {"layer":"popatrisk", "filter":filter}, $scope);
-        }
-      });
+        slider.data('label', label);
+        geosite.ui_init_slider_label(slider, type, range, value);
+        geosite.ui_init_slider_slider($scope, slider, type, range, values_n, min_n, max_n, step_n);
+        console.log(value_n, min_n, max_n, step_n, range);
+      }
     }
   });
 };
@@ -563,6 +552,7 @@ geosite.controller_map_map = function($scope, $element, $interpolate, state, pop
   };
   //////////////////////////////////////
   // The Map
+  var hasViewOverride = hasHashValue(["latitude", "lat", "longitude", "lon", "lng", "zoom", "z"]);
   var view = state["view"];
   live["map"] = init_map({
     "zoom": map_config["controls"]["zoom"],
@@ -588,7 +578,8 @@ geosite.controller_map_map = function($scope, $element, $interpolate, state, pop
     console.log(source);
     var f = source.feature;
     //
-    var state = angular.element(document.body).injector().get('state');
+    var $scope = angular.element("#geosite-main").scope();
+    var state = $scope.state;
     var filters = state["filters"]["popatrisk"];
     //
     //var popupTemplate = map_config["featurelayers"]["popatrisk"]["popup"]["template"];
@@ -602,9 +593,23 @@ geosite.controller_map_map = function($scope, $element, $interpolate, state, pop
       var rp = filters["rp"];
       ctx["popatrisk"] = f.properties["RP"+rp.toString(10)][month_short_3];
     }
-    else
+    else if(state.hazard == "cyclone")
     {
-
+      var prob_class_max = filters["prob_class_max"];
+      var value = 0;
+      for(var i = 0; i < f.properties.addinfo.length; i++)
+      {
+          var a = f.properties.addinfo[i];
+          if(a["category"] == filters["category"])
+          {
+            if(a["prob_class_max"] != 0 && a["prob_class_max"] <= prob_class_max)
+            {
+              console.log("matched prob_class", prob_class_max);
+              value += a[month_short_3];
+            }
+          }
+      }
+      ctx["popatrisk"] = value;
     }
     var chartConfig = map_config["featurelayers"]["popatrisk"]["popup"]["chart"];
     ctx["chartID"] = chartConfig.id;
@@ -677,15 +682,15 @@ geosite.controller_map_map = function($scope, $element, $interpolate, state, pop
     geosite.intend("layerLoaded", {'layer': id}, $scope);
   });
   // Zoom to Data
-  if(!(hasHashValue(["latitude", "lat", "longitude", "lon", "lng", "zoom", "z"])))
+  if(!hasViewOverride)
   {
       live["map"].fitBounds(live["featurelayers"]["popatrisk"].getBounds());
   }
   //////////////////////////////////////
   // Sidebar Toggle
-  $("#sparc-sidebar-toggle").click(function (){
+  $("#geosite-map-sidebar-toggle").click(function (){
     $(this).toggleClass("sidebar-open");
-    $("#sparc-sidebar, #sparc-map").toggleClass("sidebar-open");
+    $("#geosite-sidebar, #geosite-map").toggleClass("sidebar-open");
     setTimeout(function(){
       live["map"].invalidateSize({
         animate: true,
@@ -776,6 +781,125 @@ geosite.controller_sidebar = function($scope, $element, $controller, state, popa
       buildHazardChart(map_config.charts[i], popatrisk_config, options);
     }
   }
+};
+
+geosite.style_cyclone = function(f, state, map_config, popatrisk_config)
+{
+  var style = {};
+  var filters = state["filters"]["popatrisk"];
+  var prob_class_max = filters["prob_class_max"];
+  var range = filters["popatrisk_range"];
+  //
+  var month_short3 = months_short_3[state["month"]-1];
+  var value = 0;
+  for(var i = 0; i < f.properties.addinfo.length; i++)
+  {
+      var a = f.properties.addinfo[i];
+      if(a["category"] == filters["category"])
+      {
+        if(a["prob_class_max"] != 0 && a["prob_class_max"] <= prob_class_max)
+        {
+          console.log("matched prob_class", prob_class_max);
+          value += a[month_short3];
+        }
+      }
+  }
+  if(value >= range[0] && value <= range[1])
+  {
+    var colors = map_config["featurelayers"]["popatrisk"]["symbology"]["colors"];
+    var breakpoints = popatrisk_config["data"]["summary"]["all"]["breakpoints"]["natural"];
+    var color = undefined;
+    for(var i = 0; i < breakpoints.length; i++)
+    {
+      if(value < breakpoints[i])
+      {
+        color = colors[i];
+        break;
+      }
+    }
+    style["fillColor"] = (color == undefined) ? colors[colors.length-1] : color;
+  }
+  else
+  {
+    style["opacity"] = 0;
+    style["fillOpacity"] = 0;
+  }
+  return style;
+};
+
+geosite.style_drought = function(f, state, map_config, popatrisk_config)
+{
+  var style = {};
+  var filters = state["filters"]["popatrisk"];
+  var prob_class_max = filters["prob_class_max"] / 100.0;
+  var range = filters["popatrisk_range"];
+  //
+  var month_short3 = months_short_3[state["month"]-1];
+  var value = 0;
+  for(var i = 0; i < f.properties.addinfo.length; i++)
+  {
+      var a = f.properties.addinfo[i];
+      if(a["month"] == month_short3)
+      {
+        if(a["prob"] < prob_class_max)
+        {
+          value += a["popatrisk"];
+        }
+      }
+  }
+  if(value >= range[0] && value <= range[1])
+  {
+    var colors = map_config["featurelayers"]["popatrisk"]["symbology"]["colors"];
+    var breakpoints = popatrisk_config["data"]["summary"]["all"]["breakpoints"]["natural"];
+    var color = undefined;
+    for(var i = 0; i < breakpoints.length; i++)
+    {
+      if(value < breakpoints[i])
+      {
+        color = colors[i];
+        break;
+      }
+    }
+    style["fillColor"] = (color == undefined) ? colors[colors.length-1] : color;
+  }
+  else
+  {
+    style["opacity"] = 0;
+    style["fillOpacity"] = 0;
+  }
+  return style;
+};
+geosite.style_flood = function(f, state, map_config, popatrisk_config)
+{
+  var style = {};
+  var filters = state["filters"]["popatrisk"];
+  var rp = filters["rp"];
+  var range = filters["popatrisk_range"];
+  //
+  var month_short3 = months_short_3[state["month"]-1];
+  var value = f.properties["RP"+rp.toString(10)][month_short3];
+
+  if(value >= range[0] && value <= range[1])
+  {
+      var colors = map_config["featurelayers"]["popatrisk"]["symbology"]["colors"];
+      var breakpoints = popatrisk_config["data"]["summary"]["all"]["breakpoints"]["natural_adjusted"];
+      var color = undefined;
+      for(var i = 0; i < breakpoints.length; i++)
+      {
+        if(value < breakpoints[i])
+        {
+          color = colors[i];
+          break;
+        }
+      }
+      style["fillColor"] = (color == undefined) ? colors[colors.length-1] : color;
+  }
+  else
+  {
+    style["opacity"] = 0;
+    style["fillOpacity"] = 0;
+  }
+  return style;
 };
 
 var buildPageURL = function(page, state)

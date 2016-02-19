@@ -79,63 +79,91 @@ def get_geojson_cyclone(request, iso_alpha3=None):
     return collection
 
 
-def get_summary_cyclone(request, table_popatrisk=None, iso_alpha3=None):
+def get_summary_cyclone(table_popatrisk=None, iso_alpha3=None):
     now = datetime.datetime.now()
     current_month = now.strftime("%b").lower()
 
     if (not table_popatrisk) or (not iso_alpha3):
         raise Exception("Missing table_popatrisk or iso_alpha3 for get_summary_cyclone.")
 
-    connection = psycopg2.connect(settings.SPARC_DB_CONN_STR)
-    cursor = connection.cursor()
+    summary = None
 
-    values = data_local_country_hazard_all().get(
-        cursor=cursor,
-        iso_alpha3=iso_alpha3,
-        hazard="flood",
-        template="sparc2/sql/_hazard_data_all.sql",
-        table=table_popatrisk)
+    with SPARCDatabaseConnection() as sparc:
 
-    num_breakpoints = len(settings.SPARC_MAP_DEFAULTS["symbology"]["popatrisk"]["colors"])
+        #values = data_local_country_hazard_all().get(
+        #    cursor=cursor,
+        #    iso_alpha3=iso_alpha3,
+        #    hazard="flood",
+        #    template="sparc2/sql/_hazard_data_all.sql",
+        #    table=table_popatrisk)
 
-    summary = {
-        'all': {
-            'breakpoints': {
-                'natural': calc_breaks_natural(values, num_breakpoints)
-            }
-        },
-        "prob_class": {},
-        "admin2": {}
-    }
-    for prob_class in ["0.01-0.1","0.1-0.2","0.2-0.3","0.3-0.4","0.4-0.5","0.5-0.6","0.6-0.7","0.7-0.8","0.8-0.9","0.9-1.0"]:
-        q2 = get_template("sparc2/sql/_cyclone_data_by_prob_class_month.sql").render({
-            'admin2_popatrisk': table_popatrisk,
-            'iso3': iso_alpha3,
-            'prob_class': prob_class})
-        cursor.execute(q2)
-        values = None
-        try:
-            values = cursor.fetchone()[0].split(",")
-        except:
-            values = []  # No values since not effected by that disaster, e.g., Afghanistan and cyclones
-        summary["prob_class"][prob_class] = {};
-        summary["prob_class"][prob_class]['by_month'] = [float(x) for x in values]
+        values = sparc.exec_query_single_aslist(
+            get_template("sparc2/sql/_cyclone_data_all_at_admin2.sql").render({
+                'admin2_popatrisk': table_popatrisk,
+                'iso_alpha3': iso_alpha3}))
 
-        q4 = get_template("sparc2/sql/_cyclone_data_by_group_prob_class_month.sql").render({
-            'admin2_popatrisk': table_popatrisk,
-            'iso3': iso_alpha3,
-            'prob_class': prob_class,
-            'group': 'admin2_code'})
-        cursor.execute(q4)
-        for row in cursor.fetchall():
-            admin2_code, values = row
-            if admin2_code not in summary["admin2"]:
-              summary["admin2"][admin2_code] = {"prob_class":{}}
-            if "prob_class" not in summary["admin2"][admin2_code]:
-              summary["admin2"][admin2_code]["prob_class"] = {}
-            if prob_class not in summary["admin2"][admin2_code]["prob_class"]:
-              summary["admin2"][admin2_code]["prob_class"][prob_class] = {}
-            summary["admin2"][admin2_code]["prob_class"][prob_class]['by_month'] = [float(x) for x in values.split(",")]
+        print "Values: ", values
+
+        values = [float(x) for x in values]
+        num_breakpoints = len(settings.SPARC_MAP_DEFAULTS["symbology"]["popatrisk"]["colors"])
+        natural = calc_breaks_natural(values, num_breakpoints)
+        natural_adjusted = []
+
+        summary = {
+            'all': {
+                "max": {
+                  'at_country_month': None,
+                  'at_admin2_month': None
+                },
+                'breakpoints': {
+                    'natural': natural
+                }
+            },
+            "prob_class": {},
+            "admin2": {}
+        }
+
+        summary["all"]["max"]["at_admin2_month"] = max(values)
+
+        prob_classes = [
+          "0.01-0.1",
+          "0.1-0.2",
+          "0.2-0.3",
+          "0.3-0.4",
+          "0.4-0.5",
+          "0.5-0.6",
+          "0.6-0.7",
+          "0.7-0.8",
+          "0.8-0.9",
+          "0.9-1.0"]
+
+        for prob_class in prob_classes:
+
+            values = sparc.exec_query_single_aslist(
+                get_template("sparc2/sql/_cyclone_data_by_prob_class_month.sql").render({
+                    'admin2_popatrisk': table_popatrisk,
+                    'iso_alpha3': iso_alpha3,
+                    'prob_class': prob_class}))
+
+            summary["prob_class"][prob_class] = {};
+            summary["prob_class"][prob_class]['by_month'] = [float(x) for x in values]
+
+            rows = sparc.exec_query_multiple(
+                get_template("sparc2/sql/_cyclone_data_by_group_prob_class_month.sql").render({
+                    'admin2_popatrisk': table_popatrisk,
+                    'iso_alpha3': iso_alpha3,
+                    'prob_class': prob_class,
+                    'group': 'admin2_code'}))
+
+            for row in rows:
+                admin2_code, values = row
+                if admin2_code not in summary["admin2"]:
+                  summary["admin2"][admin2_code] = {"prob_class":{}}
+                if "prob_class" not in summary["admin2"][admin2_code]:
+                  summary["admin2"][admin2_code]["prob_class"] = {}
+                if prob_class not in summary["admin2"][admin2_code]["prob_class"]:
+                  summary["admin2"][admin2_code]["prob_class"][prob_class] = {}
+                summary["admin2"][admin2_code]["prob_class"][prob_class]['by_month'] = [float(x) for x in values.split(",")]
 
     return summary
 
@@ -167,7 +195,7 @@ def get_geojson_drought(request, iso_alpha3=None):
     return collection
 
 
-def get_summary_drought(request, table_popatrisk=None, iso_alpha3=None):
+def get_summary_drought(table_popatrisk=None, iso_alpha3=None):
     now = datetime.datetime.now()
     current_month = now.strftime("%b").lower()
 
@@ -280,7 +308,7 @@ def get_geojson_flood(request, iso_alpha3=None):
     return collection
 
 
-def get_summary_flood(request, table_popatrisk=None, iso_alpha3=None):
+def get_summary_flood(table_popatrisk=None, iso_alpha3=None):
     now = datetime.datetime.now()
     current_month = now.strftime("%b").lower()
 
@@ -304,7 +332,10 @@ def get_summary_flood(request, table_popatrisk=None, iso_alpha3=None):
 
     summary = {
         'all': {
-            "max": None,
+            "max": {
+              'at_country_month': None,
+              'at_admin2_month': None
+            },
             'breakpoints': {
                 'natural': natural,
                 'natural_adjusted': None
@@ -330,7 +361,6 @@ def get_summary_flood(request, table_popatrisk=None, iso_alpha3=None):
         values_by_rp[str(rp)] = [float(x) for x in values]
 
     values = values_by_rp["25"]
-    #maxValue = max(values)
     breakpoints = calc_breaks_natural(values, num_breakpoints-2)
     natural_adjusted.extend(breakpoints)
     #
@@ -341,9 +371,8 @@ def get_summary_flood(request, table_popatrisk=None, iso_alpha3=None):
     values = values + values_by_rp["200"] + values_by_rp["500"] + values_by_rp["1000"]
     breakpoints = calc_breaks_natural(values, num_breakpoints)
     natural_adjusted.append(breakpoints[-2])
-    maxValue = max(values)
     #
-    summary["all"]["max"] = maxValue
+    summary["all"]["max"]["at_admin2_month"] = max(values)
     summary["all"]["breakpoints"]["natural_adjusted"] = natural_adjusted
 
     for rp in returnPeriods:

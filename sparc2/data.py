@@ -162,14 +162,15 @@ def assertBranch(obj, keys):
 
 
 def insertIntoObject(obj, keys, value):
+    print "Keys: ", keys
+    keys = [unicode(k) for k in keys]
     obj = assertBranch(obj, keys)
     numberOfKeys = len(keys)
     current = obj
-    for i in range(numberOfKeys) - 1:
+    for i in range(numberOfKeys - 1):
         current = current[keys[i]]
     current[keys[numberOfKeys-1]] = value
     return obj
-
 
 
 class SPARCDatabaseConnection(object):
@@ -183,7 +184,17 @@ class SPARCDatabaseConnection(object):
 
     def exec_query_single(self, sql):
         self.cursor.execute(sql)
-        return self.cursor.fetchone()
+        row = self.cursor.fetchone()
+        value = None
+        try:
+            value = row[0]
+        except:
+            value = None
+        return value
+
+    def exec_query_single_aslist(self, sql):
+        value = self.exec_query_single(sql)
+        return value.split(",") if value else []
 
     def exec_update(self, sql):
         self.cursor.execute(sql)

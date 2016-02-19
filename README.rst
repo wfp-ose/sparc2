@@ -12,92 +12,39 @@ Spatial Analysis Risk Calendar, Version 2.x (sparc2)
 Development Environment
 -----------------------
 
-These instructions are for an Ubuntu 14.04 development environment and assume
-use of vagrant and virtualbox.
+To set up a development environment, use the sparc2-ansible Ansible_ project.  Follow the installation_ instructions from the Ansible website to set up Ansible on your host machine.
 
-First, link your local git repo into the guest Ubuntu 14.04, such as below:
+.. _Ansible: https://www.ansible.com/
+.. _installation: http://docs.ansible.com/ansible/intro_installation.html#installation
 
-.. code-block::
-
-    config.vm.synced_folder "~/workspaces/sparc/sparc2.git", "/home/vagrant/sparc2.git"
-
-Launch the virtual machine and run the following script.  This will install all dependencies.
+First, clone the repo into your local environment.
 
 .. code-block:: bash
 
-    cd ~/sparc2.git
-    bash install_ubuntu_1404.sh
+    git clone https://github.com/wfp-ose/sparc2-ansible.git sparc2-ansible.git
+    # or
+    git clone git@github.com:wfp-ose/sparc2-ansible.git sparc2-ansible.git
 
-Then, open up the PostGIS access file.
+Then, configure your local Vagrantfile_ and Ansible vars_ for your environment.
 
-.. code-block:: bash
+.. _Vagrantfile:  https://github.com/wfp-ose/sparc2-ansible/blob/master/Vagrantfile.
+.. _vars: https://github.com/wfp-ose/sparc2-ansible/blob/master/group_vars/all.yml
 
-    sudo vim /etc/postgresql/9.3/main/pg_hba.conf
-
-and change to:
-
-.. code-block::
-
-    local all postgres peer
-    local sparc2 sparc2 md5
-    host sparc2 sparc2 127.0.0.1/32 md5
-
-Restart PostGIS:
+Then, to deploy, simply run vagrant up within the directory.
 
 .. code-block:: bash
 
-    sudo /etc/init.d/postgresql restart
+    # cd into sparc2-ansible directory
+    vagrant up
 
-The database should already be initialized, but to reload all data run:
-
-.. codeblock:: bash
-
-    bash reload_data.sh
-
-Next, configure nginx with the following.  Open with:
+If you need to re-provision for any idea, just run vagrant provision and the ansible script will run again.
 
 .. code-block:: bash
 
-    sudo vim /etc/nginx/sites-available/default
+    # cd into sparc2-ansible directory
+    vagrant provision
 
-.. code-block:: bash
-
-    location / {
-        proxy_pass http://localhost:8000/;
-    }
-
-    location /static {
-        alias /var/www/static;
-    }
-
-Then, restart NGINX:
-
-.. code-block:: bash
-
-    sudo /etc/init.d/nginx restart
-
-To add another Django admin user, do the following, but reload_data.sh should
-prompt to add an admin user.
-
-.. code-block:: bash
-
-    workon sparc2
-    django-admin createsuperuser
-    # use username/password admin/admin
-
-Collect static (use the following, since sudo python won't load environment).
-
-.. code-block:: bash
-
-    sudo /home/vagrant/.venvs/sparc2/bin/python manage.py collectstatic
-
-Launch SPARC!
-
-.. code-block:: bash
-
-    source /usr/local/bin/virtualenvwrapper.sh  # if haven't restarted yet since install
-    export DJANGO_SETTINGS_MODULE=sparc2.settings
-    python manage.py runserver [::]:8000
+By default, the guest server's web UI is available on port 8000 (http://localhost:8000/) and PostGIS is available on port 5432 with db / user / pass (sparc2 / sparc2 / sparc2).
 
 Production  Environment
 -----------------------

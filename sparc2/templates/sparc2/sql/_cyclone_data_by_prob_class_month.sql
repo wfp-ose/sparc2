@@ -5,4 +5,4 @@ SELECT
       ], ','
    ) as values
 FROM {{ admin2_popatrisk }}
-WHERE iso3='{{ iso3 }}' and prob_class = '{{ prob_class }}';
+WHERE iso3='{{ iso_alpha3 }}' and prob_class = '{{ prob_class }}';

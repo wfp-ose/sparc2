@@ -36,105 +36,11 @@
   {
     return _opt(options, names, fallback, {});
   };
-    var sparc_onslide_continuous = function(event, ui)
-    {
-        var that = $(this);
-        var h = that.data('label-template').replace('{value}',(ui.value / 100.0));
-        that.data('label').html(h);
+  var highlightFeature = function(e){
+    var layer = e.target;
+    layer.setStyle(layer.options.hoverStyle);
+    if (!L.Browser.ie && !L.Browser.opera){
+      layer.bringToFront();
     }
-    var sparc_onslide_ordinal = function(event, ui)
-    {
-        var that = $(this);
-        var v2 = that.data('options')[ui.value];
-        var h = that.data('label-template').replace('{value}',v2);
-        that.data('label').html(h);
-    }
-    var highlightFeature = function(e){
-      var layer = e.target;
-      layer.setStyle(layer.options.hoverStyle);
-      if (!L.Browser.ie && !L.Browser.opera){
-        layer.bringToFront();
-      }
-    };
-    var color_cyclone = function(f, state, map_config, popatrisk_config)
-    {
-      var filters = state["filters"]["popatrisk"];
-      var prob_class_max = filters["prob_class_max"];
-      var month_short3 = months_short_3[state["month"]-1];
-      var value = 0;
-      for(var i = 0; i < f.properties.addinfo.length; i++)
-      {
-          var a = f.properties.addinfo[i];
-          if(a["category"] == filters["category"])
-          {
-            if(a["prob_class_max"] <= prob_class_max)
-            {
-              console.log("matched prob_class", prob_class_max);
-              value += a[month_short3];
-            }
-          }
-      }
-      var colors = map_config["featurelayers"]["popatrisk"]["symbology"]["colors"];
-      var breakpoints = popatrisk_config["data"]["summary"]["all"]["breakpoints"]["natural"];
-      var color = undefined;
-      for(var i = 0; i < breakpoints.length; i++)
-      {
-        if(value < breakpoints[i])
-        {
-          color = colors[i];
-          break;
-        }
-      }
-      return (color == undefined) ? colors[colors.length-1] : color;
-    }
-    var color_drought = function(f, state, map_config, popatrisk_config)
-    {
-      var filters = state["filters"]["popatrisk"];
-      var prob_class_max = filters["prob_class_max"] / 100.0;
-      var month_short3 = months_short_3[state["month"]-1];
-      var value = 0;
-      for(var i = 0; i < f.properties.addinfo.length; i++)
-      {
-          var a = f.properties.addinfo[i];
-          if(a["month"] == month_short3)
-          {
-            if(a["prob"] < prob_class_max)
-            {
-              value += a["popatrisk"];
-            }
-          }
-      }
-      var colors = map_config["featurelayers"]["popatrisk"]["symbology"]["colors"];
-      var breakpoints = popatrisk_config["data"]["summary"]["all"]["breakpoints"]["natural"];
-      var color = undefined;
-      for(var i = 0; i < breakpoints.length; i++)
-      {
-        if(value < breakpoints[i])
-        {
-          color = colors[i];
-          break;
-        }
-      }
-      return (color == undefined) ? colors[colors.length-1] : color;
-    }
-    var color_flood = function(f, state, map_config, popatrisk_config)
-    {
-      var filters = state["filters"]["popatrisk"];
-      var rp = filters["rp"];
-      //
-      var month_short3 = months_short_3[state["month"]-1];
-      var value = f.properties["RP"+rp.toString(10)][month_short3];
-      var colors = map_config["featurelayers"]["popatrisk"]["symbology"]["colors"];
-      var breakpoints = popatrisk_config["data"]["summary"]["all"]["breakpoints"]["natural_adjusted"];
-      var color = undefined;
-      for(var i = 0; i < breakpoints.length; i++)
-      {
-        if(value < breakpoints[i])
-        {
-          color = colors[i];
-          break;
-        }
-      }
-      return (color == undefined) ? colors[colors.length-1] : color;
-    }
+  };
 </script>

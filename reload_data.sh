@@ -5,6 +5,7 @@ if [[ ! $REPLY =~ ^[Yy]$ ]]
 then
     exit 1
 fi
+VENV=sparc2
 # Drop Database
 # Functions
 create_schema(){
@@ -56,8 +57,6 @@ export DJANGO_SETTINGS_MODULE=sparc2.settings
 U=sparc2
 sudo -u postgres psql -c "DROP DATABASE IF EXISTS sparc2;"
 sudo -u postgres psql -c "CREATE DATABASE sparc2 ENCODING 'UTF8' TEMPLATE template_postgis;"
-sudo -u postgres psql -d sparc2 -c "CREATE EXTENSION fuzzystrmatch;"
-sudo -u postgres psql -d sparc2 -c "CREATE EXTENSION unaccent;"
 sudo -u postgres psql -d sparc2 -c "ALTER DATABASE sparc2 OWNER TO $U;"
 sudo -u postgres psql -d sparc2 -c "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO $U;"
 SCHEMAS=(sparc1 gaul wfp cyclone flood drought)

@@ -12,7 +12,7 @@ geosite.controller_main = function($scope, $element, $controller, state, statesc
         var $scope = angular.element("#geosite-main").scope();
         $scope.$apply(function () {
             $scope.state = $.extend($scope.state, args);
-            var url = buildPageURL("countryhazardmonth_detail", state);
+            var url = buildPageURL("countryhazardmonth_detail", $scope.state);
             history.replaceState(state, "", url);
             // Refresh Map
             $scope.$broadcast("refreshMap", {'state': $scope.state});
@@ -29,7 +29,7 @@ geosite.controller_main = function($scope, $element, $controller, state, statesc
             $scope.state.filters[args["layer"]] = $.extend(
               $scope.state.filters[args["layer"]],
               args["filter"]);
-            var url = buildPageURL("countryhazardmonth_detail", state);
+            var url = buildPageURL("countryhazardmonth_detail", $scope.state);
             history.replaceState(state, "", url);
             // Refresh Map
             $scope.$broadcast("refreshMap", {'state': $scope.state});
@@ -43,7 +43,7 @@ geosite.controller_main = function($scope, $element, $controller, state, statesc
         //
         var $scope = angular.element("#geosite-main").scope();
         $scope.state.view = $.extend($scope.state.view, args);
-        var url = buildPageURL("countryhazardmonth_detail", state);
+        var url = buildPageURL("countryhazardmonth_detail", $scope.state);
         history.replaceState(state, "", url);
         // $scope.$on already wraps $scope.$apply
         /*$scope.$apply(function () {

@@ -27,15 +27,20 @@ featurelayers:
       colors: ['#fee5d9', '#fcbba1', '#fde79c', '#fc8d59', '#d7301f','#8162c6','#290051']
       styles:
         default:
-          weight: 1
-          color: "#000000"
-          opacity: 0.8
-          fillOpacity: 0.4
+          static:
+            weight: 1
+            color: "#000000"
+            opacity: 0.8
+            fillOpacity: 0.4
+          {% endverbatim %}
+          dynamic: "style_{{ hazard }}"
+          {% verbatim %}
         hover:
-          weight: 2
-          color: "#0000FF"
-          opacity: 0.8
-          fillOpacity: 0.3
+          static:
+            weight: 2
+            color: "#0000FF"
+            opacity: 0.8
+            fillOpacity: 0.3
     legend:
       label: "Population at Risk"
       symbol:
@@ -61,6 +66,22 @@ featurelayers:
               position: 'outer-middle'
         hazard: cyclone
     filters:
+      - label: "Pop at Risk"
+        description:  "The population at risk at the admin-2 level."
+        line_height: 36px
+        height: 50px
+        type: slider
+        slider:
+          id: sparc-popatrisk-slider
+          type: continuous
+          width: 100px
+          range: true  # See https://jqueryui.com/slider/#range
+          label: "{{ values.0 }} - {{ values.1 }}"
+          values: [0, {% endverbatim %}{{ maxValue }}{% verbatim %}]
+          min: 0
+          max: {% endverbatim %}{{ maxValue }}{% verbatim %}  # Overridden by max value from summary data
+          step: 1
+          output: popatrisk_range
       - label: Category
         description: "The Saffir-Simpson Hurricane Wind Scale is a 1 to 5 rating based on a hurricane's sustained wind speed. This scale estimates potential property damage. Hurricanes reaching Category 3 and higher are considered major hurricanes because of their potential for significant loss of life and damage. Category 1 and 2 storms are still dangerous, however, and require preventative measures. In the western North Pacific, the term \"super typhoon\" is used for tropical cyclones with sustained winds exceeding 150 mph."
         height: 34px
@@ -91,7 +112,7 @@ featurelayers:
           type: continuous
           width: 120px
           range: min
-          label: "&lt;= {value}"
+          label: "&gt; 0 and &lt;= {{ value }}"
           value: 0.1
           min: 0
           max: 1.0
@@ -134,7 +155,7 @@ featurelayers:
           width: 120px
           range: min
           value: .04
-          label: "&lt; {value} %"
+          label: "&lt; {{ value }} %"
           options: [2, 4, 6, 8, 10, 15, 20, 25, 50, 100]
           output: prob_class_max
   {% endverbatim %}{% elif hazard == "flood" %}{% verbatim %}
@@ -160,6 +181,22 @@ featurelayers:
           rp1000: "#B0C4DE"
         returnPeriods: [25, 100, 1000]
     filters:
+      - label: "Pop at Risk"
+        description:  "The population at risk at the admin-2 level."
+        line_height: 36px
+        height: 50px
+        type: slider
+        slider:
+          id: sparc-popatrisk-slider
+          type: continuous
+          width: 100px
+          range: true  # See https://jqueryui.com/slider/#range
+          label: "{{ values.0 }} - {{ values.1 }}"
+          values: [0, {% endverbatim %}{{ maxValue }}{% verbatim %}]
+          min: 0
+          max: {% endverbatim %}{{ maxValue }}{% verbatim %}  # Overridden by max value from summary data
+          step: 1
+          output: popatrisk_range
       - label: "Return Period"
         description:  "Probability is based on the concept of \"return period\".  A return period is an estimate of the likelihood of an event, such as a flood, to occur. The theoretical return period is the inverse of the probability that the event will be exceeded in any one year (or more accurately the inverse of the expected number of occurrences in a year). In this case, a 100 year flood has a 0.01 or 1% chance of being exceeded in any one year."
         line_height: 36px
@@ -171,7 +208,7 @@ featurelayers:
           width: 100px
           range: min
           value: 50
-          label: "&lt;= {value} RP"
+          label: "&lt;= {{ value }} RP"
           options: [25, 50, 100, 200, 500, 1000]
           output: rp
   {% endverbatim %}{% endif %}

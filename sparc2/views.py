@@ -95,11 +95,24 @@ def countryhazardmonth_detail(request, iso3=None, hazard=None, month=None):
     month_title = MONTHS_SHORT3[month_num-1]
 
     print "hazard: ", hazard
+
+    ##############
+    # This is inefficient, since not hitting cache.  Need to rework
+    summary = None
+    if hazard == "cyclone":
+        summary = get_summary_cyclone(table_popatrisk=POPATRISK_BY_HAZARD[hazard], iso_alpha3=iso3)
+    elif hazard == "drought":
+        summary = get_summary_drought(table_popatrisk=POPATRISK_BY_HAZARD[hazard], iso_alpha3=iso3)
+    elif hazard == "flood":
+        summary = get_summary_flood(table_popatrisk=POPATRISK_BY_HAZARD[hazard], iso_alpha3=iso3)
+    #############
+
     map_config_yml = get_template("sparc2/maps/countryhazardmonth_detail.yml").render({
         "iso_alpha3": iso3,
         "hazard_title": hazard_title,
         "country_title": country_title,
-        "hazard": hazard
+        "hazard": hazard,
+        "maxValue": summary["all"]["max"]["at_admin2_month"]
     })
     map_config = yaml.load(map_config_yml)
 
@@ -118,7 +131,8 @@ def countryhazardmonth_detail(request, iso3=None, hazard=None, month=None):
         "hazard_title": hazard_title,
         "month_title": month_title,
         "map_config": map_config,
-        "map_config_json": json.dumps(map_config)
+        "map_config_json": json.dumps(map_config),
+        "maxValue": summary["all"]["max"]["at_admin2_month"]
     }
     print "filters: ", map_config["featurelayers"]["popatrisk"]["filters"]
 
@@ -228,11 +242,11 @@ class countryhazard_data_local_summary(sparc2_view):
         iso3 = kwargs.pop('iso3', None)
         data = None
         if hazard == "cyclone":
-            data = get_summary_cyclone(request, table_popatrisk=POPATRISK_BY_HAZARD[hazard], iso_alpha3=iso3)
+            data = get_summary_cyclone(table_popatrisk=POPATRISK_BY_HAZARD[hazard], iso_alpha3=iso3)
         elif hazard == "drought":
-            data = get_summary_drought(request, table_popatrisk=POPATRISK_BY_HAZARD[hazard], iso_alpha3=iso3)
+            data = get_summary_drought(table_popatrisk=POPATRISK_BY_HAZARD[hazard], iso_alpha3=iso3)
         elif hazard == "flood":
-            data = get_summary_flood(request, table_popatrisk=POPATRISK_BY_HAZARD[hazard], iso_alpha3=iso3)
+            data = get_summary_flood(table_popatrisk=POPATRISK_BY_HAZARD[hazard], iso_alpha3=iso3)
         return data
 
 class countryhazard_data_emdat(sparc2_view):

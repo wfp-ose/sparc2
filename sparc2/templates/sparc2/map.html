@@ -17,8 +17,10 @@
 {% block head_main_js %}
 {{ block.super }}
 {% if SPARC_STATIC_DEBUG.main %}
+<script src="{{ STATIC_URL }}sparc2/build/js/monkeypatch.js?v={{ SPARC_STATIC_VERSION }}"></script>
 <script src="{{ STATIC_URL }}sparc2/build/js/main.js?v={{ SPARC_STATIC_VERSION }}"></script>
 {% else %}
+<script src="{{ STATIC_URL }}sparc2/build/js/monkeypatch.min.js?v={{ SPARC_STATIC_VERSION }}"></script>
 <script src="{{ STATIC_URL }}sparc2/build/js/main.min.js?v={{ SPARC_STATIC_VERSION }}"></script>
 {% endif %}
 {% endblock %}

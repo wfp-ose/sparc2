@@ -65,6 +65,7 @@ geosite.controller_map_map = function($scope, $element, $interpolate, state, pop
   };
   //////////////////////////////////////
   // The Map
+  var hasViewOverride = hasHashValue(["latitude", "lat", "longitude", "lon", "lng", "zoom", "z"]);
   var view = state["view"];
   live["map"] = init_map({
     "zoom": map_config["controls"]["zoom"],
@@ -90,7 +91,8 @@ geosite.controller_map_map = function($scope, $element, $interpolate, state, pop
     console.log(source);
     var f = source.feature;
     //
-    var state = angular.element(document.body).injector().get('state');
+    var $scope = angular.element("#geosite-main").scope();
+    var state = $scope.state;
     var filters = state["filters"]["popatrisk"];
     //
     //var popupTemplate = map_config["featurelayers"]["popatrisk"]["popup"]["template"];
@@ -104,9 +106,23 @@ geosite.controller_map_map = function($scope, $element, $interpolate, state, pop
       var rp = filters["rp"];
       ctx["popatrisk"] = f.properties["RP"+rp.toString(10)][month_short_3];
     }
-    else
+    else if(state.hazard == "cyclone")
     {
-
+      var prob_class_max = filters["prob_class_max"];
+      var value = 0;
+      for(var i = 0; i < f.properties.addinfo.length; i++)
+      {
+          var a = f.properties.addinfo[i];
+          if(a["category"] == filters["category"])
+          {
+            if(a["prob_class_max"] != 0 && a["prob_class_max"] <= prob_class_max)
+            {
+              console.log("matched prob_class", prob_class_max);
+              value += a[month_short_3];
+            }
+          }
+      }
+      ctx["popatrisk"] = value;
     }
     var chartConfig = map_config["featurelayers"]["popatrisk"]["popup"]["chart"];
     ctx["chartID"] = chartConfig.id;
@@ -179,15 +195,15 @@ geosite.controller_map_map = function($scope, $element, $interpolate, state, pop
     geosite.intend("layerLoaded", {'layer': id}, $scope);
   });
   // Zoom to Data
-  if(!(hasHashValue(["latitude", "lat", "longitude", "lon", "lng", "zoom", "z"])))
+  if(!hasViewOverride)
   {
       live["map"].fitBounds(live["featurelayers"]["popatrisk"].getBounds());
   }
   //////////////////////////////////////
   // Sidebar Toggle
-  $("#sparc-sidebar-toggle").click(function (){
+  $("#geosite-map-sidebar-toggle").click(function (){
     $(this).toggleClass("sidebar-open");
-    $("#sparc-sidebar, #sparc-map").toggleClass("sidebar-open");
+    $("#geosite-sidebar, #geosite-map").toggleClass("sidebar-open");
     setTimeout(function(){
       live["map"].invalidateSize({
         animate: true,
