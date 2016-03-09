@@ -147,49 +147,32 @@ var buildHazardChart = function(chartConfig, popatrisk_config, options)
 
 var init_start = function(appName)
 {
-  init_summary(appName);
-};
+  var url_summary = geosite.map_config["featurelayers"]["popatrisk"]["urls"]["summary"]
+    .replace("{iso3}", geosite.initial_state["iso3"])
+    .replace("{hazard}", geosite.initial_state["hazard"]);
 
-var init_summary = function(appName)
-{
-  var url_summary = map_config["featurelayers"]["popatrisk"]["urls"]["summary"]
-    .replace("{iso3}", sparc["state"]["iso3"])
-    .replace("{hazard}", sparc["state"]["hazard"]);
+  var url_geojson = geosite.map_config["featurelayers"]["popatrisk"]["urls"]["geojson"]
+    .replace("{iso3}", geosite.initial_state["iso3"])
+    .replace("{hazard}", geosite.initial_state["hazard"]);
 
-  $.ajax({
-    dataType: "json",
-    url: url_summary,
-    success: function(response){
-      sparc["layers"]["popatrisk"]["data"]["summary"] = response;
-      init_geojson(appName);
-    }
-  });
-};
-
-var init_geojson = function(appName)
-{
-  var url_geojson = map_config["featurelayers"]["popatrisk"]["urls"]["geojson"]
-    .replace("{iso3}", sparc["state"]["iso3"])
-    .replace("{hazard}", sparc["state"]["hazard"]);
-
-  $.ajax({
-    dataType: "json",
-    url: url_geojson,
-    success: function(response){
-      sparc["layers"]["popatrisk"]["data"]["geojson"] = response;
-      init_main_app(appName);
-    }
+  $.when(
+    $.ajax({dataType: "json", url: url_summary}),
+    $.ajax({dataType: "json", url: url_geojson})
+  ).done(function( response_summary, response_geojson ){
+    geosite.initial_data["layers"]["popatrisk"]["data"]["summary"] = response_summary[0];
+    geosite.initial_data["layers"]["popatrisk"]["data"]["geojson"] = response_geojson[0];
+    init_main_app(appName);
   });
 };
 
 var init_main_app = function(appName)
 {
-  sparcApp = app = angular.module(appName, ['ngRoute']);
+  geosite.app = app = angular.module(appName, ['ngRoute']);
 
-  app.factory('state', function(){return $.extend({}, sparc["state"]);});
-  app.factory('stateschema', function(){return $.extend({}, sparc["stateschema"]);});
-  app.factory('popatrisk_config', function(){return $.extend({}, sparc["layers"]["popatrisk"]);});
-  app.factory('map_config', function(){return $.extend({}, map_config);});
+  app.factory('state', function(){return $.extend({}, geosite.initial_state);});
+  app.factory('stateschema', function(){return $.extend({}, geosite.state_schema);});
+  app.factory('popatrisk_config', function(){return $.extend({}, geosite.initial_data["layers"]["popatrisk"]);});
+  app.factory('map_config', function(){return $.extend({}, geosite.map_config);});
   app.factory('live', function(){
     return {
       "map": undefined,
@@ -231,7 +214,7 @@ var init_sparc_controller = function(that, app)
   });
 };
 
-geosite.controller_main = function($scope, $element, $controller, state, stateschema, popatrisk_config, live)
+geosite.controller_main = function($scope, $element, $controller, $http, $q, state, map_config, stateschema, popatrisk_config, live)
 {
 
     $scope.state = geosite.init_state(state, stateschema);
@@ -288,8 +271,16 @@ geosite.controller_main = function($scope, $element, $controller, state, statesc
 
     $scope.$on("layerLoaded", function(event, args) {
         var $scope = angular.element("#geosite-main").scope();
+        var type = args.type;
         var layer = args.layer;
-        $scope.state.view.featurelayers.push(layer);
+        if(type == "featurelayer")
+        {
+          $scope.state.view.featurelayers.push(layer);
+        }
+        else if(type == "baselayer")
+        {
+          $scope.state.view.baselayer = layer;
+        }
     });
 
     $scope.$on("showLayer", function(event, args) {
@@ -335,6 +326,62 @@ geosite.controller_main = function($scope, $element, $controller, state, statesc
           $scope.$broadcast("changeView", {'layer': layer});
         }
     });
+
+    $scope.$on("clickedOnMap", function(event, args) {
+        console.log('event', event);
+        console.log('args', args);
+        //
+        var $scope = angular.element("#geosite-main").scope();
+        var z = $scope.state.view.z;
+        var visibleFeatureLayers = $scope.state.view.featurelayers;
+        console.log("visibleFeatureLayers", visibleFeatureLayers);
+        var featurelayers_by_featuretype = {};
+        var fields_by_featuretype = {};
+        var urls = [];
+        for(var i = 0; i < visibleFeatureLayers.length; i++)
+        {
+            var fl = map_config.featurelayers[visibleFeatureLayers[i]];
+            if(fl.wfs != undefined)
+            {
+              var params = {
+                service: "wfs",
+                version: fl.wfs.version,
+                request: "GetFeature",
+                srsName: "EPSG:4326",
+              };
+
+              var targetLocation = new L.LatLng(args.lat, args.lon);
+              var bbox = geosite.tilemath.point_to_bbox(args.lon, args.lat, z, 4).join(",");
+              var typeNames = fl.wfs.layers || fl.wms.layers || [] ;
+              for(var j = 0; j < typeNames.length; j++)
+              {
+                typeName = typeNames[j];
+                var url = fl.wfs.url + "?" + $.param($.extend(params, {typeNames: typeName, bbox: bbox}));
+                urls.push(url);
+                fields_by_featuretype[typeName.toLowerCase()] = geosite.layers.aggregate_fields(fl);
+                featurelayers_by_featuretype[typeName.toLowerCase()] = fl;
+              }
+            }
+          }
+
+          $q.all(geosite.http.build_promises($http, urls)).then(function(responses){
+              var features = geosite.http.build_features(responses, fields_by_featuretype);
+              console.log("Features: ", features);
+              if(features.length > 0 )
+              {
+                var f = geosite.utility.getClosestFeature(features, targetLocation);
+                var fl = featurelayers_by_featuretype[f.featuretype];
+                $scope.$broadcast("openPopup", {
+                  'featureLayer': fl,
+                  'feature': f,
+                  'location': {
+                    'lon': f.geometry.lng,
+                    'lat': f.geometry.lat
+                  }
+                });
+              }
+          });
+    });
 };
 
 
@@ -378,7 +425,7 @@ geosite.controller_breadcrumb = function($scope, $element, $controller, state)
     var css = 'sparc-select-dropdown';
 
     s.select2({
-      data: sparc["data"][initialData], // global variable set in header
+      data: geosite.initial_data["data"][initialData], // global variable set in header
       placeholder: placeholder,
       allowClear: false,
       width: w,
@@ -489,7 +536,7 @@ var init_map = function(opts)
 {
   var map = L.map('map',
   {
-    zoomControl: opt_b(opts, "zoom", false),
+    zoomControl: opt_b(opts, "zoomControl", false),
     minZoom: opt_i(opts, "minZoom", 3),
     maxZoom: opt_i(opts, "maxZoom", 18)
   });
@@ -503,27 +550,18 @@ var init_map = function(opts)
 
   return map;
 };
-
-var init_baselayers = function(map, baselayers)
-{
-  var layers = {};
-  for(var i = 0; i < baselayers.length; i++)
-  {
-      var tl = baselayers[i];
-      try{
-        layers[tl.id] = L.tileLayer(tl.source.url, {
-            id: tl.id,
-            attribution: tl.source.attribution
-        });
-      }catch(err){console.log("Could not add baselayer "+i);}
-  }
-  return layers;
-};
-
 geosite.controller_map_map = function($scope, $element, $interpolate, state, popatrisk_config, map_config, live) {
   //////////////////////////////////////
   var listeners =
   {
+    click: function(e) {
+      var c = e.latlng;
+      var delta = {
+        "lat": c.lat,
+        "lon": c.lng
+      };
+      geosite.intend("clickedOnMap", delta, $scope);
+    },
     zoomend: function(e){
       var delta = {
         "extent": live["map"].getBounds().toBBoxString(),
@@ -555,7 +593,7 @@ geosite.controller_map_map = function($scope, $element, $interpolate, state, pop
   var hasViewOverride = hasHashValue(["latitude", "lat", "longitude", "lon", "lng", "zoom", "z"]);
   var view = state["view"];
   live["map"] = init_map({
-    "zoom": map_config["controls"]["zoom"],
+    "zoomControl": map_config["controls"]["zoom"],
     "minZoom": map_config["view"]["minZoom"],
     "maxZoom": map_config["view"]["maxZoom"],
     "lat": view["lat"],
@@ -565,12 +603,19 @@ geosite.controller_map_map = function($scope, $element, $interpolate, state, pop
   });
   //////////////////////////////////////
   // Base Layers
-  var baseLayers = init_baselayers(live["map"], map_config["baselayers"]);
+  var baseLayers = geosite.layers.init_baselayers(live["map"], map_config["baselayers"]);
   $.extend(live["baselayers"], baseLayers);
   var baseLayerID = map_config["baselayers"][0].id;
   live["baselayers"][baseLayerID].addTo(live["map"]);
   geosite.intend("viewChanged", {'baselayer': baseLayerID}, $scope);
-  geosite.intend("layerLoaded", {'layer': baseLayerID}, $scope);
+  geosite.intend("layerLoaded", {'type':'baselayer', 'layer': baseLayerID}, $scope);
+  //////////////////////////////////////
+  $.each(map_config.featurelayers, function(id, layerConfig){
+    if(id != "popatrisk")
+    {
+      geosite.layers.init_featurelayer(id, layerConfig, $scope, live, map_config);
+    }
+  });
   //////////////////////////////////////
   // Feature layers
   var popupContent = function(source)
@@ -652,35 +697,6 @@ geosite.controller_map_map = function($scope, $element, $interpolate, state, pop
       });
     }
   });
-  // Load other layers
-  $.each(map_config.featurelayers, function(id, layerConfig){
-    if(id != "popatrisk")
-    {
-      if(layerConfig.enabled == undefined || layerConfig.enabled == true)
-      {
-        if(layerConfig.type.toLowerCase() == "wms")
-        {
-          //https://github.com/Leaflet/Leaflet/blob/master/src/layer/tile/TileLayer.WMS.js
-          var w = layerConfig.wms;
-          var fl = L.tileLayer.wms(w.url, {
-            renderOrder: $.inArray(id, map_config.renderlayers),
-            buffer: w.buffer || 0,
-            version: w.version || "1.1.1",
-            layers: w.layers.join(","),
-            styles: w.styles ? w.styles.join(",") : '',
-            format: w.format,
-            transparent: w.transparent || false,
-            attribution: layerConfig.source
-          });
-          live["featurelayers"][id] = fl;
-        }
-      }
-    }
-  });
-  $.each(live["featurelayers"], function(id, fl){
-    fl.addTo(live["map"]);
-    geosite.intend("layerLoaded", {'layer': id}, $scope);
-  });
   // Zoom to Data
   if(!hasViewOverride)
   {
@@ -746,6 +762,22 @@ geosite.controller_map_map = function($scope, $element, $interpolate, state, pop
     if(args["layer"] != undefined)
     {
       live["map"].fitBounds(live["featurelayers"][args["layer"]].getBounds());
+    }
+  });
+
+  $scope.$on("openPopup", function(event, args) {
+    console.log("Refreshing map...");
+    if(
+      args["featureLayer"] != undefined &&
+      args["feature"] != undefined &&
+      args["location"] != undefined)
+    {
+      geosite.popup.openPopup(
+        $interpolate,
+        args["featureLayer"],
+        args["feature"],
+        args["location"],
+        live["map"]);
     }
   });
 };
@@ -904,10 +936,15 @@ geosite.style_flood = function(f, state, map_config, popatrisk_config)
 
 var buildPageURL = function(page, state)
 {
-  var url = sparc["pages"][page]["url"]
+  var url = geosite.pages[page]
     .replace("{iso3}", state["iso3"])
     .replace("{hazard}", state["hazard"])
     .replace("{month}", state["month"]);
+
+  console.log("url: ", url);
+  console.log("page: ", geosite.pages[page]);
+
+  return url;
 
   var hash_args = [];
   var view = state["view"];
@@ -933,4 +970,31 @@ var buildPageURL = function(page, state)
     url += "#"+hash_args.join("&");
   }
   return url;
+};
+
+
+geosite.utility = {};
+
+geosite.utility.getClosestFeature = function(nearbyFeatures, target)
+{
+  var closestFeature = undefined;
+  var closestDistance = 0;
+  if(nearbyFeatures != undefined)
+  {
+    if(nearbyFeatures.length > 0)
+    {
+      closestFeature = nearbyFeatures[0];
+      closestDistance = target.distanceTo(nearbyFeatures[0].geometry)
+      for(var i = 0; i < nearbyFeatures.length ;i++)
+      {
+        var f = nearbyFeatures[i];
+        if(target.distanceTo(f.geometry) < closestDistance)
+        {
+          closestFeature = f;
+          closestDistance = target.distanceTo(f.geometry);
+        }
+      }
+    }
+  }
+  return closestFeature;
 };

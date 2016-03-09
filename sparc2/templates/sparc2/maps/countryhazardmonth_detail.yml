@@ -211,7 +211,7 @@ featurelayers:
           label: "&lt;= {{ value }} RP"
           options: [25, 50, 100, 200, 500, 1000]
           output: rp
-  {% endverbatim %}{% endif %}
+  {% endverbatim %}{% endif %}{% verbatim %}
   landscan:
     type: WMS
     title: "Landscan (2013)"
@@ -242,12 +242,15 @@ featurelayers:
       attribution: "WFP GeoNode"
     wms:
       version: "1.1.1"
-      layers: ["geonode:wld_poi_facilities_wfp","geonode:wld_poi_warehouses_wfp"]
+      layers: ["geonode:wld_poi_facilities_wfp", "geonode:wld_poi_warehouses_wfp"]
       styles: []
       format: 'image/png'
       transparent: true
       buffer: 256
       url: "http://geonode.wfp.org/geoserver/geonode/wms"
+    wfs:
+      version: "1.0.0"  # Needs to 1.0.0 or returns bad results for some reason.
+      url: "http://geonode.wfp.org/cors/geoserver/wfs"
     legend:
       label: "WFP Facilities"
       symbol:
@@ -255,7 +258,74 @@ featurelayers:
         width: 16
         height: 16
         preview: false
-  {% if hazard == "cyclone" %}{% verbatim %}
+    click: popup
+    popup:
+      title: "WFP Faciliity"
+      maxWidth: 550
+      panes:
+        - id: "popup_overview"
+          tab:
+            label: "Overview"
+          fields:
+            - output: name
+              inputs:
+                - 'whlocation'
+                - 'place'
+              label: Name
+            - attribute: facility
+              label: Facility
+              when: "defined"
+            - attribute: status
+              label: Status
+            - attribute: country
+              label: Country
+        - id: "popup_location"
+          tab:
+            label: "Location"
+          fields:
+            - attribute: locprecision
+              label: Location Precision
+            - attribute: latitude
+              label: Latitude
+            - attribute: longitude
+              label: Longitude
+            - attribute: compasscode
+              label: Compass Code
+              when: "defined"
+            - attribute: geonameid
+              label: GeoName ID
+              when: "defined"
+        - id: "popup_currency"
+          tab:
+            label: "Currency"
+          fields:
+            - attribute: lastcheckdate
+              label: Last Check Date
+              type: date
+              format: 'medium'
+            - attribute: createdate
+              label: Date Created
+              type: date
+              format: 'medium'
+            - attribute: updatedate
+              label: Date Updated
+              type: date
+              format: 'medium'
+        - id: "popup_links"
+          tab:
+            label: "Links"
+          fields:
+            - attribute: geonameid
+              value: "{{ attributes.geonameid }}"
+              type: link
+              label: "GeoNames"
+              url: "http://www.geonames.org/{{ attributes.geonameid }}/"
+              when: "defined"
+            - value: "{{ geometry.lat | number : 4 }}, {{ geometry.lng | number : 4 }}"
+              type: link
+              label: "OpenStreetMap"
+              url: "https://www.openstreetmap.org/#map=15/{{ geometry.lat }}/{{ geometry.lng }}"
+  {% endverbatim %}{% if hazard == "cyclone" %}{% verbatim %}
   cyclone_probability:
     type: WMS
     title: "Cyclone Probability"

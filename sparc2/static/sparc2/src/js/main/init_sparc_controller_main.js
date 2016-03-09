@@ -1,4 +1,4 @@
-geosite.controller_main = function($scope, $element, $controller, state, stateschema, popatrisk_config, live)
+geosite.controller_main = function($scope, $element, $controller, $http, $q, state, map_config, stateschema, popatrisk_config, live)
 {
 
     $scope.state = geosite.init_state(state, stateschema);
@@ -55,8 +55,16 @@ geosite.controller_main = function($scope, $element, $controller, state, statesc
 
     $scope.$on("layerLoaded", function(event, args) {
         var $scope = angular.element("#geosite-main").scope();
+        var type = args.type;
         var layer = args.layer;
-        $scope.state.view.featurelayers.push(layer);
+        if(type == "featurelayer")
+        {
+          $scope.state.view.featurelayers.push(layer);
+        }
+        else if(type == "baselayer")
+        {
+          $scope.state.view.baselayer = layer;
+        }
     });
 
     $scope.$on("showLayer", function(event, args) {
@@ -101,6 +109,62 @@ geosite.controller_main = function($scope, $element, $controller, state, statesc
         {
           $scope.$broadcast("changeView", {'layer': layer});
         }
+    });
+
+    $scope.$on("clickedOnMap", function(event, args) {
+        console.log('event', event);
+        console.log('args', args);
+        //
+        var $scope = angular.element("#geosite-main").scope();
+        var z = $scope.state.view.z;
+        var visibleFeatureLayers = $scope.state.view.featurelayers;
+        console.log("visibleFeatureLayers", visibleFeatureLayers);
+        var featurelayers_by_featuretype = {};
+        var fields_by_featuretype = {};
+        var urls = [];
+        for(var i = 0; i < visibleFeatureLayers.length; i++)
+        {
+            var fl = map_config.featurelayers[visibleFeatureLayers[i]];
+            if(fl.wfs != undefined)
+            {
+              var params = {
+                service: "wfs",
+                version: fl.wfs.version,
+                request: "GetFeature",
+                srsName: "EPSG:4326",
+              };
+
+              var targetLocation = new L.LatLng(args.lat, args.lon);
+              var bbox = geosite.tilemath.point_to_bbox(args.lon, args.lat, z, 4).join(",");
+              var typeNames = fl.wfs.layers || fl.wms.layers || [] ;
+              for(var j = 0; j < typeNames.length; j++)
+              {
+                typeName = typeNames[j];
+                var url = fl.wfs.url + "?" + $.param($.extend(params, {typeNames: typeName, bbox: bbox}));
+                urls.push(url);
+                fields_by_featuretype[typeName.toLowerCase()] = geosite.layers.aggregate_fields(fl);
+                featurelayers_by_featuretype[typeName.toLowerCase()] = fl;
+              }
+            }
+          }
+
+          $q.all(geosite.http.build_promises($http, urls)).then(function(responses){
+              var features = geosite.http.build_features(responses, fields_by_featuretype);
+              console.log("Features: ", features);
+              if(features.length > 0 )
+              {
+                var f = geosite.utility.getClosestFeature(features, targetLocation);
+                var fl = featurelayers_by_featuretype[f.featuretype];
+                $scope.$broadcast("openPopup", {
+                  'featureLayer': fl,
+                  'feature': f,
+                  'location': {
+                    'lon': f.geometry.lng,
+                    'lat': f.geometry.lat
+                  }
+                });
+              }
+          });
     });
 };
 

@@ -1,48 +1,31 @@
 var init_start = function(appName)
 {
-  init_summary(appName);
-};
+  var url_summary = geosite.map_config["featurelayers"]["popatrisk"]["urls"]["summary"]
+    .replace("{iso3}", geosite.initial_state["iso3"])
+    .replace("{hazard}", geosite.initial_state["hazard"]);
 
-var init_summary = function(appName)
-{
-  var url_summary = map_config["featurelayers"]["popatrisk"]["urls"]["summary"]
-    .replace("{iso3}", sparc["state"]["iso3"])
-    .replace("{hazard}", sparc["state"]["hazard"]);
+  var url_geojson = geosite.map_config["featurelayers"]["popatrisk"]["urls"]["geojson"]
+    .replace("{iso3}", geosite.initial_state["iso3"])
+    .replace("{hazard}", geosite.initial_state["hazard"]);
 
-  $.ajax({
-    dataType: "json",
-    url: url_summary,
-    success: function(response){
-      sparc["layers"]["popatrisk"]["data"]["summary"] = response;
-      init_geojson(appName);
-    }
-  });
-};
-
-var init_geojson = function(appName)
-{
-  var url_geojson = map_config["featurelayers"]["popatrisk"]["urls"]["geojson"]
-    .replace("{iso3}", sparc["state"]["iso3"])
-    .replace("{hazard}", sparc["state"]["hazard"]);
-
-  $.ajax({
-    dataType: "json",
-    url: url_geojson,
-    success: function(response){
-      sparc["layers"]["popatrisk"]["data"]["geojson"] = response;
-      init_main_app(appName);
-    }
+  $.when(
+    $.ajax({dataType: "json", url: url_summary}),
+    $.ajax({dataType: "json", url: url_geojson})
+  ).done(function( response_summary, response_geojson ){
+    geosite.initial_data["layers"]["popatrisk"]["data"]["summary"] = response_summary[0];
+    geosite.initial_data["layers"]["popatrisk"]["data"]["geojson"] = response_geojson[0];
+    init_main_app(appName);
   });
 };
 
 var init_main_app = function(appName)
 {
-  sparcApp = app = angular.module(appName, ['ngRoute']);
+  geosite.app = app = angular.module(appName, ['ngRoute']);
 
-  app.factory('state', function(){return $.extend({}, sparc["state"]);});
-  app.factory('stateschema', function(){return $.extend({}, sparc["stateschema"]);});
-  app.factory('popatrisk_config', function(){return $.extend({}, sparc["layers"]["popatrisk"]);});
-  app.factory('map_config', function(){return $.extend({}, map_config);});
+  app.factory('state', function(){return $.extend({}, geosite.initial_state);});
+  app.factory('stateschema', function(){return $.extend({}, geosite.state_schema);});
+  app.factory('popatrisk_config', function(){return $.extend({}, geosite.initial_data["layers"]["popatrisk"]);});
+  app.factory('map_config', function(){return $.extend({}, geosite.map_config);});
   app.factory('live', function(){
     return {
       "map": undefined,

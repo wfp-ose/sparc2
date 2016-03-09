@@ -2,7 +2,7 @@ var init_map = function(opts)
 {
   var map = L.map('map',
   {
-    zoomControl: opt_b(opts, "zoom", false),
+    zoomControl: opt_b(opts, "zoomControl", false),
     minZoom: opt_i(opts, "minZoom", 3),
     maxZoom: opt_i(opts, "maxZoom", 18)
   });
@@ -16,27 +16,18 @@ var init_map = function(opts)
 
   return map;
 };
-
-var init_baselayers = function(map, baselayers)
-{
-  var layers = {};
-  for(var i = 0; i < baselayers.length; i++)
-  {
-      var tl = baselayers[i];
-      try{
-        layers[tl.id] = L.tileLayer(tl.source.url, {
-            id: tl.id,
-            attribution: tl.source.attribution
-        });
-      }catch(err){console.log("Could not add baselayer "+i);}
-  }
-  return layers;
-};
-
 geosite.controller_map_map = function($scope, $element, $interpolate, state, popatrisk_config, map_config, live) {
   //////////////////////////////////////
   var listeners =
   {
+    click: function(e) {
+      var c = e.latlng;
+      var delta = {
+        "lat": c.lat,
+        "lon": c.lng
+      };
+      geosite.intend("clickedOnMap", delta, $scope);
+    },
     zoomend: function(e){
       var delta = {
         "extent": live["map"].getBounds().toBBoxString(),
@@ -68,7 +59,7 @@ geosite.controller_map_map = function($scope, $element, $interpolate, state, pop
   var hasViewOverride = hasHashValue(["latitude", "lat", "longitude", "lon", "lng", "zoom", "z"]);
   var view = state["view"];
   live["map"] = init_map({
-    "zoom": map_config["controls"]["zoom"],
+    "zoomControl": map_config["controls"]["zoom"],
     "minZoom": map_config["view"]["minZoom"],
     "maxZoom": map_config["view"]["maxZoom"],
     "lat": view["lat"],
@@ -78,12 +69,19 @@ geosite.controller_map_map = function($scope, $element, $interpolate, state, pop
   });
   //////////////////////////////////////
   // Base Layers
-  var baseLayers = init_baselayers(live["map"], map_config["baselayers"]);
+  var baseLayers = geosite.layers.init_baselayers(live["map"], map_config["baselayers"]);
   $.extend(live["baselayers"], baseLayers);
   var baseLayerID = map_config["baselayers"][0].id;
   live["baselayers"][baseLayerID].addTo(live["map"]);
   geosite.intend("viewChanged", {'baselayer': baseLayerID}, $scope);
-  geosite.intend("layerLoaded", {'layer': baseLayerID}, $scope);
+  geosite.intend("layerLoaded", {'type':'baselayer', 'layer': baseLayerID}, $scope);
+  //////////////////////////////////////
+  $.each(map_config.featurelayers, function(id, layerConfig){
+    if(id != "popatrisk")
+    {
+      geosite.layers.init_featurelayer(id, layerConfig, $scope, live, map_config);
+    }
+  });
   //////////////////////////////////////
   // Feature layers
   var popupContent = function(source)
@@ -165,35 +163,6 @@ geosite.controller_map_map = function($scope, $element, $interpolate, state, pop
       });
     }
   });
-  // Load other layers
-  $.each(map_config.featurelayers, function(id, layerConfig){
-    if(id != "popatrisk")
-    {
-      if(layerConfig.enabled == undefined || layerConfig.enabled == true)
-      {
-        if(layerConfig.type.toLowerCase() == "wms")
-        {
-          //https://github.com/Leaflet/Leaflet/blob/master/src/layer/tile/TileLayer.WMS.js
-          var w = layerConfig.wms;
-          var fl = L.tileLayer.wms(w.url, {
-            renderOrder: $.inArray(id, map_config.renderlayers),
-            buffer: w.buffer || 0,
-            version: w.version || "1.1.1",
-            layers: w.layers.join(","),
-            styles: w.styles ? w.styles.join(",") : '',
-            format: w.format,
-            transparent: w.transparent || false,
-            attribution: layerConfig.source
-          });
-          live["featurelayers"][id] = fl;
-        }
-      }
-    }
-  });
-  $.each(live["featurelayers"], function(id, fl){
-    fl.addTo(live["map"]);
-    geosite.intend("layerLoaded", {'layer': id}, $scope);
-  });
   // Zoom to Data
   if(!hasViewOverride)
   {
@@ -259,6 +228,22 @@ geosite.controller_map_map = function($scope, $element, $interpolate, state, pop
     if(args["layer"] != undefined)
     {
       live["map"].fitBounds(live["featurelayers"][args["layer"]].getBounds());
+    }
+  });
+
+  $scope.$on("openPopup", function(event, args) {
+    console.log("Refreshing map...");
+    if(
+      args["featureLayer"] != undefined &&
+      args["feature"] != undefined &&
+      args["location"] != undefined)
+    {
+      geosite.popup.openPopup(
+        $interpolate,
+        args["featureLayer"],
+        args["feature"],
+        args["location"],
+        live["map"]);
     }
   });
 };

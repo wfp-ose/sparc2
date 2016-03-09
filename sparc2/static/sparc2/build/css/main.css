@@ -169,7 +169,21 @@
 .geosite-map-legend .geosite-map-legend-container .geosite-map-legend-item {
   display: block;
   width: 100%;
+}
+.geosite-map-legend .geosite-map-legend-container .geosite-map-legend-item .geosite-map-legend-item-left {
+  position: relative;
+  display: inline-block;
   height: 20px;
+  vertical-align: top;
+}
+.geosite-map-legend .geosite-map-legend-container .geosite-map-legend-item .geosite-map-legend-item-right {
+  position: relative;
+  padding-left: 4px;
+  box-sizing: border-box;
+  display: inline-block;
+  border-left: 1px solid white;
+  width: calc(100% - 71px);
+  vertical-align: top;
 }
 .geosite-map-legend .geosite-map-legend-container .geosite-map-legend-item .geosite-map-legend-item-icon {
   display: inline-block;
@@ -208,8 +222,8 @@
   display: inline-block;
   width: 40px;
   height: 100%;
+  max-height: 20px;
   text-align: center;
-  border-left: 1px solid white;
   vertical-align: text-bottom;
 }
 .geosite-map-legend .geosite-map-legend-container .geosite-map-legend-item .geosite-map-legend-item-symbol a {
@@ -514,6 +528,13 @@
 }
 .geosite-main .geosite-map .leaflet-top.leaflet-left {
   top: 60px;
+}
+.geosite-main .geosite-map .leaflet-popup-content {
+  width: auto !important;
+  font-size: 12px;
+}
+.geosite-main .geosite-map .leaflet-popup-content .tab-pane {
+  padding: 10px;
 }
 .geosite-main .geosite-map.sidebar-open {
   left: 400px;

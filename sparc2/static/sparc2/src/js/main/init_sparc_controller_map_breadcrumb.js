@@ -12,7 +12,7 @@ geosite.controller_breadcrumb = function($scope, $element, $controller, state)
     var css = 'sparc-select-dropdown';
 
     s.select2({
-      data: sparc["data"][initialData], // global variable set in header
+      data: geosite.initial_data["data"][initialData], // global variable set in header
       placeholder: placeholder,
       allowClear: false,
       width: w,

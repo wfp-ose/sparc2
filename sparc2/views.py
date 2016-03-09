@@ -82,6 +82,10 @@ def countryhazardmonth_detail(request, iso3=None, hazard=None, month=None):
     #current_month = now.strftime("%B")
     current_month = now.month
 
+    pages = {
+        "countryhazardmonth_detail": "/country/{iso3}/hazard/{hazard}/month/{month}"
+    }
+
     t = TEMPLATES_BY_HAZARD.get(hazard, None)
     if not t:
         raise Exception("Could not find template for hazard")
@@ -116,24 +120,76 @@ def countryhazardmonth_detail(request, iso3=None, hazard=None, month=None):
     })
     map_config = yaml.load(map_config_yml)
 
-    ctx = {
-        "state": {
-            "view": {
-                "latitude": map_config["view"]["latitude"],
-                "longitude": map_config["view"]["longitude"],
-                "zoom": map_config["view"]["zoom"]
-            }
+    ##############
+    initial_state = {
+        "page": "TBD",
+        "iso3": iso3,
+        "hazard": hazard,
+        "month": month_num,
+        "view": {
+            "lat": map_config["view"]["latitude"],
+            "lon": map_config["view"]["longitude"],
+            "z": map_config["view"]["zoom"],
+            "baselayer": None,
+            "featurelayers": []
         },
+        "filters": {
+            "popatrisk":
+            {
+              "popatrisk_range": [0.0, summary["all"]["max"]["at_admin2_month"]]
+            }
+        }
+    }
+    state_schema = {
+        "iso3": "string",
+        "hazard": "string",
+        "month": "integer",
+        "view": {
+          "lat": "float",
+          "lon": "float",
+          "z": "integer"
+        },
+        "filters": {
+            "popatrisk":
+            {
+              "popatrisk_range": "integerarray"
+            }
+        }
+    }
+    if hazard == "cyclone":
+        initial_state["filters"]["popatrisk"]["prob_class_max"] = 0.1
+        initial_state["filters"]["popatrisk"]["category"] = "cat1_5"
+        state_schema["filters"]["popatrisk"]["prob_class_max"] = "float"
+        state_schema["filters"]["popatrisk"]["category"] = "string"
+    elif hazard == "drought":
+        initial_state["filters"]["popatrisk"]["prob_class_max"] = 0.04
+        state_schema["filters"]["popatrisk"]["prob_class_max"] = "float"
+    elif hazard == "flood":
+        initial_state["filters"]["popatrisk"]["rp"] = 200
+        state_schema["filters"]["popatrisk"]["rp"] = "integer"
+    #############
+
+
+    ctx = {
+        "pages_json": json.dumps(pages),
+        "map_config": map_config,
+        "map_config_json": json.dumps(map_config),
+        "state": initial_state,
+        "state_json": json.dumps(initial_state),
+        "state_schema": state_schema,
+        "state_schema_json": json.dumps(state_schema)
+    }
+
+    ctx.update({
         "iso3": iso3,
         "hazard": hazard,
         "month_num": month_num,
         "country_title": country_title,
         "hazard_title": hazard_title,
         "month_title": month_title,
-        "map_config": map_config,
-        "map_config_json": json.dumps(map_config),
-        "maxValue": summary["all"]["max"]["at_admin2_month"]
-    }
+        "maxValue": summary["all"]["max"]["at_admin2_month"],
+    })
+
     print "filters: ", map_config["featurelayers"]["popatrisk"]["filters"]
 
     #if hazard:
