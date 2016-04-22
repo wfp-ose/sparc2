@@ -16,6 +16,7 @@
 
 {% block head_main_js %}
 {{ block.super }}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.3.0/showdown.min.js"></script>
 {% if SPARC_STATIC_DEBUG.main %}
 <script src="{{ STATIC_URL }}sparc2/build/js/monkeypatch.js?v={{ SPARC_STATIC_VERSION }}"></script>
 <script src="{{ STATIC_URL }}sparc2/build/js/main.js?v={{ SPARC_STATIC_VERSION }}"></script>
@@ -54,9 +55,9 @@
               var map_config = angular.element(document.body).injector().get('map_config');
               var popatrisk_config = angular.element(document.body).injector().get('popatrisk_config');
               //
-              var style_static = map_config["featurelayers"]["popatrisk"]["symbology"]["styles"]["default"]["static"];
+              var style_static = map_config["featurelayers"]["popatrisk"]["cartography"][0]["styles"]["default"]["static"];
               var style = $.extend({}, style_static);
-              var style_dynamic = map_config["featurelayers"]["popatrisk"]["symbology"]["styles"]["default"]["dynamic"];
+              var style_dynamic = map_config["featurelayers"]["popatrisk"]["cartography"][0]["styles"]["default"]["dynamic"];
               var delta = angular.isFunction(geosite[style_dynamic]) ? geosite[style_dynamic](f, state, map_config, popatrisk_config) : undefined;
               if(delta != undefined)
               {
@@ -64,6 +65,37 @@
               }
               return style;
             }
+          }
+        },
+        "context": {
+          "data": {
+            "geojson": undefined,
+            "summary": undefined
+          },
+          "style": {
+            "default": function(f, layer){
+              //
+              //var state = angular.element(document.body).injector().get('state');
+              var $scope = angular.element("#geosite-main").scope();
+              var state = $scope.state;
+              var map_config = angular.element(document.body).injector().get('map_config');
+              var context_config = angular.element(document.body).injector().get('context_config');
+              //
+              var style_static = map_config["featurelayers"]["context"]["cartography"][0]["styles"]["default"]["static"];
+              var style = $.extend({}, style_static);
+              var style_dynamic = map_config["featurelayers"]["context"]["cartography"][0]["styles"]["default"]["dynamic"];
+              var delta = angular.isFunction(geosite[style_dynamic]) ? geosite[style_dynamic](f, state, map_config, context_config) : undefined;
+              if(delta != undefined)
+              {
+                $.extend(style, delta);
+              }
+              return style;
+            }
+          }
+        },
+        "vam": {
+          "data": {
+            "geojson": undefined
           }
         }
       }
@@ -90,11 +122,15 @@
 
 {% block header %}{% include "sparc2/_includes/header.html" %}{% endblock %}
 
+{% block sidebar_left %}
+{% include "sparc2/_includes/sidebar_left_sparc.html" %}
+{% endblock %}
+
 {% block map_controllers %}
 {% include "sparc2/_includes/map_breadcrumb.html" %}
 {% include "geosite/_includes/map_legend.html" %}
 {% include "geosite/_includes/map_filter.html" %}
-{% include "geosite/_includes/map_sidebar_toggle.html" %}
+{% include "geosite/_includes/map_sidebar_toggle_left.html" %}
 {% include "sparc2/_includes/map_calendar.html" %}
 {% endblock %}
 

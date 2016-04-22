@@ -1,4 +1,4 @@
-geosite.controller_sidebar = function($scope, $element, $controller, state, popatrisk_config, map_config, live)
+geosite.controllers["controller_sidebar_sparc"] = function($scope, $element, $controller, state, popatrisk_config, map_config, live)
 {
   angular.extend(this, $controller('GeositeControllerBase', {$element: $element, $scope: $scope}));
   //

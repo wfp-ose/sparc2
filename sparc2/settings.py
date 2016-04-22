@@ -184,6 +184,13 @@ SPARC_MAP_DEFAULTS = {
             "opacity": 0.8,
             "fillOpacity": 0.4,
             "colors": ["#FF0000", "#fef0d9", '#fdcc8a', '#fc8d59', '#d7301f']
+        },
+        "context": {
+            # colors is used by /summary.json to decide number of breakpoints
+            #"colors": ["#FF0000", "#FFA500", '#eff76a', '#76f579', '#e1d3d3', '#FFFFFF']
+            "opacity": 0.8,
+            "fillOpacity": 0.4,
+            "colors": ['#cb181d', '#fb6a4a', '#fcae91', '#aaaaaa', '#bdd7e7','#6baed6','#2171b5']
         }
     }
 }

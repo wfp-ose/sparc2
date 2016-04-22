@@ -1,0 +1,29 @@
+<div
+  class="sparc-map-breadcrumb geosite-controller"
+  ng-controller="sparc-map-breadcrumb"
+  data-controller-name="sparc-map-breadcrumb"
+  data-controller-type="sparc-map-breadcrumb"
+  >
+  <div>
+    <a class="btn btn-primary btn-large" title="Explore" href="{% url "explore" %}">Explore &gt;&gt;</a>
+  </div>
+  {% for bc in SPARC_BREADCRUMBS %}
+  <div>
+    <select
+      id="{{ bc.id }}"
+      data-output="{{ bc.output }}"
+      data-width="{{ bc.width }}"
+      data-height="{{ bc.height }}"
+      data-initial-data="{{ bc.data }}"
+      data-breadcrumbs="{{ bc.breadcrumbs|as_json }}">
+      {% if bc.type == "country" and iso3 %}
+      <option value="{{ iso3 }}" selected="selected">{{ country_title }}</option>
+      {% elif bc.type == "hazard" and hazard %}
+      <option value="{{ hazard }}" selected="selected">{{ hazard_title }}</option>
+      {% else %}
+      <option value="placeholder" selected="selected">{{ bc.placeholder }}</option>
+      {% endif %}
+    </select>
+  </div>
+  {% endfor %}
+</div>

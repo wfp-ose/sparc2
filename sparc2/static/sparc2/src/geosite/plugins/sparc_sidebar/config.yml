@@ -1,0 +1,5 @@
+---
+controllers:
+  - controller_sidebar_sparc.js
+directives: []
+templates: []

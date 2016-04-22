@@ -1,8 +1,25 @@
-geosite.controller_main = function($scope, $element, $controller, $http, $q, state, map_config, stateschema, popatrisk_config, live)
+geosite.controllers["controller_main"] = function($scope, $element, $controller, $http, $q, state, map_config, stateschema, popatrisk_config, live)
 {
 
     $scope.state = geosite.init_state(state, stateschema);
     $scope.live = live;
+
+    // Toggle Modals
+    $scope.$on("toggleModal", function(event, args) {
+        console.log('event', event);
+        console.log('args', args);
+        //
+        var id = args["id"];
+        var modal_scope = angular.element("#"+id).scope();
+        var modal_scope_new = {};
+        $.each(args["dynamic"],function(key, value){
+          modal_scope_new[key] = angular.isArray(value) ? extract(value, map_config): value;
+        });
+        modal_scope.$apply(function () {
+            modal_scope = $.extend(modal_scope, modal_scope_new);
+            setTimeout(function(){$("#"+id).modal('toggle');},0);
+        });
+    });
 
     // Calendar, Country, Hazard, or Filter Changed
     $scope.$on("stateChanged", function(event, args) {
@@ -19,7 +36,7 @@ geosite.controller_main = function($scope, $element, $controller, $http, $q, sta
         });
     });
 
-    // Map Panned or Zoomed
+    // Filter Changed
     $scope.$on("filterChanged", function(event, args) {
         console.log('event', event);
         console.log('args', args);
@@ -29,6 +46,21 @@ geosite.controller_main = function($scope, $element, $controller, $http, $q, sta
             $scope.state.filters[args["layer"]] = $.extend(
               $scope.state.filters[args["layer"]],
               args["filter"]);
+            var url = buildPageURL("countryhazardmonth_detail", $scope.state);
+            history.replaceState(state, "", url);
+            // Refresh Map
+            $scope.$broadcast("refreshMap", {'state': $scope.state});
+        });
+    });
+
+    // Style Changed
+    $scope.$on("selectStyle", function(event, args) {
+        console.log('event', event);
+        console.log('args', args);
+        //
+        var $scope = angular.element("#geosite-main").scope();
+        $scope.$apply(function () {
+            $scope.state.styles[args["layer"]] = args["style"];
             var url = buildPageURL("countryhazardmonth_detail", $scope.state);
             history.replaceState(state, "", url);
             // Refresh Map
@@ -57,9 +89,13 @@ geosite.controller_main = function($scope, $element, $controller, $http, $q, sta
         var $scope = angular.element("#geosite-main").scope();
         var type = args.type;
         var layer = args.layer;
+        var visible = args.visible != undefined ? args.visible : true;
         if(type == "featurelayer")
         {
-          $scope.state.view.featurelayers.push(layer);
+          if(visible)
+          {
+            $scope.state.view.featurelayers.push(layer);
+          }
         }
         else if(type == "baselayer")
         {
@@ -153,14 +189,14 @@ geosite.controller_main = function($scope, $element, $controller, $http, $q, sta
               console.log("Features: ", features);
               if(features.length > 0 )
               {
-                var f = geosite.utility.getClosestFeature(features, targetLocation);
-                var fl = featurelayers_by_featuretype[f.featuretype];
+                var featureAndLocation = geosite.vecmath.getClosestFeatureAndLocation(features, targetLocation);
+                var fl = featurelayers_by_featuretype[featureAndLocation.feature.featuretype];
                 $scope.$broadcast("openPopup", {
                   'featureLayer': fl,
-                  'feature': f,
+                  'feature': featureAndLocation.feature,
                   'location': {
-                    'lon': f.geometry.lng,
-                    'lat': f.geometry.lat
+                    'lon': featureAndLocation.location.lng,
+                    'lat': featureAndLocation.location.lat
                   }
                 });
               }
@@ -171,22 +207,32 @@ geosite.controller_main = function($scope, $element, $controller, $http, $q, sta
 
 var init_sparc_controller_main = function(that, app)
 {
-  geosite.init_controller(that, app, geosite.controller_main);
+  geosite.init_controller(that, app, geosite.controllers.controller_main);
 
-  $('.geosite-controller.geosite-sidebar', that).each(function(){
-    geosite.init_controller($(this), app, geosite.controller_sidebar);
+  $('.geosite-controller.geosite-sidebar.geosite-sidebar-left', that).each(function(){
+    geosite.init_controller($(this), app, geosite.controllers.controller_sidebar_sparc);
+  });
+
+  $('.geosite-controller.geosite-sidebar.geosite-sidebar-right', that).each(function(){
+    geosite.init_controller($(this), app, geosite.controllers.controller_sidebar_editor);
   });
 
   $('.geosite-controller.geosite-map', that).each(function(){
     // Init This
-    geosite.init_controller($(this), app, geosite.controller_map);
+    geosite.init_controller($(this), app, geosite.controllers.controller_map);
+
     // Init Children
     geosite.init_controllers($(this), app, [
-      { "selector": ".geosite-controller.geosite-map-map", "controller": geosite.controller_map_map },
+      { "selector": ".geosite-controller.geosite-map-map", "controller": geosite.controllers.controller_map_map },
       { "selector": ".geosite-controller.sparc-map-calendar", "controller": undefined },
-      { "selector": ".geosite-controller.sparc-map-breadcrumb", "controller": geosite.controller_breadcrumb },
-      { "selector": ".geosite-controller.geosite-map-filter", "controller": geosite.controller_filter },
-      { "selector": ".geosite-controller.geosite-map-legend", "controller": undefined },
+      { "selector": ".geosite-controller.sparc-map-breadcrumb", "controller": geosite.controllers.controller_breadcrumb },
+      { "selector": ".geosite-controller.geosite-map-filter", "controller": geosite.controllers.controller_filter },
+      { "selector": ".geosite-controller.geosite-map-legend", "controller": geosite.controllers.controller_legend },
+    ]);
+
+    // Init Modals
+    geosite.init_controllers($(this), app, [
+      { "selector": ".geosite-controller.geosite-controller-modal", "controller": geosite.controllers.controller_modal }
     ]);
   });
 };

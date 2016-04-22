@@ -15,13 +15,15 @@
   "private": "false",
   "devDependencies": {
     "del": "*",
-    "path": "*",
     "gulp": "^3.9.0",
+    "gulp-angular-templatecache": "^1.8.0",
     "gulp-concat": "*",
     "gulp-jshint": "*",
+    "gulp-less": "*",
     "gulp-minify": "*",
-    "gulp-uglify": "*",
     "gulp-rename": "*",
-    "gulp-less": "*"
+    "gulp-uglify": "*",
+    "path": "*",
+    "yamljs": "^0.2.7"
   }
 }

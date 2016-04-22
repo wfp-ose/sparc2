@@ -2,9 +2,6 @@ import datetime
 import requests
 import yaml
 
-import errno
-from socket import error as socket_error
-
 from django.conf import settings
 from django.views.generic import View
 from django.shortcuts import HttpResponse, render_to_response
@@ -19,11 +16,12 @@ except ImportError:
 from wfppresencedjango.models import WFPCountry
 
 from geosite.enumerations import MONTHS_SHORT3
+from geosite.views import geosite_data_view
 
 from geosite.cache import provision_memcached_client
 from sparc2.enumerations import URL_EMDAT_BY_HAZARD, TEMPLATES_BY_HAZARD, SPARC_HAZARDS_CONFIG, POPATRISK_BY_HAZARD
 from sparc2.models import SPARCCountry
-from sparc2.utils import get_month_number, get_json_admin0, get_geojson_cyclone, get_geojson_drought, get_geojson_flood, get_summary_cyclone, get_summary_drought, get_summary_flood, get_events_flood
+from sparc2.utils import get_month_number, get_json_admin0, get_geojson_cyclone, get_geojson_drought, get_geojson_flood, get_geojson_context, get_summary_cyclone, get_summary_drought, get_summary_flood, get_summary_context, get_events_flood, get_geojson_vam
 
 def home(request, template="home.html"):
     ctx = {}
@@ -138,6 +136,10 @@ def countryhazardmonth_detail(request, iso3=None, hazard=None, month=None):
             {
               "popatrisk_range": [0.0, summary["all"]["max"]["at_admin2_month"]]
             }
+        },
+        "styles": {
+            "popatrisk": "default",
+            "context": "delta_mean"
         }
     }
     state_schema = {
@@ -154,6 +156,10 @@ def countryhazardmonth_detail(request, iso3=None, hazard=None, month=None):
             {
               "popatrisk_range": "integerarray"
             }
+        },
+        "styles": {
+            "popatrisk": "string",
+            "context": "string"
         }
     }
     if hazard == "cyclone":
@@ -197,56 +203,8 @@ def countryhazardmonth_detail(request, iso3=None, hazard=None, month=None):
 
     return render_to_response(t, RequestContext(request, ctx))
 
-class sparc2_view(View):
 
-    key = None
-    content_type = "application/json"
-
-    def _build_key(self, request, *args, **kwargs):
-        return self.key
-
-    def _build_data(self):
-        raise Exception('SparcView._build_data should be overwritten')
-
-    def get(self, request, *args, **kwargs):
-        data = None
-        if settings.GEOSITE_CACHE_DATA:
-            client = provision_memcached_client()
-            if client:
-                key = self._build_key(request, *args, **kwargs)
-                print "Checking cache with key ", key
-
-                data = None
-                try:
-                    data = client.get(key)
-                except socket_error as serr:
-                    data = None
-                    print "Error getting data from in-memory cache."
-                    if serr.errno == errno.ECONNREFUSED:
-                        print "Memcached is likely not running.  Start memcached with supervisord."
-                    raise serr
-
-                if not data:
-                    print "Data not found in cache."
-                    data = self._build_data(request, *args, **kwargs)
-                    try:
-                        client.set(key, data)
-                    except socket_error as serr:
-                        print "Error saving data to in-memory cache."
-                        if serr.errno == errno.ECONNREFUSED:
-                            print "Memcached is likely not running or the data exceeds memcached item size limit.  Start memcached with supervisord."
-                        raise serr
-                else:
-                    print "Data found in cache."
-            else:
-                print "Could not connect to memcached client.  Bypassing..."
-                data = self._build_data(request, *args, **kwargs)
-        else:
-            print "Not caching data (settings.GEOSITE_CACHE_DATA set to False)."
-            data = self._build_data(request, *args, **kwargs)
-        return HttpResponse(json.dumps(data, default=jdefault), content_type=self.content_type)
-
-class admin0_data(sparc2_view):
+class admin0_data(geosite_data_view):
 
     key = "data/local/admin0/json"
 
@@ -254,7 +212,7 @@ class admin0_data(sparc2_view):
         return get_json_admin0(request)
 
 
-class data_local_country_admin(sparc2_view):
+class data_local_country_admin(geosite_data_view):
 
     def _build_key(self, request, *args, **kwargs):
         return "data/local/country/{iso_alpha3}/admin/{level}/json".format(**kwargs)
@@ -269,7 +227,7 @@ class data_local_country_admin(sparc2_view):
         return data
 
 
-class countryhazard_data_local(sparc2_view):
+class countryhazard_data_local(geosite_data_view):
 
     def _build_key(self, request, *args, **kwargs):
         return "data/local/{iso3}/{hazard}/json".format(**kwargs)
@@ -287,10 +245,10 @@ class countryhazard_data_local(sparc2_view):
             data = get_geojson_flood(request, iso_alpha3=iso3)
         return data
 
-class countryhazard_data_local_summary(sparc2_view):
+class countryhazard_data_local_summary(geosite_data_view):
 
     def _build_key(self, request, *args, **kwargs):
-        return "data/local/{iso3}/{hazard}/summary/json".format(**kwargs)
+        return "data/local/country/{iso3}/hazard/{hazard}/summary/json".format(**kwargs)
 
     def _build_data(self, request, *args, **kwargs):
         print "Building data"
@@ -305,7 +263,31 @@ class countryhazard_data_local_summary(sparc2_view):
             data = get_summary_flood(table_popatrisk=POPATRISK_BY_HAZARD[hazard], iso_alpha3=iso3)
         return data
 
-class countryhazard_data_emdat(sparc2_view):
+class countrycontext_data_local(geosite_data_view):
+
+    def _build_key(self, request, *args, **kwargs):
+        return "data/local/country/{iso3}/context/json".format(**kwargs)
+
+    def _build_data(self, request, *args, **kwargs):
+        print kwargs
+        iso3 = kwargs.pop('iso3', None)
+        data = None
+        data = get_geojson_context(request, iso_alpha3=iso3)
+        return data
+
+class countrycontext_data_local_summary(geosite_data_view):
+
+    def _build_key(self, request, *args, **kwargs):
+        return "data/local/country/{iso3}/context/summary/json".format(**kwargs)
+
+    def _build_data(self, request, *args, **kwargs):
+        print "Building data"
+        iso3 = kwargs.pop('iso3', None)
+        data = None
+        data = get_summary_context(table_context='context.admin2_context', iso_alpha3=iso3)
+        return data
+
+class countryhazard_data_emdat(geosite_data_view):
 
     def _build_key(self, request, *args, **kwargs):
         return "data/emdat/{iso3}/{hazard}/json".format(**kwargs)
@@ -318,6 +300,17 @@ class countryhazard_data_emdat(sparc2_view):
             raise Exception("Could not find url for country-hazard.")
         response = requests.get(url=url.format(iso3=iso3))
         return response.json()
+
+class country_data_vam(geosite_data_view):
+
+    def _build_key(self, request, *args, **kwargs):
+        return "data/vam/{iso3}/json".format(**kwargs)
+
+    def _build_data(self, request, *args, **kwargs):
+        iso3 = kwargs.pop('iso3', None)
+        data = None
+        data = get_geojson_vam(request, iso_alpha3=iso3)
+        return data
 
 
 def cache_data_flush(request):

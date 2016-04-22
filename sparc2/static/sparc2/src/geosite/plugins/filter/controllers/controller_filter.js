@@ -1,7 +1,30 @@
-  geosite.controller_filter = function($scope, $element, $controller, state, popatrisk_config, map_config, live)
+geosite.controllers["controller_filter"] = function($scope, $element, $controller, state, popatrisk_config, map_config, live)
 {
   var maxValueFromSummary = popatrisk_config["data"]["summary"]["all"]["max"]["at_admin2_month"];
   angular.extend(this, $controller('GeositeControllerBase', {$element: $element, $scope: $scope}));
+
+  // Initialize Checkbox Filters
+  $($element).on('change', 'input:checkbox', function(event) {
+    console.log(event);
+    var that = this;
+    var output = $(that).data('output');
+    var filter = {};
+
+    var btngroup = $(that).parents('.btn-group:first');
+    var output = btngroup.data('output');
+    if(filter[output] == undefined)
+    {
+      filter[output] = [];
+    }
+    btngroup.find('input').each(function(){
+      if($(this).is(':checked'))
+      {
+        filter[output].push($(this).data('value'))
+      }
+    });
+    geosite.intend("filterChanged", {"layer": "popatrisk", "filter": filter}, $scope);
+  });
+
   // Initialize Radio Filters
   $($element).on('change', 'input:radio[name="cat"]', function(event) {
     console.log(event);

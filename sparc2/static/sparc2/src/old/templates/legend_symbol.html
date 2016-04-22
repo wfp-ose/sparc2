@@ -1,0 +1,40 @@
+<ng-include src="legend_symbol_circle.html"></ng-include>
+<svg
+  ng-if="legend.symbol.type == \"ellipse\""
+  width="100%"
+  height="100%"
+  version="1.0"
+  xmlns="http://www.w3.org/2000/svg">
+  <ellipse
+    cx="50%"
+    cy="50%"
+    rx="{{ legend.symbol.width }}"
+    ry="{{ legend.symbol.height }}"
+    fill="{{ styles.default.color }}"
+    stroke-width="1"
+    stroke="#000000"></ellipse>
+</svg>
+<svg
+  ng-if="legend.symbol.type == \"graduated\""
+  width="{{ legend.symbol.width }}px"
+  height="100%"
+  version="1.0"
+  xmlns="http://www.w3.org/2000/svg">
+  <rect
+    ng-repeat="color in colors track by $index"
+    x="{{ idx|percent:numberOfColors }}%"
+    y="0"
+    width="{{ 1|percent:numberOfColors }}%"
+    height="{{ legend.symbol.height }}"
+    fill="{{ color }}"
+    stroke-width="1"
+    stroke="#000000"/>
+</svg>
+<img
+  ng-if="legend.symbol.type == \"graphic\" and legend.symbol.preview"
+  src="{{ layer|legendGraphic }}"
+  />
+<i
+  ng-if="legend.symbol.type == \"graphic\" and not legend.symbol.preview"
+  class="fa fa-image"
+  style="color:black; font-size: 20px;"></i>

@@ -6,14 +6,25 @@
   .geosite-sidebar {
     position: absolute;
     top: 0px;
-    left: 0px;
     width: 0px;
     height: 100%;
     transition: all @geosite-sidebar-transition ease-in-out;
   }
 
-  .geosite-sidebar.sidebar-open {
-    width: @geosite-sidebar-width;
+  .geosite-sidebar.geosite-sidebar-left.sidebar-open {
+    width: @geosite-sidebar-left-width;
+  }
+
+  .geosite-sidebar.geosite-sidebar-right.sidebar-open {
+    width: @geosite-sidebar-right-width;
+  }
+
+  .geosite-sidebar.geosite-sidebar-left {
+    left: 0px;
+  }
+
+  .geosite-sidebar.geosite-sidebar-right {
+    right: 0px;
   }
 
   .geosite-map {
@@ -48,8 +59,12 @@
 
   }
 
-  .geosite-map.sidebar-open {
-      left: @geosite-sidebar-width;
+  .geosite-map.sidebar-left-open {
+      left: @geosite-sidebar-left-width;
+  }
+
+  .geosite-map.sidebar-right-open {
+      right: @geosite-sidebar-right-width;
   }
 
 }

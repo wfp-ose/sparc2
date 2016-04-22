@@ -16,7 +16,9 @@ var init_map = function(opts)
 
   return map;
 };
-geosite.controller_map_map = function($scope, $element, $interpolate, state, popatrisk_config, map_config, live) {
+geosite.controllers["controller_map_map"] = function(
+  $rootScope, $scope, $element, $compile, $interpolate, $templateCache,
+  state, popatrisk_config, context_config, map_config, live) {
   //////////////////////////////////////
   var listeners =
   {
@@ -77,14 +79,14 @@ geosite.controller_map_map = function($scope, $element, $interpolate, state, pop
   geosite.intend("layerLoaded", {'type':'baselayer', 'layer': baseLayerID}, $scope);
   //////////////////////////////////////
   $.each(map_config.featurelayers, function(id, layerConfig){
-    if(id != "popatrisk")
+    if(id != "popatrisk" && id != "context")
     {
       geosite.layers.init_featurelayer(id, layerConfig, $scope, live, map_config);
     }
   });
   //////////////////////////////////////
   // Feature layers
-  var popupContent = function(source)
+  var popatrisk_popup_content = function(source)
   {
     console.log(source);
     var f = source.feature;
@@ -139,6 +141,40 @@ geosite.controller_map_map = function($scope, $element, $interpolate, state, pop
     }, 1000);
     return $interpolate(popupTemplate)(ctx);
   };
+  var context_popup_content = function(source)
+  {
+    console.log(source);
+    var fl = map_config.featurelayers.context
+    var f = source.feature;
+    var popupTemplate = geosite.popup.buildPopupTemplate(fl.popup, fl, f);
+    var ctx = {
+      'layer': fl,
+      'feature': {
+        'attributes': f.properties,
+        'geometry': {}
+      }
+    };
+    return $interpolate(popupTemplate)(ctx);
+  };
+  // Load Context Layer
+  live["featurelayers"]["context"] = L.geoJson(context_config["data"]["geojson"],{
+    renderOrder: $.inArray("context", map_config.renderlayers),
+    style: context_config["style"]["default"],
+    /* Custom */
+    hoverStyle: context_config["style"]["hover"],
+    /* End Custom */
+    onEachFeature: function(f, layer){
+      var popupOptions = {maxWidth: 300};
+      //var popupContent = "Loading ..."
+      layer.bindPopup(context_popup_content, popupOptions);
+      layer.on({
+        mouseover: highlightFeature,
+        mouseout: function(e) {
+          live["featurelayers"]["context"].resetStyle(e.target);
+        }
+      });
+    }
+  });
   // Load Population at Risk
   live["featurelayers"]["popatrisk"] = L.geoJson(popatrisk_config["data"]["geojson"],{
     renderOrder: $.inArray("popatrisk", map_config.renderlayers),
@@ -149,7 +185,7 @@ geosite.controller_map_map = function($scope, $element, $interpolate, state, pop
     onEachFeature: function(f, layer){
       var popupOptions = {maxWidth: 300};
       //var popupContent = "Loading ..."
-      layer.bindPopup(popupContent, popupOptions);
+      layer.bindPopup(popatrisk_popup_content, popupOptions);
       layer.on({
         mouseover: highlightFeature,
         mouseout: function(e){
@@ -163,6 +199,12 @@ geosite.controller_map_map = function($scope, $element, $interpolate, state, pop
       });
     }
   });
+  geosite.layers.init_featurelayer_post(
+    $scope,
+    live,
+    "popatrisk",
+    live["featurelayers"]["popatrisk"],
+    map_config.featurelayers.popatrisk.visible);
   // Zoom to Data
   if(!hasViewOverride)
   {
@@ -170,9 +212,9 @@ geosite.controller_map_map = function($scope, $element, $interpolate, state, pop
   }
   //////////////////////////////////////
   // Sidebar Toggle
-  $("#geosite-map-sidebar-toggle").click(function (){
-    $(this).toggleClass("sidebar-open");
-    $("#geosite-sidebar, #geosite-map").toggleClass("sidebar-open");
+  $("#geosite-map-sidebar-toggle-left").click(function (){
+    $(this).toggleClass("sidebar-open sidebar-left-open");
+    $("#geosite-sidebar-left, #geosite-map").toggleClass("sidebar-open sidebar-left-open");
     setTimeout(function(){
       live["map"].invalidateSize({
         animate: true,
@@ -219,6 +261,7 @@ geosite.controller_map_map = function($scope, $element, $interpolate, state, pop
     updateRenderOrder(baseLayers.concat(renderLayersSorted));
     // Update Styles
     live["featurelayers"]["popatrisk"].setStyle(popatrisk_config["style"]["default"]);
+    live["featurelayers"]["context"].setStyle(context_config["style"]["default"]);
     // Force Refresh
     setTimeout(function(){live["map"]._onResize()}, 0);
   });

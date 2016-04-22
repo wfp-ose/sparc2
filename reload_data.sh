@@ -59,7 +59,7 @@ sudo -u postgres psql -c "DROP DATABASE IF EXISTS sparc2;"
 sudo -u postgres psql -c "CREATE DATABASE sparc2 ENCODING 'UTF8' TEMPLATE template_postgis;"
 sudo -u postgres psql -d sparc2 -c "ALTER DATABASE sparc2 OWNER TO $U;"
 sudo -u postgres psql -d sparc2 -c "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO $U;"
-SCHEMAS=(sparc1 gaul wfp cyclone flood drought)
+SCHEMAS=(sparc1 gaul wfp cyclone flood drought context)
 create_schemas $SCHEMAS sparc2
 APPS=(sparc2 wfppresencedjango lsibdjango gauldjango)
 migrate $APPS
@@ -77,3 +77,4 @@ load_fixtures $FIXTURES  # wfppresencedjango_wfpregionalbureau
 bash "reload/load_shapefiles.sh"
 bash "reload/reload_countries_and_boundaries.sh"
 bash "reload/reload_disasters.sh"
+bash "reload/reload_context.sh"

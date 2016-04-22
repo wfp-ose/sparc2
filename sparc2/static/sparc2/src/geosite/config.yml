@@ -1,0 +1,13 @@
+---
+name: "SPARC 2.x"
+plugins:
+  - modal
+  - breadcrumb
+  - legend
+  - filter
+  - map
+  - map_map
+  - sparc_sidebar
+  - main
+dependencies:
+  - "/home/vagrant/geosite-framework-django.git/geosite/static/geosite/src/geosite"

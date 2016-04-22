@@ -1,0 +1,17 @@
+<div>
+  <h5 style="word-wrap:break-word;text-align:center;">{{ popup.title }}</h5>
+  <ul class="nav nav-tabs nav-justified">
+    <li ng-class="$first ? 'active' : ''" ng-repeat="pane in popup.panes track by $index">
+      <a data-toggle="tab" href="#{{ pane.id }}">{{ pane.tab.label }}</a>
+    </li>
+  </ul>
+  <div class="tab-content">
+    <div
+      id="{{ pane.id }}"
+      ng-class="$first ? 'tab-pane fade in active' : 'tab-pane fade'"
+      ng-repeat="pane in popup.panes track by $index">
+      <br ng-repeat-start="field in pane.fields track by $index" ng-if="!$first">
+      <span ng-repeat-end><b>{{ field.label }}:</b> value</span>
+    </div>
+  </div>
+</div>

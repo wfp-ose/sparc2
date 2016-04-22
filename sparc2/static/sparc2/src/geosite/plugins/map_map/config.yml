@@ -1,0 +1,5 @@
+---
+controllers:
+  - controller_map_map.js
+directives: []
+templates: []

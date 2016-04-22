@@ -1,0 +1,63 @@
+@import "2-variables.less";
+
+.sparc-map-breadcrumb {
+  position: absolute;
+  background: rgba(0,0,0,0);
+  top: 0px;
+  left: 0px;
+  z-index: @geosite-map-control-z-index;
+  border-radius: 3px;
+  border: 0;
+
+  div {
+    display: inline-block;
+    position: absolute;
+    top: 0px;
+    padding: 0;
+
+    .select2-container {
+      height: @sparc-select-dropdown-height !important;
+    }
+
+    .select2-container .select2-selection--single {
+      height: @sparc-select-dropdown-height !important;
+    }
+
+    .select2-selection__rendered {
+      font-size: @sparc-select-dropdown-font-size;
+      line-height: @sparc-select-dropdown-height !important;
+    }
+
+    a, select {
+      height: 48px;
+      border-radius: 0;
+    }
+
+    a {
+      font-size: 24px;
+      line-height: 34px;
+    }
+
+  }
+
+  div:first-child {
+    left: 0px;
+    a {
+      width: 150px;
+    }
+  }
+
+  div:nth-child(2) {
+    left: 150px;
+    a, select {
+      width: 150px;
+    }
+  }
+
+  div:nth-child(3) {
+    left: 300px;
+    a, select {
+      width: 150px;
+    }
+  }
+}

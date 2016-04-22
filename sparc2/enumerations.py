@@ -140,7 +140,8 @@ URL_EMDAT_BY_HAZARD = {
 }
 
 URL_VAM = {
-    "fcs": "http://reporting.vam.wfp.org/API/Get_FCS.aspx?adm0={admin0}&adm1={admin1}&indTypeID=2"
+    "FCS": "http://reporting.vam.wfp.org/API/Get_FCS.aspx?adm0={admin0}&adm1={admin1}&indTypeID=2",
+    "CSI":"http://reporting.vam.wfp.org/API/Get_CSI.aspx?type=cs&adm0={admin0}&adm1={admin1}&indTypeID=2"
 }
 
 TEMPLATES_BY_HAZARD = {

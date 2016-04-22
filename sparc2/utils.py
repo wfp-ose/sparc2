@@ -1,5 +1,6 @@
 import datetime
 import psycopg2
+import requests
 
 from jenks import jenks
 
@@ -15,7 +16,8 @@ except ImportError:
 from geosite.enumerations import MONTHS_SHORT3
 
 from geosite.data import GeositeDatabaseConnection, calc_breaks_natural, insertIntoObject
-from sparc2.data import data_local_country_admin, data_local_country_hazard_all
+from sparc2.data import data_local_country_admin, data_local_country_hazard_all, data_local_country_context_all
+from sparc2.enumerations import URL_VAM
 
 def get_month_number(month):
     month_num = -1
@@ -419,3 +421,149 @@ def get_events_flood(iso3=None):
     cursor.execute(q)
     results = cursor.fetchone()
     return results
+
+
+def get_geojson_context(request, iso_alpha3=None):
+    collection = None
+    with GeositeDatabaseConnection() as geosite_conn:
+        collection = data_local_country_admin().get(cursor=geosite_conn.cursor, iso_alpha3=iso_alpha3, level=2)
+        rows_context = geosite_conn.exec_query_multiple(
+            get_template("sparc2/sql/_context.sql").render({
+                'admin2_context': 'context.admin2_context',
+                'iso_alpha3': iso_alpha3}))
+
+        for feature in collection["features"]:
+            for row_context in rows_context:
+                json_context = json.loads(row_context[0]) if (type(row_context[0]) is not dict) else row_context[0]
+                if int(json_context["admin2_code"]) == feature["properties"]["admin2_code"]:
+                    feature["properties"].update(json_context)
+
+    return collection
+
+
+def get_summary_context(table_context=None, iso_alpha3=None):
+    now = datetime.datetime.now()
+    current_month = now.strftime("%b").lower()
+
+    if (not table_context) or (not iso_alpha3):
+        raise Exception("Missing table_context or iso3 for get_summary_context.")
+
+    num_breakpoints = len(settings.SPARC_MAP_DEFAULTS["symbology"]["context"]["colors"])
+
+    connection = psycopg2.connect(settings.GEOSITE_DB_CONN_STR)
+    cursor = connection.cursor()
+
+    values_delta_mean = data_local_country_context_all().get(
+        cursor=cursor,
+        iso_alpha3=iso_alpha3,
+        attribute="delta_mean",
+        template="sparc2/sql/_admin2_data_all.sql",
+        table=table_context)
+    values_delta_mean = [float(x) for x in values_delta_mean]
+    natural_mean = calc_breaks_natural(values_delta_mean, 6)
+    natural_mean_negative = calc_breaks_natural([x for x in values_delta_mean if x <= 0.0], 2)
+    natural_mean_positive = calc_breaks_natural([x for x in values_delta_mean if x >= 0.0], 2)
+    #####
+    values_delta_negative = data_local_country_context_all().get(
+        cursor=cursor,
+        iso_alpha3=iso_alpha3,
+        attribute="delta_negative",
+        template="sparc2/sql/_admin2_data_all.sql",
+        table=table_context)
+    values_delta_negative = [float(x) for x in values_delta_negative]
+    natural_negative = calc_breaks_natural(values_delta_negative, 3)
+    #####
+    values_delta_positive = data_local_country_context_all().get(
+        cursor=cursor,
+        iso_alpha3=iso_alpha3,
+        attribute="delta_positive",
+        template="sparc2/sql/_admin2_data_all.sql",
+        table=table_context)
+    values_delta_positive = [float(x) for x in values_delta_positive]
+    natural_positive = calc_breaks_natural(values_delta_positive, 3)
+    #####
+    values_erosion_propensity = data_local_country_context_all().get(
+        cursor=cursor,
+        iso_alpha3=iso_alpha3,
+        attribute="erosion_propensity",
+        template="sparc2/sql/_admin2_data_all.sql",
+        table=table_context)
+    values_erosion_propensity = [float(x) for x in values_erosion_propensity]
+    natural_erosion_propensity = calc_breaks_natural(values_erosion_propensity, 2)
+    #####
+    values_delta_crop = data_local_country_context_all().get(
+        cursor=cursor,
+        iso_alpha3=iso_alpha3,
+        attribute="delta_crop",
+        template="sparc2/sql/_admin2_data_all.sql",
+        table=table_context)
+    values_delta_crop = [float(x) for x in values_delta_crop]
+    natural_crop_negative = calc_breaks_natural([x for x in values_delta_crop if x <= 0.0], 2)
+    natural_crop_positive = calc_breaks_natural([x for x in values_delta_crop if x >= 0.0], 2)
+    #####
+    values_delta_forest = data_local_country_context_all().get(
+        cursor=cursor,
+        iso_alpha3=iso_alpha3,
+        attribute="delta_forest",
+        template="sparc2/sql/_admin2_data_all.sql",
+        table=table_context)
+    values_delta_forest = [float(x) for x in values_delta_forest]
+    natural_forest_negative = calc_breaks_natural([x for x in values_delta_forest if x <= 0.0], 2)
+    natural_forest_positive = calc_breaks_natural([x for x in values_delta_forest if x >= 0.0], 2)
+    #####
+
+    summary = {
+        'all': {
+            "min": {
+              'at_admin2_month': (min(values_delta_mean) if values_delta_mean else None)
+            },
+            "max": {
+              'at_admin2_month': (max(values_delta_mean) if values_delta_mean else None)
+            },
+            'breakpoints': {
+                'natural': natural_mean,
+                'natural_adjusted': natural_mean_negative + natural_mean_positive,
+                'natural_negative': natural_negative,
+                'natural_positive': natural_positive,
+                'natural_erosion_propensity': natural_erosion_propensity,
+                'natural_crop': natural_crop_negative + natural_crop_positive,
+                'natural_forest': natural_forest_negative + natural_forest_positive
+            }
+        }
+    }
+
+    return summary
+
+
+def get_geojson_vam(request, iso_alpha3=None):
+    collection = None
+    with GeositeDatabaseConnection() as geosite_conn:
+        collection = data_local_country_admin().get(cursor=geosite_conn.cursor, iso_alpha3=iso_alpha3, level=1)
+        for feature in collection["features"]:
+            response = requests.get(url=URL_VAM["FCS"].format(
+                admin0=feature["properties"]["admin0_code"],
+                admin1=feature["properties"]["admin1_code"]))
+            vam_data_fcs = response.json()
+            response = requests.get(url=URL_VAM["CSI"].format(
+                admin0=feature["properties"]["admin0_code"],
+                admin1=feature["properties"]["admin1_code"]))
+            vam_data_csi = response.json()
+            vam = {}
+            if vam_data_fcs:
+                vam_data_fcs = vam_data_fcs[0]
+                vam["fcs"] = {
+                    "poor": vam_data_fcs["FCS_poor"],
+                    "borderline": vam_data_fcs["FCS_borderline"],
+                    "acceptable": vam_data_fcs["FCS_acceptable"]
+                }
+            if vam_data_csi:
+                vam_data_csi = vam_data_csi[0]
+                vam["csi"] = {
+                    "no": vam_data_csi["CSI_rNoCoping"],
+                    "low": vam_data_csi["CSI_rLowCoping"],
+                    "medium": vam_data_csi["CSI_rMediumCoping"],
+                    "high": vam_data_csi["CSI_rHighCoping"]
+                }
+            feature["properties"]["vam"] = vam
+
+    return collection

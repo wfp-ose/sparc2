@@ -101,6 +101,7 @@
 /* Defaults for Controls */
 /* Legend */
 /* Filter */
+/* Sidebar */
 .geosite-popup-plain {
   word-wrap: break-word;
   text-align: center;
@@ -125,6 +126,7 @@
 /* Defaults for Controls */
 /* Legend */
 /* Filter */
+/* Sidebar */
 .geosite-sidebar,
 .c3-axis-y-label {
   font-family: Verdana;
@@ -137,12 +139,14 @@
 /* Defaults for Controls */
 /* Legend */
 /* Filter */
+/* Sidebar */
 
 /* Original 768px */
 /* Defaults for Popups */
 /* Defaults for Controls */
 /* Legend */
 /* Filter */
+/* Sidebar */
 .geosite-map-legend {
   /* Layout */
   position: absolute;
@@ -274,13 +278,14 @@
 /* Defaults for Controls */
 /* Legend */
 /* Filter */
+/* Sidebar */
 .geosite-map-filter {
   /* Layout */
   position: absolute;
   background: rgba(0, 0, 0, 0);
   top: 4px;
   right: 4px;
-  width: 258px;
+  width: 308px;
   z-index: 9999;
   /* Colors & Background */
   color: #fff;
@@ -334,6 +339,7 @@
 /* Defaults for Controls */
 /* Legend */
 /* Filter */
+/* Sidebar */
 .sparc-map-calendar {
   position: absolute;
   background: rgba(0, 0, 0, 0);
@@ -372,6 +378,7 @@
 /* Defaults for Controls */
 /* Legend */
 /* Filter */
+/* Sidebar */
 .sparc-map-breadcrumb {
   position: absolute;
   background: rgba(0, 0, 0, 0);
@@ -432,11 +439,11 @@
 /* Defaults for Controls */
 /* Legend */
 /* Filter */
+/* Sidebar */
 .geosite-map-sidebar-toggle {
   /* Layout */
   position: absolute;
   top: calc(50% - 50px);
-  left: 0px;
   width: 40px;
   height: 100px;
   z-index: 9999;
@@ -446,21 +453,40 @@
   /* Border, Padding, & Margin */
   padding: 0;
   border: 0;
-  border-radius: 0px 6px 6px 0px;
   /* Font */
   font-size: 24px;
   line-height: 100px;
 }
-.geosite-map-sidebar-toggle .icon-arrow-lt {
+.geosite-map-sidebar-toggle.geosite-map-sidebar-toggle-left {
+  left: 0px;
+  border-radius: 0px 6px 6px 0px;
+}
+.geosite-map-sidebar-toggle.geosite-map-sidebar-toggle-left .icon-arrow-lt {
   display: none;
 }
-.geosite-map-sidebar-toggle .icon-arrow-gt {
+.geosite-map-sidebar-toggle.geosite-map-sidebar-toggle-left .icon-arrow-gt {
   display: block;
 }
-.geosite-map-sidebar-toggle.sidebar-open .icon-arrow-lt {
+.geosite-map-sidebar-toggle.geosite-map-sidebar-toggle-right {
+  right: 0px;
+  border-radius: 6px 0px 0px 6px;
+}
+.geosite-map-sidebar-toggle.geosite-map-sidebar-toggle-right .icon-arrow-gt {
+  display: none;
+}
+.geosite-map-sidebar-toggle.geosite-map-sidebar-toggle-right .icon-arrow-lt {
   display: block;
 }
-.geosite-map-sidebar-toggle.sidebar-open .icon-arrow-gt {
+.geosite-map-sidebar-toggle.geosite-map-sidebar-toggle-left.sidebar-open .icon-arrow-lt {
+  display: block;
+}
+.geosite-map-sidebar-toggle.geosite-map-sidebar-toggle-left.sidebar-open .icon-arrow-gt {
+  display: none;
+}
+.geosite-map-sidebar-toggle.geosite-map-sidebar-toggle-right.sidebar-open .icon-arrow-gt {
+  display: block;
+}
+.geosite-map-sidebar-toggle.geosite-map-sidebar-toggle-right.sidebar-open .icon-arrow-lt {
   display: none;
 }
 
@@ -469,6 +495,7 @@
 /* Defaults for Controls */
 /* Legend */
 /* Filter */
+/* Sidebar */
 .geosite-row {
   margin: 0;
 }
@@ -496,19 +523,28 @@
 /* Defaults for Controls */
 /* Legend */
 /* Filter */
+/* Sidebar */
 .geosite-main {
   position: relative;
 }
 .geosite-main .geosite-sidebar {
   position: absolute;
   top: 0px;
-  left: 0px;
   width: 0px;
   height: 100%;
   transition: all 2s ease-in-out;
 }
-.geosite-main .geosite-sidebar.sidebar-open {
+.geosite-main .geosite-sidebar.geosite-sidebar-left.sidebar-open {
   width: 400px;
+}
+.geosite-main .geosite-sidebar.geosite-sidebar-right.sidebar-open {
+  width: 400px;
+}
+.geosite-main .geosite-sidebar.geosite-sidebar-left {
+  left: 0px;
+}
+.geosite-main .geosite-sidebar.geosite-sidebar-right {
+  right: 0px;
 }
 .geosite-main .geosite-map {
   position: absolute;
@@ -536,8 +572,11 @@
 .geosite-main .geosite-map .leaflet-popup-content .tab-pane {
   padding: 10px;
 }
-.geosite-main .geosite-map.sidebar-open {
+.geosite-main .geosite-map.sidebar-left-open {
   left: 400px;
+}
+.geosite-main .geosite-map.sidebar-right-open {
+  right: 400px;
 }
 
 /* Original 768px */
@@ -545,6 +584,7 @@
 /* Defaults for Controls */
 /* Legend */
 /* Filter */
+/* Sidebar */
 .sparc-calendar {
   display: none;
 }

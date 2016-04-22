@@ -70,13 +70,33 @@ urlpatterns = [
         views.countryhazard_data_local_summary.as_view(),
         name='countryhazard_data_local_summary'),
     url(
-        r'^data/emdat/country/(?P<iso3>[^/]+)/hazard/(?P<hazard>[^/]+)[.]json$',
-        views.countryhazard_data_emdat.as_view(),
-        name='countryhazard_data_emdat'),
-    url(
         r'^events/local/country/(?P<iso3>[^/]+)/hazard/(?P<hazard>[^/]+)[.]json$',
         views.countryhazard_events_local,
         name='countryhazard_events_local'),
+
+    ## Emdat APIS
+    url(
+        r'^data/emdat/country/(?P<iso3>[^/]+)/hazard/(?P<hazard>[^/]+)[.]json$',
+        views.countryhazard_data_emdat.as_view(),
+        name='countryhazard_data_emdat'),
+
+    ## VAM APIS
+    url(
+        r'^data/vam/country/(?P<iso3>[^/]+)[.]json$',
+        views.country_data_vam.as_view(),
+        name='countrydata_vam'),
+
+    ## Country-Context APIS
+    url(
+        r'^data/local/country/(?P<iso3>[^/]+)/context[.]json$',
+        views.countrycontext_data_local.as_view(),
+        name='countrycontext_data_local'),
+    url(
+        r'^data/local/country/(?P<iso3>[^/]+)/context/summary[.]json$',
+        views.countrycontext_data_local_summary.as_view(),
+        name='countrycontext_data_local_summary'),
+
+
 
     # Cache control
     url(

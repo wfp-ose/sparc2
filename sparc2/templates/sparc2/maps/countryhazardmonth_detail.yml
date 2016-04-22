@@ -23,32 +23,37 @@ featurelayers:
     routes:
       geojson: "/data/local/country/:iso3/hazard/:hazard*.json"
       summary: "/data/local/country/:iso3/hazard/:hazard/summary.json"
-    symbology:
-      colors: ['#fee5d9', '#fcbba1', '#fde79c', '#fc8d59', '#d7301f','#8162c6','#290051']
-      styles:
-        default:
-          static:
-            weight: 1
-            color: "#000000"
-            opacity: 0.8
-            fillOpacity: 0.4
-          {% endverbatim %}
-          dynamic: "style_{{ hazard }}"
-          {% verbatim %}
-        hover:
-          static:
-            weight: 2
-            color: "#0000FF"
-            opacity: 0.8
-            fillOpacity: 0.3
+    cartography:
+      - id: "default"
+        type: graduated
+        label_left: "Less Impact /<br>More Likely"
+        label_right: "More Impact /<br>Less Likely"
+        description: "For a given hazard, month, and admin 2 district, the population at risk."
+        colors:
+          ramp: ['#fee5d9', '#fcbba1', '#fde79c', '#fc8d59', '#d7301f','#8162c6','#290051']
+        styles:
+          default:
+            static:
+              weight: 1
+              color: "#000000"
+              opacity: 0.8
+              fillOpacity: 0.4
+            {% endverbatim %}
+            dynamic: "style_{{ hazard }}"
+            {% verbatim %}
+          hover:
+            static:
+              weight: 2
+              color: "#0000FF"
+              opacity: 0.8
+              fillOpacity: 0.3
+        legend:
+          symbol:
+            type: "graduated"
+            width: 34
+            height: 12
     legend:
       label: "Population at Risk"
-      symbol:
-        label: "Pop At Risk"
-        description: "For a given hazard, month, and admin 2 district, the population at risk."
-        type: "gradient"
-        width: 34
-        height: 12
   {% endverbatim %}{% if hazard == "cyclone" %}{% verbatim %}
     description: "The population at risk of cyclone for each month aggregated at the administrative level 2 district."
     popup:
@@ -118,6 +123,48 @@ featurelayers:
           max: 1.0
           step: 0.1
           output: prob_class_max
+      - label: FCS
+        description: "Filter by VAM Food Consumption Score (FCS)."
+        height: 34px
+        type: checkbox
+        checkbox:
+          output: fcs
+          options:
+            - id: "sparc-poor"
+              value: "poor"
+              label: "Poor"
+              checked: true
+            - id: "sparc-borderline"
+              value: "borderline"
+              label: "Borderline"
+              checked: true
+            - id: "sparc-acceptable"
+              value: "acceptable"
+              label: "Acceptable"
+              checked: true
+      - label: CSI
+        description: "Filter by VAM Coping Strategy Index (CSI)."
+        height: 34px
+        type: checkbox
+        checkbox:
+          output: csi
+          options:
+            - id: "sparc-no"
+              value: "no"
+              label: "No"
+              checked: true
+            - id: "sparc-low"
+              value: "low"
+              label: "Low"
+              checked: true
+            - id: "sparc-medium"
+              value: "medium"
+              label: "Medium"
+              checked: true
+            - id: "sparc-high"
+              value: "high"
+              label: "High"
+              checked: true
   {% endverbatim %}{% elif hazard == "drought" %}{% verbatim %}
     description: "The population at risk of drought for each month aggregated at the administrative level 2 district."
     popup:
@@ -211,11 +258,316 @@ featurelayers:
           label: "&lt;= {{ value }} RP"
           options: [25, 50, 100, 200, 500, 1000]
           output: rp
+      - label: FCS
+        description: "Filter by VAM Food Consumption Score (FCS)."
+        height: 34px
+        type: checkbox
+        checkbox:
+          output: fcs
+          options:
+            - id: "sparc-poor"
+              value: "poor"
+              label: "Poor"
+              checked: true
+            - id: "sparc-borderline"
+              value: "borderline"
+              label: "Borderline"
+              checked: true
+            - id: "sparc-acceptable"
+              value: "acceptable"
+              label: "Acceptable"
+              checked: true
+      - label: CSI
+        description: "Filter by VAM Coping Strategy Index (CSI)."
+        height: 34px
+        type: checkbox
+        checkbox:
+          output: csi
+          options:
+            - id: "sparc-no"
+              value: "no"
+              label: "No"
+              checked: true
+            - id: "sparc-low"
+              value: "low"
+              label: "Low"
+              checked: true
+            - id: "sparc-medium"
+              value: "medium"
+              label: "Medium"
+              checked: true
+            - id: "sparc-high"
+              value: "high"
+              label: "High"
+              checked: true
   {% endverbatim %}{% endif %}{% verbatim %}
+  vam:
+    type: geojson
+    title: "VAM"
+    description: "VAM"
+    visible: false
+    source:
+      name: "WFP/VAM"
+      attribution: "WFP/VAM"
+    urls:
+      geojson: "/data/vam/country/{iso3}.json"
+      summary: "/data/vam/country/{iso3}/summary.json"
+  context:
+    type: geojson
+    title: "Aggravating Factors"
+    description: "Aggravating Factors"
+    visible: false
+    source:
+      name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
+      attribution: "WFP/OSEP/AEW&GIS"
+    urls:
+      geojson: "/data/local/country/{iso3}/context.json"
+      summary: "/data/local/country/{iso3}/context/summary.json"
+    routes:
+      geojson: "/data/local/country/:iso3/context*.json"
+      summary: "/data/local/country/:iso3/context/summary.json"
+    cartography:
+      - id: "delta_mean"
+        title: "Mean Change"
+        type: "graduated"
+        mask: "mask"
+        attribute: "delta_mean"
+        label_left: "Negative<br>Change"
+        label_right: "Positive<br>Change"
+        description: "Mean Landcover Change"
+        breakpoints: "natural_adjusted"
+        colors:
+          ramp: ['rgb(222, 197, 192)','rgb(251, 112, 80)','rgb(181, 0, 22)','rgb(227, 252, 216)','rgb(122, 199, 123)','rgb(0, 68, 27)']
+          outside: "#aaaaaa"
+        styles:
+          default:
+            static:
+              weight: 1
+              color: "#000000"
+              opacity: 0.8
+              fillOpacity: 0.6
+            dynamic: "style_context"
+          hover:
+            static:
+              weight: 2
+              color: "#0000FF"
+              opacity: 0.8
+              fillOpacity: 0.3
+        legend:
+          symbol:
+            type: "graduated"
+            width: 34
+            height: 12
+      - id: delta_negative
+        title: "Negative Change"
+        type: "graduated"
+        mask: "mask"
+        attribute: "delta_negative"
+        label_left: "No<br>Change"
+        label_right: "Negative<br>Change"
+        description: "Negative Landcover Change"
+        breakpoints: "natural_negative"
+        colors:
+          ramp: ['rgb(222, 197, 192)', 'rgb(251, 112, 80)', 'rgb(181, 0, 22)']
+          outside: "#aaaaaa"
+        styles:
+          default:
+            static:
+              weight: 1
+              color: "#000000"
+              opacity: 0.8
+              fillOpacity: 0.7
+            dynamic: "style_context"
+          hover:
+            static:
+              weight: 2
+              color: "#0000FF"
+              opacity: 0.8
+              fillOpacity: 0.3
+        legend:
+          symbol:
+            type: "graduated"
+            width: 34
+            height: 12
+      - id: delta_positive
+        title: "Positive Change"
+        type: "graduated"
+        mask: "mask"
+        attribute: "delta_positive"
+        label_left: "No<br>Change"
+        label_right: "Positive<br>Change"
+        description: "Positive Landcover Change"
+        breakpoints: "natural_positive"
+        colors:
+          ramp: ['rgb(227, 252, 216)','rgb(122, 199, 123)','rgb(0, 68, 27)']
+          outside: "#aaaaaa"
+        styles:
+          default:
+            static:
+              weight: 1
+              color: "#000000"
+              opacity: 0.8
+              fillOpacity: 0.4
+            dynamic: "style_context"
+          hover:
+            static:
+              weight: 2
+              color: "#0000FF"
+              opacity: 0.8
+              fillOpacity: 0.3
+        legend:
+          symbol:
+            type: "graduated"
+            width: 34
+            height: 12
+      - id: "delta_crop"
+        title: "Crop Change"
+        type: "graduated"
+        mask: "mask"
+        attribute: "delta_crop"
+        label_left: "Negative<br>Change"
+        label_right: "Positive<br>Change"
+        description: "Crop Change"
+        breakpoints: "natural_crop"
+        colors:
+          ramp: ['rgb(255, 255, 178)', 'rgb(253, 141, 60)', 'rgb(181, 0, 38)', 'rgb(227, 252, 216)', 'rgb(122, 199, 123)', 'rgb(189, 0, 38)']
+          outside: "#aaaaaa"
+        styles:
+          default:
+            static:
+              weight: 1
+              color: "#000000"
+              opacity: 0.8
+              fillOpacity: 0.4
+            dynamic: "style_context"
+          hover:
+            static:
+              weight: 2
+              color: "#0000FF"
+              opacity: 0.8
+              fillOpacity: 0.3
+        legend:
+          symbol:
+            type: "graduated"
+            width: 34
+            height: 12
+      - id: "delta_forest"
+        title: "Forest Change"
+        type: "graduated"
+        mask: "mask"
+        attribute: "delta_forest"
+        label_left: "Negative<br>Change"
+        label_right: "Positive<br>Change"
+        description: "Forest Change"
+        breakpoints: "natural_forest"
+        colors:
+          ramp: ['rgb(255, 255, 178)', 'rgb(253, 141, 60)', 'rgb(181, 0, 38)', 'rgb(227, 252, 216)', 'rgb(122, 199, 123)', 'rgb(189, 0, 38)']
+          outside: "#aaaaaa"
+        styles:
+          default:
+            static:
+              weight: 1
+              color: "#000000"
+              opacity: 0.8
+              fillOpacity: 0.4
+            dynamic: "style_context"
+          hover:
+            static:
+              weight: 2
+              color: "#0000FF"
+              opacity: 0.8
+              fillOpacity: 0.3
+        legend:
+          symbol:
+            type: "graduated"
+            width: 34
+            height: 12
+      - id: "erosion_propensity"
+        title: "Erosion Propensity"
+        type: "graduated"
+        mask: "mask"
+        attribute: "erosion_propensity"
+        label_left: "Low"
+        label_right: "High"
+        description: "Erosion Propensity"
+        breakpoints: "natural_erosion_propensity"
+        colors:
+          ramp: ['rgb(255, 255, 212)', 'rgb(254, 153, 41)', 'rgb(153, 52, 4)']
+          outside: "#aaaaaa"
+        styles:
+          default:
+            static:
+              weight: 1
+              color: "#000000"
+              opacity: 0.8
+              fillOpacity: 0.4
+            dynamic: "style_context"
+          hover:
+            static:
+              weight: 2
+              color: "#0000FF"
+              opacity: 0.8
+              fillOpacity: 0.3
+        legend:
+          symbol:
+            type: "graduated"
+            width: 34
+            height: 12
+    legend:
+      label: "Aggravating Factors"
+    popup:
+      title: "Aggravating Factors: {{ feature.attributes.admin2_name }}, {{ feature.attributes.admin1_name }}"
+      maxWidth: 550
+      panes:
+        - id: "popup_overview"
+          tab:
+            label: "Overview"
+          fields:
+            - value: "{{ feature.attributes.delta_mean | number : 2 }}"
+              label: Mean Change
+            - value: "{{ feature.attributes.ldi | number : 0 }}"
+              label: Land Degradation Index (LDI)
+        - id: "popup_landcover"
+          tab:
+            label: "Landcover"
+          fields:
+            - value: "{{ feature.attributes.delta_mean | number : 2 }}"
+              label: Mean Change
+            - value: "{{ feature.attributes.delta_negative | number : 2 }}"
+              label: Negative Change
+            - value: "{{ feature.attributes.delta_positive | number : 2 }}"
+              label: Positive Change
+            - value: "{{ feature.attributes.delta_forest | number : 2 }}"
+              label: Forest Change
+            - value: "{{ feature.attributes.delta_crop | number : 2 }}"
+              label: Crop Change
+        - id: "popup_erosion"
+          tab:
+            label: "Erosion"
+          fields:
+            - attribute: erosion_propensity
+              label: Erosion Propensity
+        - id: "popup_location"
+          tab:
+            label: "Location"
+          fields:
+            - attribute: iso_alpha3
+              label: ISO Alpha-3 Country Code
+            - attribute: admin0_name
+              label: Admin 0
+            - attribute: admin1_name
+              label: Admin 1
+            - attribute: admin2_name
+              label: Admin 2
+        - id: "popup_links"
+          tab:
+            label: "Links"
+          fields: []
   landscan:
     type: WMS
     title: "Landscan (2013)"
     description: "Landscan (2013)"
+    visible: false
     source:
       name: "ORNL"
       attribution: "ORNL"
@@ -226,23 +578,27 @@ featurelayers:
       format: 'image/png'
       transparent: true
       url: "http://10.11.40.84/geoserver/geonode/wms"
+    cartography:
+      - id: default
+        legend:
+          symbol:
+            type: "graphic"
+            width: 16
+            height: 16
+            preview: false
     legend:
       label: "Landscan"
-      symbol:
-        type: "graphic"
-        width: 16
-        height: 8
-        preview: false
-  wfp_facilities:
+  wld_poi_facilities_wfp:
     type: WMS
-    title: "WFP Facilities"
-    description: "This layer contains locations and additional information of WFP warehouses and facilities worldwide, including warehouses, offices, and ports.  Stored on [WFP GeoNode](http://geonode.wfp.org)."
+    title: "Global WFP Facilities"
+    description: "WFP Facilities worldwide, Country Office, Sub-Office, Field Office, Area Office, Humanitarian Response Depot."
+    visible: false
     source:
       name: "WFP"
       attribution: "WFP GeoNode"
     wms:
       version: "1.1.1"
-      layers: ["geonode:wld_poi_facilities_wfp", "geonode:wld_poi_warehouses_wfp"]
+      layers: ["geonode:wld_poi_facilities_wfp"]
       styles: []
       format: 'image/png'
       transparent: true
@@ -251,16 +607,19 @@ featurelayers:
     wfs:
       version: "1.0.0"  # Needs to 1.0.0 or returns bad results for some reason.
       url: "http://geonode.wfp.org/cors/geoserver/wfs"
+    cartography:
+      - id: default
+        legend:
+          symbol:
+            type: "graphic"
+            width: 16
+            height: 16
+            preview: false
     legend:
-      label: "WFP Facilities"
-      symbol:
-        type: "graphic"
-        width: 16
-        height: 16
-        preview: false
+      label: "Global WFP Facilities"
     click: popup
     popup:
-      title: "WFP Faciliity"
+      title: "Global WFP Facilities: {{ feature.attributes.name }}"
       maxWidth: 550
       panes:
         - id: "popup_overview"
@@ -303,6 +662,7 @@ featurelayers:
               label: Last Check Date
               type: date
               format: 'medium'
+              fallback: 'Not specified'
             - attribute: createdate
               label: Date Created
               type: date
@@ -316,20 +676,109 @@ featurelayers:
             label: "Links"
           fields:
             - attribute: geonameid
-              value: "{{ attributes.geonameid }}"
+              value: "{{ feature.attributes.geonameid }}"
               type: link
               label: "GeoNames"
-              url: "http://www.geonames.org/{{ attributes.geonameid }}/"
+              url: "http://www.geonames.org/{{ feature.attributes.geonameid }}/"
               when: "defined"
-            - value: "{{ geometry.lat | number : 4 }}, {{ geometry.lng | number : 4 }}"
+            - value: "{{ feature.geometry.lat | number : 4 }}, {{ feature.geometry.lng | number : 4 }}"
               type: link
               label: "OpenStreetMap"
-              url: "https://www.openstreetmap.org/#map=15/{{ geometry.lat }}/{{ geometry.lng }}"
+              url: "https://www.openstreetmap.org/#map=15/{{ feature.geometry.lat }}/{{ feature.geometry.lng }}"
+  wld_trs_supplyroutes_wfp:
+    type: WMS
+    title: "Global Supply Routes"
+    description: "Global supply routes for Transportation of Food and Non Food Items - Roads, Railways, Waterway, Airways.\nThis layer is built by linking origin/destination locations using the most direct route on main roads. In reality, the supply routes can divert from the ones displayed here depending on many local factors. The routes shown in this dataset are only indicative and have to be used as such."
+    visible: false
+    source:
+      name: "WFP"
+      attribution: "WFP GeoNode"
+      site: "WFP GeoNode"
+    wms:
+      version: "1.1.1"
+      layers: ["geonode:wld_trs_supplyroutes_wfp"]
+      styles: []
+      format: 'image/png'
+      transparent: true
+      buffer: 256
+      url: "http://geonode.wfp.org/geoserver/geonode/wms"
+    wfs:
+      version: "1.0.0"  # Needs to 1.0.0 or returns bad results for some reason.
+      url: "http://geonode.wfp.org/cors/geoserver/wfs"
+    cartography:
+      - title: "Default"
+        legend:
+          symbol:
+            type: "graphic"
+            width: 16
+            height: 16
+            preview: false
+    legend:
+      label: "Global Supply Routes"
+    click: popup
+    popup:
+      title: "Global Supply Routes: {{ feature.attributes.name }}"
+      maxWidth: 550
+      panes:
+        - id: "popup_overview"
+          tab:
+            label: "Overview"
+          fields:
+            - output: name
+              inputs:
+                - 'nameportion'
+              label: Name
+            - attribute: Status
+              label: Status
+            - attribute: practicability
+              label: Practicability
+        - id: "popup_location"
+          tab:
+            label: "Location"
+          fields:
+            - attribute: Traveltime
+              label: Travel Time
+              fallback: 'Not specified'
+            - attribute: distancekm
+              label: Distance (KM)
+              fallback: 'Not specified'
+        - id: "popup_currency"
+          tab:
+            label: "Currency"
+          fields:
+            - attribute: lastcheckdate
+              label: Last Check Date
+              type: date
+              format: 'medium'
+              fallback: 'Not specified'
+            - attribute: createdate
+              label: Date Created
+              type: date
+              format: 'medium'
+              fallback: 'Not specified'
+            - attribute: updatedate
+              label: Date Updated
+              type: date
+              format: 'medium'
+              fallback: 'Not specified'
+        - id: "popup_links"
+          tab:
+            label: "Links"
+          fields:
+            - value: "CAR Operation"
+              type: link
+              label: "Logistics Cluster:"
+              url: "http://www.logcluster.org/ops/caf13a"
+            - value: "{{ layer.title }} via {{ layer.source.site }}"
+              type: link
+              label: "Source"
+              url: "http://geonode.wfp.org/layers/{{ layer.wms.layers | first }}"
   {% endverbatim %}{% if hazard == "cyclone" %}{% verbatim %}
   cyclone_probability:
     type: WMS
     title: "Cyclone Probability"
     description: "Cyclone Probability"
+    visible: false
     source:
       name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
       attribution: "WFP/OSEP/AEW&GIS"
@@ -340,31 +789,24 @@ featurelayers:
       format: 'image/png'
       transparent: true
       url: "http://10.11.40.84/geoserver/geonode/wms"
-    symbology:
-      colors: ['#fee5d9', '#fcbba1', '#fde79c', '#fc8d59', '#d7301f','#8162c6','#290051']
-      styles:
-        default:
-          weight: 1
-          color: "#000000"
-          opacity: 0.8
-          fillOpacity: 0.4
-        hover:
-          weight: 2
-          color: "#0000FF"
-          opacity: 0.8
-          fillOpacity: 0.3
+    cartography:
+      - id: default
+        type: graphic
+        description: "Cyclone Probability"
+        legend:
+          symbol:
+            type: "graphic"
+            width: 16
+            height: 8
+            preview: false
     legend:
       label: "Cyclone Probability"
-      symbol:
-        type: "graphic"
-        width: 16
-        height: 8
-        preview: false
   {% endverbatim %}{% elif hazard == "flood" %}{% verbatim %}
   flood_probability:
     type: WMS
     title: "Flood Probability"
     description: "Flood Probability"
+    visible: false
     source:
       name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
       attribution: "WFP/OSEP/AEW&GIS"
@@ -375,13 +817,18 @@ featurelayers:
       format: 'image/png'
       transparent: true
       url: "http://10.11.40.84/geoserver/geonode/wms"
+    cartography:
+      - id: default
+        type: graphic
+        description: "Flood Probability"
+        legend:
+          symbol:
+            type: "graphic"
+            width: 16
+            height: 8
+            preview: false
     legend:
       label: "Flood Probability"
-      symbol:
-        type: "graphic"
-        width: 16
-        height: 8
-        preview: false
   flood_events_heatmap:
     enabled: false
     type: geojson
@@ -401,7 +848,7 @@ featurelayers:
       symbol:
         label: "Frequency"
         description: "For a given hazard, month, and admin 2 district, the frequency of flood events by visual index."
-        type: "gradient"
+        type: "graduated"
         width: 34
         height: 12
     {% endverbatim %}{% endif %}
@@ -410,21 +857,25 @@ featurelayers:
 {% block legendlayers %}
 legendlayers:
   - "popatrisk"
+  - "context"
   - "landscan"
   {% if hazard == "cyclone" %}{% verbatim %}
   - "cyclone_probability"
   {% endverbatim %}{% elif hazard == "flood" %}{% verbatim %}
   - "flood_probability"
   {% endverbatim %}{% endif %}
-  - "wfp_facilities"
+  - "wld_poi_facilities_wfp"
+  - "wld_trs_supplyroutes_wfp"
   - osm
   - osm_humanitarian
 {% endblock %}
 
 {% block renderlayers %}
 renderlayers:
-  - "wfp_facilities"
+  - "wld_poi_facilities_wfp"
+  - "wld_trs_supplyroutes_wfp"
   - "popatrisk"
+  - "context"
   {% if hazard == "cyclone" %}{% verbatim %}
   - "cyclone_probability"
   {% endverbatim %}{% elif hazard == "flood" %}{% verbatim %}

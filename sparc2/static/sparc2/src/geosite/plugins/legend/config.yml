@@ -1,0 +1,15 @@
+---
+controllers:
+  - controller_legend.js
+directives:
+  - geositeModalLayerCarto.js
+  - geositeModalLayerMore.js
+  - geositeSymbolCircle.js
+  - geositeSymbolGraduated.js
+  - geositeSymbolGraphic.js
+templates:
+  - modal_layer_carto.tpl.html
+  - modal_layer_more.tpl.html
+  - symbol_circle.tpl.html
+  - symbol_graduated.tpl.html
+  - symbol_graphic.tpl.html

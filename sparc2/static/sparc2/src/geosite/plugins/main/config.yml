@@ -1,0 +1,5 @@
+---
+controllers:
+  - controller_main.js
+directives: []
+templates: []

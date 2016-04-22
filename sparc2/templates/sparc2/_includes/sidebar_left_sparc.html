@@ -1,0 +1,20 @@
+{% load geosite_tags %}
+<div
+  id="geosite-sidebar-left"
+  class="geosite-sidebar geosite-sidebar-left geosite-controller"
+  ng-controller="geosite-sidebar-left"
+  data-controller-name="geosite-sidebar-left"
+  data-controller-type="geosite-sidebar-left">
+  <div class="geosite-sidebar-charts" style="width:100%;">
+    {% for c in map_config.charts %}
+    <div>
+      <h4 style="text-align:center;">{{ c.label }}</h4>
+    </div>
+    <div
+      id="{{ c.id }}"
+      class="geosite-sidebar-chart"
+      style="width:360px;margin:0 auto;"
+    ></div>
+    {% endfor %}
+  </div>
+</div>

@@ -1,0 +1,22 @@
+<div>
+  <div style="display: inline-block; vertical-align:top;" >{{ style.label_left }}</div>
+  <svg width="300px" height="50px" version="1.0" xmlns="http://www.w3.org/2000/svg">
+    <rect
+      ng-repeat-start="color in style.colors.ramp track by $index"
+      x="{{ idx|percent:numberOfColors }}%"
+      y="0"
+      width="{{ 1|percent:numberOfColors }}%"
+      height="50px"
+      fill="{{ color }}"
+      stroke-width="1"
+      stroke="#000000"/>
+    <text
+      ng-repeat-end
+      x="{{ idx|as_float|addFloat:0.5|percent:numberOfColors }}%"
+      y="50%"
+      text-anchor="middle"
+      fill="white"
+      font-size="18px">{{ idx }}</text>
+  </svg>
+  <div style="display: inline-block; vertical-align:top;">{{ style.label_right }}</div>
+</div>
