@@ -1,17 +1,13 @@
 language: python
-
 python:
-    - "2.7"
-
+  - '2.7'
 install:
-    - pip install flake8
-    - pip install -r requirements.txt
-
+  - pip install flake8
+  - pip install -r requirements.txt
 notifications:
-    email:
-        - pjdufour.dev@gmail.com
-
-before_script:
-    flake8 sparc2
-
+  email:
+    - pjdufour.dev@gmail.com
+  slack:
+    secure: gHYBDNKN98G4YAq8c1Bbf5ZrI0Q/DD51LspPtCvS848YNY7f+T+UhoVkkNKsbANeC3JRR6nMGfHaQZ/Gte/e81RKMeb9xUtK3ZoEHOTtAiOu5r2meBXCOZ4+nM01jOSzLKQdn55145FK9VQFV5Es98hGnVlM+d4Seb3XtNDT9hxyjX8Aj5EqRXjiENMyKfYbO53KSsS4c1HAQUxCE1Po5t2T4ru4eUtLTVizjiON0j4rBXTqjq69n/4ySqkKA/8hN4+0GWuM8s7fHkWU3I72Gp8K+wO7/xJBelmWk+nUJa/yw3KYyU2LlKjzeRIvnx7GZw6yMZtytX4prpXJpJj0+QZP2S81Xpi/6JfftleqpukSw/d9ngdhaJW02j3dUDQzRZeb6ciLeCO/Vd2vlDrZsXB/3si4nhohO82tMoPiZfRCIKdJK0T2WpJZn29zpWQn2ri010BlG2BFzV/eaaFt96JF8r9SFvEICg+Dkk65OA2QHOltbVz9vOGjTWx4gbIao1YSRsE+e3D7M+H0zd46bwDQT1kvEWcaofNCDRp9WS9M2qkXbX2DI6T3lEqbLqGBnupp0U5kOxqfOr7FB5ZCSjn787hkdLaE63JZ/OP5Y6SntTkigzprbg7mYMiCXf/xi8YpnQepq+Vq2UnWob7NrnqUmJwCJj80e6tk2jNX/AE=
+before_script: flake8 sparc2
 script: python -m unittest sparc2.tests.test
