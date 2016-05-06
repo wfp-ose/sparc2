@@ -224,7 +224,7 @@ var init_sparc_controller_main = function(that, app)
     // Init Children
     geosite.init_controllers($(this), app, [
       { "selector": ".geosite-controller.geosite-map-map", "controller": geosite.controllers.controller_map_map },
-      { "selector": ".geosite-controller.sparc-map-calendar", "controller": undefined },
+      { "selector": ".geosite-controller.sparc-map-calendar", "controller": geosite.controllers.controller_calendar },
       { "selector": ".geosite-controller.sparc-map-breadcrumb", "controller": geosite.controllers.controller_breadcrumb },
       { "selector": ".geosite-controller.geosite-map-filter", "controller": geosite.controllers.controller_filter },
       { "selector": ".geosite-controller.geosite-map-legend", "controller": geosite.controllers.controller_legend },

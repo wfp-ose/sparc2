@@ -19,6 +19,8 @@ require.extensions['.yml'] = function (module, filename) {
 
 var geosite_config = require("./src/geosite/config.yml");
 var geosite_plugins = [];
+var geosite_enumerations = []; // Exported to the compile process
+var geosite_filters = []; // Exported to the compile process
 var geosite_templates = [];  // Exported to the compile process
 var geosite_directives = []; // Exported to the compile process
 var geosite_controllers = []; // Exported to the compile process
@@ -32,6 +34,22 @@ for(var i = 0; i < geosite_config["plugins"].length; i++)
 for(var i = 0; i < geosite_plugins.length; i++)
 {
     var geosite_plugin = geosite_plugins[i];
+    if(geosite_plugin["enumerations"] != undefined)
+    {
+      for(var j = 0; j < geosite_plugin["enumerations"].length; j++)
+      {
+        var geosite_enumeration = geosite_plugin["enumerations"][j];
+        geosite_enumerations.push("./src/geosite/plugins/"+geosite_plugin["id"]+"/enumerations/"+geosite_enumeration);
+      }
+    }
+    if(geosite_plugin["filters"] != undefined)
+    {
+      for(var j = 0; j < geosite_plugin["filters"].length; j++)
+      {
+        var geosite_filter = geosite_plugin["filters"][j];
+        geosite_filters.push("./src/geosite/plugins/"+geosite_plugin["id"]+"/filters/"+geosite_filter);
+      }
+    }
     for(var j = 0; j < geosite_plugin["controllers"].length; j++)
     {
       var geosite_controller = geosite_plugin["controllers"][j];
@@ -48,12 +66,13 @@ for(var i = 0; i < geosite_plugins.length; i++)
       geosite_templates.push("./src/geosite/plugins/"+geosite_plugin["id"]+"/templates/"+geosite_template);
     }
 }
-console.log("geosite_templates: ", geosite_templates);
 
 var compile_templates = ["./src/templates/*.html"];
 compile_templates = compile_templates.concat(geosite_templates);
 
 var compile_js = ["./src/js/main/*.js", "./build/templates/templates.js"];
+compile_js = compile_js.concat(geosite_enumerations);
+compile_js = compile_js.concat(geosite_filters);
 compile_js = compile_js.concat(geosite_directives);
 compile_js = compile_js.concat(geosite_controllers);
 

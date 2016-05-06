@@ -62,17 +62,17 @@ urlpatterns = [
         views.data_local_country_admin.as_view(),
         name='data_local_country_admin'),
     url(
-        r'^data/local/country/(?P<iso3>[^/]+)/hazard/(?P<hazard>[^/]+)[.]json$',
-        views.countryhazard_data_local.as_view(),
-        name='countryhazard_data_local'),
+        r'^data/local/country/(?P<iso3>[^/]+)/hazard/(?P<hazard>[^/]+)/events[.]json$',
+        views.countryhazard_data_local_events.as_view(),
+        name='countryhazard_data_local_events'),
+    url(
+        r'^data/local/country/(?P<iso3>[^/]+)/hazard/(?P<hazard>[^/]+)/popatrisk[.]json$',
+        views.countryhazard_data_local_popatrisk.as_view(),
+        name='countryhazard_data_local_popatrisk'),
     url(
         r'^data/local/country/(?P<iso3>[^/]+)/hazard/(?P<hazard>[^/]+)/summary[.]json$',
         views.countryhazard_data_local_summary.as_view(),
         name='countryhazard_data_local_summary'),
-    url(
-        r'^events/local/country/(?P<iso3>[^/]+)/hazard/(?P<hazard>[^/]+)[.]json$',
-        views.countryhazard_events_local,
-        name='countryhazard_events_local'),
 
     ## Emdat APIS
     url(
@@ -95,8 +95,6 @@ urlpatterns = [
         r'^data/local/country/(?P<iso3>[^/]+)/context/summary[.]json$',
         views.countrycontext_data_local_summary.as_view(),
         name='countrycontext_data_local_summary'),
-
-
 
     # Cache control
     url(

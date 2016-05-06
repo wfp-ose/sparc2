@@ -1,0 +1,28 @@
+<div>
+  <div>
+    <a class="btn btn-primary btn-large" title="Explore" href="/explore">Explore &gt;&gt;</a>
+  </div>
+  <div
+    ng-repeat="bc in breadcrumbs track by $index">
+    <select
+      id="{{ bc.id }}"
+      data-output="{{ bc.output }}"
+      data-width="{{ bc.width }}"
+      data-height="{{ bc.height }}"
+      data-initial-data="{{ bc.data }}"
+      data-breadcrumbs="{{ bc.breadcrumbs }}">
+      <option
+        ng-if="bc.type == 'country'"
+        value="{{ state.iso3 }}"
+        selected="selected">{{ state.country_title }}</option>
+      <option
+        ng-if="bc.type == 'hazard'"
+        value="{{ state.hazard }}"
+        selected="selected">{{ state.hazard_title }}</option>
+      <option
+        ng-if="bc.type != 'country' && bc.type != 'hazard'"
+        value="placeholder"
+        selected="selected">{{ bc.placeholder }}</option>
+    </select>
+  </div>
+</div>

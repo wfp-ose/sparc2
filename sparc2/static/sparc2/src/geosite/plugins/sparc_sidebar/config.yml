@@ -1,5 +1,7 @@
 ---
 controllers:
   - controller_sidebar_sparc.js
-directives: []
-templates: []
+directives:
+  - sparcSidebarCharts.js
+templates:
+  - sparc_sidebar_charts.tpl.html

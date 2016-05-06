@@ -1,0 +1,7 @@
+---
+controllers:
+  - controller_calendar.js
+directives:
+  - geositeCalendar.js
+templates:
+  - calendar.tpl.html

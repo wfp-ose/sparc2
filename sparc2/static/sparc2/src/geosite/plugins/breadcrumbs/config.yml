@@ -1,0 +1,9 @@
+---
+controllers:
+  - controller_breadcrumb.js
+directives:
+  - geositeBreadcrumbs.js
+enumerations:
+  - breadcrumbs.js
+templates:
+  - breadcrumbs.tpl.html

@@ -40,15 +40,19 @@
             <br>
             <div
               ng-if="style.type == 'graduated'"
-              geosite-symbol-graduated>
+              geosite-symbol-graduated
+              style="style"
+              width="{{ '300px' }}">
             </div>
             <div
               ng-if="style.legend.symbol.type == 'circle'"
-              geosite-symbol-circle>
+              geosite-symbol-circle
+              style="style">
             </div>
             <div
               ng-if="style.legend.symbol.type == 'graphic'"
-              geosite-symbol-graphic>
+              geosite-symbol-graphic
+              style="style">
             </div>
           </div>
         </div>

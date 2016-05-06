@@ -14,20 +14,21 @@ featurelayers:
     type: geojson
     title: "Population at Risk"
     description: "Population at Risk"
+    visible: false
     source:
       name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
       attribution: "WFP/OSEP/AEW&GIS"
     urls:
-      geojson: "/data/local/country/{iso3}/hazard/{hazard}.json"
+      geojson: "/data/local/country/{iso3}/hazard/{hazard}/popatrisk.json"
       summary: "/data/local/country/{iso3}/hazard/{hazard}/summary.json"
     routes:
-      geojson: "/data/local/country/:iso3/hazard/:hazard*.json"
+      geojson: "/data/local/country/:iso3/hazard/:hazard/popatrisk*.json"
       summary: "/data/local/country/:iso3/hazard/:hazard/summary.json"
     cartography:
       - id: "default"
         type: graduated
-        label_left: "Less Impact /<br>More Likely"
-        label_right: "More Impact /<br>Less Likely"
+        label_left: "Less Impact /\nMore Likely"
+        label_right: "More Impact /\nLess Likely"
         description: "For a given hazard, month, and admin 2 district, the population at risk."
         colors:
           ramp: ['#fee5d9', '#fcbba1', '#fde79c', '#fc8d59', '#d7301f','#8162c6','#290051']
@@ -588,6 +589,81 @@ featurelayers:
             preview: false
     legend:
       label: "Landscan"
+  imerg_1day:
+    type: WMS
+    title: "Rainfall Accumulation: 1 day"
+    description: "IMERG 1-Day"
+    visible: false
+    source:
+      name: "SERVIR"
+      attribution: "SERVIR"
+    wms:
+      version: "1.1.1"
+      layers: ["2"]
+      styles:
+      format: 'image/png'
+      transparent: true
+      url: "http://gis1.servirglobal.net/arcgis/services/Global/IMERG_Accumulations/MapServer/WMSServer"
+    cartography:
+      - id: default
+        legend:
+          symbol:
+            type: "graphic"
+            width: 16
+            height: 16
+            preview: false
+    legend:
+      label: "Rainfall Accumulation: 1 day"
+  imerg_3day:
+    type: WMS
+    title: "Rainfall Accumulation: 3 days"
+    description: "IMERG 3-Day"
+    visible: false
+    source:
+      name: "SERVIR"
+      attribution: "SERVIR"
+    wms:
+      version: "1.1.1"
+      layers: ["5"]
+      styles:
+      format: 'image/png'
+      transparent: true
+      url: "http://gis1.servirglobal.net/arcgis/services/Global/IMERG_Accumulations/MapServer/WMSServer"
+    cartography:
+      - id: default
+        legend:
+          symbol:
+            type: "graphic"
+            width: 16
+            height: 16
+            preview: false
+    legend:
+      label: "Rainfall Accumulation: 3 days"
+  imerg_7day:
+    type: WMS
+    title: "Rainfall Accumulation: 7 days"
+    description: "IMERG 7-Day"
+    visible: false
+    source:
+      name: "SERVIR"
+      attribution: "SERVIR"
+    wms:
+      version: "1.1.1"
+      layers: ["8"]
+      styles:
+      format: 'image/png'
+      transparent: true
+      url: "http://gis1.servirglobal.net/arcgis/services/Global/IMERG_Accumulations/MapServer/WMSServer"
+    cartography:
+      - id: default
+        legend:
+          symbol:
+            type: "graphic"
+            width: 16
+            height: 16
+            preview: false
+    legend:
+      label: "Rainfall Accumulation: 7 days"
   wld_poi_facilities_wfp:
     type: WMS
     title: "Global WFP Facilities"
@@ -801,6 +877,51 @@ featurelayers:
             preview: false
     legend:
       label: "Cyclone Probability"
+  cyclone_events:
+    enabled: true
+    type: geojson
+    title: "Cyclone Events (Heatmap)"
+    description: "This layer contains a heatmap of cyclone events."
+    visible: true
+    source:
+      name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
+      attribution: "WFP/OSEP/AEW&GIS"
+      url: "/data/local/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/cyclone/events.json"
+    transform: heatmap
+    heatmap:
+      attribute:
+      radius: 8
+      blur: 10
+      max: 1.0
+      minOpacity: 0.7
+    cartography:
+      - id: "default"
+        type: graduated
+        label_left: "Less Frequent"
+        label_right: "More Frequent"
+        description: "For a given admin 2 district, the frequency of landslide events."
+        colors:
+          ramp: ['#fee5d9', '#fcbba1', '#fde79c', '#fc8d59', '#d7301f','#8162c6','#290051']
+        styles:
+          default:
+            static:
+              weight: 1
+              color: "#000000"
+              opacity: 0.8
+              fillOpacity: 0.4
+          hover:
+            static:
+              weight: 2
+              color: "#0000FF"
+              opacity: 0.8
+              fillOpacity: 0.3
+        legend:
+          symbol:
+            type: "graduated"
+            width: 34
+            height: 12
+    legend:
+      label: "Cyclone Events"
   {% endverbatim %}{% elif hazard == "flood" %}{% verbatim %}
   flood_probability:
     type: WMS
@@ -829,67 +950,148 @@ featurelayers:
             preview: false
     legend:
       label: "Flood Probability"
-  flood_events_heatmap:
-    enabled: false
+  flood_events:
+    enabled: true
     type: geojson
     title: "Flood Events (Heatmap)"
     description: "This layer contains a heatmap of flood events."
+    visible: true
     source:
       name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
       attribution: "WFP/OSEP/AEW&GIS"
-    urls:
-      geojson: "/heatmap/local/country/{iso3}/hazard/{hazard}.json"
-      summary: "/heatmap/local/country/{iso3}/hazard/{hazard}/summary.json"
-    routes:
-      geojson: "/heatmap/local/country/:iso3/hazard/:hazard*.json"
-      summary: "/heatmap/local/country/:iso3/hazard/:hazard/summary.json"
+      url: "/data/local/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/flood/events.json"
+    transform: heatmap
+    heatmap:
+      attribute: count
+      radius: 15
+      blur: 15
+      max: 1.0
+      minOpacity: 0.7
+    cartography:
+      - id: "default"
+        type: graduated
+        label_left: "Less Frequent"
+        label_right: "More Frequent"
+        description: "For a given admin 2 district, the frequency of flood events."
+        colors:
+          ramp: ['#fee5d9', '#fcbba1', '#fde79c', '#fc8d59', '#d7301f','#8162c6','#290051']
+        styles:
+          default:
+            static:
+              weight: 1
+              color: "#000000"
+              opacity: 0.8
+              fillOpacity: 0.4
+          hover:
+            static:
+              weight: 2
+              color: "#0000FF"
+              opacity: 0.8
+              fillOpacity: 0.3
+        legend:
+          symbol:
+            type: "graduated"
+            width: 34
+            height: 12
     legend:
-      label: "Flood Events (Heatmap)"
-      symbol:
-        label: "Frequency"
-        description: "For a given hazard, month, and admin 2 district, the frequency of flood events by visual index."
-        type: "graduated"
-        width: 34
-        height: 12
+      label: "Flood Events"
+  landslide_events:
+    enabled: true
+    type: geojson
+    title: "Landslide Events (Heatmap)"
+    description: "This layer contains a heatmap of landslide events."
+    visible: true
+    source:
+      name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
+      attribution: "WFP/OSEP/AEW&GIS"
+      url: "/data/local/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/landslide/events.json"
+    transform: heatmap
+    heatmap:
+      attribute:
+      radius: 6
+      blur: 8
+      max: 1.0
+      minOpacity: 0.7
+    cartography:
+      - id: "default"
+        type: graduated
+        label_left: "Less Frequent"
+        label_right: "More Frequent"
+        description: "For a given admin 2 district, the frequency of landslide events."
+        colors:
+          ramp: ['#fee5d9', '#fcbba1', '#fde79c', '#fc8d59', '#d7301f','#8162c6','#290051']
+        styles:
+          default:
+            static:
+              weight: 1
+              color: "#000000"
+              opacity: 0.8
+              fillOpacity: 0.4
+          hover:
+            static:
+              weight: 2
+              color: "#0000FF"
+              opacity: 0.8
+              fillOpacity: 0.3
+        legend:
+          symbol:
+            type: "graduated"
+            width: 34
+            height: 12
+    legend:
+      label: "Landslide Events"
     {% endverbatim %}{% endif %}
 {% endblock %}
 
 {% block legendlayers %}
 legendlayers:
-  - "popatrisk"
-  - "context"
-  - "landscan"
+  - popatrisk
+  - context
+  - landscan
   {% if hazard == "cyclone" %}{% verbatim %}
-  - "cyclone_probability"
+  - cyclone_probability
+  - cyclone_events
   {% endverbatim %}{% elif hazard == "flood" %}{% verbatim %}
-  - "flood_probability"
+  - flood_events
+  - landslide_events
+  - flood_probability
   {% endverbatim %}{% endif %}
-  - "wld_poi_facilities_wfp"
-  - "wld_trs_supplyroutes_wfp"
+  - wld_poi_facilities_wfp
+  - wld_trs_supplyroutes_wfp
+  - imerg_1day
+  - imerg_3day
+  - imerg_7day
   - osm
   - osm_humanitarian
 {% endblock %}
 
 {% block renderlayers %}
 renderlayers:
-  - "wld_poi_facilities_wfp"
-  - "wld_trs_supplyroutes_wfp"
-  - "popatrisk"
-  - "context"
+  - wld_poi_facilities_wfp
+  - wld_trs_supplyroutes_wfp
+  - popatrisk
+  - context
   {% if hazard == "cyclone" %}{% verbatim %}
-  - "cyclone_probability"
+  - cyclone_probability
+  - cyclone_events
   {% endverbatim %}{% elif hazard == "flood" %}{% verbatim %}
-  - "flood_probability"
+  - flood_events
+  - landslide_events
+  - flood_probability
   {% endverbatim %}{% endif %}
-  - "landscan"
-  - "osm"
-  - "osm_humanitarian"
+  - landscan
+  - imerg_1day
+  - imerg_3day
+  - imerg_7day
+  - osm
+  - osm_humanitarian
 {% endblock %}
 
 {% block charts %}
 charts:
-  - id: "sparc-sidebar-chart-popatrisk"
-    label: "Population at Risk by Month"
+  - id: "popatrisk"
+    element: "sparc-chart-popatrisk"
+    title: "Population at Risk by Month"
     type: "bar"
     axis:
       x:

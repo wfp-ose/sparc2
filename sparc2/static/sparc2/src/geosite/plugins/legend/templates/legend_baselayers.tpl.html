@@ -1,0 +1,34 @@
+<div class="geosite-map-legend-baselayers geosite-radio-group">
+  <div
+    ng-repeat="layer in map_config.baselayers track by $index"
+    ng-if="layer.legend!==undefined"
+    class="geosite-map-legend-item noselect"
+    data-layer="{{ layer.id }}">
+    <div class="geosite-map-legend-item-left">
+      <div class="geosite-map-legend-item-icon geosite-map-legend-item-more">
+        <a
+          class="geosite-intent"
+          data-intent-name="toggleModal"
+          data-intent-data="{&quot;id&quot;:&quot;geosite-modal-layer-more&quot;,&quot;dynamic&quot;:{&quot;layer&quot;:[&quot;baselayers&quot;,&quot;{{ $index }}&quot;]}}">
+          <i class="fa fa-info-circle"></i>
+        </a>
+      </div><!--
+      --><div class="geosite-map-legend-item-icon geosite-map-legend-item-visibility">
+           <a
+             ng-class=" $first ? 'geosite-map-legend-item-visibility-button geosite-intent geosite-radio geosite-on' : 'geosite-map-legend-item-visibility-button geosite-intent geosite-radio'"
+             data-intent-name="switchBaseLayer"
+             data-intent-data="{&quot;layer&quot;:&quot;{{ layer.id }}&quot;}"
+             data-intent-class-on="geosite-on"
+             data-intent-class-off="">
+             <i class="fa fa-eye geosite-on"></i><i class="fa fa-eye-slash geosite-off"></i>
+           </a>
+         </div><!--
+      --><div class="geosite-map-legend-item-symbol" style="width: 10px;"></div>
+    </div><!--
+    --><div class="geosite-map-legend-item-right">
+      <div class="geosite-map-legend-item-label" style="width: 100%;">
+        <span ng-bind-html="layer.legend.label | md2html"></span>
+      </div>
+    </div>
+  </div>
+</div>

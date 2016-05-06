@@ -4,12 +4,20 @@ controllers:
 directives:
   - geositeModalLayerCarto.js
   - geositeModalLayerMore.js
+  - geositeModalLayerConfig.js
   - geositeSymbolCircle.js
+  - geositeSymbolEllipse.js
   - geositeSymbolGraduated.js
   - geositeSymbolGraphic.js
+  - geositeLegendBaselayers.js
+  - geositeLegendFeaturelayers.js
 templates:
-  - modal_layer_carto.tpl.html
-  - modal_layer_more.tpl.html
-  - symbol_circle.tpl.html
-  - symbol_graduated.tpl.html
-  - symbol_graphic.tpl.html
+  - modal/modal_layer_carto.tpl.html
+  - modal/modal_layer_more.tpl.html
+  - modal/modal_layer_config.tpl.html
+  - symbol/symbol_circle.tpl.html
+  - symbol/symbol_ellipse.tpl.html
+  - symbol/symbol_graduated.tpl.html
+  - symbol/symbol_graphic.tpl.html
+  - legend_baselayers.tpl.html
+  - legend_featurelayers.tpl.html

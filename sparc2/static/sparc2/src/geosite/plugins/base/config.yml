@@ -1,0 +1,20 @@
+---
+controllers: []
+directives:
+  - svg.js
+  - onRepeatDone.js
+enumerations:
+  - dates.js
+templates: []
+filters:
+  - default.js
+  - first.js
+  - md2html.js
+  - percent.js
+  - tabLabel.js
+  - as_float.js
+  - addFloat.js
+  - default_if_undefined.js
+  - title.js
+  - as_array.js
+  - sortItemsByArray.js

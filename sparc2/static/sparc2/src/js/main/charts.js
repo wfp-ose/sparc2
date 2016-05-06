@@ -132,7 +132,7 @@ var buildHazardChart = function(chartConfig, popatrisk_config, options)
     axisConfig["y"]["label"] = chartConfig.axis.y.label;
     axisConfig["y"]["tick"] = {format: d3.format("s,")};
     var chartActual = c3.generate({
-      bindto: '#'+chartConfig.id,
+      bindto: "#"+ (chartConfig.element || chartConfig.id),
       data: {
         columns: gc.columns,
         groups: gc.groups,

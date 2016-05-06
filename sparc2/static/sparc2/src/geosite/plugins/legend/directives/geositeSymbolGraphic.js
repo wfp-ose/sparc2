@@ -2,7 +2,9 @@ geosite.directives["geositeSymbolGraphic"] = function(){
   return {
     restrict: 'EA',
     replace: true,
-    scope: true,  // Inherit exact scope from parent controller
+    scope: {
+      style: "=style"
+    },
     templateUrl: 'symbol_graduated.tpl.html',
     link: function ($scope, element, attrs){
     }

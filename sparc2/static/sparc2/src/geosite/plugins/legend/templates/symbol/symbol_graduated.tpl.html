@@ -1,0 +1,30 @@
+<div>
+  <div
+    style="display: inline-block; vertical-align:top;"
+    ng-bind-html="style.label_left | md2html"></div>
+  <svg
+    ng-attr-width="{{ width }}"
+    height="50px"
+    version="1.0"
+    xmlns="http://www.w3.org/2000/svg">
+    <rect
+      ng-repeat-start="color in style.colors.ramp track by $index"
+      ng-attr-x="{{ $index|percent:style.colors.ramp.length }}%"
+      ng-attr-y="{{ '0' }}"
+      ng-attr-width="{{ 1|percent:style.colors.ramp.length }}%"
+      height="50px"
+      ng-attr-fill="{{ color }}"
+      stroke-width="1"
+      stroke="#000000"/>
+    <text
+      ng-repeat-end
+      ng-attr-x="{{ $index|as_float|addFloat:0.5|percent:style.colors.ramp.length }}%"
+      ng-attr-y="{{ '50%' }}"
+      text-anchor="middle"
+      ng-attr-fill="{{ 'white' }}"
+      font-size="18px">{{ $index }}</text>
+  </svg>
+  <div
+    style="display: inline-block; vertical-align:top;"
+    ng-bind-html="style.label_right | md2html"></div>
+</div>

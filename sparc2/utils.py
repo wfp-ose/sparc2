@@ -414,10 +414,26 @@ def get_summary_flood(table_popatrisk=None, iso_alpha3=None):
     return summary
 
 
+def get_events_cyclone(iso3=None):
+    connection = psycopg2.connect(settings.GEOSITE_DB_CONN_STR)
+    cursor = connection.cursor()
+    q = get_template("sparc2/sql/_cyclone_events.sql").render(context=Context({'iso3': iso3}))
+    cursor.execute(q)
+    results = cursor.fetchone()
+    return results
+
 def get_events_flood(iso3=None):
     connection = psycopg2.connect(settings.GEOSITE_DB_CONN_STR)
     cursor = connection.cursor()
     q = get_template("sparc2/sql/_flood_events_by_admin2.sql").render(context=Context({'iso3': iso3}))
+    cursor.execute(q)
+    results = cursor.fetchone()
+    return results
+
+def get_events_landslide(iso3=None):
+    connection = psycopg2.connect(settings.GEOSITE_DB_CONN_STR)
+    cursor = connection.cursor()
+    q = get_template("sparc2/sql/_landslide_events.sql").render(context=Context({'iso3': iso3}))
     cursor.execute(q)
     results = cursor.fetchone()
     return results

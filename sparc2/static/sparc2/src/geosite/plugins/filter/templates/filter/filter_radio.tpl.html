@@ -1,0 +1,29 @@
+<div class="geosite-filter geosite-filter-radio" style="height: {{ filter.height }};">
+  <div class="geosite-filter-label">
+    <a
+      class="geosite-intent"
+      data-intent-name="toggleModal"
+      data-intent-data="{&quot;id&quot;:&quot;geosite-modal-filter-more&quot;,&quot;dynamic&quot;:{&quot;filter&quot;:[&quot;featurelayers&quot;,&quot;popatrisk&quot;,&quot;filters&quot;,&quot;{{ $index }}&quot;]}}">
+      <i class="fa fa-info-circle"></i>
+    </a>
+    <span ng-bind-html="filter.label | md2html"></span> :
+  </div>
+  <div
+    class="btn-group"
+    style="float:left;"
+    data-toggle="buttons"
+    data-output="{{ filter.radio.output }}">
+    <label
+      ng-repeat="opt in filter.radio.options track by $index"
+      ng-class="opt.checked ? 'btn btn-default active' : 'btn btn-default'">
+      <input
+        type="radio"
+        id="{{ opt.id }}"
+        name="{{ opt.name }}"
+        value="{{ opt.value }}"
+        data-output="{{ filter.radio.output }}"
+        ng-checked="opt.checked || opt.selected"/>
+      {{ opt.label }}
+    </label>
+  </div>
+</div>

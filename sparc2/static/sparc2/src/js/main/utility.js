@@ -43,7 +43,7 @@ geosite.utility.getClosestFeature = function(nearbyFeatures, target)
     if(nearbyFeatures.length > 0)
     {
       closestFeature = nearbyFeatures[0];
-      closestDistance = target.distanceTo(nearbyFeatures[0].geometry)
+      closestDistance = target.distanceTo(nearbyFeatures[0].geometry);
       for(var i = 0; i < nearbyFeatures.length ;i++)
       {
         var f = nearbyFeatures[i];

@@ -21,7 +21,7 @@ from geosite.views import geosite_data_view
 from geosite.cache import provision_memcached_client
 from sparc2.enumerations import URL_EMDAT_BY_HAZARD, TEMPLATES_BY_HAZARD, SPARC_HAZARDS_CONFIG, POPATRISK_BY_HAZARD
 from sparc2.models import SPARCCountry
-from sparc2.utils import get_month_number, get_json_admin0, get_geojson_cyclone, get_geojson_drought, get_geojson_flood, get_geojson_context, get_summary_cyclone, get_summary_drought, get_summary_flood, get_summary_context, get_events_flood, get_geojson_vam
+from sparc2.utils import get_month_number, get_json_admin0, get_geojson_cyclone, get_geojson_drought, get_geojson_flood, get_geojson_context, get_summary_cyclone, get_summary_drought, get_summary_flood, get_summary_context, get_events_cyclone, get_events_flood, get_events_landslide, get_geojson_vam
 
 def home(request, template="home.html"):
     ctx = {}
@@ -226,11 +226,29 @@ class data_local_country_admin(geosite_data_view):
             data = get_geojson_admin2(request, iso_alpha3=iso_alpha3, level=level)
         return data
 
-
-class countryhazard_data_local(geosite_data_view):
+class countryhazard_data_local_events(geosite_data_view):
 
     def _build_key(self, request, *args, **kwargs):
-        return "data/local/{iso3}/{hazard}/json".format(**kwargs)
+        return "data/local/{iso3}/{hazard}/events/json".format(**kwargs)
+
+    def _build_data(self, request, *args, **kwargs):
+        print kwargs
+        hazard = kwargs.pop('hazard', None)
+        iso3 = kwargs.pop('iso3', None)
+        data = None
+        if hazard == u'cyclone':
+            data = get_events_cyclone(iso3=iso3)
+        elif hazard == u'flood':
+            data = get_events_flood(iso3=iso3)
+        elif hazard == u'landslide':
+            data = get_events_landslide(iso3=iso3)
+        return data
+
+
+class countryhazard_data_local_popatrisk(geosite_data_view):
+
+    def _build_key(self, request, *args, **kwargs):
+        return "data/local/{iso3}/{hazard}/popatrisk/json".format(**kwargs)
 
     def _build_data(self, request, *args, **kwargs):
         print kwargs
@@ -318,12 +336,6 @@ def cache_data_flush(request):
     success = client.flush_all()
     return HttpResponse(json.dumps({'success':success}), content_type='application/json')
 
-
-def countryhazard_events_local(request, iso3=None, hazard=None):
-    data = None
-    if hazard == "flood":
-        data = get_events_flood(iso3=iso3)
-    return HttpResponse(json.dumps(data, default=jdefault), content_type='application/json')
 
 
 def jdefault(o):

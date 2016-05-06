@@ -1,8 +1,10 @@
 ---
 name: "SPARC 2.x"
 plugins:
+  - base
   - modal
-  - breadcrumb
+  - breadcrumbs
+  - calendar
   - legend
   - filter
   - map
