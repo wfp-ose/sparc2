@@ -4,9 +4,9 @@ FROM (
     FROM (
         SELECT
             'Feature' As type,
-            ST_AsGeoJSON(lg.geom)::json As geometry,
+            ST_AsGeoJSON(E.wkb_geometry)::json As geometry,
             row_to_json((SELECT l FROM (SELECT adm2_name, count) As l)) As properties
-        FROM flood.events As lg where lg.iso3='{{ iso3 }}'
+        FROM flood.events As E where E.iso3='{{ iso3 }}'
     ) AS f
 )
 AS fc
