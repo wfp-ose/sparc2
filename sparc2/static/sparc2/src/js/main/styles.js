@@ -1,25 +1,5 @@
-geosite.style_cyclone = function(f, state, map_config, popatrisk_config)
+geosite.vam_filter_fcs = function(value, filters, f)
 {
-  var style = {};
-  var filters = state["filters"]["popatrisk"];
-  var prob_class_max = filters["prob_class_max"];
-  var range = filters["popatrisk_range"];
-  //
-  var month_short3 = months_short_3[state["month"]-1];
-  var value = 0;
-  for(var i = 0; i < f.properties.addinfo.length; i++)
-  {
-      var a = f.properties.addinfo[i];
-      if(a["category"] == filters["category"])
-      {
-        if(a["prob_class_max"] != 0 && a["prob_class_max"] <= prob_class_max)
-        {
-          console.log("matched prob_class", prob_class_max);
-          value += a[month_short3];
-        }
-      }
-  }
-
   // Adjust by VAM FCS Filter
   if(filters["fcs"] != undefined)
   {
@@ -55,7 +35,10 @@ geosite.style_cyclone = function(f, state, map_config, popatrisk_config)
     }
     value = value * (fcs_modifier / 100.0);
   }
-
+  return value;
+};
+geosite.vam_filter_csi = function(value, filters, f)
+{
   // Adjust by VAM FCS Filter
   if(filters["csi"] != undefined)
   {
@@ -90,6 +73,33 @@ geosite.style_cyclone = function(f, state, map_config, popatrisk_config)
     }
     value = value * (csi_modifier / 100.0);
   }
+  return value;
+};
+
+geosite.style_cyclone = function(f, state, map_config, popatrisk_config)
+{
+  var style = {};
+  var filters = state["filters"]["popatrisk"];
+  var prob_class_max = filters["prob_class_max"];
+  var range = filters["popatrisk_range"];
+  //
+  var month_short3 = months_short_3[state["month"]-1];
+  var value = 0;
+  for(var i = 0; i < f.properties.addinfo.length; i++)
+  {
+      var a = f.properties.addinfo[i];
+      if(a["category"] == filters["category"])
+      {
+        if(a["prob_class_max"] != 0 && a["prob_class_max"] <= prob_class_max)
+        {
+          console.log("matched prob_class", prob_class_max);
+          value += a[month_short3];
+        }
+      }
+  }
+
+  value = geosite.vam_filter_fcs(value, filters, f);
+  value = geosite.vam_filter_csi(value, filters, f);
 
   if(value >= range[0] && value <= range[1])
   {
@@ -134,6 +144,10 @@ geosite.style_drought = function(f, state, map_config, popatrisk_config)
         }
       }
   }
+
+  value = geosite.vam_filter_fcs(value, filters, f);
+  value = geosite.vam_filter_csi(value, filters, f);
+
   if(value >= range[0] && value <= range[1])
   {
     var colors = map_config["featurelayers"]["popatrisk"]["cartography"][0]["colors"]["ramp"];
@@ -165,6 +179,9 @@ geosite.style_flood = function(f, state, map_config, popatrisk_config)
   //
   var month_short3 = months_short_3[state["month"]-1];
   var value = f.properties["RP"+rp.toString(10)][month_short3];
+
+  value = geosite.vam_filter_fcs(value, filters, f);
+  value = geosite.vam_filter_csi(value, filters, f);
 
   if(value >= range[0] && value <= range[1])
   {

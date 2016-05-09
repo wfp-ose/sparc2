@@ -12,6 +12,10 @@ geosite.controllers["controller_main"] = function($scope, $element, $controller,
         var id = args["id"];
         var modal_scope = angular.element("#"+id).scope();
         var modal_scope_new = {};
+        if("static" in args)
+        {
+          modal_scope_new = $.extend(modal_scope_new, args["static"]);
+        }
         $.each(args["dynamic"],function(key, value){
           modal_scope_new[key] = angular.isArray(value) ? extract(value, map_config): value;
         });
