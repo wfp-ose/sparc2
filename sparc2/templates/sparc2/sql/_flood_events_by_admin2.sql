@@ -6,7 +6,7 @@ FROM (
             'Feature' As type,
             ST_AsGeoJSON(lg.geom)::json As geometry,
             row_to_json((SELECT l FROM (SELECT adm2_name, count) As l)) As properties
-        FROM sparc1.flood_events As lg where lg.iso3='{{ iso3 }}'
+        FROM flood.events As lg where lg.iso3='{{ iso3 }}'
     ) AS f
 )
 AS fc

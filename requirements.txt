@@ -3,6 +3,7 @@ numpy
 httplib2
 django
 django-cors-headers
+supervisor
 gunicorn
 gevent
 geojson
