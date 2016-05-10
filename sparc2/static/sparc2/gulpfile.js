@@ -76,6 +76,12 @@ compile_js = compile_js.concat(geosite_filters);
 compile_js = compile_js.concat(geosite_directives);
 compile_js = compile_js.concat(geosite_controllers);
 
+var test_js = ["./src/js/main/*.js", "./src/js/polyfill/*.js"];
+test_js = test_js.concat(geosite_enumerations);
+test_js = test_js.concat(geosite_filters);
+test_js = test_js.concat(geosite_directives);
+test_js = test_js.concat(geosite_controllers);
+
 var compilelist =
 [
     {
@@ -176,14 +182,9 @@ gulp.task('clean', function () {
 });
 
 gulp.task('test', function(){
-    var scripts =
-    [
-        "./src/js/main/*.js",
-        "./src/js/polyfill/*.js"
-    ];
-    for(var i = 0; i < scripts.length; i++)
+    for(var i = 0; i < test_js.length; i++)
     {
-        gulp.src(scripts[i])
+        gulp.src(test_js[i])
             .pipe(jshint()).
             pipe(jshint.reporter('default'));
     }

@@ -9,9 +9,12 @@ geosite.controllers["controller_main"] = function($scope, $element, $controller,
         console.log('event', event);
         console.log('args', args);
         //
+        var main_scope = angular.element("#geosite-main").scope();
         var id = args["id"];
         var modal_scope = angular.element("#"+id).scope();
-        var modal_scope_new = {};
+        var modal_scope_new = {
+          "state": main_scope.state
+        };
         if("static" in args)
         {
           modal_scope_new = $.extend(modal_scope_new, args["static"]);
@@ -130,6 +133,39 @@ geosite.controllers["controller_main"] = function($scope, $element, $controller,
           $scope.state.view.featurelayers.splice(i, 1);
           // Refresh Map
           $scope.$broadcast("refreshMap", {'state': $scope.state});
+        }
+    });
+    $scope.$on("showLayers", function(event, args) {
+        console.log('event', event);
+        console.log('args', args);
+        var $scope = angular.element("#geosite-main").scope();
+        var layers = args.layers;
+        for(var i = 0; i < layers.length; i++)
+        {
+          var layer = layers[i];
+          if($.inArray(layer, $scope.state.view.featurelayers) == -1)
+          {
+            $scope.state.view.featurelayers.push(layer);
+            // Refresh Map
+            $scope.$broadcast("refreshMap", {'state': $scope.state});
+          }
+        }
+    });
+    $scope.$on("hideLayers", function(event, args) {
+        console.log('event', event);
+        console.log('args', args);
+        var $scope = angular.element("#geosite-main").scope();
+        var layers = args.layers;
+        for(var i = 0; i < layers.length; i++)
+        {
+          var layer = args.layers[i];
+          var j = $.inArray(layer, $scope.state.view.featurelayers);
+          if(j != -1)
+          {
+            $scope.state.view.featurelayers.splice(j, 1);
+            // Refresh Map
+            $scope.$broadcast("refreshMap", {'state': $scope.state});
+          }
         }
     });
     $scope.$on("switchBaseLayer", function(event, args) {

@@ -8,6 +8,7 @@ enumerations:
 templates: []
 filters:
   - default.js
+  - join.js
   - first.js
   - md2html.js
   - percent.js
@@ -18,3 +19,5 @@ filters:
   - title.js
   - as_array.js
   - sortItemsByArray.js
+  - url_shapefile.js
+  - url_geojson.js

@@ -153,7 +153,7 @@
   background: #337ab7;
   bottom: 70px;
   right: 4px;
-  width: 308px;
+  width: 358px;
   z-index: 9999;
 }
 .geosite-map-legend .geosite-map-legend-label {
@@ -285,7 +285,7 @@
   background: rgba(0, 0, 0, 0);
   top: 4px;
   right: 4px;
-  width: 308px;
+  width: 358px;
   z-index: 9999;
   /* Colors & Background */
   color: #fff;

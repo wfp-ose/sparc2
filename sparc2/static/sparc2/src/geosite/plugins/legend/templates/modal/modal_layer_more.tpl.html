@@ -5,8 +5,108 @@
       <h4 class="modal-title" id="myModalLabel">Layer / {{ layer.title }}</h4>
     </div>
     <div class="modal-body">
-      <span ng-bind-html="layer.description | md2html | default:'No description given.'"></span>
-      <br><br><b>Source:</b> {{ layer.source.name | default:"Not specified" }}
+      <div>
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+          <li role="presentation" class="active">
+            <a
+              href="#modal-layer-more-general"
+              aria-controls="modal-layer-more-general"
+              role="tab"
+              data-toggle="tab"
+              style="padding-left:8px; padding-right: 8px;">General</a>
+          </li>
+          <li ng-if="layer.wms" role="presentation" class="">
+            <a
+              href="#modal-layer-more-source"
+              aria-controls="modal-layer-more-source"
+              role="tab"
+              data-toggle="tab"
+              style="padding-left:8px; padding-right: 8px;">Source</a>
+          </li>
+          <li ng-if="layer.wms" role="presentation" class="">
+            <a
+              href="#modal-layer-more-wms"
+              aria-controls="modal-layer-more-wms"
+              role="tab"
+              data-toggle="tab"
+              style="padding-left:8px; padding-right: 8px;">WMS</a>
+          </li>
+          <li ng-if="layer.wfs" role="presentation" class="">
+            <a
+              href="#modal-layer-more-wfs"
+              aria-controls="modal-layer-more-wfs"
+              role="tab"
+              data-toggle="tab"
+              style="padding-left:8px; padding-right: 8px;">WFS</a>
+          </li>
+          <li ng-if="layer.wfs" role="presentation" class="">
+            <a
+              href="#modal-layer-more-download"
+              aria-controls="modal-layer-more-download"
+              role="tab"
+              data-toggle="tab"
+              style="padding-left:8px; padding-right: 8px;">Download</a>
+          </li>
+        </ul>
+        <div class="tab-content">
+          <div
+            id="modal-layer-more-general"
+            class="tab-pane fade in active"
+            role="tabpanel"
+            style="padding: 10px;">
+            <span ng-bind-html="layer.description | md2html | default:'No description given.'"></span>
+            <br><br><b>Type:</b> {{ layer.type }}
+            <br><br><b>Source:</b> {{ layer.source.name | default:"Not specified" }}
+          </div>
+          <div
+            ng-if="layer.source"
+            id="modal-layer-more-source"
+            class="tab-pane fade"
+            role="tabpanel"
+            style="padding: 10px;">
+            <span><b>Name:</b> {{ layer.source.name | default:"Not specified" }}</span><br>
+            <span><b>Attribution:</b> {{ layer.source.attribution | default:"Not specified" }}</span><br>
+            <span><b>URL:</b> {{ layer.source.url | default:"Not specified" }}</span><br>
+          </div>
+          <div
+            ng-if="layer.wms"
+            id="modal-layer-more-wms"
+            class="tab-pane fade"
+            role="tabpanel"
+            style="padding: 10px;">
+            <span><b>URL:</b> {{ layer.wms.url | default:"Not specified" }}</span><br>
+            <span><b>Layers:</b> {{ layer.wms.layers|join:', '|default:"Not specified" }}</span><br>
+            <span><b>Styles:</b> {{ layer.wms.styles|join:', '|default:"Not specified" }}</span><br>
+            <span><b>Format:</b> {{ layer.wms.format | default:"Not specified" }}</span><br>
+            <span><b>Version:</b> {{ layer.wms.version | default:"Not specified" }}</span><br>
+            <span><b>Transparent:</b> {{ layer.wms.transparent | default:"No" }}</span><br>
+            <hr>
+            <span><a target="_blank" href="{{ layer.wms.url }}?SERVICE=WMS&Request=GetCapabilities">Capabilities</a><br>
+            <span><a target="_blank" href="{{ layer.wms.url }}?SERVICE=WMS&Request=GetLegendGraphic&format=image/png&layer={{ layer.wms.layers|first }}">Legend Graphic</a><br>
+          </div>
+          <div
+            ng-if="layer.wfs"
+            id="modal-layer-more-wfs"
+            class="tab-pane fade"
+            role="tabpanel"
+            style="padding: 10px;">
+            <span><b>URL:</b> {{ layer.wfs.url | default:"Not specified" }}</span><br>
+            <span><b>Version:</b> {{ layer.wfs.version | default:"Not specified" }}</span><br>
+            <hr>
+            <span><a target="_blank" href="{{ layer.wfs.url }}?service=wfs&request=DescribeFeatureType&version={{ layer.wfs.version }}">Describe Feature Type</a><br>
+          </div>
+          <div
+            ng-if="layer.wfs"
+            id="modal-layer-more-download"
+            class="tab-pane fade"
+            role="tabpanel"
+            style="padding: 10px;">
+            <span><b>Download Shapefile</b>: <a target="_blank" href="{{ layer | url_shapefile }}">All</a>, <a target="_blank" href="{{ layer | url_shapefile:state }}">Current Extent</a><br>
+            <span><b>Download GeoJSON</b>: <a target="_blank" href="{{ layer | url_geojson }}">All</a>, <a target="_blank" href="{{ layer | url_geojson:state }}">Current Extent</a><br>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="modal-footer">
       <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

@@ -591,7 +591,7 @@ featurelayers:
       label: "Landscan"
   imerg_1day:
     type: WMS
-    title: "Rainfall Accumulation: 1 day"
+    title: "Rainfall Total: 1 day"
     description: "IMERG 1-Day"
     visible: false
     source:
@@ -613,10 +613,10 @@ featurelayers:
             height: 16
             preview: false
     legend:
-      label: "Rainfall Accumulation: 1 day"
+      label: "Rainfall Total: 1 day"
   imerg_3day:
     type: WMS
-    title: "Rainfall Accumulation: 3 days"
+    title: "Rainfall Total: 3 days"
     description: "IMERG 3-Day"
     visible: false
     source:
@@ -638,10 +638,10 @@ featurelayers:
             height: 16
             preview: false
     legend:
-      label: "Rainfall Accumulation: 3 days"
+      label: "Rainfall Total: 3 days"
   imerg_7day:
     type: WMS
-    title: "Rainfall Accumulation: 7 days"
+    title: "Rainfall Total: 7 days"
     description: "IMERG 7-Day"
     visible: false
     source:
@@ -663,7 +663,7 @@ featurelayers:
             height: 16
             preview: false
     legend:
-      label: "Rainfall Accumulation: 7 days"
+      label: "Rainfall Total: 7 days"
   wld_poi_facilities_wfp:
     type: WMS
     title: "Global WFP Facilities"
@@ -683,6 +683,7 @@ featurelayers:
     wfs:
       version: "1.0.0"  # Needs to 1.0.0 or returns bad results for some reason.
       url: "http://geonode.wfp.org/cors/geoserver/wfs"
+      geometry: shape
     cartography:
       - id: default
         legend:
@@ -781,6 +782,7 @@ featurelayers:
     wfs:
       version: "1.0.0"  # Needs to 1.0.0 or returns bad results for some reason.
       url: "http://geonode.wfp.org/cors/geoserver/wfs"
+      geometry: shape
     cartography:
       - title: "Default"
         legend:
