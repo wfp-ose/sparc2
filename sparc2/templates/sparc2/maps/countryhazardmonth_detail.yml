@@ -574,11 +574,11 @@ featurelayers:
       attribution: "ORNL"
     wms:
       version: "1.1.1"
-      layers: ["geonode:lscan13"]
+      layers: ["geonode:landscan_2013_clipped"]
       styles: ["lscan"]
       format: 'image/png'
       transparent: true
-      url: "http://10.11.40.84/geoserver/geonode/wms"
+      url: "http://staging.geonode.wfp.org/geoserver/geonode/wms"
     cartography:
       - id: default
         legend:
@@ -684,6 +684,8 @@ featurelayers:
       version: "1.0.0"  # Needs to 1.0.0 or returns bad results for some reason.
       url: "http://geonode.wfp.org/cors/geoserver/wfs"
       geometry: shape
+    kml:
+      url: "http://geonode.wfp.org/cors/geoserver/wms/kml"
     cartography:
       - id: default
         legend:
@@ -935,11 +937,11 @@ featurelayers:
       attribution: "WFP/OSEP/AEW&GIS"
     wms:
       version: "1.1.1"
-      layers: {% endverbatim %}["f_{{ iso_alpha3|lower }}","f_{{ iso_alpha3|lower }}","f_{{ iso_alpha3|lower }}","f_{{ iso_alpha3|lower }}","f_{{ iso_alpha3|lower }}","f_{{ iso_alpha3|lower }}"]{% verbatim %}
+      layers: {% endverbatim %}["flood_probability_{{ iso_alpha3|lower }}","flood_probability_{{ iso_alpha3|lower }}","flood_probability_{{ iso_alpha3|lower }}","flood_probability_{{ iso_alpha3|lower }}","flood_probability_{{ iso_alpha3|lower }}","flood_probability_{{ iso_alpha3|lower }}"]{% verbatim %}
       styles: ["RP25","RP50","RP100","RP200","RP500","RP1000"]
       format: 'image/png'
       transparent: true
-      url: "http://10.11.40.84/geoserver/geonode/wms"
+      url: "http://staging.geonode.wfp.org/geoserver/geonode/wms"
     cartography:
       - id: default
         type: graphic

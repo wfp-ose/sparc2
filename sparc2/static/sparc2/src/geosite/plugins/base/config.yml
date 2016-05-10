@@ -21,3 +21,4 @@ filters:
   - sortItemsByArray.js
   - url_shapefile.js
   - url_geojson.js
+  - url_kml.js
