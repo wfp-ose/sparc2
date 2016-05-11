@@ -17,73 +17,141 @@ require.extensions['.yml'] = function (module, filename) {
     module.exports = yaml.parse(fs.readFileSync(filename, 'utf8'));
 };
 
-var geosite_config = require("./src/geosite/config.yml");
+var collect_files = function(basePath, plugin, sType)
+{
+  var arr = [];
+  if(plugin[sType] != undefined)
+  {
+    var prefix = path.join(basePath, plugin["id"]);
+    for(var i = 0; i < plugin[sType].length; i++)
+    {
+      arr.push(path.join(prefix, sType, plugin[sType][i]));
+    }
+  }
+  return arr;
+};
+var collect_files_all = function(basePath, plugin, aType)
+{
+  var files = {};
+  for(var i = 0; i < aType.length; i++)
+  {
+    files[aType[i]] = collect_files(basePath, plugin, aType[i]);
+  }
+  return files;
+};
+
+var load_config = function(configPath)
+{
+  var children = [];
+
+  var configObject = require(configPath);
+  if("project" in configObject["dependencies"]["production"])
+  {
+    var projects = configObject["dependencies"]["production"]["project"];
+    for (var i = 0; i < projects.length; i++)
+    {
+      var project = projects[i];
+      children.push(load_config(project));
+    }
+  }
+
+  return {
+    'path': configPath,
+    "children": children
+  };
+};
+var flatten_configs = function(n)
+{
+  var configs = [];
+  var config = require(n.path);
+  config["path"]["base"] = path.dirname(n.path);
+  configs.push(config);
+
+  for(var i = 0; i < n.children.length; i++)
+  {
+    configs = flatten_configs(n.children[i]).concat(configs);
+  }
+  return configs;
+};
+
+var configs = flatten_configs(load_config("./config.yml"));
+
+var geosite_projects = [];
 var geosite_plugins = [];
-var geosite_enumerations = []; // Exported to the compile process
-var geosite_filters = []; // Exported to the compile process
-var geosite_templates = [];  // Exported to the compile process
-var geosite_directives = []; // Exported to the compile process
-var geosite_controllers = []; // Exported to the compile process
-//
-for(var i = 0; i < geosite_config["plugins"].length; i++)
+
+var compile_templates = [];
+var compile_enumerations = [];
+var compile_filters = [];
+var compile_directives = [];
+var compile_controllers = [];
+var compile_js = [];
+var test_js = [];
+var compilelist = [];
+
+for(var i = 0; i < configs.length; i++)
 {
-  var geosite_plugin = require("./src/geosite/plugins/"+geosite_config["plugins"][i]+"/config.yml");
-  geosite_plugin["id"] = geosite_config["plugins"][i];
-  geosite_plugins.push(geosite_plugin);
+  var config = configs[i];
+
+  var path_plugins = path.join(config.path.base, config.path.geosite, "plugins")
+
+  var project_templates = [];  // Exported to the compile process
+  var project_enumerations = []; // Exported to the compile process
+  var project_filters = []; // Exported to the compile process
+  var project_directives = []; // Exported to the compile process
+  var project_controllers = []; // Exported to the compile process
+
+  for(var j = 0; j < config["plugins"].length; j++)
+  {
+    var pluginPath = path.join(path_plugins, config["plugins"][j], "config.yml");
+
+    var geosite_plugin = require(pluginPath[0] == "/" ? pluginPath : ("./"+ pluginPath));
+    geosite_plugin["id"] = config["plugins"][j];
+
+    var files = collect_files_all(path_plugins, geosite_plugin,
+      ["enumerations", "filters", "controllers", "directives", "templates"]);
+
+    project_templates = project_templates.concat(files["templates"]);
+    project_enumerations = project_enumerations.concat(files["enumerations"]);
+    project_filters = project_filters.concat(files["filters"]);
+    project_directives = project_directives.concat(files["directives"]);
+    project_controllers = project_controllers.concat(files["controllers"]);
+  }
+
+  if("templates" in config["dependencies"]["production"])
+  {
+    compile_templates = compile_templates.concat(
+      config["dependencies"]["production"]["templates"].map(function(x){return path.join(config.path.base, x);})
+    );
+  }
+  compile_templates = compile_templates.concat(project_templates);
+
+  compile_enumerations = compile_enumerations.concat(project_enumerations);
+  compile_filters = compile_filters.concat(project_filters);
+  compile_directives = compile_directives.concat(project_directives);
+  compile_controllers = compile_controllers.concat(project_controllers);
+
+  compile_js = compile_js.concat(
+    config["dependencies"]["production"]["javascript"].map(function(x){return path.join(config.path.base, x);})
+  );
+
+  test_js = test_js.concat(
+    config["dependencies"]["test"]["javascript"].map(function(x){return path.join(config.path.base, x);})
+  );
 }
-for(var i = 0; i < geosite_plugins.length; i++)
-{
-    var geosite_plugin = geosite_plugins[i];
-    if(geosite_plugin["enumerations"] != undefined)
-    {
-      for(var j = 0; j < geosite_plugin["enumerations"].length; j++)
-      {
-        var geosite_enumeration = geosite_plugin["enumerations"][j];
-        geosite_enumerations.push("./src/geosite/plugins/"+geosite_plugin["id"]+"/enumerations/"+geosite_enumeration);
-      }
-    }
-    if(geosite_plugin["filters"] != undefined)
-    {
-      for(var j = 0; j < geosite_plugin["filters"].length; j++)
-      {
-        var geosite_filter = geosite_plugin["filters"][j];
-        geosite_filters.push("./src/geosite/plugins/"+geosite_plugin["id"]+"/filters/"+geosite_filter);
-      }
-    }
-    for(var j = 0; j < geosite_plugin["controllers"].length; j++)
-    {
-      var geosite_controller = geosite_plugin["controllers"][j];
-      geosite_controllers.push("./src/geosite/plugins/"+geosite_plugin["id"]+"/controllers/"+geosite_controller);
-    }
-    for(var j = 0; j < geosite_plugin["directives"].length; j++)
-    {
-      var geosite_directive = geosite_plugin["directives"][j];
-      geosite_directives.push("./src/geosite/plugins/"+geosite_plugin["id"]+"/directives/"+geosite_directive);
-    }
-    for(var j = 0; j < geosite_plugin["templates"].length; j++)
-    {
-      var geosite_template = geosite_plugin["templates"][j];
-      geosite_templates.push("./src/geosite/plugins/"+geosite_plugin["id"]+"/templates/"+geosite_template);
-    }
-}
 
-var compile_templates = ["./src/templates/*.html"];
-compile_templates = compile_templates.concat(geosite_templates);
+compile_js = compile_js.concat(
+    compile_enumerations,
+    compile_filters,
+    compile_directives,
+    compile_controllers);
 
-var compile_js = ["./src/js/main/*.js", "./build/templates/templates.js"];
-compile_js = compile_js.concat(geosite_enumerations);
-compile_js = compile_js.concat(geosite_filters);
-compile_js = compile_js.concat(geosite_directives);
-compile_js = compile_js.concat(geosite_controllers);
+test_js = test_js.concat(
+    compile_enumerations,
+    compile_filters,
+    compile_directives,
+    compile_controllers);
 
-var test_js = ["./src/js/main/*.js", "./src/js/polyfill/*.js"];
-test_js = test_js.concat(geosite_enumerations);
-test_js = test_js.concat(geosite_filters);
-test_js = test_js.concat(geosite_directives);
-test_js = test_js.concat(geosite_controllers);
-
-var compilelist =
-[
+compilelist = compilelist.concat([
     {
         "name": "templates",
         "type": "template",
@@ -96,29 +164,9 @@ var compilelist =
         "src": compile_js,
         "outfile":"main.js",
         "dest":"./build/js/"
-    },
-    {
-        "name": "main_less",
-        "type": "less",
-        "src": "./src/less/main/*.less",
-        "outfile":"main.css",
-        "dest":"./build/css/"
-    },
-    {
-        "name": "monkeypatch_js",
-        "type": "js",
-        "src": "./src/js/monkeypatch/*.js",
-        "outfile":"monkeypatch.js",
-        "dest":"./build/js/"
-    },
-    {
-        "name": "polyfill_js",
-        "type": "js",
-        "src": "./src/js/polyfill/*.js",
-        "outfile":"polyfill.js",
-        "dest":"./build/js/"
     }
-];
+]);
+compilelist = compilelist.concat(require("./config.yml")["compiler"]["list"]);
 
 var copylist =
 [

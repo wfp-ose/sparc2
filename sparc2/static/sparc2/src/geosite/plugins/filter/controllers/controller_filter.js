@@ -68,7 +68,10 @@ geosite.controllers["controller_filter"] = function($scope, $element, $controlle
 
         if(($.type(range) == "boolean" && range ) || (range.toLowerCase() == "true"))
         {
-          var maxValue = maxValueFromSummary != undefined ? maxValueFromSummary : geosite.assert_float(slider.data('max-value'), undefined);
+          var maxValue = (maxValueFromSummary != undefined && slider.data('max-value') == "summary") ?
+              maxValueFromSummary :
+              geosite.assert_float(slider.data('max-value'), undefined);
+          //
           var values = state["filters"]["popatrisk"][output];
           values = geosite.assert_array_length(values, 2, [minValue, maxValue]);
           var values_n = [Math.floor(values[0]), Math.floor(values[1])];

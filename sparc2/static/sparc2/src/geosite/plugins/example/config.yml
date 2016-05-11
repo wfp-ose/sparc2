@@ -1,7 +1,0 @@
----
-controllers:
-  - main.js
-directives:
-  - directive.js
-templates:
-  - example.tpl.html

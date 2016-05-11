@@ -1,3 +1,979 @@
+var geosite = {
+  'directives': {},
+  'filters': {},
+  'vecmath': {},
+  'tilemath': {}  
+};
+
+
+geosite.assert_float = function(x, fallback)
+{
+  if(x === undefined || x === "")
+  {
+    return fallback;
+  }
+  else if(angular.isNumber(x))
+  {
+    return x;
+  }
+  else
+  {
+    return parseFloat(x);
+  }
+};
+
+geosite.assert_array_length = function(x, length, fallback)
+{
+  if(x === undefined || x === "")
+  {
+    return fallback;
+  }
+  else if(angular.isString(x))
+  {
+    x = x.split(",");
+    if(x.length == length)
+    {
+      return x;
+    }
+    else
+    {
+      return fallback;
+    }
+  }
+  else if(angular.isArray(x))
+  {
+    if(x.length == length)
+    {
+      return x;
+    }
+    else
+    {
+      return fallback;
+    }
+  }
+};
+
+geosite.intend = function(name, data, scope)
+{
+    scope.$emit(name, data);
+};
+
+geosite.init_intents = function(element, scope)
+{
+  element.on('click', '.geosite-intent', function(event) {
+    event.preventDefault();  // For anchor tags
+    var that = $(this);
+    if(that.hasClass('geosite-toggle'))
+    {
+      if(that.hasClass('geosite-off'))
+      {
+        that.removeClass('geosite-off');
+        geosite.intend(that.data('intent-names')[0], that.data('intent-data'), scope);
+      }
+      else
+      {
+        that.addClass('geosite-off');
+        geosite.intend(that.data('intent-names')[1], that.data('intent-data'), scope);
+      }
+    }
+    else if(that.hasClass('geosite-radio'))
+    {
+      var siblings = that.parents('.geosite-radio-group:first').find(".geosite-radio").not(that);
+      if(!(that.hasClass('geosite-on')))
+      {
+        that.addClass('geosite-on');
+        if(that.data("intent-class-on"))
+        {
+          that.addClass(that.data("intent-class-on"));
+          siblings.removeClass(that.data("intent-class-on"));
+        }
+        siblings.removeClass('geosite-on');
+        if(that.data("intent-class-off"))
+        {
+          that.removeClass(that.data("intent-class-off"));
+          siblings.addClass(that.data("intent-class-off"));
+        }
+        geosite.intend(that.data('intent-name'), that.data('intent-data'), scope);
+      }
+    }
+    else
+    {
+      geosite.intend(that.data('intent-name'), that.data('intent-data'), scope);
+    }
+  });
+};
+
+geosite.controllers = {};
+
+geosite.controllers.controller_base = function($scope, $element) {
+
+  this.intend = geosite.intend;
+
+  geosite.init_intents($($element), $scope);
+
+};
+
+geosite.init_controller_base = function(app)
+{
+  app.controller("GeositeControllerBase", geosite.controllers.controller_base);
+};
+
+geosite.init_controller = function(that, app, controller)
+{
+  var controllerName = that.data('controllerName');
+  var controllerType = that.data('controllerType');
+
+  app.controller(controllerName, controller || geosite.controllers.controller_base);
+};
+
+geosite.init_controllers = function(that, app, controllers)
+{
+  for(var i = 0; i < controllers.length; i++)
+  {
+    var c = controllers[i];
+    $(c.selector, that).each(function(){
+        try
+        {
+          geosite.init_controller($(this), app, c.controller);
+        }
+        catch(err)
+        {
+          console.log("Could not load Geosite Controller \""+c.selector+"\"", err);
+        }
+    });
+  }
+};
+
+geosite.vecmath = {};
+
+geosite.vecmath.distance = function(a, b)
+{
+  var p = L.Projection.SphericalMercator;
+  if(b.toString != undefined && b.toString().startsWith('LatLng'))
+  {
+    return (p.project(a)).distanceTo(p.project(b));
+  }
+  else
+  {
+    var minDistance = undefined;
+    $.each(b._layers, function(id, layer)
+    {
+      var verticies = layer._latlngs;
+      var i = 0;
+      if(minDistance == undefined)
+      {
+        minDistance = L.LineUtil.pointToSegmentDistance(
+          p.project(a),
+          p.project(verticies[i]),
+          p.project(verticies[i+1]));
+        i++;
+      }
+      for(; i < verticies.length -1; i++)
+      {
+        var d = L.LineUtil.pointToSegmentDistance(
+          p.project(a),
+          p.project(verticies[i]),
+          p.project(verticies[i+1]));
+        if(d < minDistance)
+        {
+          minDistance = d;
+        }
+      }
+    });
+    return minDistance;
+  }
+};
+
+geosite.vecmath.closestLocation = function(a, b)
+{
+  if(b.toString != undefined && b.toString().startsWith('LatLng'))
+  {
+    return b;
+  }
+  else
+  {
+    var p = L.Projection.SphericalMercator;
+    var minDistance = undefined;
+    var closestPoint = undefined;
+    $.each(b._layers, function(id, layer)
+    {
+      var verticies = layer._latlngs;
+      var i = 0;
+      if(minDistance == undefined)
+      {
+        minDistance = L.LineUtil.pointToSegmentDistance(
+          p.project(a),
+          p.project(verticies[i]),
+          p.project(verticies[i+1]));
+        closestPoint = L.LineUtil.closestPointOnSegment(
+          p.project(a),
+          p.project(verticies[i]),
+          p.project(verticies[i+1]));
+        i++;
+      }
+      for(; i < verticies.length -1; i++)
+      {
+        var d = L.LineUtil.pointToSegmentDistance(
+          p.project(a),
+          p.project(verticies[i]),
+          p.project(verticies[i+1]));
+        if(d < minDistance)
+        {
+          minDistance = d;
+          closestPoint = L.LineUtil.closestPointOnSegment(
+            p.project(a),
+            p.project(verticies[i]),
+            p.project(verticies[i+1]));
+        }
+      }
+    });
+    return p.unproject(closestPoint);
+  }
+};
+
+geosite.vecmath.getClosestFeatureAndLocation = function(nearbyFeatures, target)
+{
+  var closestFeature = undefined;
+  var closestDistance = 0;
+  var closestLocation = undefined;
+  if(nearbyFeatures != undefined)
+  {
+    if(nearbyFeatures.length > 0)
+    {
+      closestFeature = nearbyFeatures[0];
+      closestDistance = geosite.vecmath.distance(target, nearbyFeatures[0].geometry);
+      closestLocation = geosite.vecmath.closestLocation(target, nearbyFeatures[0].geometry);
+      for(var i = 1; i < nearbyFeatures.length ;i++)
+      {
+        var f = nearbyFeatures[i];
+        if(geosite.vecmath.distance(target, f.geometry) < closestDistance)
+        {
+          closestFeature = f;
+          closestDistance = geosite.vecmath.distance(target, f.geometry);
+          closestLocation = geosite.vecmath.closestLocation(target, f.geometry);
+        }
+      }
+    }
+  }
+  return {'feature': closestFeature, 'location': closestLocation};
+};
+
+/**
+ * init_state will overwrite the default state from the server with params in the url.
+ * @param {Object} state - Initial state from server
+ */
+geosite.init_state = function(state, stateschema)
+{
+  var newState = $.extend({}, state);
+
+  // Update View
+  var lat = getHashValueAsFloat(["latitude", "lat", "y"]) || state["lat"] || 0.0;
+  var lon = getHashValueAsFloat(["longitude", "lon", "long", "lng", "x"]) || state["lon"] || 0.0;
+  var z = getHashValueAsInteger(["zoom", "z"]) || state["z"] || 3;
+  var delta = {'lat': lat, 'lon': lon, 'z': z};
+  newState["view"] = newState["view"] != undefined ? $.extend(newState["view"], delta) : delta;
+
+  // Update Filters
+  if(newState["filters"] != undefined)
+  {
+    $.each(newState["filters"], function(layer_id, layer_filters){
+      $.each(layer_filters, function(filter_id, filer_value){
+        var type = stateschema["filters"][layer_id][filter_id].toLowerCase();
+        var value = getHashValue(layer_id+":"+filter_id, type);
+        if(value != undefined && value != "")
+        {
+          newState["filters"][layer_id][filter_id] = value;
+        }
+      });
+    });
+  }
+
+  // Update Filters
+  if(newState["styles"] != undefined)
+  {
+    /*
+    $.each(newState["styles"], function(layer_id, layer_style){
+      var type = stateschema["filters"][layer_id][filter_id].toLowerCase();
+      var value = getHashValue("style:"+layer_id, type);
+      if(value != undefined && value != "")
+      {
+        newState["filters"][layer_id][filter_id] = value;
+      }
+    });*/
+  }
+
+  return newState;
+};
+
+/**
+ * Initializes a filter slider's label
+ * @constructor
+ * @param {Object} that - DOM element for slider
+ * @param {string} type - Either ordinal or continuous
+ * @param {Object} range - Either true, "min", or "max".
+ * @param {Object} value - If range is true, then integer array, else integer.
+ */
+geosite.ui_init_slider_label = function(that, type, range, value)
+{
+  if(type=="ordinal")
+  {
+    var h = that.data('label-template').replace(
+      new RegExp('{{(\\s*)value(\\s*)}}', 'gi'),
+      value);
+    that.data('label').html(h);
+  }
+  else if(type=="continuous")
+  {
+    if(($.type(range) == "boolean" && range ) || (range.toLowerCase() == "true"))
+    {
+      var h = that.data('label-template')
+        .replace(new RegExp('{{(\\s*)value(s?).0(\\s*)}}', 'gi'), value[0])
+        .replace(new RegExp('{{(\\s*)value(s?).1(\\s*)}}', 'gi'), value[1]);
+      that.data('label').html(h);
+    }
+    else if(range=="min" || range=="max")
+    {
+      var h = that.data('label-template')
+        .replace(new RegExp('{{(\\s*)value(\\s*)}}', 'gi'), value);
+      that.data('label').html(h);
+    }
+  }
+};
+
+/**
+ * Initializes a filter slider's label
+ * @constructor
+ * @param {Object} that - DOM element for slider
+ * @param {string} type - Either ordinal or continuous
+ * @param {Object} range - Either true, "min", or "max".
+ * @param {Object} value - If range is true, then integer array, else integer.
+ */
+geosite.ui_init_slider_slider = function($scope, that, type, range, value, minValue, maxValue, step)
+{
+  if(type=="ordinal")
+  {
+    that.slider({
+      range: (($.type(range) == "boolean" && range ) || (range.toLowerCase() == "true")) ? true : range,
+      value: value,
+      min: 0,
+      max: maxValue,
+      step: 1,
+      slide: function(event, ui) {
+          geosite.ui_update_slider_label.apply(this, [event, ui]);
+          var output = that.data('output');
+          var newValue = that.data('options')[ui.value];
+          var filter = {};
+          filter[output] = newValue;
+          geosite.intend("filterChanged", {"layer":"popatrisk", "filter":filter}, $scope);
+      }
+    });
+  }
+  else if(type=="continuous")
+  {
+    if(($.type(range) == "boolean" && range ) || (range.toLowerCase() == "true"))
+    {
+      that.slider({
+        range: true,
+        values: value,
+        min: minValue,
+        max: maxValue,
+        step: step,
+        slide: function(event, ui) {
+            geosite.ui_update_slider_label.apply(this, [event, ui]);
+            var output = that.data('output');
+            var newValue = ui.values;
+            var filter = {};
+            filter[output] = newValue;
+            geosite.intend("filterChanged", {"layer":"popatrisk", "filter":filter}, $scope);
+        }
+      });
+    }
+    else if(range=="min" || range=="max")
+    {
+      that.slider({
+        range: range,
+        value: value,
+        min: minValue,
+        max: maxValue,
+        step: step,
+        slide: function(event, ui) {
+            geosite.ui_update_slider_label.apply(this, [event, ui]);
+            var output = that.data('output');
+            var newValue = ui.value / 100.0;
+            var filter = {};
+            filter[output] = newValue;
+            geosite.intend("filterChanged", {"layer":"popatrisk", "filter":filter}, $scope);
+        }
+      });
+    }
+  }
+};
+
+
+/**
+ * Updates a filter slider's label
+ * @constructor
+ * @param {Object} event - A jQuery UI event object
+ * @param {Object} author - A jQuery UI ui object
+ */
+geosite.ui_update_slider_label = function(event, ui)
+{
+  var that = $(this);
+  var type = that.data('type');
+  var range = that.data('range');
+
+  if(type=="ordinal")
+  {
+    var v2 = that.data('options')[ui.value];
+    var h = that.data('label-template')
+      .replace(new RegExp('{{(\\s*)value(\\s*)}}', 'gi'), v2);
+    that.data('label').html(h);
+  }
+  else if(type=="continuous")
+  {
+    if(($.type(range) == "boolean" && range ) || (range.toLowerCase() == "true"))
+    {
+      var h = that.data('label-template')
+        .replace(new RegExp('{{(\\s*)value(s?).0(\\s*)}}', 'gi'), (ui.values[0]))
+        .replace(new RegExp('{{(\\s*)value(s?).1(\\s*)}}', 'gi'), (ui.values[1]));
+      that.data('label').html(h);
+    }
+    else if(range=="min" || range=="max")
+    {
+      var h = that.data('label-template')
+        .replace(new RegExp('{{(\\s*)value(\\s*)}}', 'gi'), (ui.value / 100.0));
+      that.data('label').html(h);
+    }
+  }
+};
+
+var getHashValue = function(keys, type)
+{
+    var value = undefined;
+    if(typeof keys === 'string')
+    {
+      keys = [keys.toLowerCase()];
+    }
+    else
+    {
+      keys = $.map(keys,function(value, i){return value.toLowerCase();});
+    }
+    var hash_lc = location.hash.toLowerCase();
+    for(var i = 0; i < keys.length; i++)
+    {
+      var key = keys[i];
+      var keyAndHash = hash_lc.match(new RegExp(key + '=([^&]*)'));
+      if(keyAndHash)
+      {
+          value = keyAndHash[1];
+          if(value != undefined && value != null && value != "")
+          {
+            break;
+          }
+      }
+    }
+
+    if(type != undefined)
+    {
+        if(type == "integer")
+        {
+          value = (value != undefined && value != null && value != "") ? parseInt(value, 10) : undefined;
+        }
+        else if(type == "integerarray")
+        {
+          if(value != undefined)
+          {
+            var sValue = value.split(",");
+            var newValue = [];
+            for(var i = 0; i < sValue.length; i++)
+            {
+              var v = sValue[i];
+              newValue.push((v != undefined && v != null && v != "") ? parseInt(v, 10) : undefined);
+            }
+            value = newValue;
+          }
+        }
+        else if(type == "float")
+        {
+          value = (value != undefined && value != null && value != "") ? parseFloat(value) : undefined;
+        }
+        else if(type == "floatarray")
+        {
+          if(value !=undefined)
+          {
+            var sValue = value.split(",");
+            var newValue = [];
+            for(var i = 0; i < sValue.length; i++)
+            {
+              var v = sValue[i];
+              newValue.push((v != undefined && v != null && v != "") ? parseFloat(v) : undefined);
+            }
+            value = newValue;
+          }
+        }
+    }
+    return value;
+};
+var hasHashValue = function(keys)
+{
+    var value = getHashValue(keys);
+    return value != undefined && value != null && value != "";
+};
+var getHashValueAsInteger = function(keys)
+{
+  return getHashValue(keys, "integer");
+};
+var getHashValueAsIntegerArray = function(keys)
+{
+  return getHashValue(keys, "integerarray");
+};
+var getHashValueAsFloat = function(keys)
+{
+  return getHashValue(keys, "float");
+};
+var sortLayers = function(layers, reverse)
+{
+  var renderLayers = $.isArray(layers) ? layers : $.map(layers, function(layer){return layer;});
+  renderLayers = renderLayers.sort(function(a, b){
+      return a.options.renderOrder - b.options.renderOrder;
+  });
+  if(reverse === true)
+    renderLayers.reverse();
+  return renderLayers;
+};
+var updateRenderOrder = function(layers)
+{
+    for(var i = 0; i < layers.length; i++)
+    {
+        layers[i].bringToFront();
+    }
+};
+var layersAsArray = function(layers)
+{
+  return $.map(layers, function(layer, id){return {'id':id, 'layer':layer};});
+};
+var extract = function(keyChain, node)
+{
+	var obj = undefined;
+	if(keyChain.length==0)
+	{
+		obj = node;
+	}
+	else
+	{
+		if(node!=undefined)
+		{
+			var newKeyChain = keyChain.slice(1);
+			var newNode = Array.isArray(node) ? node[keyChain[0]]: node[""+keyChain[0]];
+			obj = extract(newKeyChain, newNode);
+		}
+	}
+	return obj;
+};
+
+geosite.codec = {};
+
+geosite.codec.parseFeatures = function(response, fields_by_featuretype)
+{
+  var features = [];
+  //$(response).find("FeatureCollection")  No need to search for featurecollection.  It IS the featurecollection
+  $(response).find('gml\\:featuremember').each(function(){
+      //var f = $(this).find(typeName.indexOf(":") != -1 ? typeName.substring(typeName.indexOf(":") + 1) : typeName);
+      var f = $(this).children();
+      var typeName = f.prop("tagName").toLowerCase();
+      var attributes = geosite.codec.parseAttributes(f, fields_by_featuretype[typeName]);
+      var shape = f.find("geonode\\:shape");
+      var geom = undefined;
+      if(shape.find("gml\\:point").length > 0)
+      {
+        var coords = shape.find("gml\\:point").find("gml\\:coordinates").text().split(",");
+        geom = new L.LatLng(parseFloat(coords[1]), parseFloat(coords[0]));
+      }
+      else if(shape.find("gml\\:multilinestring").length > 0)
+      {
+        var coords = shape.find("gml\\:multilinestring")
+          .find("gml\\:linestringmember")
+          .find("gml\\:linestring")
+          .find("gml\\:coordinates")
+          .text().split(" ");
+        coords = $.map(coords, function(x, i){
+          var a = x.split(",");
+          return [[parseFloat(a[0]), parseFloat(a[1])]];
+        });
+        var geojson = [{"type": "LineString","coordinates": coords}];
+        geom = new L.GeoJSON(geojson, {});
+      }
+      var newFeature = {
+        'featuretype': typeName,
+        'attributes': attributes,
+        'geometry': geom
+      };
+      features.push(newFeature);
+  });
+  return features;
+};
+geosite.codec.parseAttributes  = function(element, fields)
+{
+  var attributes = {};
+  for(var k = 0; k < fields.length; k++)
+  {
+    var field = fields[k];
+    var attributeName = field['output'] || field['attribute'];
+    attributes[attributeName] = undefined;
+    var inputName = field['attribute'] || field['input'];
+    var inputNames = inputName != undefined ? [inputName] : field['inputs'];
+    if(inputNames!= undefined)
+    {
+      for(var l = 0; l < inputNames.length; l++)
+      {
+        var inputName = inputNames[l];
+        if(element.find("geonode\\:"+inputName).length > 0)
+        {
+          attributes[attributeName] = element.find("geonode\\:"+inputName).text();
+          break;
+        }
+      }
+    }
+  }
+  return attributes;
+};
+
+geosite.popup = {};
+
+geosite.popup.buildField = function(field, layer, feature)
+{
+  var output = field["output"] || field["attribute"];
+  var html = undefined;
+  var bInclude = false;
+  if(field.when != undefined)
+  {
+    if(field.when.toLowerCase() == "defined")
+    {
+      if(feature.attributes[output] != undefined)
+      {
+        bInclude = true;
+      }
+    }
+    else
+    {
+      bInclude = true;
+    }
+  }
+  else
+  {
+    bInclude = true;
+  }
+
+  if(bInclude)
+  {
+    if(field.type == "link")
+    {
+      var value = field.value != undefined ? field.value : "{{ feature.attributes." + output + " }}";
+      html = "<span><b>"+ field.label +":</b> <a target=\"_blank\" href=\""+field.url+"\">";
+      html += value;
+      html += "</a></span>";
+    }
+    else
+    {
+      var value = undefined;
+      if(field.value != undefined)
+      {
+        value = field.value;
+      }
+      else
+      {
+        if(field.type == "date")
+        {
+          var format = field.format || "medium";
+          value = "feature.attributes." + output + " | date:'"+format+"'"
+        }
+        else
+        {
+          value = "feature.attributes." + output
+        }
+        if(field.fallback)
+        {
+          value = "("+value+") || '"+field.fallback+"'"
+        }
+        value = "{{ "+value +" }}";
+      }
+      html = "<span><b>"+ field.label +":</b> "+value+"</span>";
+    }
+  }
+  return html;
+};
+
+geosite.popup.buildPopupTemplate = function(popup, layer, feature)
+{
+  var panes = popup.panes;
+  var popupTemplate = "";
+  //////////////////
+  if(angular.isDefined(popup.title))
+  {
+    popupTemplate += "<h5 style=\"word-wrap:break-word;text-align:center;\">"+popup.title+"</h5>";
+  }
+  //////////////////
+  var paneContents = [];
+  for(var i = 0; i < panes.length; i++)
+  {
+    var pane = panes[i];
+    var popupFields = [];
+    for(var j = 0; j < pane.fields.length; j++)
+    {
+      var popupField = geosite.popup.buildField(pane.fields[j], layer, feature);
+      if(popupField != undefined)
+      {
+        popupFields.push(popupField);
+      }
+    }
+    var paneContent = popupFields.join("<br>");
+    paneContents.push(paneContent);
+  }
+  //////////////////
+  if(panes.length > 1)
+  {
+    var tabs = [];
+    var pane = panes[0];
+    tabs.push("<li class=\"active\"><a data-toggle=\"tab\" href=\"#"+pane.id+"\">"+pane.tab.label+"</a></li>");
+    for(var i = 1; i < panes.length; i++)
+    {
+      pane = panes[i];
+      tabs.push("<li><a data-toggle=\"tab\" href=\"#"+pane.id+"\">"+pane.tab.label+"</a></li>");
+    }
+    var tab_html = "<ul class=\"nav nav-tabs nav-justified\">"+tabs.join("")+"</ul>";
+    ///////////////
+    var paneContentsWithWrapper = [];
+    paneContentsWithWrapper.push("<div id=\""+panes[0].id+"\" class=\"tab-pane fade in active\">"+paneContents[0]+"</div>");
+    for(var i = 1; i < panes.length; i++)
+    {
+      paneContentsWithWrapper.push("<div id=\""+panes[i].id+"\" class=\"tab-pane fade\">"+paneContents[i]+"</div>");
+    }
+    ///////////////
+    var content_html = "<div class=\"tab-content\">"+paneContentsWithWrapper.join("")+"</div>";
+    popupTemplate += tab_html + content_html;
+  }
+  else
+  {
+    popupTemplate += paneContents[0];
+  }
+  return popupTemplate;
+};
+
+geosite.popup.openPopup = function($interpolate, featureLayer, feature, location, map)
+{
+  var fl = featureLayer;
+  var popupTemplate = geosite.popup.buildPopupTemplate(fl.popup, featureLayer, feature);
+  var ctx = {
+    'layer': featureLayer,
+    'feature': feature
+  };
+  var popupContent = $interpolate(popupTemplate)(ctx);
+  var popup = new L.Popup({maxWidth: (fl.popup.maxWidth || 400)}, undefined);
+  popup.setLatLng(new L.LatLng(location.lat, location.lon));
+  popup.setContent(popupContent);
+  map.openPopup(popup);
+};
+
+geosite.tilemath = {
+  "D2R": Math.PI / 180,
+  "R2D": 180 / Math.PI
+};
+
+geosite.tilemath.point_to_bbox = function(x, y, z, digits)
+{
+  var radius = geosite.tilemath.point_to_radius(z);
+  var e = x + radius; if(digits != undefined && digits >= 0){e = e.toFixed(digits);}
+  var w = x - radius; if(digits != undefined && digits >= 0){w = w.toFixed(digits);}
+  var s = y - radius; if(digits != undefined && digits >= 0){s = s.toFixed(digits);}
+  var n = y + radius; if(digits != undefined && digits >= 0){n = n.toFixed(digits);}
+  return [w, s, e, n];
+};
+
+geosite.tilemath.point_to_radius = function(z)
+{
+  return (geosite.config.click_radius || 4.0) / z;
+};
+
+geosite.tilemath.tms_to_bbox = function(x, y, z)
+{
+  var e = geosite.tilemath.tile_to_lon(x+1, z);
+  var w = geosite.tilemath.tile_to_lon(x, z);
+  var s = geosite.tilemath.tile_to_lat(y+1, z);
+  var n = geosite.tilemath.tile_to_lat(y, z);
+  return [w, s, e, n];
+};
+
+
+geosite.tilemath.tile_to_lon = function(x, z)
+{
+  return x / Math.pow(2, z) * 360-180;
+};
+
+
+geosite.tilemath.tile_to_lat = function(y, z)
+{
+  n = Math.pi - 2 * Math.PI * y / Math.pow(2,z);
+  return ( R2D * Math.atan(0.5 * ( Math.exp(n) - Math.exp(-n))));
+};
+
+geosite.http = {};
+
+geosite.http.build_promises = function($http, urls)
+{
+  var promises = [];
+  for(var i = 0; i < urls.length; i++)
+  {
+    var url = urls[i];
+    var config = {};
+    var promise = $http.get(url, config);
+    promises.push(promise);
+  }
+  return promises;
+};
+geosite.http.build_features = function(responses, fields_by_featuretype)
+{
+  var features = [];
+  for(var i = 0; i < responses.length; i++)
+  {
+    var response = responses[i];
+    if(response.status == 200)
+    {
+      var data = response.data;
+      features = features.concat(geosite.codec.parseFeatures(data, fields_by_featuretype));
+    }
+  }
+  return features;
+};
+
+geosite.layers = {};
+
+geosite.layers.aggregate_fields = function(featureLayer)
+{
+  var fields = [];
+  for(var i = 0; i < featureLayer.popup.panes.length; i++)
+  {
+    fields = fields.concat(featureLayer.popup.panes[i].fields);
+  }
+  return fields;
+};
+geosite.layers.init_baselayers = function(map, baselayers)
+{
+  var layers = {};
+  for(var i = 0; i < baselayers.length; i++)
+  {
+      var tl = baselayers[i];
+      try{
+        layers[tl.id] = L.tileLayer(tl.source.url, {
+            id: tl.id,
+            attribution: tl.source.attribution
+        });
+      }catch(err){console.log("Could not add baselayer "+i);}
+  }
+  return layers;
+};
+geosite.layers.init_featurelayer_post = function($scope, live, id, fl, visible)
+{
+  if(fl != undefined)
+  {
+    if(visible != undefined ? visible : true)
+    {
+      fl.addTo(live["map"]);
+    }
+    geosite.intend("layerLoaded", {'type':'featurelayer', 'layer': id, 'visible': visible}, $scope);
+  }
+  else
+  {
+    console.log("Could not add featurelayer "+id+" because it is undefined.");
+  }
+};
+geosite.layers.init_featurelayer_wms = function($scope, live, map_config, id, layerConfig)
+{
+  //https://github.com/Leaflet/Leaflet/blob/master/src/layer/tile/TileLayer.WMS.js
+  var w = layerConfig.wms;
+  var fl = L.tileLayer.wms(w.url, {
+    renderOrder: $.inArray(id, map_config.renderlayers),
+    buffer: w.buffer || 0,
+    version: w.version || "1.1.1",
+    layers: w.layers.join(","),
+    styles: w.styles ? w.styles.join(",") : '',
+    format: w.format,
+    transparent: w.transparent || false,
+    attribution: layerConfig.source.attribution
+  });
+  live["featurelayers"][id] = fl;
+  geosite.layers.init_featurelayer_post($scope, live, id, fl, layerConfig.visible);
+};
+geosite.layers.init_featurelayer_geojson = function($scope, live, map_config, id, layerConfig)
+{
+  $.ajax({
+    url: layerConfig.source.url,
+    dataType: "json",
+    success: function(response){
+      var fl = undefined;
+      if(layerConfig.transform == "heatmap")
+      {
+        var heatLayerData = [];
+        var maxIntensity = 0;
+        for(var i = 0; i < response[0]["features"].length; i++)
+        {
+          var intensity = ("attribute" in layerConfig["heatmap"] && layerConfig["heatmap"]["attribute"] != "") ? response[0]["features"][i]["properties"][layerConfig["heatmap"]["attribute"]] : 1.0;
+          heatLayerData.push([
+            response[0]["features"][i]["geometry"]["coordinates"][1],
+            response[0]["features"][i]["geometry"]["coordinates"][0],
+            intensity
+          ]);
+          if(intensity > maxIntensity)
+          {
+            maxIntensity = intensity;
+          }
+        }
+        for(var i = 0; i < heatLayerData.length; i++)
+        {
+          heatLayerData[i][2] = heatLayerData[i][2] / maxIntensity;
+        }
+
+        var canvas = L.heatCanvas();
+        fl = L.heatLayer(heatLayerData, {
+          "renderer": canvas,
+          "attribution": layerConfig["source"]["attribution"],
+          "radius": (layerConfig["heatmap"]["radius"] || 25),
+          "blur": (layerConfig["heatmap"]["blur"] || 15),
+          "max": (layerConfig["heatmap"]["max"] || 1.0),
+          "minOpacity": (layerConfig["heatmap"]["minOpacity"] || 0.5)
+        });
+      }
+      else
+      {
+        fl = L.geoJson(response, {
+          attribution: layerConfig.source.attribution
+        });
+      }
+      live["featurelayers"][id] = fl;
+      geosite.layers.init_featurelayer_post($scope, live, id, fl, layerConfig.visible);
+    }
+  });
+};
+geosite.layers.init_featurelayer = function(id, layerConfig, $scope, live, map_config)
+{
+  if(layerConfig.enabled == undefined || layerConfig.enabled == true)
+  {
+    if(layerConfig.type.toLowerCase() == "geojson")
+    {
+      geosite.layers.init_featurelayer_geojson($scope, live, map_config, id, layerConfig);
+    }
+    else if(layerConfig.type.toLowerCase() == "wms")
+    {
+      geosite.layers.init_featurelayer_wms($scope, live, map_config, id, layerConfig);
+    }
+  }
+};
+geosite.layers.init_featurelayers = function(featureLayers, $scope, live, map_config)
+{
+  $.each(featureLayers, function(id, layerConfig){
+    geosite.layers.init_featurelayer(id, layerConfig, $scope, live, map_config);
+  });
+};
+
 var buildGroupsAndColumnsForCountry = function(chartConfig, popatrisk_config)
 {
   var groups = [[]];
@@ -340,7 +1316,9 @@ geosite.style_cyclone = function(f, state, map_config, popatrisk_config)
   var style = {};
   var filters = state["filters"]["popatrisk"];
   var prob_class_max = filters["prob_class_max"];
-  var range = filters["popatrisk_range"];
+  var popatrisk_range = filters["popatrisk_range"];
+  var ldi_range = filters["ldi_range"];
+  var ldi = f.properties.ldi;
   //
   var month_short3 = months_short_3[state["month"]-1];
   var value = 0;
@@ -360,7 +1338,9 @@ geosite.style_cyclone = function(f, state, map_config, popatrisk_config)
   value = geosite.vam_filter_fcs(value, filters, f);
   value = geosite.vam_filter_csi(value, filters, f);
 
-  if(value >= range[0] && value <= range[1])
+  if(
+    value >= popatrisk_range[0] && value <= popatrisk_range[1] &&
+    ldi >= ldi_range[0] && ldi <= ldi_range[1])
   {
     var colors = map_config["featurelayers"]["popatrisk"]["cartography"][0]["colors"]["ramp"];
     var breakpoints = popatrisk_config["data"]["summary"]["all"]["breakpoints"]["natural"];
@@ -388,7 +1368,9 @@ geosite.style_drought = function(f, state, map_config, popatrisk_config)
   var style = {};
   var filters = state["filters"]["popatrisk"];
   var prob_class_max = filters["prob_class_max"] / 100.0;
-  var range = filters["popatrisk_range"];
+  var popatrisk_range = filters["popatrisk_range"];
+  var ldi_range = filters["ldi_range"];
+  var ldi = f.properties.ldi;
   //
   var month_short3 = months_short_3[state["month"]-1];
   var value = 0;
@@ -407,7 +1389,9 @@ geosite.style_drought = function(f, state, map_config, popatrisk_config)
   value = geosite.vam_filter_fcs(value, filters, f);
   value = geosite.vam_filter_csi(value, filters, f);
 
-  if(value >= range[0] && value <= range[1])
+  if(
+    value >= popatrisk_range[0] && value <= popatrisk_range[1] &&
+    ldi >= ldi_range[0] && ldi <= ldi_range[1])
   {
     var colors = map_config["featurelayers"]["popatrisk"]["cartography"][0]["colors"]["ramp"];
     var breakpoints = popatrisk_config["data"]["summary"]["all"]["breakpoints"]["natural"];
@@ -434,7 +1418,9 @@ geosite.style_flood = function(f, state, map_config, popatrisk_config)
   var style = {};
   var filters = state["filters"]["popatrisk"];
   var rp = filters["rp"];
-  var range = filters["popatrisk_range"];
+  var popatrisk_range = filters["popatrisk_range"];
+  var ldi_range = filters["ldi_range"];
+  var ldi = f.properties.ldi;
   //
   var month_short3 = months_short_3[state["month"]-1];
   var value = f.properties["RP"+rp.toString(10)][month_short3];
@@ -442,7 +1428,9 @@ geosite.style_flood = function(f, state, map_config, popatrisk_config)
   value = geosite.vam_filter_fcs(value, filters, f);
   value = geosite.vam_filter_csi(value, filters, f);
 
-  if(value >= range[0] && value <= range[1])
+  if(
+    value >= popatrisk_range[0] && value <= popatrisk_range[1] &&
+    ldi >= ldi_range[0] && ldi <= ldi_range[1])
   {
       var colors = map_config["featurelayers"]["popatrisk"]["cartography"][0]["colors"]["ramp"];
       var breakpoints = popatrisk_config["data"]["summary"]["all"]["breakpoints"]["natural_adjusted"];
@@ -563,7 +1551,7 @@ geosite.templates = {};
 geosite.templates["breadcrumbs.tpl.html"] = "<div>\n  <div>\n    <a class=\"btn btn-primary btn-large\" title=\"Explore\" href=\"/explore\">Explore &gt;&gt;</a>\n  </div>\n  <div\n    ng-repeat=\"bc in breadcrumbs track by $index\">\n    <select\n      id=\"{{ bc.id }}\"\n      data-output=\"{{ bc.output }}\"\n      data-width=\"{{ bc.width }}\"\n      data-height=\"{{ bc.height }}\"\n      data-initial-data=\"{{ bc.data }}\"\n      data-breadcrumbs=\"{{ bc.breadcrumbs }}\">\n      <option\n        ng-if=\"bc.type == \'country\'\"\n        value=\"{{ state.iso3 }}\"\n        selected=\"selected\">{{ state.country_title }}</option>\n      <option\n        ng-if=\"bc.type == \'hazard\'\"\n        value=\"{{ state.hazard }}\"\n        selected=\"selected\">{{ state.hazard_title }}</option>\n      <option\n        ng-if=\"bc.type != \'country\' && bc.type != \'hazard\'\"\n        value=\"placeholder\"\n        selected=\"selected\">{{ bc.placeholder }}</option>\n    </select>\n  </div>\n</div>\n";
 geosite.templates["calendar.tpl.html"] = "<ul class=\"nav nav-justified geosite-radio-group\">\n  <li\n    ng-repeat=\"month in months track by $index\">\n    <a\n      ng-class=\"state.month == month.num ? \'btn btn-primary selected geosite-intent geosite-radio geosite-on\' : \'btn btn-default geosite-intent geosite-radio\'\"\n      title=\"{{ month.long }}\"\n      href=\"/country/{{ state.iso3 }}/hazard/{{ state.hazard }}/month/{{ month.num }}\"\n      data-intent-name=\"stateChanged\"\n      data-intent-data=\"{&quot;month&quot;: {{ month.num }} }\"\n      data-intent-class-on=\"btn-primary selected\"\n      data-intent-class-off=\"btn-default\" ng-bind-html=\"month.short3 | title\"></a>\n  </li>\n</ul>\n";
 geosite.templates["modal_layer_carto.tpl.html"] = "<div class=\"modal-dialog\" role=\"document\">\n  <div class=\"modal-content\">\n    <div class=\"modal-header\">\n      <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">×</button>\n      <h4 class=\"modal-title\" id=\"myModalLabel\">Layer / {{ layer.title }} / Cartography</h4>\n    </div>\n    <div class=\"modal-body\">\n      <div>\n        <!-- Nav tabs -->\n        <ul class=\"nav nav-tabs\" role=\"tablist\">\n          <p class=\"navbar-text\" style=\"margin-bottom:0px;\"><b>Select</b><br><b>a Style:</b></p>\n          <li\n            role=\"presentation\"\n            ng-class=\"$first ? \'active\' : \'\'\"\n            ng-repeat=\"style in layer.cartography track by $index\">\n            <a\n              class=\"geosite-intent\"\n              href=\"#modal-layer-carto-style-{{ style.id }}\"\n              aria-controls=\"modal-layer-carto-style-{{ style.id }}\"\n              data-intent-name=\"selectStyle\"\n              data-intent-data=\"{&quot;layer&quot;:&quot;{{ layerID }}&quot;,&quot;style&quot;:&quot;{{ style.id }}&quot;}\"\n              role=\"tab\"\n              data-toggle=\"tab\"\n              style=\"padding-left:8px; padding-right: 8px;\"\n              ng-bind-html=\"style.title | default:\'Default\' | tabLabel\"></a>\n          </li>\n        </ul>\n        <!-- Tab panes -->\n        <div class=\"tab-content\">\n          <div\n            ng-class=\"$first ? \'tab-pane fade in active\' : \'tab-pane fade\'\"\n            ng-repeat=\"style in layer.cartography track by $index\"\n            id=\"modal-layer-carto-style-{{ style.id }}\"\n            role=\"tabpanel\"\n            style=\"padding: 10px;\">\n            <span><b>Attribute: </b><span>{{ style.attribute | default:\"Not styled by attribute\" }}</span></span><br>\n            <span><b>Mask: </b><span ng-bind-html=\"style.mask | md2html | default:\'No Mask\'\"></span></span><br>\n            <span><b>Description: </b><span ng-bind-html=\"style.description | md2html | default:\'Not specified\'\"></span></span>\n            <br>\n            <br>\n            <div\n              ng-if=\"style.type == \'graduated\'\"\n              geosite-symbol-graduated\n              style=\"style\"\n              width=\"{{ \'300px\' }}\">\n            </div>\n            <div\n              ng-if=\"style.legend.symbol.type == \'circle\'\"\n              geosite-symbol-circle\n              style=\"style\">\n            </div>\n            <div\n              ng-if=\"style.legend.symbol.type == \'graphic\'\"\n              geosite-symbol-graphic\n              style=\"style\">\n            </div>\n          </div>\n        </div>\n      </div>\n    </div>\n    <div class=\"modal-footer\">\n      <button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Close</button>\n    </div>\n  </div>\n</div>\n";
-geosite.templates["modal_layer_more.tpl.html"] = "<div class=\"modal-dialog\" role=\"document\">\n  <div class=\"modal-content\">\n    <div class=\"modal-header\">\n      <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">×</button>\n      <h4 class=\"modal-title\" id=\"myModalLabel\">Layer / {{ layer.title }}</h4>\n    </div>\n    <div class=\"modal-body\">\n      <div>\n        <!-- Nav tabs -->\n        <ul class=\"nav nav-tabs\" role=\"tablist\">\n          <li role=\"presentation\" class=\"active\">\n            <a\n              href=\"#modal-layer-more-general\"\n              aria-controls=\"modal-layer-more-general\"\n              role=\"tab\"\n              data-toggle=\"tab\"\n              style=\"padding-left:8px; padding-right: 8px;\">General</a>\n          </li>\n          <li ng-if=\"layer.wms\" role=\"presentation\" class=\"\">\n            <a\n              href=\"#modal-layer-more-source\"\n              aria-controls=\"modal-layer-more-source\"\n              role=\"tab\"\n              data-toggle=\"tab\"\n              style=\"padding-left:8px; padding-right: 8px;\">Source</a>\n          </li>\n          <li ng-if=\"layer.wms\" role=\"presentation\" class=\"\">\n            <a\n              href=\"#modal-layer-more-wms\"\n              aria-controls=\"modal-layer-more-wms\"\n              role=\"tab\"\n              data-toggle=\"tab\"\n              style=\"padding-left:8px; padding-right: 8px;\">WMS</a>\n          </li>\n          <li ng-if=\"layer.wfs\" role=\"presentation\" class=\"\">\n            <a\n              href=\"#modal-layer-more-wfs\"\n              aria-controls=\"modal-layer-more-wfs\"\n              role=\"tab\"\n              data-toggle=\"tab\"\n              style=\"padding-left:8px; padding-right: 8px;\">WFS</a>\n          </li>\n          <li ng-if=\"layer.wfs\" role=\"presentation\" class=\"\">\n            <a\n              href=\"#modal-layer-more-download\"\n              aria-controls=\"modal-layer-more-download\"\n              role=\"tab\"\n              data-toggle=\"tab\"\n              style=\"padding-left:8px; padding-right: 8px;\">Download</a>\n          </li>\n        </ul>\n        <div class=\"tab-content\">\n          <div\n            id=\"modal-layer-more-general\"\n            class=\"tab-pane fade in active\"\n            role=\"tabpanel\"\n            style=\"padding: 10px;\">\n            <span ng-bind-html=\"layer.description | md2html | default:\'No description given.\'\"></span>\n            <br><br><b>Type:</b> {{ layer.type }}\n            <br><br><b>Source:</b> {{ layer.source.name | default:\"Not specified\" }}\n          </div>\n          <div\n            ng-if=\"layer.source\"\n            id=\"modal-layer-more-source\"\n            class=\"tab-pane fade\"\n            role=\"tabpanel\"\n            style=\"padding: 10px;\">\n            <span><b>Name:</b> {{ layer.source.name | default:\"Not specified\" }}</span><br>\n            <span><b>Attribution:</b> {{ layer.source.attribution | default:\"Not specified\" }}</span><br>\n            <span><b>URL:</b> {{ layer.source.url | default:\"Not specified\" }}</span><br>\n          </div>\n          <div\n            ng-if=\"layer.wms\"\n            id=\"modal-layer-more-wms\"\n            class=\"tab-pane fade\"\n            role=\"tabpanel\"\n            style=\"padding: 10px;\">\n            <span><b>URL:</b> {{ layer.wms.url | default:\"Not specified\" }}</span><br>\n            <span><b>Layers:</b> {{ layer.wms.layers|join:\', \'|default:\"Not specified\" }}</span><br>\n            <span><b>Styles:</b> {{ layer.wms.styles|join:\', \'|default:\"Not specified\" }}</span><br>\n            <span><b>Format:</b> {{ layer.wms.format | default:\"Not specified\" }}</span><br>\n            <span><b>Version:</b> {{ layer.wms.version | default:\"Not specified\" }}</span><br>\n            <span><b>Transparent:</b> {{ layer.wms.transparent | default:\"No\" }}</span><br>\n            <hr>\n            <span><a target=\"_blank\" href=\"{{ layer.wms.url }}?SERVICE=WMS&Request=GetCapabilities\">Capabilities</a><br>\n            <span><a target=\"_blank\" href=\"{{ layer.wms.url }}?SERVICE=WMS&Request=GetLegendGraphic&format=image/png&layer={{ layer.wms.layers|first }}\">Legend Graphic</a><br>\n          </div>\n          <div\n            ng-if=\"layer.wfs\"\n            id=\"modal-layer-more-wfs\"\n            class=\"tab-pane fade\"\n            role=\"tabpanel\"\n            style=\"padding: 10px;\">\n            <span><b>URL:</b> {{ layer.wfs.url | default:\"Not specified\" }}</span><br>\n            <span><b>Version:</b> {{ layer.wfs.version | default:\"Not specified\" }}</span><br>\n            <hr>\n            <span><a target=\"_blank\" href=\"{{ layer.wfs.url }}?service=wfs&request=DescribeFeatureType&version={{ layer.wfs.version }}\">Describe Feature Type</a><br>\n          </div>\n          <div\n            ng-if=\"layer.wfs\"\n            id=\"modal-layer-more-download\"\n            class=\"tab-pane fade\"\n            role=\"tabpanel\"\n            style=\"padding: 10px;\">\n            <span><b>Download Shapefile</b>: <a target=\"_blank\" href=\"{{ layer | url_shapefile }}\">All</a>, <a target=\"_blank\" href=\"{{ layer | url_shapefile:state }}\">Current Extent</a><br>\n            <span><b>Download GeoJSON</b>: <a target=\"_blank\" href=\"{{ layer | url_geojson }}\">All</a>, <a target=\"_blank\" href=\"{{ layer | url_geojson:state }}\">Current Extent</a><br>\n          </div>\n        </div>\n      </div>\n    </div>\n    <div class=\"modal-footer\">\n      <button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Close</button>\n    </div>\n  </div>\n</div>\n";
+geosite.templates["modal_layer_more.tpl.html"] = "<div class=\"modal-dialog\" role=\"document\">\n  <div class=\"modal-content\">\n    <div class=\"modal-header\">\n      <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">×</button>\n      <h4 class=\"modal-title\" id=\"myModalLabel\">Layer / {{ layer.title }}</h4>\n    </div>\n    <div class=\"modal-body\">\n      <div>\n        <!-- Nav tabs -->\n        <ul class=\"nav nav-tabs\" role=\"tablist\">\n          <li role=\"presentation\" class=\"active\">\n            <a\n              href=\"#modal-layer-more-general\"\n              aria-controls=\"modal-layer-more-general\"\n              role=\"tab\"\n              data-toggle=\"tab\"\n              style=\"padding-left:8px; padding-right: 8px;\">General</a>\n          </li>\n          <li ng-if=\"layer.wms\" role=\"presentation\" class=\"\">\n            <a\n              href=\"#modal-layer-more-source\"\n              aria-controls=\"modal-layer-more-source\"\n              role=\"tab\"\n              data-toggle=\"tab\"\n              style=\"padding-left:8px; padding-right: 8px;\">Source</a>\n          </li>\n          <li ng-if=\"layer.wms\" role=\"presentation\" class=\"\">\n            <a\n              href=\"#modal-layer-more-wms\"\n              aria-controls=\"modal-layer-more-wms\"\n              role=\"tab\"\n              data-toggle=\"tab\"\n              style=\"padding-left:8px; padding-right: 8px;\">WMS</a>\n          </li>\n          <li ng-if=\"layer.wfs\" role=\"presentation\" class=\"\">\n            <a\n              href=\"#modal-layer-more-wfs\"\n              aria-controls=\"modal-layer-more-wfs\"\n              role=\"tab\"\n              data-toggle=\"tab\"\n              style=\"padding-left:8px; padding-right: 8px;\">WFS</a>\n          </li>\n          <li ng-if=\"layer.wfs\" role=\"presentation\" class=\"\">\n            <a\n              href=\"#modal-layer-more-download\"\n              aria-controls=\"modal-layer-more-download\"\n              role=\"tab\"\n              data-toggle=\"tab\"\n              style=\"padding-left:8px; padding-right: 8px;\">Download</a>\n          </li>\n        </ul>\n        <div class=\"tab-content\">\n          <div\n            id=\"modal-layer-more-general\"\n            class=\"tab-pane fade in active\"\n            role=\"tabpanel\"\n            style=\"padding: 10px;\">\n            <span ng-bind-html=\"layer.description | md2html | default:\'No description given.\'\"></span>\n            <br><br><b>Type:</b> {{ layer.type }}\n            <br><br><b>Source:</b> {{ layer.source.name | default:\"Not specified\" }}\n          </div>\n          <div\n            ng-if=\"layer.source\"\n            id=\"modal-layer-more-source\"\n            class=\"tab-pane fade\"\n            role=\"tabpanel\"\n            style=\"padding: 10px;\">\n            <span><b>Name:</b> {{ layer.source.name | default:\"Not specified\" }}</span><br>\n            <span><b>Attribution:</b> {{ layer.source.attribution | default:\"Not specified\" }}</span><br>\n            <span><b>URL:</b> {{ layer.source.url | default:\"Not specified\" }}</span><br>\n          </div>\n          <div\n            ng-if=\"layer.wms\"\n            id=\"modal-layer-more-wms\"\n            class=\"tab-pane fade\"\n            role=\"tabpanel\"\n            style=\"padding: 10px;\">\n            <span><b>URL:</b> {{ layer.wms.url | default:\"Not specified\" }}</span><br>\n            <span><b>Layers:</b> {{ layer.wms.layers|join:\', \'|default:\"Not specified\" }}</span><br>\n            <span><b>Styles:</b> {{ layer.wms.styles|join:\', \'|default:\"Not specified\" }}</span><br>\n            <span><b>Format:</b> {{ layer.wms.format | default:\"Not specified\" }}</span><br>\n            <span><b>Version:</b> {{ layer.wms.version | default:\"Not specified\" }}</span><br>\n            <span><b>Transparent:</b> {{ layer.wms.transparent | default:\"No\" }}</span><br>\n            <hr>\n            <span><a target=\"_blank\" href=\"{{ layer.wms.url }}?SERVICE=WMS&Request=GetCapabilities\">Capabilities</a><br>\n            <span><a target=\"_blank\" href=\"{{ layer.wms.url }}?SERVICE=WMS&Request=GetLegendGraphic&format=image/png&layer={{ layer.wms.layers|first }}\">Legend Graphic</a><br>\n          </div>\n          <div\n            ng-if=\"layer.wfs\"\n            id=\"modal-layer-more-wfs\"\n            class=\"tab-pane fade\"\n            role=\"tabpanel\"\n            style=\"padding: 10px;\">\n            <span><b>URL:</b> {{ layer.wfs.url | default:\"Not specified\" }}</span><br>\n            <span><b>Version:</b> {{ layer.wfs.version | default:\"Not specified\" }}</span><br>\n            <hr>\n            <span><a target=\"_blank\" href=\"{{ layer.wfs.url }}?service=wfs&request=DescribeFeatureType&version={{ layer.wfs.version }}\">Describe Feature Type</a><br>\n          </div>\n          <div\n            ng-if=\"layer.wfs\"\n            id=\"modal-layer-more-download\"\n            class=\"tab-pane fade\"\n            role=\"tabpanel\"\n            style=\"padding: 10px;\">\n            <span><b>Download Shapefile</b>: <a target=\"_blank\" href=\"{{ layer | url_shapefile }}\">All</a>, <a target=\"_blank\" href=\"{{ layer | url_shapefile:state }}\">Current Extent</a><br>\n            <span><b>Download GeoJSON</b>: <a target=\"_blank\" href=\"{{ layer | url_geojson }}\">All</a>, <a target=\"_blank\" href=\"{{ layer | url_geojson:state }}\">Current Extent</a><br>\n            <span><b>Download Google Earth KML</b>: <a target=\"_blank\" href=\"{{ layer | url_kml }}\">All</a>, <a target=\"_blank\" href=\"{{ layer | url_kml:state }}\">Current Extent</a><br>\n          </div>\n        </div>\n      </div>\n    </div>\n    <div class=\"modal-footer\">\n      <button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Close</button>\n    </div>\n  </div>\n</div>\n";
 geosite.templates["modal_layer_config.tpl.html"] = "<div class=\"modal-dialog\" role=\"document\">\n  <div class=\"modal-content\">\n    <div class=\"modal-header\">\n      <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">×</button>\n      <h4 class=\"modal-title\" id=\"myModalLabel\">Layer / {{ layer.title }}</h4>\n    </div>\n    <div class=\"modal-body\">\n      <div>\n        <!-- Nav tabs -->\n        <ul class=\"nav nav-tabs\" role=\"tablist\">\n          <li class=\"active\" role=\"presentation\">\n            <a href=\"#modal-layer-config-input\"\n              aria-controls=\"modal-layer-config-input\"\n              role=\"tab\"\n              data-toggle=\"tab\"\n              style=\"padding-left:8px; padding-right: 8px;\">Configure</a>\n          </li>\n          <li class=\"\" role=\"presentation\">\n            <a href=\"#modal-layer-config-output\"\n              aria-controls=\"modal-layer-config-output\"\n              role=\"tab\"\n              data-toggle=\"tab\"\n              style=\"padding-left:8px; padding-right: 8px;\">Output</a>\n          </li>\n        </ul>\n        <!-- Tab panes -->\n        <div class=\"tab-content\">\n          <div\n            id=\"modal-layer-config-input\"\n            class=\"tab-pane fade in active\"\n            role=\"tabpanel\"\n            style=\"padding: 10px;\">\n            <div class=\"form-group row\" style=\"margin:0; padding-top: 10px; padding-bottom: 10px;\">\n              <div class=\"col-md-3\"><h5>Title</h5></div>\n              <div class=\"col-md-9\">\n                <label for=\"layer-config-title\" class=\"sr-only control-label\">Title</label>\n                <input\n                  id=\"layer-config-title\"\n                  type=\"text\"\n                  class=\"form-control\"\n                  placeholder=\"Title ...\"\n                  data-geosite-field-type=\"text\"\n                  ng-model=\"layer.title\"\n                  ng-change=\"validateField()\"\n                  required\n                  value=\"{{ layer.title }}\">\n              </div>\n            </div>\n            <div class=\"form-group row\" style=\"margin:0; padding-top: 10px; padding-bottom: 10px;\">\n              <div class=\"col-md-3\"><h5>Description</h5></div>\n              <div class=\"col-md-9\">\n                <label for=\"layer-config-title\" class=\"sr-only control-label\">Description</label>\n                <input\n                  id=\"layer-config-description\"\n                  type=\"text\"\n                  class=\"form-control\"\n                  placeholder=\"Title ...\"\n                  data-geosite-field-type=\"text\"\n                  ng-model=\"layer.description\"\n                  ng-change=\"validateField()\"\n                  required\n                  value=\"{{ layer.Description }}\">\n              </div>\n            </div>\n          </div>\n          <div\n            id=\"modal-layer-config-output\"\n            class=\"tab-pane fade\"\n            role=\"tabpanel\"\n            style=\"padding: 10px;\">\n            {{ layer | json }}\n          </div>\n        </div>\n      </div>\n    </div>\n    <div class=\"modal-footer\">\n      <button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Close</button>\n    </div>\n  </div>\n</div>\n";
 geosite.templates["symbol_circle.tpl.html"] = "<div>\n  <svg width=\"100%\" height=\"100%\" version=\"1.0\" xmlns=\"http://www.w3.org/2000/svg\">\n    <circle\n      cx=\"50%\"\n      cy=\"50%\"\n      ng-r=\"{{ style.legend.symbol.radius }}\"\n      ng-fill=\"{{ style.styles.default.static.color }}\"\n      stroke-width=\"1\"\n      stroke=\"#000000\"></circle>\n  </svg>\n</div>\n";
 geosite.templates["symbol_ellipse.tpl.html"] = "<div>\n  <svg width=\"100%\" height=\"100%\" version=\"1.0\" xmlns=\"http://www.w3.org/2000/svg\">\n    <ellipse\n      cx=\"50%\"\n      cy=\"50%\"\n      ng-rx=\"{{ style.legend.symbol.width }}\"\n      ng-ry=\"{{ style.legend.symbol.height }}\"\n      ng-fill=\"{{ style.styles.default.static.color }}\"\n      stroke-width=\"1\"\n      stroke=\"#000000\"></circle>\n  </svg>\n</div>\n";
@@ -571,7 +1559,7 @@ geosite.templates["symbol_graduated.tpl.html"] = "<div>\n  <div\n    style=\"dis
 geosite.templates["symbol_graphic.tpl.html"] = "<i class=\"fa fa-image\" style=\"color:black; font-size: 20px;\"></i>\n";
 geosite.templates["legend_baselayers.tpl.html"] = "<div class=\"geosite-map-legend-baselayers geosite-radio-group\">\n  <div\n    ng-repeat=\"layer in map_config.baselayers track by $index\"\n    ng-if=\"layer.legend!==undefined\"\n    class=\"geosite-map-legend-item noselect\"\n    data-layer=\"{{ layer.id }}\">\n    <div class=\"geosite-map-legend-item-left\">\n      <div class=\"geosite-map-legend-item-icon geosite-map-legend-item-more\">\n        <a\n          class=\"geosite-intent\"\n          data-intent-name=\"toggleModal\"\n          data-intent-data=\"{&quot;id&quot;:&quot;geosite-modal-layer-more&quot;,&quot;dynamic&quot;:{&quot;layer&quot;:[&quot;baselayers&quot;,&quot;{{ $index }}&quot;]}}\">\n          <i class=\"fa fa-info-circle\"></i>\n        </a>\n      </div><!--\n      --><div class=\"geosite-map-legend-item-icon geosite-map-legend-item-visibility\">\n           <a\n             ng-class=\" $first ? \'geosite-map-legend-item-visibility-button geosite-intent geosite-radio geosite-on\' : \'geosite-map-legend-item-visibility-button geosite-intent geosite-radio\'\"\n             data-intent-name=\"switchBaseLayer\"\n             data-intent-data=\"{&quot;layer&quot;:&quot;{{ layer.id }}&quot;}\"\n             data-intent-class-on=\"geosite-on\"\n             data-intent-class-off=\"\">\n             <i class=\"fa fa-eye geosite-on\"></i><i class=\"fa fa-eye-slash geosite-off\"></i>\n           </a>\n         </div><!--\n      --><div class=\"geosite-map-legend-item-symbol\" style=\"width: 10px;\"></div>\n    </div><!--\n    --><div class=\"geosite-map-legend-item-right\">\n      <div class=\"geosite-map-legend-item-label\" style=\"width: 100%;\">\n        <span ng-bind-html=\"layer.legend.label | md2html\"></span>\n      </div>\n    </div>\n  </div>\n</div>\n";
 geosite.templates["legend_featurelayers.tpl.html"] = "<div class=\"geosite-map-legend-featurelayers\">\n  <div\n    ng-repeat=\"layer in featurelayers track by $index\"\n    ng-init=\"layerIndex = $index\"\n    ng-if=\"layer.item.legend!==undefined\"\n    class=\"geosite-map-legend-item noselect\"\n    data-layer=\"{{ layer.key }}\">\n    <div class=\"geosite-map-legend-item-left\">\n      <div class=\"geosite-map-legend-item-icon geosite-map-legend-item-config\" style=\"display:none;\">\n        <a\n          class=\"geosite-intent\"\n          data-intent-name=\"toggleModal\"\n          data-intent-data=\"{&quot;id&quot;:&quot;geosite-modal-layer-config&quot;,&quot;static&quot;:{&quot;layerID&quot;:&quot;{{ layer.key }}&quot;},&quot;dynamic&quot;:{&quot;layer&quot;:[&quot;featurelayers&quot;,&quot;{{ layer.key }}&quot;]}}\">\n          <i class=\"fa fa-cog\"></i>\n        </a>\n      </div><!--\n      --><div class=\"geosite-map-legend-item-icon geosite-map-legend-item-more\">\n        <a\n          class=\"geosite-intent\"\n          data-intent-name=\"toggleModal\"\n          data-intent-data=\"{&quot;id&quot;:&quot;geosite-modal-layer-more&quot;,&quot;static&quot;:{&quot;layerID&quot;:&quot;{{ layer.key }}&quot;},&quot;dynamic&quot;:{&quot;layer&quot;:[&quot;featurelayers&quot;,&quot;{{ layer.key }}&quot;]}}\">\n          <i class=\"fa fa-info-circle\"></i>\n        </a>\n      </div><!--\n      --><div class=\"geosite-map-legend-item-icon geosite-map-legend-item-visibility\">\n         <a\n           ng-class=\"(layer.item.visible != undefined ? layer.item.visible : true ) ? \'geosite-map-legend-item-visibility-button geosite-intent geosite-toggle\' : \'geosite-map-legend-item-visibility-button geosite-intent geosite-toggle geosite-off\'\"\n           data-intent-names=\"[&quot;showLayer&quot;,&quot;hideLayer&quot;]\"\n           data-intent-data=\"{&quot;layer&quot;:&quot;{{ layer.key }}&quot;}\">\n           <i class=\"fa fa-eye geosite-on\"></i><i class=\"fa fa-eye-slash geosite-off\"></i>\n         </a>\n     </div><!--\n     --><div\n          ng-class=\"layer.item.type == \'geojson\' ? \'geosite-map-legend-item-icon geosite-map-legend-item-zoomto\': \'geosite-map-legend-item-icon geosite-map-legend-item-zoomto fade disabled\'\">\n        <a\n          class=\"geosite-map-legend-item-zoomto-button geosite-intent\"\n          data-intent-name=\"zoomToLayer\"\n          data-intent-data=\"{&quot;layer&quot;:&quot;{{ layer.key }}&quot;}\">\n          <i class=\"fa fa-compress\"></i>\n        </a>\n      </div>\n    </div><!--\n    --><div class=\"geosite-map-legend-item-right\">\n      <div\n        ng-if=\"layer.item.cartography[0].legend.symbol\"\n        class=\"geosite-map-legend-item-symbol\">\n        <a\n          class=\"geosite-intent\"\n          data-intent-name=\"toggleModal\"\n          data-intent-data=\"{&quot;id&quot;:&quot;geosite-modal-layer-carto&quot;,&quot;static&quot;:{&quot;layerID&quot;:&quot;{{ layer.key }}&quot;},&quot;dynamic&quot;:{&quot;layer&quot;:[&quot;featurelayers&quot;,&quot;{{ layer.key }}&quot;]}}\">\n          <div ng-if=\"layer.item.cartography[0].legend.symbol.type == \'circle\'\">\n            <svg width=\"100%\" height=\"100%\" version=\"1.0\" xmlns=\"http://www.w3.org/2000/svg\">\n              <circle\n                cx=\"50%\"\n                cy=\"50%\"\n                ng-r=\"{{ layer.item.cartography[0].legend.symbol.radius }}\"\n                ng-fill=\"{{ layer.item.cartography[0].styles.default.static.color }}\"\n                stroke-width=\"1\"\n                stroke=\"#000000\"></circle>\n            </svg>\n          </div>\n          <div ng-if=\"layer.item.cartography[0].legend.symbol.type == \'ellipse\'\">\n            <svg width=\"100%\" height=\"100%\" version=\"1.0\" xmlns=\"http://www.w3.org/2000/svg\">\n              <ellipse\n                cx=\"50%\"\n                cy=\"50%\"\n                ng-rx=\"{{ layer.item.cartography[0].legend.symbol.width }}\"\n                ng-ry=\"{{ layer.item.cartography[0].legend.symbol.height }}\"\n                ng-fill=\"{{ layer.item.cartography[0].styles.default.static.color }}\"\n                stroke-width=\"1\"\n                stroke=\"#000000\"></circle>\n            </svg>\n          </div>\n          <div\n            ng-if=\"layer.item.cartography[0].legend.symbol.type == \'graduated\'\">\n            <svg\n              ng-attr-width=\"{{ layer.item.cartography[0].legend.symbol.width }}\"\n              height=\"100%\"\n              version=\"1.0\"\n              xmlns=\"http://www.w3.org/2000/svg\">\n              <rect\n                ng-repeat=\"color in layer.item.cartography[0].colors.ramp track by $index\"\n                ng-attr-x=\"{{ $index|percent:layer.item.cartography[0].colors.ramp.length }}%\"\n                y=\"0\"\n                ng-attr-width=\"{{ 1|percent:layer.item.cartography[0].colors.ramp.length }}%\"\n                ng-attr-height=\"{{ layer.item.cartography[0].legend.symbol.height }}\"\n                ng-attr-fill=\"{{ color }}\"\n                stroke-width=\"1\"\n                stroke=\"#000000\"/>\n            </svg>\n          </div>\n          <div\n            ng-if=\"layer.item.cartography[0].legend.symbol.type == \'graphic\'\">\n            <i class=\"fa fa-image\" style=\"color:black; font-size: 20px;\"></i>\n          </div>\n        </a>\n      </div><!--\n      --><div class=\"geosite-map-legend-item-label\">\n        <span ng-bind-html=\"layer.item.legend.label | md2html\"></span>\n      </div>\n    </div>\n  </div>\n</div>\n";
-geosite.templates["modal_filter_more.tpl.html"] = "<div class=\"modal-dialog\" role=\"document\">\n  <div class=\"modal-content\">\n    <div class=\"modal-header\">\n      <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">×</button>\n      <h4 class=\"modal-title\" id=\"myModalLabel\">Filter / {{ filter.label }}</h4>\n    </div>\n    <div class=\"modal-body\">\n      <span ng-bind-html=\"filter.description | md2html | default:\'No description given.\'\"></span>\n    </div>\n    <div class=\"modal-footer\">\n      <button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Close</button>\n    </div>\n  </div>\n</div>\n";
+geosite.templates["modal_filter_more.tpl.html"] = "<div class=\"modal-dialog\" role=\"document\">\n  <div class=\"modal-content\">\n    <div class=\"modal-header\">\n      <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">×</button>\n      <h4 class=\"modal-title\" id=\"myModalLabel\">Filter / {{ filter.label }}</h4>\n    </div>\n    <div class=\"modal-body\">\n      <div>\n        <!-- Nav tabs -->\n        <ul class=\"nav nav-tabs\" role=\"tablist\">\n          <li role=\"presentation\" class=\"active\">\n            <a\n              href=\"#modal-filter-more-general\"\n              aria-controls=\"modal-filter-more-general\"\n              role=\"tab\"\n              data-toggle=\"tab\"\n              style=\"padding-left:8px; padding-right: 8px;\">General</a>\n          </li>\n          <li ng-if=\"filter.checkbox.options\" role=\"presentation\" class=\"\">\n            <a\n              href=\"#modal-filter-more-options\"\n              aria-controls=\"modal-filter-more-options\"\n              role=\"tab\"\n              data-toggle=\"tab\"\n              style=\"padding-left:8px; padding-right: 8px;\">Options</a>\n          </li>\n        </ul>\n        <div class=\"tab-content\">\n          <div\n            id=\"modal-filter-more-general\"\n            class=\"tab-pane fade in active\"\n            role=\"tabpanel\"\n            style=\"padding: 10px;\">\n            <span ng-bind-html=\"filter.description | md2html | default:\'No description given.\'\"></span>\n            <br><br><b>Type:</b> {{ filter.type }}\n            <br><br><b>Minimum Value:</b> Minimum Value\n            <br><br><b>Maximum Value:</b> Minimum Value\n          </div>\n          <div\n            ng-if=\"filter.checkbox.options\"\n            id=\"modal-filter-more-options\"\n            class=\"tab-pane fade\"\n            role=\"tabpanel\"\n            style=\"padding: 10px;\">\n            <span\n              ng-repeat-start=\"option in filter.checkbox.options track by $index\">\n              <b ng-bind-html=\"option.label\"></b>: <i ng-class=\"option.checked ? \'fa fa-check-square-o\' : \'fa fa-square-o\'\"></i>\n            </span>\n            <br ng-repeat-end>\n          </div>\n        </div>\n      </div>\n    </div>\n    <div class=\"modal-footer\">\n      <button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Close</button>\n    </div>\n  </div>\n</div>\n";
 geosite.templates["filter_checkbox.tpl.html"] = "<div class=\"geosite-filter geosite-filter-checkbox\" style=\"height: {{ filter.height }};\">\n  <div class=\"geosite-filter-label\">\n    <a\n      class=\"geosite-intent\"\n      data-intent-name=\"toggleModal\"\n      data-intent-data=\"{&quot;id&quot;:&quot;geosite-modal-filter-more&quot;,&quot;dynamic&quot;:{&quot;filter&quot;:[&quot;featurelayers&quot;,&quot;popatrisk&quot;,&quot;filters&quot;,&quot;{{ $index }}&quot;]}}\">\n      <i class=\"fa fa-info-circle\"></i>\n    </a>\n    <span ng-bind-html=\"filter.label | md2html\"></span> :\n  </div>\n  <div\n    class=\"btn-group\"\n    style=\"float:left;\"\n    data-toggle=\"buttons\"\n    data-output=\"{{ filter.checkbox.output }}\">\n    <label\n      ng-repeat=\"opt in filter.checkbox.options track by $index\"\n      ng-class=\"opt.checked ? \'btn btn-sm btn-default active\' : \'btn btn-sm btn-default\'\">\n      <input\n        type=\"checkbox\"\n        id=\"{{ opt.id }}\"\n        data-value=\"{{ opt.value }}\"\n        autocomplete=\"off\"\n        ng-checked=\"opt.checked || opt.selected\"/>\n      {{ opt.label }}\n    </label>\n  </div>\n</div>\n";
 geosite.templates["filter_radio.tpl.html"] = "<div class=\"geosite-filter geosite-filter-radio\" style=\"height: {{ filter.height }};\">\n  <div class=\"geosite-filter-label\">\n    <a\n      class=\"geosite-intent\"\n      data-intent-name=\"toggleModal\"\n      data-intent-data=\"{&quot;id&quot;:&quot;geosite-modal-filter-more&quot;,&quot;dynamic&quot;:{&quot;filter&quot;:[&quot;featurelayers&quot;,&quot;popatrisk&quot;,&quot;filters&quot;,&quot;{{ $index }}&quot;]}}\">\n      <i class=\"fa fa-info-circle\"></i>\n    </a>\n    <span ng-bind-html=\"filter.label | md2html\"></span> :\n  </div>\n  <div\n    class=\"btn-group\"\n    style=\"float:left;\"\n    data-toggle=\"buttons\"\n    data-output=\"{{ filter.radio.output }}\">\n    <label\n      ng-repeat=\"opt in filter.radio.options track by $index\"\n      ng-class=\"opt.checked ? \'btn btn-default active\' : \'btn btn-default\'\">\n      <input\n        type=\"radio\"\n        id=\"{{ opt.id }}\"\n        name=\"{{ opt.name }}\"\n        value=\"{{ opt.value }}\"\n        data-output=\"{{ filter.radio.output }}\"\n        ng-checked=\"opt.checked || opt.selected\"/>\n      {{ opt.label }}\n    </label>\n  </div>\n</div>\n";
 geosite.templates["filter_slider.tpl.html"] = "<div class=\"geosite-filter geosite-filter-slider\" style=\"height: {{ filter.height }};\">\n  <div class=\"geosite-filter-label\">\n    <a\n      class=\"geosite-intent\"\n      data-intent-name=\"toggleModal\"\n      data-intent-data=\"{&quot;id&quot;:&quot;geosite-modal-filter-more&quot;,&quot;dynamic&quot;:{&quot;filter&quot;:[&quot;featurelayers&quot;,&quot;popatrisk&quot;,&quot;filters&quot;,&quot;{{ $index }}&quot;]}}\">\n      <i class=\"fa fa-info-circle\"></i>\n    </a>\n    <span ng-bind-html=\"filter.label | md2html\"></span> :\n  </div>\n  <div style=\"display:table; height:{{ filter.height }};padding-left:10px;padding-right:10px;\">\n    <div style=\"display:table-cell;vertical-align:middle;\">\n      <div class=\"geosite-filter-slider-label\">Placeholder</div>\n      <div\n        class=\"geosite-filter-slider-slider\"\n        style=\"width:{{ filter.slider.width }};\"\n        data-type=\"{{ filter.slider.type }}\"\n        data-value=\"{{ filter.slider.value ? filter.slider.value : \'\' }}\"\n        data-values=\"{{ filter.slider.values ? filter.slider.values : \'\' }}\"\n        data-range=\"{{ filter.slider.range == \'true\' ? \'true\': filter.slider.range }}\"\n        data-output=\"{{ filter.slider.output }}\"\n        data-min-value=\"{{ filter.slider.min|default_if_undefined:\'\' }}\"\n        data-max-value=\"{{ filter.slider.max|default_if_undefined:\'\' }}\"\n        data-step=\"{{ filter.slider.step ? filter.slider.step : \'\' }}\"\n        data-options=\"{{ filter.slider.options ? filter.slider.options : \'\' }}\"\n        data-label-template=\"{{ filter.slider.label }}\"\n        ></div>\n    </div>\n  </div>\n</div>\n";
@@ -891,6 +1879,37 @@ geosite.filters["url_geojson"] = function()
     };
 };
 
+geosite.filters["url_kml"] = function()
+{
+    return function(layer, state)
+    {
+        var url = "";
+        if("kml" in layer)
+        {
+          var typename = "";
+          if("layers" in layer.wms)
+          {
+            typename = layer.wms.layers[0];
+          }
+          else if("layers" in layer.wfs)
+          {
+            typename = layer.wfs.layers[0];
+          }
+          var params = {
+            "mode": "download",
+            "layers": typename
+          };
+          if(state != undefined)
+          {
+            params["cql_filter"] = "BBOX("+layer.wfs.geometry+", "+state.view.extent+")";
+          }
+          var querystring = $.map(params, function(v, k){return encodeURIComponent(k) + '=' + encodeURIComponent(v);}).join("&");
+          url = layer.kml.url + "?" + querystring;
+        }
+        return url;
+    };
+};
+
 geosite.directives["ngX"] = function(){
   return {
     scope: true,
@@ -950,28 +1969,6 @@ geosite.directives["onRepeatDone"] = function(){
         'element': element,
         'attributes': attributes
       });
-    }
-  };
-};
-
-geosite.directives["geositeBreadcrumbs"] = function(){
-  return {
-    restrict: 'EA',
-    replace: true,
-    scope: true,  // Inherit exact scope from parent controller
-    templateUrl: 'breadcrumbs.tpl.html',
-    link: function ($scope, element, attrs){
-    }
-  };
-};
-
-geosite.directives["geositeCalendar"] = function(){
-  return {
-    restrict: 'EA',
-    replace: true,
-    scope: true,  // Inherit exact scope from parent controller
-    templateUrl: 'calendar.tpl.html',
-    link: function ($scope, element, attrs){
     }
   };
 };
@@ -1093,6 +2090,28 @@ geosite.directives["geositeLegendFeaturelayers"] = function(){
   };
 };
 
+geosite.directives["geositeBreadcrumbs"] = function(){
+  return {
+    restrict: 'EA',
+    replace: true,
+    scope: true,  // Inherit exact scope from parent controller
+    templateUrl: 'breadcrumbs.tpl.html',
+    link: function ($scope, element, attrs){
+    }
+  };
+};
+
+geosite.directives["geositeCalendar"] = function(){
+  return {
+    restrict: 'EA',
+    replace: true,
+    scope: true,  // Inherit exact scope from parent controller
+    templateUrl: 'calendar.tpl.html',
+    link: function ($scope, element, attrs){
+    }
+  };
+};
+
 geosite.directives["geositeModalFilterMore"] = function(){
   return {
     restrict: 'EA',
@@ -1183,7 +2202,6 @@ geosite.controllers["controller_modal"] = function(
   $element,
   $controller,
   state,
-  popatrisk_config,
   map_config,
   live)
 {
@@ -1192,6 +2210,53 @@ geosite.controllers["controller_modal"] = function(
   var jqe = $($element);
 
   $scope.test = "blah blah blah";
+};
+
+geosite.controllers["controller_legend"] = function(
+  $scope,
+  $element,
+  $controller,
+  state,
+  map_config,
+  live)
+{
+  angular.extend(this, $controller('GeositeControllerBase', {$element: $element, $scope: $scope}));
+  //
+  $scope.map_config = map_config;
+  $scope.state = state;
+  //////////////
+  // Watch
+  $scope.updateVariables = function(){
+    //$scope.$apply(function() {});
+    var arrayFilter = $scope.map_config.legendlayers;
+    var featurelayers = $.map($scope.map_config.featurelayers, function(item, key){ return {'key': key, 'item': item}; });
+    featurelayers = $.grep(featurelayers,function(x, i){ return $.inArray(x["key"], arrayFilter) != -1; });
+    featurelayers.sort(function(a, b){ return $.inArray(a["key"], arrayFilter) - $.inArray(b["key"], arrayFilter); });
+    $scope.featurelayers = featurelayers;
+  };
+  $scope.updateVariables();
+  $scope.$watch('map_config.featurelayers', $scope.updateVariables);
+  $scope.$watch('map_config.legendlayers', $scope.updateVariables);
+  //////////////
+  var jqe = $($element);
+
+  $scope.$on("refreshMap", function(event, args){
+    console.log('args: ', args);
+    var element_featurelayers = jqe.find('.geosite-map-legend-featurelayers');
+    $('.geosite-map-legend-item', element_featurelayers).each(function(){
+      var layerID = $(this).data('layer');
+      var element_symbol = $(this).find('.geosite-map-legend-item-symbol:first');
+      var styleID = args.state.styles[layerID];
+      var styles = $.grep(geosite.map_config.featurelayers["context"].cartography, function(x, i){
+        return x["id"] == styleID;
+      });
+      var style =  styles.length > 0 ? styles[0] : undefined;
+    });
+  });
+};
+
+geosite.controllers["controller_map"] = function($scope, $element, $controller, state, map_config) {
+
 };
 
 geosite.controllers["controller_breadcrumb"] = function($scope, $element, $controller, state)
@@ -1273,50 +2338,6 @@ geosite.controllers["controller_calendar"] = function(
   });
 };
 
-geosite.controllers["controller_legend"] = function(
-  $scope,
-  $element,
-  $controller,
-  state,
-  popatrisk_config,
-  map_config,
-  live)
-{
-  angular.extend(this, $controller('GeositeControllerBase', {$element: $element, $scope: $scope}));
-  //
-  $scope.map_config = map_config;
-  $scope.state = state;
-  //////////////
-  // Watch
-  $scope.updateVariables = function(){
-    //$scope.$apply(function() {});
-    var arrayFilter = $scope.map_config.legendlayers;
-    var featurelayers = $.map($scope.map_config.featurelayers, function(item, key){ return {'key': key, 'item': item}; });
-    featurelayers = $.grep(featurelayers,function(x, i){ return $.inArray(x["key"], arrayFilter) != -1; });
-    featurelayers.sort(function(a, b){ return $.inArray(a["key"], arrayFilter) - $.inArray(b["key"], arrayFilter); });
-    $scope.featurelayers = featurelayers;
-  };
-  $scope.updateVariables();
-  $scope.$watch('map_config.featurelayers', $scope.updateVariables);
-  $scope.$watch('map_config.legendlayers', $scope.updateVariables);
-  //////////////
-  var jqe = $($element);
-
-  $scope.$on("refreshMap", function(event, args){
-    console.log('args: ', args);
-    var element_featurelayers = jqe.find('.geosite-map-legend-featurelayers');
-    $('.geosite-map-legend-item', element_featurelayers).each(function(){
-      var layerID = $(this).data('layer');
-      var element_symbol = $(this).find('.geosite-map-legend-item-symbol:first');
-      var styleID = args.state.styles[layerID];
-      var styles = $.grep(geosite.map_config.featurelayers["context"].cartography, function(x, i){
-        return x["id"] == styleID;
-      });
-      var style =  styles.length > 0 ? styles[0] : undefined;
-    });
-  });
-};
-
 geosite.controllers["controller_filter"] = function($scope, $element, $controller, state, popatrisk_config, map_config, live)
 {
   var maxValueFromSummary = popatrisk_config["data"]["summary"]["all"]["max"]["at_admin2_month"];
@@ -1387,7 +2408,10 @@ geosite.controllers["controller_filter"] = function($scope, $element, $controlle
 
         if(($.type(range) == "boolean" && range ) || (range.toLowerCase() == "true"))
         {
-          var maxValue = maxValueFromSummary != undefined ? maxValueFromSummary : geosite.assert_float(slider.data('max-value'), undefined);
+          var maxValue = (maxValueFromSummary != undefined && slider.data('max-value') == "summary") ?
+              maxValueFromSummary :
+              geosite.assert_float(slider.data('max-value'), undefined);
+          //
           var values = state["filters"]["popatrisk"][output];
           values = geosite.assert_array_length(values, 2, [minValue, maxValue]);
           var values_n = [Math.floor(values[0]), Math.floor(values[1])];
@@ -1418,10 +2442,6 @@ geosite.controllers["controller_filter"] = function($scope, $element, $controlle
     });
 
   }, 10);
-
-};
-
-geosite.controllers["controller_map"] = function($scope, $element, $controller, state, popatrisk_config, map_config) {
 
 };
 
@@ -1758,7 +2778,7 @@ geosite.controllers["controller_sidebar_sparc"] = function($scope, $element, $co
   }, 10);
 };
 
-geosite.controllers["controller_main"] = function($scope, $element, $controller, $http, $q, state, map_config, stateschema, popatrisk_config, live)
+geosite.controllers["controller_main"] = function($scope, $element, $controller, $http, $q, state, map_config, stateschema, live)
 {
 
     $scope.state = geosite.init_state(state, stateschema);

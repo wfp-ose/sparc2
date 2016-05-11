@@ -134,7 +134,9 @@ def countryhazardmonth_detail(request, iso3=None, hazard=None, month=None):
         "filters": {
             "popatrisk":
             {
-              "popatrisk_range": [0.0, summary["all"]["max"]["at_admin2_month"]]
+              "popatrisk_range": [0.0, summary["all"]["max"]["at_admin2_month"]],
+              "ldi_range": [1, 9],
+              "erosion_propensity_range": [0, 100]
             }
         },
         "styles": {
@@ -154,7 +156,9 @@ def countryhazardmonth_detail(request, iso3=None, hazard=None, month=None):
         "filters": {
             "popatrisk":
             {
-              "popatrisk_range": "integerarray"
+              "popatrisk_range": "integerarray",
+              "ldi_range": "integerarray",
+              "erosion_propensity_range": "integerarray"
             }
         },
         "styles": {

@@ -57,7 +57,21 @@ def get_geojson_cyclone(request, iso_alpha3=None):
             get_template("sparc2/sql/_cyclone.sql").render({
                 'admin2_popatrisk': 'cyclone.admin2_popatrisk',
                 'iso_alpha3': iso_alpha3}))
+
+        rows_ldi = geosite_conn.exec_query_multiple(
+            get_template("sparc2/sql/_context_ldi_by_admin2.sql").render({
+                'admin2_context': 'context.admin2_context',
+                'iso_alpha3': iso_alpha3}))
+
+        ldi_by_admin2 = {}
+        for row in rows_ldi:
+            admin2_code, ldi = row
+            ldi_by_admin2[str(admin2_code)] = ldi
+
         for feature in collection["features"]:
+            admin2_code = str(feature["properties"]["admin2_code"])
+
+            feature["properties"]["ldi"] = ldi_by_admin2[admin2_code]
 
             feature["properties"].update({
                 "addinfo": [],
@@ -74,7 +88,7 @@ def get_geojson_cyclone(request, iso_alpha3=None):
             #print results2
             for rb in rows:
                 newRow = json.loads(rb[0]) if (type(rb[0]) is not dict) else rb[0]
-                if int(newRow["admin2_code"]) == feature["properties"]["admin2_code"]:
+                if int(newRow["admin2_code"]) == admin2_code:
                     feature["properties"]["addinfo"].append(newRow)
                     #if newRow["category_min"] == 1 and newRow["category_max"] == 5 and newRow["prob_class"] == '0.01-0.1':
                 #        feature["properties"]["active_month"] += newRow[current_month]
@@ -305,8 +319,20 @@ def get_geojson_flood(request, iso_alpha3=None):
                 data.pop(u"admin2_code")
                 values_by_admin2[str(admin2_code)] = data
 
+            rows_ldi = geosite_conn.exec_query_multiple(
+                get_template("sparc2/sql/_context_ldi_by_admin2.sql").render({
+                    'admin2_context': 'context.admin2_context',
+                    'iso_alpha3': iso_alpha3}))
+
+            ldi_by_admin2 = {}
+            for row in rows_ldi:
+                admin2_code, ldi = row
+                ldi_by_admin2[str(admin2_code)] = ldi
+
             for feature in collection["features"]:
-                feature["properties"]["RP"+str(rp)] = values_by_admin2[str(feature["properties"]["admin2_code"])]
+                admin2_code = str(feature["properties"]["admin2_code"])
+                feature["properties"]["RP"+str(rp)] = values_by_admin2[admin2_code]
+                feature["properties"]["ldi"] = ldi_by_admin2[admin2_code]
 
     return collection
 

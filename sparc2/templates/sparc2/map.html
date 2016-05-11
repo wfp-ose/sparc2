@@ -15,7 +15,6 @@
 {% endblock %}
 
 {% block head_main_js %}
-{{ block.super }}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.3.0/showdown.min.js"></script>
 {% if SPARC_STATIC_DEBUG.main %}
 <script src="{{ STATIC_URL }}sparc2/build/js/monkeypatch.js?v={{ SPARC_STATIC_VERSION }}"></script>

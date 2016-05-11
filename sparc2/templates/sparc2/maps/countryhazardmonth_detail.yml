@@ -85,7 +85,7 @@ featurelayers:
           label: "{{ values.0 }} - {{ values.1 }}"
           values: [0, {% endverbatim %}{{ maxValue }}{% verbatim %}]
           min: 0
-          max: {% endverbatim %}{{ maxValue }}{% verbatim %}  # Overridden by max value from summary data
+          max: summary  # Overridden by max value from summary data
           step: 1
           output: popatrisk_range
       - label: Category
@@ -166,6 +166,22 @@ featurelayers:
               value: "high"
               label: "High"
               checked: true
+      - label: LDI
+        description:  "The land degredation index"
+        line_height: 36px
+        height: 50px
+        type: slider
+        slider:
+          id: sparc-ldi-slider
+          type: continuous
+          width: 100px
+          range: true  # See https://jqueryui.com/slider/#range
+          label: "{{ values.0 }} - {{ values.1 }}"
+          values: [1, 9]
+          min: 1
+          max: 9
+          step: 1
+          output: ldi_range
   {% endverbatim %}{% elif hazard == "drought" %}{% verbatim %}
     description: "The population at risk of drought for each month aggregated at the administrative level 2 district."
     popup:
@@ -301,6 +317,22 @@ featurelayers:
               value: "high"
               label: "High"
               checked: true
+      - label: LDI
+        description:  "The land degredation index"
+        line_height: 36px
+        height: 50px
+        type: slider
+        slider:
+          id: sparc-ldi-slider
+          type: continuous
+          width: 100px
+          range: true  # See https://jqueryui.com/slider/#range
+          label: "{{ values.0 }} - {{ values.1 }}"
+          values: [1, 9]
+          min: 1
+          max: 9
+          step: 1
+          output: ldi_range
   {% endverbatim %}{% endif %}{% verbatim %}
   vam:
     type: geojson
@@ -574,8 +606,8 @@ featurelayers:
       attribution: "ORNL"
     wms:
       version: "1.1.1"
-      layers: ["geonode:landscan_2013_clipped"]
-      styles: ["lscan"]
+      layers: ["geonode:sparc_landscan_2013"]
+      styles: ["landscan_2013"]
       format: 'image/png'
       transparent: true
       url: "http://staging.geonode.wfp.org/geoserver/geonode/wms"
@@ -937,7 +969,7 @@ featurelayers:
       attribution: "WFP/OSEP/AEW&GIS"
     wms:
       version: "1.1.1"
-      layers: {% endverbatim %}["flood_probability_{{ iso_alpha3|lower }}","flood_probability_{{ iso_alpha3|lower }}","flood_probability_{{ iso_alpha3|lower }}","flood_probability_{{ iso_alpha3|lower }}","flood_probability_{{ iso_alpha3|lower }}","flood_probability_{{ iso_alpha3|lower }}"]{% verbatim %}
+      layers: ["sparc_flood_probability","sparc_flood_probability","sparc_flood_probability","sparc_flood_probability","sparc_flood_probability","sparc_flood_probability"]
       styles: ["RP25","RP50","RP100","RP200","RP500","RP1000"]
       format: 'image/png'
       transparent: true

@@ -1,4 +1,4 @@
-geosite.controllers["controller_main"] = function($scope, $element, $controller, $http, $q, state, map_config, stateschema, popatrisk_config, live)
+geosite.controllers["controller_main"] = function($scope, $element, $controller, $http, $q, state, map_config, stateschema, live)
 {
 
     $scope.state = geosite.init_state(state, stateschema);

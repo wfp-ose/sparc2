@@ -81,7 +81,9 @@ geosite.style_cyclone = function(f, state, map_config, popatrisk_config)
   var style = {};
   var filters = state["filters"]["popatrisk"];
   var prob_class_max = filters["prob_class_max"];
-  var range = filters["popatrisk_range"];
+  var popatrisk_range = filters["popatrisk_range"];
+  var ldi_range = filters["ldi_range"];
+  var ldi = f.properties.ldi;
   //
   var month_short3 = months_short_3[state["month"]-1];
   var value = 0;
@@ -101,7 +103,9 @@ geosite.style_cyclone = function(f, state, map_config, popatrisk_config)
   value = geosite.vam_filter_fcs(value, filters, f);
   value = geosite.vam_filter_csi(value, filters, f);
 
-  if(value >= range[0] && value <= range[1])
+  if(
+    value >= popatrisk_range[0] && value <= popatrisk_range[1] &&
+    ldi >= ldi_range[0] && ldi <= ldi_range[1])
   {
     var colors = map_config["featurelayers"]["popatrisk"]["cartography"][0]["colors"]["ramp"];
     var breakpoints = popatrisk_config["data"]["summary"]["all"]["breakpoints"]["natural"];
@@ -129,7 +133,9 @@ geosite.style_drought = function(f, state, map_config, popatrisk_config)
   var style = {};
   var filters = state["filters"]["popatrisk"];
   var prob_class_max = filters["prob_class_max"] / 100.0;
-  var range = filters["popatrisk_range"];
+  var popatrisk_range = filters["popatrisk_range"];
+  var ldi_range = filters["ldi_range"];
+  var ldi = f.properties.ldi;
   //
   var month_short3 = months_short_3[state["month"]-1];
   var value = 0;
@@ -148,7 +154,9 @@ geosite.style_drought = function(f, state, map_config, popatrisk_config)
   value = geosite.vam_filter_fcs(value, filters, f);
   value = geosite.vam_filter_csi(value, filters, f);
 
-  if(value >= range[0] && value <= range[1])
+  if(
+    value >= popatrisk_range[0] && value <= popatrisk_range[1] &&
+    ldi >= ldi_range[0] && ldi <= ldi_range[1])
   {
     var colors = map_config["featurelayers"]["popatrisk"]["cartography"][0]["colors"]["ramp"];
     var breakpoints = popatrisk_config["data"]["summary"]["all"]["breakpoints"]["natural"];
@@ -175,7 +183,9 @@ geosite.style_flood = function(f, state, map_config, popatrisk_config)
   var style = {};
   var filters = state["filters"]["popatrisk"];
   var rp = filters["rp"];
-  var range = filters["popatrisk_range"];
+  var popatrisk_range = filters["popatrisk_range"];
+  var ldi_range = filters["ldi_range"];
+  var ldi = f.properties.ldi;
   //
   var month_short3 = months_short_3[state["month"]-1];
   var value = f.properties["RP"+rp.toString(10)][month_short3];
@@ -183,7 +193,9 @@ geosite.style_flood = function(f, state, map_config, popatrisk_config)
   value = geosite.vam_filter_fcs(value, filters, f);
   value = geosite.vam_filter_csi(value, filters, f);
 
-  if(value >= range[0] && value <= range[1])
+  if(
+    value >= popatrisk_range[0] && value <= popatrisk_range[1] &&
+    ldi >= ldi_range[0] && ldi <= ldi_range[1])
   {
       var colors = map_config["featurelayers"]["popatrisk"]["cartography"][0]["colors"]["ramp"];
       var breakpoints = popatrisk_config["data"]["summary"]["all"]["breakpoints"]["natural_adjusted"];
