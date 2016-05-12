@@ -58,20 +58,26 @@ def get_geojson_cyclone(request, iso_alpha3=None):
                 'admin2_popatrisk': 'cyclone.admin2_popatrisk',
                 'iso_alpha3': iso_alpha3}))
 
-        rows_ldi = geosite_conn.exec_query_multiple(
-            get_template("sparc2/sql/_context_ldi_by_admin2.sql").render({
+        rows_context = geosite_conn.exec_query_multiple(
+            get_template("sparc2/sql/_context_by_admin2.sql").render({
                 'admin2_context': 'context.admin2_context',
                 'iso_alpha3': iso_alpha3}))
 
-        ldi_by_admin2 = {}
-        for row in rows_ldi:
-            admin2_code, ldi = row
-            ldi_by_admin2[str(admin2_code)] = ldi
+        context_by_admin2 = {}
+        for row in rows_context:
+            admin2_code, ldi, delta_negative, erosion_propensity = row
+            context_by_admin2[str(admin2_code)] = {
+                'ldi': ldi,
+                'delta_negative': delta_negative,
+                'erosion_propensity': erosion_propensity
+            }
 
         for feature in collection["features"]:
             admin2_code = str(feature["properties"]["admin2_code"])
-
-            feature["properties"]["ldi"] = ldi_by_admin2[admin2_code]
+            if admin2_code in context_by_admin2:
+                feature["properties"]["ldi"] = context_by_admin2[admin2_code]["ldi"]
+                feature["properties"]["delta_negative"] = context_by_admin2[admin2_code]["delta_negative"]
+                feature["properties"]["erosion_propensity"] = context_by_admin2[admin2_code]["erosion_propensity"]
 
             feature["properties"].update({
                 "addinfo": [],
@@ -319,20 +325,27 @@ def get_geojson_flood(request, iso_alpha3=None):
                 data.pop(u"admin2_code")
                 values_by_admin2[str(admin2_code)] = data
 
-            rows_ldi = geosite_conn.exec_query_multiple(
-                get_template("sparc2/sql/_context_ldi_by_admin2.sql").render({
+            rows_context = geosite_conn.exec_query_multiple(
+                get_template("sparc2/sql/_context_by_admin2.sql").render({
                     'admin2_context': 'context.admin2_context',
                     'iso_alpha3': iso_alpha3}))
 
-            ldi_by_admin2 = {}
-            for row in rows_ldi:
-                admin2_code, ldi = row
-                ldi_by_admin2[str(admin2_code)] = ldi
+            context_by_admin2 = {}
+            for row in rows_context:
+                admin2_code, ldi, delta_negative, erosion_propensity = row
+                context_by_admin2[str(admin2_code)] = {
+                    'ldi': ldi,
+                    'delta_negative': delta_negative,
+                    'erosion_propensity': erosion_propensity
+                }
 
             for feature in collection["features"]:
                 admin2_code = str(feature["properties"]["admin2_code"])
                 feature["properties"]["RP"+str(rp)] = values_by_admin2[admin2_code]
-                feature["properties"]["ldi"] = ldi_by_admin2[admin2_code]
+                if admin2_code in context_by_admin2:
+                    feature["properties"]["ldi"] = context_by_admin2[admin2_code]["ldi"]
+                    feature["properties"]["delta_negative"] = context_by_admin2[admin2_code]["delta_negative"]
+                    feature["properties"]["erosion_propensity"] = context_by_admin2[admin2_code]["erosion_propensity"]
 
     return collection
 

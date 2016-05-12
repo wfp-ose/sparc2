@@ -182,6 +182,38 @@ featurelayers:
           max: 9
           step: 1
           output: ldi_range
+      - label: "Negative Landcover Change"
+        description: "Negative Landcover Change"
+        line_height: 36px
+        height: 50px
+        type: slider
+        slider:
+          id: sparc-landcover-delta-negative-slider
+          type: continuous
+          width: 100px
+          range: true  # See https://jqueryui.com/slider/#range
+          label: "{{ values.0 }} - {{ values.1 }}"
+          values: [0, 100]
+          min: 0
+          max: 100
+          step: 1
+          output: landcover_delta_negative_range
+      - label: Erosion Propensity
+        description:  "The erosion propensity"
+        line_height: 36px
+        height: 50px
+        type: slider
+        slider:
+          id: sparc-erosion-propensity-slider
+          type: continuous
+          width: 100px
+          range: true  # See https://jqueryui.com/slider/#range
+          label: "{{ values.0 }} - {{ values.1 }}"
+          values: [0, 100]
+          min: 0
+          max: 100
+          step: 1
+          output: erosion_propensity_range
   {% endverbatim %}{% elif hazard == "drought" %}{% verbatim %}
     description: "The population at risk of drought for each month aggregated at the administrative level 2 district."
     popup:
@@ -333,6 +365,38 @@ featurelayers:
           max: 9
           step: 1
           output: ldi_range
+      - label: "Negative Landcover Change"
+        description: "Negative Landcover Change"
+        line_height: 36px
+        height: 50px
+        type: slider
+        slider:
+          id: sparc-landcover-delta-negative-slider
+          type: continuous
+          width: 100px
+          range: true  # See https://jqueryui.com/slider/#range
+          label: "{{ values.0 }} - {{ values.1 }}"
+          values: [0, 100]
+          min: 0
+          max: 100
+          step: 1
+          output: landcover_delta_negative_range
+      - label: Erosion Propensity
+        description:  "The erosion propensity"
+        line_height: 36px
+        height: 50px
+        type: slider
+        slider:
+          id: sparc-erosion-propensity-slider
+          type: continuous
+          width: 100px
+          range: true  # See https://jqueryui.com/slider/#range
+          label: "{{ values.0 }} - {{ values.1 }}"
+          values: [0, 100]
+          min: 0
+          max: 100
+          step: 1
+          output: erosion_propensity_range
   {% endverbatim %}{% endif %}{% verbatim %}
   vam:
     type: geojson
