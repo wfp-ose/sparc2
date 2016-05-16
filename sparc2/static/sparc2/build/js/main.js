@@ -313,29 +313,24 @@ geosite.init_state = function(state, stateschema)
  * @param {Object} range - Either true, "min", or "max".
  * @param {Object} value - If range is true, then integer array, else integer.
  */
-geosite.ui_init_slider_label = function(that, type, range, value)
+geosite.ui_init_slider_label = function($interpolate, that, type, range, value)
 {
   if(type=="ordinal")
   {
-    var h = that.data('label-template').replace(
-      new RegExp('{{(\\s*)value(\\s*)}}', 'gi'),
-      value);
-    that.data('label').html(h);
+    var ctx = {"value": value};
+    that.data('label').html($interpolate(that.data('label-template'))(ctx));
   }
   else if(type=="continuous")
   {
     if(($.type(range) == "boolean" && range ) || (range.toLowerCase() == "true"))
     {
-      var h = that.data('label-template')
-        .replace(new RegExp('{{(\\s*)value(s?).0(\\s*)}}', 'gi'), value[0])
-        .replace(new RegExp('{{(\\s*)value(s?).1(\\s*)}}', 'gi'), value[1]);
-      that.data('label').html(h);
+      var ctx = {"values": [value[0], value[1]]};
+      that.data('label').html($interpolate(that.data('label-template'))(ctx));
     }
     else if(range=="min" || range=="max")
     {
-      var h = that.data('label-template')
-        .replace(new RegExp('{{(\\s*)value(\\s*)}}', 'gi'), value);
-      that.data('label').html(h);
+      var ctx = {"value": value};
+      that.data('label').html($interpolate(that.data('label-template'))(ctx));
     }
   }
 };
@@ -343,12 +338,14 @@ geosite.ui_init_slider_label = function(that, type, range, value)
 /**
  * Initializes a filter slider's label
  * @constructor
+ * @param {Object} $interplate - Angular $interpolate function
+ * @param {Object} $scope - Angular $scope
  * @param {Object} that - DOM element for slider
  * @param {string} type - Either ordinal or continuous
  * @param {Object} range - Either true, "min", or "max".
  * @param {Object} value - If range is true, then integer array, else integer.
  */
-geosite.ui_init_slider_slider = function($scope, that, type, range, value, minValue, maxValue, step)
+geosite.ui_init_slider_slider = function($interpolate, $scope, that, type, range, value, minValue, maxValue, step)
 {
   if(type=="ordinal")
   {
@@ -359,7 +356,7 @@ geosite.ui_init_slider_slider = function($scope, that, type, range, value, minVa
       max: maxValue,
       step: 1,
       slide: function(event, ui) {
-          geosite.ui_update_slider_label.apply(this, [event, ui]);
+          geosite.ui_update_slider_label.apply(this, [$interpolate, event, ui]);
           var output = that.data('output');
           var newValue = that.data('options')[ui.value];
           var filter = {};
@@ -379,7 +376,7 @@ geosite.ui_init_slider_slider = function($scope, that, type, range, value, minVa
         max: maxValue,
         step: step,
         slide: function(event, ui) {
-            geosite.ui_update_slider_label.apply(this, [event, ui]);
+            geosite.ui_update_slider_label.apply(this, [$interpolate, event, ui]);
             var output = that.data('output');
             var newValue = ui.values;
             var filter = {};
@@ -397,7 +394,7 @@ geosite.ui_init_slider_slider = function($scope, that, type, range, value, minVa
         max: maxValue,
         step: step,
         slide: function(event, ui) {
-            geosite.ui_update_slider_label.apply(this, [event, ui]);
+            geosite.ui_update_slider_label.apply(this, [$interpolate, event, ui]);
             var output = that.data('output');
             var newValue = ui.value / 100.0;
             var filter = {};
@@ -416,7 +413,7 @@ geosite.ui_init_slider_slider = function($scope, that, type, range, value, minVa
  * @param {Object} event - A jQuery UI event object
  * @param {Object} author - A jQuery UI ui object
  */
-geosite.ui_update_slider_label = function(event, ui)
+geosite.ui_update_slider_label = function($interpolate, event, ui)
 {
   var that = $(this);
   var type = that.data('type');
@@ -424,25 +421,20 @@ geosite.ui_update_slider_label = function(event, ui)
 
   if(type=="ordinal")
   {
-    var v2 = that.data('options')[ui.value];
-    var h = that.data('label-template')
-      .replace(new RegExp('{{(\\s*)value(\\s*)}}', 'gi'), v2);
-    that.data('label').html(h);
+    var ctx = {"value": that.data('options')[ui.value]};
+    that.data('label').html($interpolate(that.data('label-template'))(ctx));
   }
   else if(type=="continuous")
   {
     if(($.type(range) == "boolean" && range ) || (range.toLowerCase() == "true"))
     {
-      var h = that.data('label-template')
-        .replace(new RegExp('{{(\\s*)value(s?).0(\\s*)}}', 'gi'), (ui.values[0]))
-        .replace(new RegExp('{{(\\s*)value(s?).1(\\s*)}}', 'gi'), (ui.values[1]));
-      that.data('label').html(h);
+      var ctx = {"values": [ui.values[0], ui.values[1]]};
+      that.data('label').html($interpolate(that.data('label-template'))(ctx));
     }
     else if(range=="min" || range=="max")
     {
-      var h = that.data('label-template')
-        .replace(new RegExp('{{(\\s*)value(\\s*)}}', 'gi'), (ui.value / 100.0));
-      that.data('label').html(h);
+      var ctx = {"value": (ui.value / 100.0)};
+      that.data('label').html($interpolate(that.data('label-template'))(ctx));
     }
   }
 };
@@ -478,6 +470,14 @@ var getHashValue = function(keys, type)
         if(type == "integer")
         {
           value = (value != undefined && value != null && value != "") ? parseInt(value, 10) : undefined;
+        }
+        else if(type == "stringarray")
+        {
+          if(value != undefined)
+          {
+            var newValue = value.split(",");
+            value = newValue;
+          }
         }
         else if(type == "integerarray")
         {
@@ -518,6 +518,10 @@ var hasHashValue = function(keys)
 {
     var value = getHashValue(keys);
     return value != undefined && value != null && value != "";
+};
+var getHashValueAsStringArray = function(keys)
+{
+  return getHashValue(keys, "stringarray");
 };
 var getHashValueAsInteger = function(keys)
 {
@@ -1576,14 +1580,14 @@ geosite.templates["symbol_circle.tpl.html"] = "<div>\n  <svg width=\"100%\" heig
 geosite.templates["symbol_ellipse.tpl.html"] = "<div>\n  <svg width=\"100%\" height=\"100%\" version=\"1.0\" xmlns=\"http://www.w3.org/2000/svg\">\n    <ellipse\n      cx=\"50%\"\n      cy=\"50%\"\n      ng-rx=\"{{ style.legend.symbol.width }}\"\n      ng-ry=\"{{ style.legend.symbol.height }}\"\n      ng-fill=\"{{ style.styles.default.static.color }}\"\n      stroke-width=\"1\"\n      stroke=\"#000000\"></circle>\n  </svg>\n</div>\n";
 geosite.templates["symbol_graduated.tpl.html"] = "<div>\n  <div\n    style=\"display: inline-block; vertical-align:top;\"\n    ng-bind-html=\"style.label_left | md2html\"></div>\n  <svg\n    ng-attr-width=\"{{ width }}\"\n    height=\"50px\"\n    version=\"1.0\"\n    xmlns=\"http://www.w3.org/2000/svg\">\n    <rect\n      ng-repeat-start=\"color in style.colors.ramp track by $index\"\n      ng-attr-x=\"{{ $index|percent:style.colors.ramp.length }}%\"\n      ng-attr-y=\"{{ \'0\' }}\"\n      ng-attr-width=\"{{ 1|percent:style.colors.ramp.length }}%\"\n      height=\"50px\"\n      ng-attr-fill=\"{{ color }}\"\n      stroke-width=\"1\"\n      stroke=\"#000000\"/>\n    <text\n      ng-repeat-end\n      ng-attr-x=\"{{ $index|as_float|addFloat:0.5|percent:style.colors.ramp.length }}%\"\n      ng-attr-y=\"{{ \'50%\' }}\"\n      text-anchor=\"middle\"\n      ng-attr-fill=\"{{ \'white\' }}\"\n      font-size=\"18px\">{{ $index }}</text>\n  </svg>\n  <div\n    style=\"display: inline-block; vertical-align:top;\"\n    ng-bind-html=\"style.label_right | md2html\"></div>\n</div>\n";
 geosite.templates["symbol_graphic.tpl.html"] = "<i class=\"fa fa-image\" style=\"color:black; font-size: 20px;\"></i>\n";
-geosite.templates["legend_baselayers.tpl.html"] = "<div class=\"geosite-map-legend-baselayers geosite-radio-group\">\n  <div\n    ng-repeat=\"layer in map_config.baselayers track by $index\"\n    ng-if=\"layer.legend!==undefined\"\n    class=\"geosite-map-legend-item noselect\"\n    data-layer=\"{{ layer.id }}\">\n    <div class=\"geosite-map-legend-item-left\">\n      <div class=\"geosite-map-legend-item-icon geosite-map-legend-item-more\">\n        <a\n          class=\"geosite-intent\"\n          data-intent-name=\"toggleModal\"\n          data-intent-data=\"{&quot;id&quot;:&quot;geosite-modal-layer-more&quot;,&quot;dynamic&quot;:{&quot;layer&quot;:[&quot;baselayers&quot;,&quot;{{ $index }}&quot;]}}\">\n          <i class=\"fa fa-info-circle\"></i>\n        </a>\n      </div><!--\n      --><div class=\"geosite-map-legend-item-icon geosite-map-legend-item-visibility\">\n           <a\n             ng-class=\" $first ? \'geosite-map-legend-item-visibility-button geosite-intent geosite-radio geosite-on\' : \'geosite-map-legend-item-visibility-button geosite-intent geosite-radio\'\"\n             data-intent-name=\"switchBaseLayer\"\n             data-intent-data=\"{&quot;layer&quot;:&quot;{{ layer.id }}&quot;}\"\n             data-intent-class-on=\"geosite-on\"\n             data-intent-class-off=\"\">\n             <i class=\"fa fa-eye geosite-on\"></i><i class=\"fa fa-eye-slash geosite-off\"></i>\n           </a>\n         </div><!--\n      --><div class=\"geosite-map-legend-item-symbol\" style=\"width: 10px;\"></div>\n    </div><!--\n    --><div class=\"geosite-map-legend-item-right\">\n      <div class=\"geosite-map-legend-item-label\" style=\"width: 100%;\">\n        <span ng-bind-html=\"layer.legend.label | md2html\"></span>\n      </div>\n    </div>\n  </div>\n</div>\n";
-geosite.templates["legend_featurelayers.tpl.html"] = "<div class=\"geosite-map-legend-featurelayers\">\n  <div\n    ng-repeat=\"layer in featurelayers track by $index\"\n    ng-init=\"layerIndex = $index\"\n    ng-if=\"layer.item.legend!==undefined\"\n    class=\"geosite-map-legend-item noselect\"\n    data-layer=\"{{ layer.key }}\">\n    <div class=\"geosite-map-legend-item-left\">\n      <div class=\"geosite-map-legend-item-icon geosite-map-legend-item-config\" style=\"display:none;\">\n        <a\n          class=\"geosite-intent\"\n          data-intent-name=\"toggleModal\"\n          data-intent-data=\"{&quot;id&quot;:&quot;geosite-modal-layer-config&quot;,&quot;static&quot;:{&quot;layerID&quot;:&quot;{{ layer.key }}&quot;},&quot;dynamic&quot;:{&quot;layer&quot;:[&quot;featurelayers&quot;,&quot;{{ layer.key }}&quot;]}}\">\n          <i class=\"fa fa-cog\"></i>\n        </a>\n      </div><!--\n      --><div class=\"geosite-map-legend-item-icon geosite-map-legend-item-more\">\n        <a\n          class=\"geosite-intent\"\n          data-intent-name=\"toggleModal\"\n          data-intent-data=\"{&quot;id&quot;:&quot;geosite-modal-layer-more&quot;,&quot;static&quot;:{&quot;layerID&quot;:&quot;{{ layer.key }}&quot;},&quot;dynamic&quot;:{&quot;layer&quot;:[&quot;featurelayers&quot;,&quot;{{ layer.key }}&quot;]}}\">\n          <i class=\"fa fa-info-circle\"></i>\n        </a>\n      </div><!--\n      --><div class=\"geosite-map-legend-item-icon geosite-map-legend-item-visibility\">\n         <a\n           ng-class=\"(layer.item.visible != undefined ? layer.item.visible : true ) ? \'geosite-map-legend-item-visibility-button geosite-intent geosite-toggle\' : \'geosite-map-legend-item-visibility-button geosite-intent geosite-toggle geosite-off\'\"\n           data-intent-names=\"[&quot;showLayer&quot;,&quot;hideLayer&quot;]\"\n           data-intent-data=\"{&quot;layer&quot;:&quot;{{ layer.key }}&quot;}\">\n           <i class=\"fa fa-eye geosite-on\"></i><i class=\"fa fa-eye-slash geosite-off\"></i>\n         </a>\n     </div><!--\n     --><div\n          ng-class=\"layer.item.type == \'geojson\' ? \'geosite-map-legend-item-icon geosite-map-legend-item-zoomto\': \'geosite-map-legend-item-icon geosite-map-legend-item-zoomto fade disabled\'\">\n        <a\n          class=\"geosite-map-legend-item-zoomto-button geosite-intent\"\n          data-intent-name=\"zoomToLayer\"\n          data-intent-data=\"{&quot;layer&quot;:&quot;{{ layer.key }}&quot;}\">\n          <i class=\"fa fa-compress\"></i>\n        </a>\n      </div>\n    </div><!--\n    --><div class=\"geosite-map-legend-item-right\">\n      <div\n        ng-if=\"layer.item.cartography[0].legend.symbol\"\n        class=\"geosite-map-legend-item-symbol\">\n        <a\n          class=\"geosite-intent\"\n          data-intent-name=\"toggleModal\"\n          data-intent-data=\"{&quot;id&quot;:&quot;geosite-modal-layer-carto&quot;,&quot;static&quot;:{&quot;layerID&quot;:&quot;{{ layer.key }}&quot;},&quot;dynamic&quot;:{&quot;layer&quot;:[&quot;featurelayers&quot;,&quot;{{ layer.key }}&quot;]}}\">\n          <div ng-if=\"layer.item.cartography[0].legend.symbol.type == \'circle\'\">\n            <svg width=\"100%\" height=\"100%\" version=\"1.0\" xmlns=\"http://www.w3.org/2000/svg\">\n              <circle\n                cx=\"50%\"\n                cy=\"50%\"\n                ng-r=\"{{ layer.item.cartography[0].legend.symbol.radius }}\"\n                ng-fill=\"{{ layer.item.cartography[0].styles.default.static.color }}\"\n                stroke-width=\"1\"\n                stroke=\"#000000\"></circle>\n            </svg>\n          </div>\n          <div ng-if=\"layer.item.cartography[0].legend.symbol.type == \'ellipse\'\">\n            <svg width=\"100%\" height=\"100%\" version=\"1.0\" xmlns=\"http://www.w3.org/2000/svg\">\n              <ellipse\n                cx=\"50%\"\n                cy=\"50%\"\n                ng-rx=\"{{ layer.item.cartography[0].legend.symbol.width }}\"\n                ng-ry=\"{{ layer.item.cartography[0].legend.symbol.height }}\"\n                ng-fill=\"{{ layer.item.cartography[0].styles.default.static.color }}\"\n                stroke-width=\"1\"\n                stroke=\"#000000\"></circle>\n            </svg>\n          </div>\n          <div\n            ng-if=\"layer.item.cartography[0].legend.symbol.type == \'graduated\'\">\n            <svg\n              ng-attr-width=\"{{ layer.item.cartography[0].legend.symbol.width }}\"\n              height=\"100%\"\n              version=\"1.0\"\n              xmlns=\"http://www.w3.org/2000/svg\">\n              <rect\n                ng-repeat=\"color in layer.item.cartography[0].colors.ramp track by $index\"\n                ng-attr-x=\"{{ $index|percent:layer.item.cartography[0].colors.ramp.length }}%\"\n                y=\"0\"\n                ng-attr-width=\"{{ 1|percent:layer.item.cartography[0].colors.ramp.length }}%\"\n                ng-attr-height=\"{{ layer.item.cartography[0].legend.symbol.height }}\"\n                ng-attr-fill=\"{{ color }}\"\n                stroke-width=\"1\"\n                stroke=\"#000000\"/>\n            </svg>\n          </div>\n          <div\n            ng-if=\"layer.item.cartography[0].legend.symbol.type == \'graphic\'\">\n            <i class=\"fa fa-image\" style=\"color:black; font-size: 20px;\"></i>\n          </div>\n        </a>\n      </div><!--\n      --><div class=\"geosite-map-legend-item-label\">\n        <span ng-bind-html=\"layer.item.legend.label | md2html\"></span>\n      </div>\n    </div>\n  </div>\n</div>\n";
+geosite.templates["legend_baselayers.tpl.html"] = "<div class=\"geosite-map-legend-baselayers geosite-radio-group\">\n  <div\n    ng-repeat=\"layer in map_config.baselayers track by $index\"\n    ng-if=\"layer.legend!==undefined\"\n    class=\"geosite-map-legend-item noselect\"\n    data-layer=\"{{ layer.id }}\">\n    <div class=\"geosite-map-legend-item-left\">\n      <div class=\"geosite-map-legend-item-icon geosite-map-legend-item-more\">\n        <a\n          class=\"geosite-intent\"\n          data-intent-name=\"toggleModal\"\n          data-intent-data=\"{&quot;id&quot;:&quot;geosite-modal-layer-more&quot;,&quot;dynamic&quot;:{&quot;layer&quot;:[&quot;map_config&quot;,&quot;baselayers&quot;,&quot;{{ $index }}&quot;]}}\">\n          <i class=\"fa fa-info-circle\"></i>\n        </a>\n      </div><!--\n      --><div class=\"geosite-map-legend-item-icon geosite-map-legend-item-visibility\">\n           <a\n             ng-class=\" $first ? \'geosite-map-legend-item-visibility-button geosite-intent geosite-radio geosite-on\' : \'geosite-map-legend-item-visibility-button geosite-intent geosite-radio\'\"\n             data-intent-name=\"switchBaseLayer\"\n             data-intent-data=\"{&quot;layer&quot;:&quot;{{ layer.id }}&quot;}\"\n             data-intent-class-on=\"geosite-on\"\n             data-intent-class-off=\"\">\n             <i class=\"fa fa-eye geosite-on\"></i><i class=\"fa fa-eye-slash geosite-off\"></i>\n           </a>\n         </div><!--\n      --><div class=\"geosite-map-legend-item-symbol\" style=\"width: 10px;\"></div>\n    </div><!--\n    --><div class=\"geosite-map-legend-item-right\">\n      <div class=\"geosite-map-legend-item-label\" style=\"width: 100%;\">\n        <span ng-bind-html=\"layer.legend.label | md2html\"></span>\n      </div>\n    </div>\n  </div>\n</div>\n";
+geosite.templates["legend_featurelayers.tpl.html"] = "<div class=\"geosite-map-legend-featurelayers\">\n  <div\n    ng-repeat=\"layer in featurelayers track by $index\"\n    ng-init=\"layerIndex = $index\"\n    ng-if=\"layer.item.legend!==undefined\"\n    class=\"geosite-map-legend-item noselect\"\n    data-layer=\"{{ layer.key }}\">\n    <div class=\"geosite-map-legend-item-left\">\n      <div class=\"geosite-map-legend-item-icon geosite-map-legend-item-config\" style=\"display:none;\">\n        <a\n          class=\"geosite-intent\"\n          data-intent-name=\"toggleModal\"\n          data-intent-data=\"{&quot;id&quot;:&quot;geosite-modal-layer-config&quot;,&quot;static&quot;:{&quot;layerID&quot;:&quot;{{ layer.key }}&quot;},&quot;dynamic&quot;:{&quot;layer&quot;:[&quot;map_config&quot;,&quot;featurelayers&quot;,&quot;{{ layer.key }}&quot;]}}\">\n          <i class=\"fa fa-cog\"></i>\n        </a>\n      </div><!--\n      --><div class=\"geosite-map-legend-item-icon geosite-map-legend-item-more\">\n        <a\n          class=\"geosite-intent\"\n          data-intent-name=\"toggleModal\"\n          data-intent-data=\"{&quot;id&quot;:&quot;geosite-modal-layer-more&quot;,&quot;static&quot;:{&quot;layerID&quot;:&quot;{{ layer.key }}&quot;},&quot;dynamic&quot;:{&quot;layer&quot;:[&quot;map_config&quot;,&quot;featurelayers&quot;,&quot;{{ layer.key }}&quot;]}}\">\n          <i class=\"fa fa-info-circle\"></i>\n        </a>\n      </div><!--\n      --><div class=\"geosite-map-legend-item-icon geosite-map-legend-item-visibility\">\n         <a\n           ng-class=\"(layer.item.visible != undefined ? layer.item.visible : true ) ? \'geosite-map-legend-item-visibility-button geosite-intent geosite-toggle\' : \'geosite-map-legend-item-visibility-button geosite-intent geosite-toggle geosite-off\'\"\n           data-intent-names=\"[&quot;showLayer&quot;,&quot;hideLayer&quot;]\"\n           data-intent-data=\"{&quot;layer&quot;:&quot;{{ layer.key }}&quot;}\">\n           <i class=\"fa fa-eye geosite-on\"></i><i class=\"fa fa-eye-slash geosite-off\"></i>\n         </a>\n     </div><!--\n     --><div\n          ng-class=\"layer.item.type == \'geojson\' ? \'geosite-map-legend-item-icon geosite-map-legend-item-zoomto\': \'geosite-map-legend-item-icon geosite-map-legend-item-zoomto fade disabled\'\">\n        <a\n          class=\"geosite-map-legend-item-zoomto-button geosite-intent\"\n          data-intent-name=\"zoomToLayer\"\n          data-intent-data=\"{&quot;layer&quot;:&quot;{{ layer.key }}&quot;}\">\n          <i class=\"fa fa-compress\"></i>\n        </a>\n      </div>\n    </div><!--\n    --><div class=\"geosite-map-legend-item-right\">\n      <div\n        ng-if=\"layer.item.cartography[0].legend.symbol\"\n        class=\"geosite-map-legend-item-symbol\">\n        <a\n          class=\"geosite-intent\"\n          data-intent-name=\"toggleModal\"\n          data-intent-data=\"{&quot;id&quot;:&quot;geosite-modal-layer-carto&quot;,&quot;static&quot;:{&quot;layerID&quot;:&quot;{{ layer.key }}&quot;},&quot;dynamic&quot;:{&quot;layer&quot;:[&quot;map_config&quot;,&quot;featurelayers&quot;,&quot;{{ layer.key }}&quot;]}}\">\n          <div ng-if=\"layer.item.cartography[0].legend.symbol.type == \'circle\'\">\n            <svg width=\"100%\" height=\"100%\" version=\"1.0\" xmlns=\"http://www.w3.org/2000/svg\">\n              <circle\n                cx=\"50%\"\n                cy=\"50%\"\n                ng-r=\"{{ layer.item.cartography[0].legend.symbol.radius }}\"\n                ng-fill=\"{{ layer.item.cartography[0].styles.default.static.color }}\"\n                stroke-width=\"1\"\n                stroke=\"#000000\"></circle>\n            </svg>\n          </div>\n          <div ng-if=\"layer.item.cartography[0].legend.symbol.type == \'ellipse\'\">\n            <svg width=\"100%\" height=\"100%\" version=\"1.0\" xmlns=\"http://www.w3.org/2000/svg\">\n              <ellipse\n                cx=\"50%\"\n                cy=\"50%\"\n                ng-rx=\"{{ layer.item.cartography[0].legend.symbol.width }}\"\n                ng-ry=\"{{ layer.item.cartography[0].legend.symbol.height }}\"\n                ng-fill=\"{{ layer.item.cartography[0].styles.default.static.color }}\"\n                stroke-width=\"1\"\n                stroke=\"#000000\"></circle>\n            </svg>\n          </div>\n          <div\n            ng-if=\"layer.item.cartography[0].legend.symbol.type == \'graduated\'\">\n            <svg\n              ng-attr-width=\"{{ layer.item.cartography[0].legend.symbol.width }}\"\n              height=\"100%\"\n              version=\"1.0\"\n              xmlns=\"http://www.w3.org/2000/svg\">\n              <rect\n                ng-repeat=\"color in layer.item.cartography[0].colors.ramp track by $index\"\n                ng-attr-x=\"{{ $index|percent:layer.item.cartography[0].colors.ramp.length }}%\"\n                y=\"0\"\n                ng-attr-width=\"{{ 1|percent:layer.item.cartography[0].colors.ramp.length }}%\"\n                ng-attr-height=\"{{ layer.item.cartography[0].legend.symbol.height }}\"\n                ng-attr-fill=\"{{ color }}\"\n                stroke-width=\"1\"\n                stroke=\"#000000\"/>\n            </svg>\n          </div>\n          <div\n            ng-if=\"layer.item.cartography[0].legend.symbol.type == \'graphic\'\">\n            <i class=\"fa fa-image\" style=\"color:black; font-size: 20px;\"></i>\n          </div>\n        </a>\n      </div><!--\n      --><div class=\"geosite-map-legend-item-label\">\n        <span ng-bind-html=\"layer.item.legend.label | md2html\"></span>\n      </div>\n    </div>\n  </div>\n</div>\n";
 geosite.templates["breadcrumbs.tpl.html"] = "<div>\n  <div>\n    <a class=\"btn btn-primary btn-large\" title=\"Explore\" href=\"/explore\">Explore &gt;&gt;</a>\n  </div>\n  <div\n    ng-repeat=\"bc in breadcrumbs track by $index\">\n    <select\n      id=\"{{ bc.id }}\"\n      data-output=\"{{ bc.output }}\"\n      data-width=\"{{ bc.width }}\"\n      data-height=\"{{ bc.height }}\"\n      data-initial-data=\"{{ bc.data }}\"\n      data-breadcrumbs=\"{{ bc.breadcrumbs }}\">\n      <option\n        ng-if=\"bc.type == \'country\'\"\n        value=\"{{ state.iso3 }}\"\n        selected=\"selected\">{{ state.country_title }}</option>\n      <option\n        ng-if=\"bc.type == \'hazard\'\"\n        value=\"{{ state.hazard }}\"\n        selected=\"selected\">{{ state.hazard_title }}</option>\n      <option\n        ng-if=\"bc.type != \'country\' && bc.type != \'hazard\'\"\n        value=\"placeholder\"\n        selected=\"selected\">{{ bc.placeholder }}</option>\n    </select>\n  </div>\n</div>\n";
 geosite.templates["calendar.tpl.html"] = "<ul class=\"nav nav-justified geosite-radio-group\">\n  <li\n    ng-repeat=\"month in months track by $index\">\n    <a\n      ng-class=\"state.month == month.num ? \'btn btn-primary selected geosite-intent geosite-radio geosite-on\' : \'btn btn-default geosite-intent geosite-radio\'\"\n      title=\"{{ month.long }}\"\n      href=\"/country/{{ state.iso3 }}/hazard/{{ state.hazard }}/month/{{ month.num }}\"\n      data-intent-name=\"stateChanged\"\n      data-intent-data=\"{&quot;month&quot;: {{ month.num }} }\"\n      data-intent-class-on=\"btn-primary selected\"\n      data-intent-class-off=\"btn-default\" ng-bind-html=\"month.short3 | title\"></a>\n  </li>\n</ul>\n";
-geosite.templates["modal_filter_more.tpl.html"] = "<div class=\"modal-dialog\" role=\"document\">\n  <div class=\"modal-content\">\n    <div class=\"modal-header\">\n      <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">×</button>\n      <h4 class=\"modal-title\" id=\"myModalLabel\">Filter / {{ filter.label }}</h4>\n    </div>\n    <div class=\"modal-body\">\n      <div>\n        <!-- Nav tabs -->\n        <ul class=\"nav nav-tabs\" role=\"tablist\">\n          <li role=\"presentation\" class=\"active\">\n            <a\n              href=\"#modal-filter-more-general\"\n              aria-controls=\"modal-filter-more-general\"\n              role=\"tab\"\n              data-toggle=\"tab\"\n              style=\"padding-left:8px; padding-right: 8px;\">General</a>\n          </li>\n          <li ng-if=\"filter.checkbox.options\" role=\"presentation\" class=\"\">\n            <a\n              href=\"#modal-filter-more-options\"\n              aria-controls=\"modal-filter-more-options\"\n              role=\"tab\"\n              data-toggle=\"tab\"\n              style=\"padding-left:8px; padding-right: 8px;\">Options</a>\n          </li>\n        </ul>\n        <div class=\"tab-content\">\n          <div\n            id=\"modal-filter-more-general\"\n            class=\"tab-pane fade in active\"\n            role=\"tabpanel\"\n            style=\"padding: 10px;\">\n            <span ng-bind-html=\"filter.description | md2html | default:\'No description given.\'\"></span>\n            <br><br><b>Type:</b> {{ filter.type }}\n            <br><br><b>Minimum Value:</b> Minimum Value\n            <br><br><b>Maximum Value:</b> Minimum Value\n          </div>\n          <div\n            ng-if=\"filter.checkbox.options\"\n            id=\"modal-filter-more-options\"\n            class=\"tab-pane fade\"\n            role=\"tabpanel\"\n            style=\"padding: 10px;\">\n            <span\n              ng-repeat-start=\"option in filter.checkbox.options track by $index\">\n              <b ng-bind-html=\"option.label\"></b>: <i ng-class=\"option.checked ? \'fa fa-check-square-o\' : \'fa fa-square-o\'\"></i>\n            </span>\n            <br ng-repeat-end>\n          </div>\n        </div>\n      </div>\n    </div>\n    <div class=\"modal-footer\">\n      <button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Close</button>\n    </div>\n  </div>\n</div>\n";
-geosite.templates["filter_checkbox.tpl.html"] = "<div class=\"geosite-filter geosite-filter-checkbox\" style=\"height: {{ filter.height }};\">\n  <div class=\"geosite-filter-label\">\n    <a\n      class=\"geosite-intent\"\n      data-intent-name=\"toggleModal\"\n      data-intent-data=\"{&quot;id&quot;:&quot;geosite-modal-filter-more&quot;,&quot;dynamic&quot;:{&quot;filter&quot;:[&quot;featurelayers&quot;,&quot;popatrisk&quot;,&quot;filters&quot;,&quot;{{ $index }}&quot;]}}\">\n      <i class=\"fa fa-info-circle\"></i>\n    </a>\n    <span ng-bind-html=\"filter.label | md2html\"></span> :\n  </div>\n  <div\n    class=\"btn-group\"\n    style=\"float:left;\"\n    data-toggle=\"buttons\"\n    data-output=\"{{ filter.checkbox.output }}\">\n    <label\n      ng-repeat=\"opt in filter.checkbox.options track by $index\"\n      ng-class=\"opt.checked ? \'btn btn-sm btn-default active\' : \'btn btn-sm btn-default\'\">\n      <input\n        type=\"checkbox\"\n        id=\"{{ opt.id }}\"\n        data-value=\"{{ opt.value }}\"\n        autocomplete=\"off\"\n        ng-checked=\"opt.checked || opt.selected\"/>\n      {{ opt.label }}\n    </label>\n  </div>\n</div>\n";
-geosite.templates["filter_radio.tpl.html"] = "<div class=\"geosite-filter geosite-filter-radio\" style=\"height: {{ filter.height }};\">\n  <div class=\"geosite-filter-label\">\n    <a\n      class=\"geosite-intent\"\n      data-intent-name=\"toggleModal\"\n      data-intent-data=\"{&quot;id&quot;:&quot;geosite-modal-filter-more&quot;,&quot;dynamic&quot;:{&quot;filter&quot;:[&quot;featurelayers&quot;,&quot;popatrisk&quot;,&quot;filters&quot;,&quot;{{ $index }}&quot;]}}\">\n      <i class=\"fa fa-info-circle\"></i>\n    </a>\n    <span ng-bind-html=\"filter.label | md2html\"></span> :\n  </div>\n  <div\n    class=\"btn-group\"\n    style=\"float:left;\"\n    data-toggle=\"buttons\"\n    data-output=\"{{ filter.radio.output }}\">\n    <label\n      ng-repeat=\"opt in filter.radio.options track by $index\"\n      ng-class=\"opt.checked ? \'btn btn-default active\' : \'btn btn-default\'\">\n      <input\n        type=\"radio\"\n        id=\"{{ opt.id }}\"\n        name=\"{{ opt.name }}\"\n        value=\"{{ opt.value }}\"\n        data-output=\"{{ filter.radio.output }}\"\n        ng-checked=\"opt.checked || opt.selected\"/>\n      {{ opt.label }}\n    </label>\n  </div>\n</div>\n";
-geosite.templates["filter_slider.tpl.html"] = "<div class=\"geosite-filter geosite-filter-slider\" style=\"height: {{ filter.height }};\">\n  <div class=\"geosite-filter-label\">\n    <a\n      class=\"geosite-intent\"\n      data-intent-name=\"toggleModal\"\n      data-intent-data=\"{&quot;id&quot;:&quot;geosite-modal-filter-more&quot;,&quot;dynamic&quot;:{&quot;filter&quot;:[&quot;featurelayers&quot;,&quot;popatrisk&quot;,&quot;filters&quot;,&quot;{{ $index }}&quot;]}}\">\n      <i class=\"fa fa-info-circle\"></i>\n    </a>\n    <span ng-bind-html=\"filter.label | md2html\"></span> :\n  </div>\n  <div style=\"display:table; height:{{ filter.height }};padding-left:10px;padding-right:10px;\">\n    <div style=\"display:table-cell;vertical-align:middle;\">\n      <div class=\"geosite-filter-slider-label\">Placeholder</div>\n      <div\n        class=\"geosite-filter-slider-slider\"\n        style=\"width:{{ filter.slider.width }};\"\n        data-type=\"{{ filter.slider.type }}\"\n        data-value=\"{{ filter.slider.value ? filter.slider.value : \'\' }}\"\n        data-values=\"{{ filter.slider.values ? filter.slider.values : \'\' }}\"\n        data-range=\"{{ filter.slider.range == \'true\' ? \'true\': filter.slider.range }}\"\n        data-output=\"{{ filter.slider.output }}\"\n        data-min-value=\"{{ filter.slider.min|default_if_undefined:\'\' }}\"\n        data-max-value=\"{{ filter.slider.max|default_if_undefined:\'\' }}\"\n        data-step=\"{{ filter.slider.step ? filter.slider.step : \'\' }}\"\n        data-options=\"{{ filter.slider.options ? filter.slider.options : \'\' }}\"\n        data-label-template=\"{{ filter.slider.label }}\"\n        ></div>\n    </div>\n  </div>\n</div>\n";
+geosite.templates["modal_filter_more.tpl.html"] = "<div class=\"modal-dialog\" role=\"document\">\n  <div class=\"modal-content\">\n    <div class=\"modal-header\">\n      <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">×</button>\n      <h4 class=\"modal-title\" id=\"myModalLabel\">Filter / {{ filter.label }}</h4>\n    </div>\n    <div class=\"modal-body\">\n      <div>\n        <!-- Nav tabs -->\n        <ul class=\"nav nav-tabs\" role=\"tablist\">\n          <li\n            role=\"presentation\"\n            class=\"active\">\n            <a\n              href=\"#modal-filter-more-general\"\n              aria-controls=\"modal-filter-more-general\"\n              role=\"tab\"\n              data-toggle=\"tab\"\n              style=\"padding-left:8px; padding-right: 8px;\">General</a>\n          </li>\n          <li\n            ng-if=\"filter.type == \'checkbox\' && filter.checkbox.options\"\n            role=\"presentation\"\n            class=\"\">\n            <a\n              href=\"#modal-filter-more-options\"\n              aria-controls=\"modal-filter-more-options\"\n              role=\"tab\"\n              data-toggle=\"tab\"\n              style=\"padding-left:8px; padding-right: 8px;\">Options</a>\n          </li>\n          <li\n            ng-if=\"filter.type == \'slider\' && filter.slider.options\"\n            role=\"presentation\"\n            class=\"\">\n            <a\n              href=\"#modal-filter-more-options\"\n              aria-controls=\"modal-filter-more-options\"\n              role=\"tab\"\n              data-toggle=\"tab\"\n              style=\"padding-left:8px; padding-right: 8px;\">Options</a>\n          </li>\n        </ul>\n        <div class=\"tab-content\">\n          <div\n            id=\"modal-filter-more-general\"\n            class=\"tab-pane fade in active\"\n            role=\"tabpanel\"\n            style=\"padding: 10px;\">\n            <span ng-bind-html=\"filter.description | md2html | default:\'No description given.\'\"></span>\n            <br><br><b>Type:</b> {{ filter.type }}\n            <div\n              ng-if=\"filter.type ==\'slider\' && filter.slider.type == \'continuous\'\">\n              <b>Minimum Value:</b> <span ng-bind-html=\"filter.slider.min | formatInteger:\'delimited\':\' \'\"></span>\n            </div>\n            <div\n              ng-if=\"filter.type ==\'slider\' && filter.slider.type == \'continuous\'\">\n              <b>Maximum Value:</b> <span ng-bind-html=\"filter.slider.max | formatInteger:\'delimited\':\' \'\"></span>\n            </div>\n            <div\n              ng-if=\"filter.type ==\'slider\' && filter.slider.type == \'ordinal\'\">\n              <b>Minimum Value:</b> <span ng-bind-html=\"filter.slider.options | first\"></span>\n            </div>\n            <div\n              ng-if=\"filter.type ==\'slider\' && filter.slider.type == \'ordinal\'\">\n              <b>Maximum Value:</b> <span ng-bind-html=\"filter.slider.options | last\"></span>\n            </div>\n            <hr>\n            <div\n              ng-if=\"filter.type ==\'slider\' && filter.slider.type == \'ordinal\'\">\n              <b>Current Value:</b> <span ng-bind-html=\"value\"></span>\n            </div>\n            <div\n              ng-if=\"filter.type ==\'slider\' && filter.slider.type == \'continuous\'\">\n              <b>Current Value:</b> <span ng-bind-html=\"value | join:\' - \'\"></span>\n            </div>\n            <div\n              ng-if=\"filter.type ==\'checkbox\'\">\n              <b>Current Value:</b> <span ng-bind-html=\"value | formatArray\"></span>\n            </div>\n          </div>\n          <div\n            ng-if=\"filter.type == \'checkbox\' && filter.checkbox.options\"\n            id=\"modal-filter-more-options\"\n            class=\"tab-pane fade\"\n            role=\"tabpanel\"\n            style=\"padding: 10px;\">\n            <span\n              ng-repeat-start=\"option in filter.checkbox.options track by $index\">\n              <i ng-class=\"option.checked ? \'fa fa-check-square-o\' : \'fa fa-square-o\'\"></i>\n              <b ng-bind-html=\"option.label\"></b>:\n              <span ng-bind-html=\"option.description | default_if_undefined:\'No description given\'\"></span>\n            </span>\n            <br>\n            <br ng-repeat-end>\n          </div>\n          <div\n            ng-if=\"filter.type == \'slider\' && filter.slider.options\"\n            id=\"modal-filter-more-options\"\n            class=\"tab-pane fade\"\n            role=\"tabpanel\"\n            style=\"padding: 10px;\">\n            <span\n              ng-repeat-start=\"option in filter.slider.options track by $index\">\n              <i ng-class=\"option.checked ? \'fa fa-check-square-o\' : \'fa fa-square-o\'\"></i>\n              <b ng-bind-html=\"option\"></b>\n            </span>\n            <br ng-repeat-end>\n          </div>\n        </div>\n      </div>\n    </div>\n    <div class=\"modal-footer\">\n      <button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Close</button>\n    </div>\n  </div>\n</div>\n";
+geosite.templates["filter_checkbox.tpl.html"] = "<div class=\"geosite-filter geosite-filter-checkbox\" style=\"height: {{ filter.height }};\">\n  <div class=\"geosite-filter-label\">\n    <a\n      class=\"geosite-intent\"\n      data-intent-name=\"toggleModal\"\n      data-intent-data=\"{&quot;id&quot;:&quot;geosite-modal-filter-more&quot;,&quot;static&quot;:{&quot;tab&quot;:&quot;modal-filter-more-general&quot;},&quot;dynamic&quot;:{&quot;value&quot;:[&quot;state&quot;,&quot;filters&quot;,&quot;popatrisk&quot;,&quot;{{ filter.checkbox.output }}&quot;],&quot;filter&quot;:[&quot;map_config&quot;,&quot;featurelayers&quot;,&quot;popatrisk&quot;,&quot;filters&quot;,&quot;{{ $index }}&quot;]}}\">\n      <i class=\"fa fa-info-circle\"></i>\n    </a>\n    <span ng-bind-html=\"filter.label | md2html\"></span> :\n  </div>\n  <div\n    class=\"btn-group\"\n    style=\"float:left;\"\n    data-toggle=\"buttons\"\n    data-output=\"{{ filter.checkbox.output }}\">\n    <label\n      ng-repeat=\"opt in filter.checkbox.options track by $index\"\n      ng-class=\"opt.checked ? \'btn btn-sm btn-default active\' : \'btn btn-sm btn-default\'\">\n      <input\n        type=\"checkbox\"\n        id=\"{{ opt.id }}\"\n        data-value=\"{{ opt.value }}\"\n        autocomplete=\"off\"\n        ng-checked=\"opt.checked || opt.selected\"/>\n      {{ opt.label }}\n    </label>\n  </div>\n</div>\n";
+geosite.templates["filter_radio.tpl.html"] = "<div class=\"geosite-filter geosite-filter-radio\" style=\"height: {{ filter.height }};\">\n  <div class=\"geosite-filter-label\">\n    <a\n      class=\"geosite-intent\"\n      data-intent-name=\"toggleModal\"\n      data-intent-data=\"{&quot;id&quot;:&quot;geosite-modal-filter-more&quot;,&quot;static&quot;:{&quot;tab&quot;:&quot;modal-filter-more-general&quot;},&quot;dynamic&quot;:{&quot;value&quot;:[&quot;state&quot;,&quot;filters&quot;,&quot;popatrisk&quot;,&quot;{{ filter.radio.output }}&quot;],&quot;filter&quot;:[&quot;map_config&quot;,&quot;featurelayers&quot;,&quot;popatrisk&quot;,&quot;filters&quot;,&quot;{{ $index }}&quot;]}}\">\n      <i class=\"fa fa-info-circle\"></i>\n    </a>\n    <span ng-bind-html=\"filter.label | md2html\"></span> :\n  </div>\n  <div\n    class=\"btn-group\"\n    style=\"float:left;\"\n    data-toggle=\"buttons\"\n    data-output=\"{{ filter.radio.output }}\">\n    <label\n      ng-repeat=\"opt in filter.radio.options track by $index\"\n      ng-class=\"opt.checked ? \'btn btn-default active\' : \'btn btn-default\'\">\n      <input\n        type=\"radio\"\n        id=\"{{ opt.id }}\"\n        name=\"{{ opt.name }}\"\n        value=\"{{ opt.value }}\"\n        data-output=\"{{ filter.radio.output }}\"\n        ng-checked=\"opt.checked || opt.selected\"/>\n      {{ opt.label }}\n    </label>\n  </div>\n</div>\n";
+geosite.templates["filter_slider.tpl.html"] = "<div class=\"geosite-filter geosite-filter-slider\" style=\"height: {{ filter.height }};\">\n  <div class=\"geosite-filter-label\">\n    <a\n      class=\"geosite-intent\"\n      data-intent-name=\"toggleModal\"\n      data-intent-data=\"{&quot;id&quot;:&quot;geosite-modal-filter-more&quot;,&quot;static&quot;:{&quot;tab&quot;:&quot;modal-filter-more-general&quot;},&quot;dynamic&quot;:{&quot;value&quot;:[&quot;state&quot;,&quot;filters&quot;,&quot;popatrisk&quot;,&quot;{{ filter.slider.output }}&quot;],&quot;filter&quot;:[&quot;map_config&quot;,&quot;featurelayers&quot;,&quot;popatrisk&quot;,&quot;filters&quot;,&quot;{{ $index }}&quot;]}}\">\n      <i class=\"fa fa-info-circle\"></i>\n    </a>\n    <span ng-bind-html=\"filter.label | md2html\"></span> :\n  </div>\n  <div style=\"display:table; height:{{ filter.height }};padding-left:10px;padding-right:10px;\">\n    <div style=\"display:table-cell;vertical-align:middle;\">\n      <div class=\"geosite-filter-slider-label\">Placeholder</div>\n      <div\n        class=\"geosite-filter-slider-slider\"\n        style=\"width:{{ filter.slider.width }};\"\n        data-type=\"{{ filter.slider.type }}\"\n        data-value=\"{{ filter.slider.value ? filter.slider.value : \'\' }}\"\n        data-values=\"{{ filter.slider.values ? filter.slider.values : \'\' }}\"\n        data-range=\"{{ filter.slider.range == \'true\' ? \'true\': filter.slider.range }}\"\n        data-output=\"{{ filter.slider.output }}\"\n        data-min-value=\"{{ filter.slider.min|default_if_undefined:\'\' }}\"\n        data-max-value=\"{{ filter.slider.max|default_if_undefined:\'\' }}\"\n        data-step=\"{{ filter.slider.step ? filter.slider.step : \'\' }}\"\n        data-options=\"{{ filter.slider.options ? filter.slider.options : \'\' }}\"\n        data-label-template=\"{{ filter.slider.label }}\"\n        ></div>\n    </div>\n  </div>\n</div>\n";
 geosite.templates["filter_container.tpl.html"] = "<div id=\"geosite-map-filter-container\" class=\"collapse\" style=\"\">\n  <div\n    ng-repeat=\"filter in filters track by $index\">\n    <div geosite-filter-radio ng-if=\"filter.type == \'radio\'\"></div>\n    <div geosite-filter-checkbox ng-if=\"filter.type == \'checkbox\'\"></div>\n    <div geosite-filter-slider ng-if=\"filter.type == \'slider\'\"></div>\n  </div>\n</div>\n";
 geosite.templates["sparc_sidebar_charts.tpl.html"] = "<div class=\"geosite-sidebar-charts\" style=\"width:100%;\">\n  <!-- Nav tabs -->\n  <ul class=\"nav nav-tabs\" role=\"tablist\">\n    <p class=\"navbar-text\" style=\"margin-bottom:0px;\"><b>Select</b><br><b>a Chart:</b></p>\n    <li\n      role=\"presentation\"\n      ng-class=\"$first ? \'active\' : \'\'\"\n      ng-repeat=\"chart in charts track by $index\">\n      <a\n        class=\"\"\n        href=\"#sparc-chart-{{ chart.id }}-pane\"\n        aria-controls=\"sparc-chart-{{ chart.id }}-pane\"\n        role=\"tab\"\n        data-toggle=\"tab\"\n        style=\"padding-left:8px; padding-right: 8px;\"\n        ng-bind-html=\"chart.title | default:\'Default\' | tabLabel\"></a>\n    </li>\n  </ul>\n  <!-- Tab panes -->\n  <div class=\"tab-content\">\n    <div\n      ng-class=\"$first ? \'tab-pane fade in active\' : \'tab-pane fade\'\"\n      ng-repeat=\"chart in charts track by $index\"\n      on-repeat-done=\"chart_done\"\n      data-repeat-index=\"{{ $index }}\"\n      id=\"sparc-chart-{{ chart.id }}-pane\"\n      role=\"tabpanel\"\n      style=\"padding: 10px;\">\n      <div>\n        <h4 style=\"text-align:center;\">{{ chart.title }}</h4>\n      </div>\n      <div\n        id=\"{{ chart.element }}\"\n        class=\"geosite-sidebar-chart\"\n        style=\"width:360px;margin:0 auto;\"\n      ></div>\n    </div>\n  </div>\n</div>\n";
 
@@ -1720,6 +1724,73 @@ geosite.filters["first"] = function()
     };
 };
 
+geosite.filters["last"] = function()
+{
+    return function(arr)
+    {
+        if (!Array.isArray(arr))
+        {
+            return arr;
+        }
+
+        if(arr.length == 0)
+        {
+            return undefined;
+        }
+
+        return arr[arr.length - 1];
+    };
+};
+
+geosite.filters["formatInteger"] = function()
+{
+  return function(value, type, delimiter)
+  {
+    if(type == "delimited")
+    {
+      delimiter = delimiter || ',';
+      var str = value.toString();
+      var pattern = new RegExp('(\\d+)(\\d{3})','gi');
+      while(pattern.test(str)){str=str.replace(pattern,'$1'+ delimiter +'$2');}
+      return str;
+    }
+    else
+    {
+      return value.toString();
+    }
+  };
+};
+
+geosite.filters["formatArray"] = function()
+{
+  return function(arr)
+  {
+      if(Array.isArray(arr))
+      {
+        if(arr.length == 0)
+        {
+          return "";
+        }
+        else if(arr.length == 1)
+        {
+          return arr[0];
+        }
+        else if(arr.length == 2)
+        {
+          return arr.join(" and ");
+        }
+        else // greater than 2
+        {
+          return arr.slice(0,-1).join(", ")+", and "+arr[arr.length - 1];
+        }
+      }
+      else
+      {
+          return arr;
+      }
+  };
+};
+
 geosite.filters["md2html"] = function()
 {
   return function(text)
@@ -1734,7 +1805,7 @@ geosite.filters["md2html"] = function()
       var pattern = new RegExp("(<a .*)>(.*?)</a>", "gi");
       html = html.replace(pattern, '$1 target="_blank">$2</a>');
       // Replace New Line characters with Line Breaks
-      html = html.replace('\n','<br>');
+      html = html.replace(new RegExp('\n', 'gi'),'<br>');
       return html;
     }
     else
@@ -2359,7 +2430,7 @@ geosite.controllers["controller_calendar"] = function(
   });
 };
 
-geosite.controllers["controller_filter"] = function($scope, $element, $controller, state, popatrisk_config, map_config, live)
+geosite.controllers["controller_filter"] = function($scope, $element, $controller, $interpolate, state, popatrisk_config, map_config, live)
 {
   var maxValueFromSummary = popatrisk_config["data"]["summary"]["all"]["max"]["at_admin2_month"];
   angular.extend(this, $controller('GeositeControllerBase', {$element: $element, $scope: $scope}));
@@ -2416,8 +2487,8 @@ geosite.controllers["controller_filter"] = function($scope, $element, $controlle
         var options = slider.data('options');
 
         slider.data('label', label);
-        geosite.ui_init_slider_label(slider, type, range, value);
-        geosite.ui_init_slider_slider($scope, slider, type, range, options.indexOf(value), 0, options.length - 1, 1);
+        geosite.ui_init_slider_label($interpolate, slider, type, range, value);
+        geosite.ui_init_slider_slider($interpolate, $scope, slider, type, range, options.indexOf(value), 0, options.length - 1, 1);
       }
       else
       {
@@ -2441,8 +2512,8 @@ geosite.controllers["controller_filter"] = function($scope, $element, $controlle
           var step_n = Math.floor(step);
 
           slider.data('label', label);
-          geosite.ui_init_slider_label(slider, type, range, values);
-          geosite.ui_init_slider_slider($scope, slider, type, range, values_n, min_n, max_n, step_n);
+          geosite.ui_init_slider_label($interpolate, slider, type, range, values);
+          geosite.ui_init_slider_slider($interpolate, $scope, slider, type, range, values_n, min_n, max_n, step_n);
           console.log(value_n, min_n, max_n, step_n, range);
         }
         else
@@ -2455,8 +2526,8 @@ geosite.controllers["controller_filter"] = function($scope, $element, $controlle
           var step_n = Math.floor(step * 100);
 
           slider.data('label', label);
-          geosite.ui_init_slider_label(slider, type, range, value);
-          geosite.ui_init_slider_slider($scope, slider, type, range, values_n, min_n, max_n, step_n);
+          geosite.ui_init_slider_label($interpolate, slider, type, range, value);
+          geosite.ui_init_slider_slider($interpolate, $scope, slider, type, range, values_n, min_n, max_n, step_n);
           console.log(value_n, min_n, max_n, step_n, range);
         }
       }
@@ -2799,7 +2870,8 @@ geosite.controllers["controller_sidebar_sparc"] = function($scope, $element, $co
   }, 10);
 };
 
-geosite.controllers["controller_main"] = function($scope, $element, $controller, $http, $q, state, map_config, stateschema, live)
+geosite.controllers["controller_main"] = function(
+  $scope, $element, $controller, $http, $q, state, map_config, stateschema, live)
 {
 
     $scope.state = geosite.init_state(state, stateschema);
@@ -2821,11 +2893,66 @@ geosite.controllers["controller_main"] = function($scope, $element, $controller,
           modal_scope_new = $.extend(modal_scope_new, args["static"]);
         }
         $.each(args["dynamic"],function(key, value){
-          modal_scope_new[key] = angular.isArray(value) ? extract(value, map_config): value;
+          if(angular.isArray(value))
+          {
+            if(value[0] == "map_config")
+            {
+                modal_scope_new[key] = extract(value.slice(1), map_config);
+            }
+            else if(value[0] == "state")
+            {
+                modal_scope_new[key] = extract(value.slice(1), modal_scope_new.state);
+            }
+          }
+          else
+          {
+              modal_scope_new[key] = value;
+          }
         });
         modal_scope.$apply(function () {
+            // Update Scope
             modal_scope = $.extend(modal_scope, modal_scope_new);
-            setTimeout(function(){$("#"+id).modal('toggle');},0);
+            setTimeout(function(){
+              // Update Modal Tab Selection
+              // See https://github.com/angular-ui/bootstrap/issues/1741
+              var modalElement = $("#"+id);
+              var targetTab = modal_scope.tab;
+              if(targetTab != undefined)
+              {
+                modalElement.find('.nav-tabs li').each(function(){
+                  var that = $(this);
+                  var thisTab = that.find('a').attr('href').substring(1);
+                  if(targetTab == thisTab)
+                  {
+                      that.addClass('active');
+                  }
+                  else
+                  {
+                      that.removeClass('active');
+                  }
+                });
+                modalElement.find('.tab-pane').each(function(){
+                  var that = $(this);
+                  if(targetTab == that.attr('id'))
+                  {
+                      that.addClass('in active');
+                  }
+                  else
+                  {
+                      that.removeClass('in active');
+                  }
+                });
+              }
+              else
+              {
+                modalElement.find('.nav-tabs li').slice(0, 1).addClass('active');
+                modalElement.find('.nav-tabs li').slice(1).removeClass('active');
+                modalElement.find('.tab-pane').slice(0, 1).addClass('in active');
+                modalElement.find('.tab-pane').slice(1).removeClass('in active');
+              }
+              // Toggle Modal
+              $("#"+id).modal('toggle');
+            },0);
         });
     });
 

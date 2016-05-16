@@ -1,4 +1,4 @@
-geosite.controllers["controller_filter"] = function($scope, $element, $controller, state, popatrisk_config, map_config, live)
+geosite.controllers["controller_filter"] = function($scope, $element, $controller, $interpolate, state, popatrisk_config, map_config, live)
 {
   var maxValueFromSummary = popatrisk_config["data"]["summary"]["all"]["max"]["at_admin2_month"];
   angular.extend(this, $controller('GeositeControllerBase', {$element: $element, $scope: $scope}));
@@ -55,8 +55,8 @@ geosite.controllers["controller_filter"] = function($scope, $element, $controlle
         var options = slider.data('options');
 
         slider.data('label', label);
-        geosite.ui_init_slider_label(slider, type, range, value);
-        geosite.ui_init_slider_slider($scope, slider, type, range, options.indexOf(value), 0, options.length - 1, 1);
+        geosite.ui_init_slider_label($interpolate, slider, type, range, value);
+        geosite.ui_init_slider_slider($interpolate, $scope, slider, type, range, options.indexOf(value), 0, options.length - 1, 1);
       }
       else
       {
@@ -80,8 +80,8 @@ geosite.controllers["controller_filter"] = function($scope, $element, $controlle
           var step_n = Math.floor(step);
 
           slider.data('label', label);
-          geosite.ui_init_slider_label(slider, type, range, values);
-          geosite.ui_init_slider_slider($scope, slider, type, range, values_n, min_n, max_n, step_n);
+          geosite.ui_init_slider_label($interpolate, slider, type, range, values);
+          geosite.ui_init_slider_slider($interpolate, $scope, slider, type, range, values_n, min_n, max_n, step_n);
           console.log(value_n, min_n, max_n, step_n, range);
         }
         else
@@ -94,8 +94,8 @@ geosite.controllers["controller_filter"] = function($scope, $element, $controlle
           var step_n = Math.floor(step * 100);
 
           slider.data('label', label);
-          geosite.ui_init_slider_label(slider, type, range, value);
-          geosite.ui_init_slider_slider($scope, slider, type, range, values_n, min_n, max_n, step_n);
+          geosite.ui_init_slider_label($interpolate, slider, type, range, value);
+          geosite.ui_init_slider_slider($interpolate, $scope, slider, type, range, values_n, min_n, max_n, step_n);
           console.log(value_n, min_n, max_n, step_n, range);
         }
       }

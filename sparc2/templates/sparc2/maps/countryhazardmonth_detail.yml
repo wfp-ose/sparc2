@@ -82,7 +82,7 @@ featurelayers:
           type: continuous
           width: 100px
           range: true  # See https://jqueryui.com/slider/#range
-          label: "{{ values.0 }} - {{ values.1 }}"
+          label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
           values: [0, {% endverbatim %}{{ maxValue }}{% verbatim %}]
           min: 0
           max: summary  # Overridden by max value from summary data
@@ -99,15 +99,18 @@ featurelayers:
               name: "cat"
               value: "cat1_5"
               label: "1-5"
+              description: "All Categories for cyclones, typhoons, and hurricanes."
               checked: true
             - id: "sparc-cat1_3"
               name: "cat"
               value: "cat1_3"
               label: "1-3"
+              description: "Only categories 1 through 3 for cyclones, typhoons, and hurricanes."
             - id: "sparc-cat4_5"
               name: "cat"
               value: "cat4_5"
               label: "4-5"
+              description: "Only category 4 and 5 for cyclones, typhoons, and hurricanes."
       - label: "Probability"
         description:  "The probability by admin2-month that a cyclone will hit."
         line_height: 36px
@@ -125,7 +128,7 @@ featurelayers:
           step: 0.1
           output: prob_class_max
       - label: FCS
-        description: "Filter by VAM Food Consumption Score (FCS)."
+        description: "Filter by VAM Food Consumption Score (FCS).\n\nReference: [http://documents.wfp.org/stellent/groups/public/documents/manual_guide_proced/wfp197216.pdf](http://documents.wfp.org/stellent/groups/public/documents/manual_guide_proced/wfp197216.pdf)"
         height: 34px
         type: checkbox
         checkbox:
@@ -134,17 +137,20 @@ featurelayers:
             - id: "sparc-poor"
               value: "poor"
               label: "Poor"
+              description: "Food Consumption Score (FCS) from 0 to 21.  This means a household is expected NOT to eat at least staple and vegetables on a daily base and therefore considered to have poor food consumption.  The value 21 comes from an expected daily consumption of staple (frequency * weight, 7 * 2 = 14) and vegetables (7 * 1 = 7)."
               checked: true
             - id: "sparc-borderline"
               value: "borderline"
               label: "Borderline"
+              description: "Food Consumption Score (FCS) from 21.5 to 35.  This means households are assessed having borderline food consumption.  The value 35 comes from an expected daily consumption of staple and vegetables complemented by a frequent (4 day/week) consumption of oil and pulses (staple*weight + vegetables*weight + oil*weight + pulses*weight = 7*2+7*1+4*0.5+4*3=35)."
               checked: true
             - id: "sparc-acceptable"
               value: "acceptable"
               label: "Acceptable"
+              description: "Food Consumption Score (FCS) greater than 35.  This means households that score above 35 are estimated having acceptable food consumption.  The value 35 comes from an expected daily consumption of staple and vegetables complemented by a frequent (4 day/week) consumption of oil and pulses (staple*weight + vegetables*weight + oil*weight + pulses*weight = 7*2+7*1+4*0.5+4*3=35)."
               checked: true
       - label: CSI
-        description: "Filter by VAM Coping Strategy Index (CSI)."
+        description: "Filter by VAM Coping Strategy Index (CSI).\n\nReference: [The Coping Strategies Index](http://documents.wfp.org/stellent/groups/public/documents/manual_guide_proced/wfp211058.pdf)"
         height: 34px
         type: checkbox
         checkbox:
@@ -153,18 +159,22 @@ featurelayers:
             - id: "sparc-no"
               value: "no"
               label: "No"
+              description: "No on the Coping Strategy Index"
               checked: true
             - id: "sparc-low"
               value: "low"
               label: "Low"
+              description: "Low on the Coping Strategy Index"
               checked: true
             - id: "sparc-medium"
               value: "medium"
               label: "Medium"
+              description: "Medium on the Coping Strategy Index"
               checked: true
             - id: "sparc-high"
               value: "high"
               label: "High"
+              description: "High on the Coping Strategy Index"
               checked: true
       - label: LDI
         description:  "The land degredation index"
@@ -176,7 +186,7 @@ featurelayers:
           type: continuous
           width: 100px
           range: true  # See https://jqueryui.com/slider/#range
-          label: "{{ values.0 }} - {{ values.1 }}"
+          label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
           values: [1, 9]
           min: 1
           max: 9
@@ -192,12 +202,12 @@ featurelayers:
           type: continuous
           width: 100px
           range: true  # See https://jqueryui.com/slider/#range
-          label: "{{ values.0 }} - {{ values.1 }}"
+          label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
           values: [0, 100]
           min: 0
           max: 100
           step: 1
-          output: landcover_delta_negative_range
+          output: landcover_delta_negative_range`
       - label: Erosion Propensity
         description:  "The erosion propensity"
         line_height: 36px
@@ -208,7 +218,7 @@ featurelayers:
           type: continuous
           width: 100px
           range: true  # See https://jqueryui.com/slider/#range
-          label: "{{ values.0 }} - {{ values.1 }}"
+          label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
           values: [0, 100]
           min: 0
           max: 100
@@ -287,7 +297,7 @@ featurelayers:
           type: continuous
           width: 100px
           range: true  # See https://jqueryui.com/slider/#range
-          label: "{{ values.0 }} - {{ values.1 }}"
+          label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
           values: [0, {% endverbatim %}{{ maxValue }}{% verbatim %}]
           min: 0
           max: {% endverbatim %}{{ maxValue }}{% verbatim %}  # Overridden by max value from summary data
@@ -308,7 +318,7 @@ featurelayers:
           options: [25, 50, 100, 200, 500, 1000]
           output: rp
       - label: FCS
-        description: "Filter by VAM Food Consumption Score (FCS)."
+        description: "Filter by VAM Food Consumption Score (FCS).\n\n\nReference: [Food Consumption Analysis](http://documents.wfp.org/stellent/groups/public/documents/manual_guide_proced/wfp197216.pdf)"
         height: 34px
         type: checkbox
         checkbox:
@@ -317,17 +327,20 @@ featurelayers:
             - id: "sparc-poor"
               value: "poor"
               label: "Poor"
+              description: "Food Consumption Score (FCS) from 0 to 21.  This means a household is expected NOT to eat at least staple and vegetables on a daily base and therefore considered to have poor food consumption.  The value 21 comes from an expected daily consumption of staple (frequency * weight, 7 * 2 = 14) and vegetables (7 * 1 = 7)."
               checked: true
             - id: "sparc-borderline"
               value: "borderline"
               label: "Borderline"
+              description: "Food Consumption Score (FCS) from 21.5 to 35.  This means households are assessed having borderline food consumption.  The value 35 comes from an expected daily consumption of staple and vegetables complemented by a frequent (4 day/week) consumption of oil and pulses (staple*weight + vegetables*weight + oil*weight + pulses*weight = 7*2+7*1+4*0.5+4*3=35)."
               checked: true
             - id: "sparc-acceptable"
               value: "acceptable"
               label: "Acceptable"
+              description: "Food Consumption Score (FCS) greater than 35.  This means households that score above 35 are estimated having acceptable food consumption.  The value 35 comes from an expected daily consumption of staple and vegetables complemented by a frequent (4 day/week) consumption of oil and pulses (staple*weight + vegetables*weight + oil*weight + pulses*weight = 7*2+7*1+4*0.5+4*3=35)."
               checked: true
       - label: CSI
-        description: "Filter by VAM Coping Strategy Index (CSI)."
+        description: "Filter by VAM Coping Strategy Index (CSI).\n\nReference: [The Coping Strategies Index](http://documents.wfp.org/stellent/groups/public/documents/manual_guide_proced/wfp211058.pdf)"
         height: 34px
         type: checkbox
         checkbox:
@@ -336,18 +349,22 @@ featurelayers:
             - id: "sparc-no"
               value: "no"
               label: "No"
+              description: "No on the Coping Strategy Index"
               checked: true
             - id: "sparc-low"
               value: "low"
               label: "Low"
+              description: "Low on the Coping Strategy Index"
               checked: true
             - id: "sparc-medium"
               value: "medium"
               label: "Medium"
+              description: "Medium on the Coping Strategy Index"
               checked: true
             - id: "sparc-high"
               value: "high"
               label: "High"
+              description: "High on the Coping Strategy Index"
               checked: true
       - label: LDI
         description:  "The land degredation index"
@@ -359,7 +376,7 @@ featurelayers:
           type: continuous
           width: 100px
           range: true  # See https://jqueryui.com/slider/#range
-          label: "{{ values.0 }} - {{ values.1 }}"
+          label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
           values: [1, 9]
           min: 1
           max: 9
@@ -375,7 +392,7 @@ featurelayers:
           type: continuous
           width: 100px
           range: true  # See https://jqueryui.com/slider/#range
-          label: "{{ values.0 }} - {{ values.1 }}"
+          label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
           values: [0, 100]
           min: 0
           max: 100
@@ -391,7 +408,7 @@ featurelayers:
           type: continuous
           width: 100px
           range: true  # See https://jqueryui.com/slider/#range
-          label: "{{ values.0 }} - {{ values.1 }}"
+          label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
           values: [0, 100]
           min: 0
           max: 100

@@ -1,4 +1,5 @@
-geosite.controllers["controller_main"] = function($scope, $element, $controller, $http, $q, state, map_config, stateschema, live)
+geosite.controllers["controller_main"] = function(
+  $scope, $element, $controller, $http, $q, state, map_config, stateschema, live)
 {
 
     $scope.state = geosite.init_state(state, stateschema);
@@ -20,11 +21,66 @@ geosite.controllers["controller_main"] = function($scope, $element, $controller,
           modal_scope_new = $.extend(modal_scope_new, args["static"]);
         }
         $.each(args["dynamic"],function(key, value){
-          modal_scope_new[key] = angular.isArray(value) ? extract(value, map_config): value;
+          if(angular.isArray(value))
+          {
+            if(value[0] == "map_config")
+            {
+                modal_scope_new[key] = extract(value.slice(1), map_config);
+            }
+            else if(value[0] == "state")
+            {
+                modal_scope_new[key] = extract(value.slice(1), modal_scope_new.state);
+            }
+          }
+          else
+          {
+              modal_scope_new[key] = value;
+          }
         });
         modal_scope.$apply(function () {
+            // Update Scope
             modal_scope = $.extend(modal_scope, modal_scope_new);
-            setTimeout(function(){$("#"+id).modal('toggle');},0);
+            setTimeout(function(){
+              // Update Modal Tab Selection
+              // See https://github.com/angular-ui/bootstrap/issues/1741
+              var modalElement = $("#"+id);
+              var targetTab = modal_scope.tab;
+              if(targetTab != undefined)
+              {
+                modalElement.find('.nav-tabs li').each(function(){
+                  var that = $(this);
+                  var thisTab = that.find('a').attr('href').substring(1);
+                  if(targetTab == thisTab)
+                  {
+                      that.addClass('active');
+                  }
+                  else
+                  {
+                      that.removeClass('active');
+                  }
+                });
+                modalElement.find('.tab-pane').each(function(){
+                  var that = $(this);
+                  if(targetTab == that.attr('id'))
+                  {
+                      that.addClass('in active');
+                  }
+                  else
+                  {
+                      that.removeClass('in active');
+                  }
+                });
+              }
+              else
+              {
+                modalElement.find('.nav-tabs li').slice(0, 1).addClass('active');
+                modalElement.find('.nav-tabs li').slice(1).removeClass('active');
+                modalElement.find('.tab-pane').slice(0, 1).addClass('in active');
+                modalElement.find('.tab-pane').slice(1).removeClass('in active');
+              }
+              // Toggle Modal
+              $("#"+id).modal('toggle');
+            },0);
         });
     });
 

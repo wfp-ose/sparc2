@@ -153,12 +153,6 @@ test_js = test_js.concat(
 
 compilelist = compilelist.concat([
     {
-        "name": "templates",
-        "type": "template",
-        "src": compile_templates,
-        "dest":"./build/templates/"
-    },
-    {
         "name": "main_js",
         "type": "js",
         "src": compile_js,
@@ -172,7 +166,7 @@ var copylist =
 [
 ];
 
-gulp.task('compile', function(){
+gulp.task('compile', ['geosite:templates'], function(){
     for(var i = 0; i < compilelist.length; i++)
     {
         var t = compilelist[i];
@@ -213,6 +207,17 @@ gulp.task('compile', function(){
     }
 });
 
+gulp.task('geosite:templates', function(){
+
+  return gulp.src(compile_templates)
+      .pipe(templateCache('templates.js', {
+        templateHeader: 'geosite.templates = {};\n',
+        templateBody: 'geosite.templates["<%= url %>"] = "<%= contents %>";',
+        templateFooter: '\n'
+      }))
+      .pipe(gulp.dest("./build/templates/"));
+});
+
 gulp.task('copy', function(){
     for(var i = 0; i < copylist.length; i++)
     {
@@ -238,7 +243,7 @@ gulp.task('test', function(){
     }
 });
 
-gulp.task('default', ['clean', 'copy','compile']);
+gulp.task('default', ['clean', 'copy', 'geosite:templates', 'compile']);
 
 
 gulp.task('bootstrap:clean', function() {
