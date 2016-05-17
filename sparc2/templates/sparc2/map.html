@@ -52,13 +52,12 @@
               var $scope = angular.element("#geosite-main").scope();
               var state = $scope.state;
               var map_config = angular.element(document.body).injector().get('map_config');
-              var popatrisk_config = angular.element(document.body).injector().get('popatrisk_config');
               //
               var style_static = map_config["featurelayers"]["popatrisk"]["cartography"][0]["styles"]["default"]["static"];
               var style = $.extend({}, style_static);
               var style_dynamic = map_config["featurelayers"]["popatrisk"]["cartography"][0]["styles"]["default"]["dynamic"]["func"];
               var options = map_config["featurelayers"]["popatrisk"]["cartography"][0]["styles"]["default"]["dynamic"]["options"];
-              var delta = angular.isFunction(geosite[style_dynamic]) ? geosite[style_dynamic](f, state, map_config, popatrisk_config, options) : undefined;
+              var delta = angular.isFunction(geosite[style_dynamic]) ? geosite[style_dynamic](f, state, map_config, options) : undefined;
               if(delta != undefined)
               {
                 $.extend(style, delta);
@@ -79,13 +78,12 @@
               var $scope = angular.element("#geosite-main").scope();
               var state = $scope.state;
               var map_config = angular.element(document.body).injector().get('map_config');
-              var context_config = angular.element(document.body).injector().get('context_config');
               //
               var style_static = map_config["featurelayers"]["context"]["cartography"][0]["styles"]["default"]["static"];
               var style = $.extend({}, style_static);
               var style_dynamic = map_config["featurelayers"]["context"]["cartography"][0]["styles"]["default"]["dynamic"]["func"];
               var options = map_config["featurelayers"]["context"]["cartography"][0]["styles"]["default"]["dynamic"]["options"];
-              var delta = angular.isFunction(geosite[style_dynamic]) ? geosite[style_dynamic](f, state, map_config, context_config, options) : undefined;
+              var delta = angular.isFunction(geosite[style_dynamic]) ? geosite[style_dynamic](f, state, map_config, options) : undefined;
               if(delta != undefined)
               {
                 $.extend(style, delta);
@@ -117,22 +115,16 @@
 <script>
   geosite.initial_state = {{ state_json|safe }};
   geosite.state_schema = {{ state_schema_json|safe }};
-  geosite.pages = {{ pages_json|safe }};
 </script>
 {% endblock %}
 
 {% block header %}{% include "sparc2/_includes/header.html" %}{% endblock %}
 
-{% block sidebar_left %}
-{% include "sparc2/_includes/sidebar_left_sparc.html" %}
-{% endblock %}
+{% block sidebar_left %}{% endblock %}
 
 {% block map_controllers %}
 {% include "sparc2/_includes/map_breadcrumb.html" %}
 {% include "geosite/_includes/map_legend.html" %}
-{% include "geosite/_includes/map_filter.html" %}
-{% include "geosite/_includes/map_sidebar_toggle_left.html" %}
-{% include "sparc2/_includes/map_calendar.html" %}
 {% endblock %}
 
 {% block footer %}{% include "sparc2/_includes/footer.html" %}{% endblock %}

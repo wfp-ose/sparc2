@@ -1,13 +1,18 @@
-{% extends "geosite/map.html" %}
+{% extends "sparc2/map.html" %}
+
 {% block title %}SPARC - {{ country_title }}{% endblock %}
-{% block extra_head %}
-{{ block.super }}
-<script>
-var geojson_layers = [];
-</script>
+
+{% block extra_head %}{{ block.super }}{% endblock %}
+
+{% block init %}{{ block.super }}{% endblock %}
+
+{% block sidebar_left %}{% endblock %}
+
+{% block map_controllers %}
+{% include "sparc2/_includes/map_breadcrumb.html" %}
+{% include "geosite/_includes/map_legend.html" %}
 {% endblock %}
-{% block extra_content %}
-<script>
-</script>
-{% endblock %}
-{% block footer %}{% include "sparc2/_includes/calendar.html" %}{% endblock %}
+
+{% block extra_content %}{% endblock %}
+
+{% block footer %}{% endblock %}

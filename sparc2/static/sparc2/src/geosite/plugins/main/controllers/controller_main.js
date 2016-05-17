@@ -1,5 +1,36 @@
+var buildPageURL = function($interpolate, map_config, state)
+{
+  var url = $interpolate(map_config.pages[state["page"]])(state);
+
+  var hash_args = [];
+  var view = state["view"];
+  if(view != undefined && view["z"] != undefined && view["lat"] != undefined && view["lon"] != undefined)
+  {
+    hash_args.push("z="+view["z"]);
+    hash_args.push("lat="+view["lat"].toFixed(4));
+    hash_args.push("lon="+view["lon"].toFixed(4));
+  }
+  var filters = state["filters"];
+  if(filters)
+  {
+      $.each(state["filters"], function(layer_id, layer_filters)
+      {
+        $.each(layer_filters, function(filter_id, filter_value)
+        {
+            hash_args.push(layer_id+":"+filter_id+"="+filter_value);
+        });
+      });
+  }
+  if(hash_args.length > 0)
+  {
+    url += "#"+hash_args.join("&");
+  }
+  return url;
+};
+
 geosite.controllers["controller_main"] = function(
-  $scope, $element, $controller, $http, $q, state, map_config, stateschema, live)
+  $interpolate, $scope, $element, $controller, $http, $q,
+  state, map_config, stateschema, live)
 {
 
     $scope.state = geosite.init_state(state, stateschema);
@@ -92,7 +123,7 @@ geosite.controllers["controller_main"] = function(
         var $scope = angular.element("#geosite-main").scope();
         $scope.$apply(function () {
             $scope.state = $.extend($scope.state, args);
-            var url = buildPageURL("countryhazardmonth_detail", $scope.state);
+            var url = buildPageURL($interpolate, map_config, $scope.state);
             history.replaceState(state, "", url);
             // Refresh Map
             $scope.$broadcast("refreshMap", {'state': $scope.state});
@@ -109,7 +140,7 @@ geosite.controllers["controller_main"] = function(
             $scope.state.filters[args["layer"]] = $.extend(
               $scope.state.filters[args["layer"]],
               args["filter"]);
-            var url = buildPageURL("countryhazardmonth_detail", $scope.state);
+            var url = buildPageURL($interpolate, map_config, $scope.state);
             history.replaceState(state, "", url);
             // Refresh Map
             $scope.$broadcast("refreshMap", {'state': $scope.state});
@@ -124,7 +155,7 @@ geosite.controllers["controller_main"] = function(
         var $scope = angular.element("#geosite-main").scope();
         $scope.$apply(function () {
             $scope.state.styles[args["layer"]] = args["style"];
-            var url = buildPageURL("countryhazardmonth_detail", $scope.state);
+            var url = buildPageURL($interpolate, map_config, $scope.state);
             history.replaceState(state, "", url);
             // Refresh Map
             $scope.$broadcast("refreshMap", {'state': $scope.state});
@@ -138,7 +169,7 @@ geosite.controllers["controller_main"] = function(
         //
         var $scope = angular.element("#geosite-main").scope();
         $scope.state.view = $.extend($scope.state.view, args);
-        var url = buildPageURL("countryhazardmonth_detail", $scope.state);
+        var url = buildPageURL($interpolate, map_config, $scope.state);
         history.replaceState(state, "", url);
         // $scope.$on already wraps $scope.$apply
         /*$scope.$apply(function () {

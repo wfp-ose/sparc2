@@ -26,8 +26,49 @@ from sparc2.utils import get_month_number, get_json_admin0, get_geojson_cyclone,
 def home(request, template="home.html"):
     raise NotImplementedError
 
-def explore(request, template="explore.html"):
-    raise NotImplementedError
+def explore(request):
+    now = datetime.datetime.now()
+    current_month = now.month
+
+    t = "sparc2/explore.html"
+
+    map_config_yml = get_template("sparc2/maps/explore.yml").render({})
+    map_config = yaml.load(map_config_yml)
+
+    ##############
+    initial_state = {
+        "page": "explore",
+        "view": {
+            "lat": map_config["view"]["latitude"],
+            "lon": map_config["view"]["longitude"],
+            "z": map_config["view"]["zoom"],
+            "baselayer": None,
+            "featurelayers": []
+        },
+        "filters": {},
+        "styles": {}
+    }
+    state_schema = {
+        "view": {
+          "lat": "float",
+          "lon": "float",
+          "z": "integer"
+        },
+        "filters": {},
+        "styles": {}
+    }
+
+    ctx = {
+        "map_config": map_config,
+        "map_config_json": json.dumps(map_config),
+        "state": initial_state,
+        "state_json": json.dumps(initial_state),
+        "state_schema": state_schema,
+        "state_schema_json": json.dumps(state_schema),
+        "init_function": "init_explore"
+    }
+
+    return render_to_response(t, RequestContext(request, ctx))
 
 def about(request, template="about.html"):
     raise NotImplementedError
@@ -35,8 +76,65 @@ def about(request, template="about.html"):
 def download(request, template="download.html"):
     raise NotImplementedError
 
-def country_detail(request, iso3=None, template="country_detail.html"):
-    raise NotImplementedError
+def country_detail(request, iso3=None, hazard=None, month=None):
+    now = datetime.datetime.now()
+    current_month = now.month
+
+    t = "sparc2/country_detail.html"
+
+    country_title = WFPCountry.objects.filter(thesaurus__iso_alpha3=iso3).values_list('gaul__admin0_name', flat=True)[0]
+
+    map_config_yml = get_template("sparc2/maps/country_detail.yml").render({
+        "iso_alpha3": iso3,
+        "country_title": country_title
+    })
+    map_config = yaml.load(map_config_yml)
+
+    ##############
+    initial_state = {
+        "page": "country_detail",
+        "iso3": iso3,
+        "view": {
+            "lat": map_config["view"]["latitude"],
+            "lon": map_config["view"]["longitude"],
+            "z": map_config["view"]["zoom"],
+            "baselayer": None,
+            "featurelayers": []
+        },
+        "filters": {},
+        "styles": {
+            "context": "delta_mean"
+        }
+    }
+    state_schema = {
+        "iso3": "string",
+        "view": {
+          "lat": "float",
+          "lon": "float",
+          "z": "integer"
+        },
+        "filters": {},
+        "styles": {
+            "context": "string"
+        }
+    }
+
+    ctx = {
+        "map_config": map_config,
+        "map_config_json": json.dumps(map_config),
+        "state": initial_state,
+        "state_json": json.dumps(initial_state),
+        "state_schema": state_schema,
+        "state_schema_json": json.dumps(state_schema),
+        "init_function": "init_country"
+    }
+
+    ctx.update({
+        "iso3": iso3,
+        "country_title": country_title
+    })
+
+    return render_to_response(t, RequestContext(request, ctx))
 
 def hazard_detail(request, iso3=None, template="hazard_detail.html"):
     raise NotImplementedError
@@ -45,10 +143,6 @@ def countryhazardmonth_detail(request, iso3=None, hazard=None, month=None):
     now = datetime.datetime.now()
     #current_month = now.strftime("%B")
     current_month = now.month
-
-    pages = {
-        "countryhazardmonth_detail": "/country/{iso3}/hazard/{hazard}/month/{month}"
-    }
 
     t = TEMPLATES_BY_HAZARD.get(hazard, None)
     if not t:
@@ -86,7 +180,7 @@ def countryhazardmonth_detail(request, iso3=None, hazard=None, month=None):
 
     ##############
     initial_state = {
-        "page": "TBD",
+        "page": "countryhazardmonth_detail",
         "iso3": iso3,
         "hazard": hazard,
         "month": month_num,
@@ -151,13 +245,13 @@ def countryhazardmonth_detail(request, iso3=None, hazard=None, month=None):
 
 
     ctx = {
-        "pages_json": json.dumps(pages),
         "map_config": map_config,
         "map_config_json": json.dumps(map_config),
         "state": initial_state,
         "state_json": json.dumps(initial_state),
         "state_schema": state_schema,
-        "state_schema_json": json.dumps(state_schema)
+        "state_schema_json": json.dumps(state_schema),
+        "init_function": "init_countryhazardmonth"
     }
 
     ctx.update({

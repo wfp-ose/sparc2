@@ -1,6 +1,7 @@
-geosite.controllers["controller_filter"] = function($scope, $element, $controller, $interpolate, state, popatrisk_config, map_config, live)
+geosite.controllers["controller_filter"] = function(
+  $scope, $element, $controller, $interpolate, state, map_config, live)
 {
-  var maxValueFromSummary = popatrisk_config["data"]["summary"]["all"]["max"]["at_admin2_month"];
+  var maxValueFromSummary = geosite.initial_data.layers.popatrisk["data"]["summary"]["all"]["max"]["at_admin2_month"];
   angular.extend(this, $controller('GeositeControllerBase', {$element: $element, $scope: $scope}));
 
   $scope.filters = map_config.featurelayers.popatrisk.filters;

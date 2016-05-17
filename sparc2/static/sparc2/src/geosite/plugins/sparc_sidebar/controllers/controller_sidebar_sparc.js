@@ -1,9 +1,8 @@
-geosite.controllers["controller_sidebar_sparc"] = function($scope, $element, $controller, state, popatrisk_config, map_config, live)
+geosite.controllers["controller_sidebar_sparc"] = function($scope, $element, $controller, state, map_config, live)
 {
   angular.extend(this, $controller('GeositeControllerBase', {$element: $element, $scope: $scope}));
   //
   $scope.charts = map_config.charts;
-  $scope.popatrisk_config = popatrisk_config;
 
   setTimeout(function(){
 
@@ -31,7 +30,7 @@ geosite.controllers["controller_sidebar_sparc"] = function($scope, $element, $co
             }
           };
         }
-        buildHazardChart($scope.charts[i], $scope.popatrisk_config, options);
+        buildHazardChart($scope.charts[i], geosite.initial_data.layers.popatrisk, options);
       }
     }
 

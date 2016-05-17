@@ -1,4 +1,4 @@
-var init_start = function(appName)
+geosite.init_countryhazardmonth = function(appName)
 {
   var url_popatrisk_summary = geosite.map_config["featurelayers"]["popatrisk"]["urls"]["summary"]
     .replace("{iso3}", geosite.initial_state["iso3"])
@@ -44,11 +44,11 @@ var init_start = function(appName)
       geosite.breakpoints["context_"+k] = v;
     });
 
-    init_main_app(appName);
+    geosite.init_countryhazardmonth_main_app(appName);
   });
 };
 
-var init_main_app = function(appName)
+geosite.init_countryhazardmonth_main_app = function(appName)
 {
   geosite.app = app = angular.module(appName, ['ngRoute','ngSanitize']);
 
@@ -71,8 +71,6 @@ var init_main_app = function(appName)
 
   app.factory('state', function(){return $.extend({}, geosite.initial_state);});
   app.factory('stateschema', function(){return $.extend({}, geosite.state_schema);});
-  app.factory('popatrisk_config', function(){return $.extend({}, geosite.initial_data["layers"]["popatrisk"]);});
-  app.factory('context_config', function(){return $.extend({}, geosite.initial_data["layers"]["context"]);});
   app.factory('map_config', function(){return $.extend({}, geosite.map_config);});
   app.factory('live', function(){
     return {

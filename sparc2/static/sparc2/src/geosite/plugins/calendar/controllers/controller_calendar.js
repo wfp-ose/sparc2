@@ -3,7 +3,6 @@ geosite.controllers["controller_calendar"] = function(
   $element,
   $controller,
   state,
-  popatrisk_config,
   map_config,
   live)
 {

@@ -76,7 +76,7 @@ geosite.vam_filter_csi = function(value, filters, f)
   return value;
 };
 
-geosite.style_cyclone = function(f, state, map_config, popatrisk_config, options)
+geosite.style_cyclone = function(f, state, map_config, options)
 {
   var style = {};
   var filters = state["filters"]["popatrisk"];
@@ -134,7 +134,7 @@ geosite.style_cyclone = function(f, state, map_config, popatrisk_config, options
   return style;
 };
 
-geosite.style_drought = function(f, state, map_config, popatrisk_config, options)
+geosite.style_drought = function(f, state, map_config, options)
 {
   var style = {};
   var filters = state["filters"]["popatrisk"];
@@ -190,7 +190,7 @@ geosite.style_drought = function(f, state, map_config, popatrisk_config, options
   }
   return style;
 };
-geosite.style_flood = function(f, state, map_config, popatrisk_config, options)
+geosite.style_flood = function(f, state, map_config, options)
 {
   var style = {};
   var filters = state["filters"]["popatrisk"];
@@ -238,7 +238,7 @@ geosite.style_flood = function(f, state, map_config, popatrisk_config, options)
   }
   return style;
 };
-geosite.style_context = function(f, state, map_config, context_config, options)
+geosite.style_context = function(f, state, map_config, options)
 {
   var style = {};
 
@@ -254,7 +254,7 @@ geosite.style_context = function(f, state, map_config, context_config, options)
   {
     var colors = currentStyle["colors"]["ramp"];
     var breakPointsName = currentStyle["breakpoints"] || "natural_adjusted";
-    var breakpoints = context_config["data"]["summary"]["all"]["breakpoints"][breakPointsName];
+    var breakpoints = geosite.initial_data.layers.context["data"]["summary"]["all"]["breakpoints"][breakPointsName];
     var color = undefined;
     for(var i = 0; i < breakpoints.length; i++)
     {

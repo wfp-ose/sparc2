@@ -5,6 +5,26 @@
 {% block extra_head %}
 {{ block.super }}
 {% endblock %}
+
+{% block sidebar_left %}
+<div
+  id="geosite-sidebar-left"
+  class="geosite-sidebar geosite-sidebar-left geosite-controller"
+  ng-controller="geosite-sidebar-left"
+  data-controller-name="geosite-sidebar-left"
+  data-controller-type="geosite-sidebar-left">
+  <div sparc-sidebar-charts></div>
+</div>
+{% endblock %}
+
+{% block map_controllers %}
+{% include "sparc2/_includes/map_breadcrumb.html" %}
+{% include "geosite/_includes/map_legend.html" %}
+{% include "geosite/_includes/map_filter.html" %}
+{% include "geosite/_includes/map_sidebar_toggle_left.html" %}
+{% include "sparc2/_includes/map_calendar.html" %}
+{% endblock %}
+
 {% block extra_content %}
 {% endblock %}
 

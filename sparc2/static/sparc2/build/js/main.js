@@ -1129,7 +1129,95 @@ geosite.config = {
   'click_radius': 2.0
 };
 
-var init_start = function(appName)
+geosite.init_country = function(appName)
+{
+
+  var url_context_summary = geosite.map_config["featurelayers"]["context"]["urls"]["summary"]
+    .replace("{iso3}", geosite.initial_state["iso3"]);
+
+  var url_context_geojson = geosite.map_config["featurelayers"]["context"]["urls"]["geojson"]
+    .replace("{iso3}", geosite.initial_state["iso3"]);
+
+  var url_vam_geojson = geosite.map_config["featurelayers"]["vam"]["urls"]["geojson"]
+    .replace("{iso3}", geosite.initial_state["iso3"]);
+
+  $.when(
+    $.ajax({dataType: "json", url: url_context_summary}),
+    $.ajax({dataType: "json", url: url_context_geojson}),
+    $.ajax({dataType: "json", url: url_vam_geojson})
+  ).done(function(
+    response_context_summary,
+    response_context_geojson,
+    response_vam_geojson
+    ){
+    geosite.initial_data["layers"]["context"]["data"]["summary"] = response_context_summary[0];
+    geosite.initial_data["layers"]["context"]["data"]["geojson"] = response_context_geojson[0];
+    geosite.initial_data["layers"]["vam"]["data"]["geojson"] = response_vam_geojson[0];
+
+    geosite.breakpoints = {};
+
+    $.each(geosite.initial_data["layers"]["context"]["data"]["summary"]["all"]["breakpoints"], function(k, v){
+      geosite.breakpoints["context_"+k] = v;
+    });
+
+    geosite.init_country_main_app(appName);
+  });
+};
+
+geosite.init_country_main_app = function(appName)
+{
+  geosite.app = app = angular.module(appName, ['ngRoute','ngSanitize']);
+
+  if(geosite.templates != undefined)
+  {
+    $.each(geosite.templates, function(name, template){
+      app.run(function($templateCache){$templateCache.put(name,template);});
+    });
+  }
+
+  if(geosite.filters != undefined)
+  {
+    $.each(geosite.filters, function(name, func){ app.filter(name, func); });
+  }
+
+  if(geosite.directives != undefined)
+  {
+    $.each(geosite.directives, function(name, dir){ app.directive(name, dir); });
+  }
+
+  app.factory('state', function(){return $.extend({}, geosite.initial_state);});
+  app.factory('stateschema', function(){return $.extend({}, geosite.state_schema);});
+  app.factory('map_config', function(){return $.extend({}, geosite.map_config);});
+  app.factory('live', function(){
+    return {
+      "map": undefined,
+      "baselayers": {},
+      "featurelayers": {
+        "popatrisk":undefined
+      }
+    };
+  });
+
+  /*
+  init_sparc_controller_main will kick off a recursive search for controllers
+  to add to the angular app/module.  However, the initialization code in
+  app.controller(...function(){XXXXX}) won't actually execute until
+  angular.bootstrap is called.  Therefore, each controller should Initialize
+  in a breadth-first sequential order.
+
+  If you miss a component with ng-controller, bootstrap will attempt
+  to load it on its own within angular.bootstrap.  That'll error out
+  and is not good.  So you NEED!!! to get to it first!!!!!!
+  */
+
+  geosite.init_controller_base(app);
+
+  init_sparc_controller_main($('.geosite-controller.geosite-main'), app);
+
+  angular.bootstrap(document, [appName]);
+};
+
+geosite.init_countryhazardmonth = function(appName)
 {
   var url_popatrisk_summary = geosite.map_config["featurelayers"]["popatrisk"]["urls"]["summary"]
     .replace("{iso3}", geosite.initial_state["iso3"])
@@ -1175,11 +1263,11 @@ var init_start = function(appName)
       geosite.breakpoints["context_"+k] = v;
     });
 
-    init_main_app(appName);
+    geosite.init_countryhazardmonth_main_app(appName);
   });
 };
 
-var init_main_app = function(appName)
+geosite.init_countryhazardmonth_main_app = function(appName)
 {
   geosite.app = app = angular.module(appName, ['ngRoute','ngSanitize']);
 
@@ -1202,8 +1290,6 @@ var init_main_app = function(appName)
 
   app.factory('state', function(){return $.extend({}, geosite.initial_state);});
   app.factory('stateschema', function(){return $.extend({}, geosite.state_schema);});
-  app.factory('popatrisk_config', function(){return $.extend({}, geosite.initial_data["layers"]["popatrisk"]);});
-  app.factory('context_config', function(){return $.extend({}, geosite.initial_data["layers"]["context"]);});
   app.factory('map_config', function(){return $.extend({}, geosite.map_config);});
   app.factory('live', function(){
     return {
@@ -1212,6 +1298,57 @@ var init_main_app = function(appName)
       "featurelayers": {
         "popatrisk":undefined
       }
+    };
+  });
+
+  /*
+  init_sparc_controller_main will kick off a recursive search for controllers
+  to add to the angular app/module.  However, the initialization code in
+  app.controller(...function(){XXXXX}) won't actually execute until
+  angular.bootstrap is called.  Therefore, each controller should Initialize
+  in a breadth-first sequential order.
+
+  If you miss a component with ng-controller, bootstrap will attempt
+  to load it on its own within angular.bootstrap.  That'll error out
+  and is not good.  So you NEED!!! to get to it first!!!!!!
+  */
+
+  geosite.init_controller_base(app);
+
+  init_sparc_controller_main($('.geosite-controller.geosite-main'), app);
+
+  angular.bootstrap(document, [appName]);
+};
+
+geosite.init_explore = function(appName)
+{
+  geosite.app = app = angular.module(appName, ['ngRoute','ngSanitize']);
+
+  if(geosite.templates != undefined)
+  {
+    $.each(geosite.templates, function(name, template){
+      app.run(function($templateCache){$templateCache.put(name,template);});
+    });
+  }
+
+  if(geosite.filters != undefined)
+  {
+    $.each(geosite.filters, function(name, func){ app.filter(name, func); });
+  }
+
+  if(geosite.directives != undefined)
+  {
+    $.each(geosite.directives, function(name, dir){ app.directive(name, dir); });
+  }
+
+  app.factory('state', function(){return $.extend({}, geosite.initial_state);});
+  app.factory('stateschema', function(){return $.extend({}, geosite.state_schema);});
+  app.factory('map_config', function(){return $.extend({}, geosite.map_config);});
+  app.factory('live', function(){
+    return {
+      "map": undefined,
+      "baselayers": {},
+      "featurelayers":{}
     };
   });
 
@@ -1324,7 +1461,7 @@ geosite.vam_filter_csi = function(value, filters, f)
   return value;
 };
 
-geosite.style_cyclone = function(f, state, map_config, popatrisk_config, options)
+geosite.style_cyclone = function(f, state, map_config, options)
 {
   var style = {};
   var filters = state["filters"]["popatrisk"];
@@ -1382,7 +1519,7 @@ geosite.style_cyclone = function(f, state, map_config, popatrisk_config, options
   return style;
 };
 
-geosite.style_drought = function(f, state, map_config, popatrisk_config, options)
+geosite.style_drought = function(f, state, map_config, options)
 {
   var style = {};
   var filters = state["filters"]["popatrisk"];
@@ -1438,7 +1575,7 @@ geosite.style_drought = function(f, state, map_config, popatrisk_config, options
   }
   return style;
 };
-geosite.style_flood = function(f, state, map_config, popatrisk_config, options)
+geosite.style_flood = function(f, state, map_config, options)
 {
   var style = {};
   var filters = state["filters"]["popatrisk"];
@@ -1486,7 +1623,7 @@ geosite.style_flood = function(f, state, map_config, popatrisk_config, options)
   }
   return style;
 };
-geosite.style_context = function(f, state, map_config, context_config, options)
+geosite.style_context = function(f, state, map_config, options)
 {
   var style = {};
 
@@ -1502,7 +1639,7 @@ geosite.style_context = function(f, state, map_config, context_config, options)
   {
     var colors = currentStyle["colors"]["ramp"];
     var breakPointsName = currentStyle["breakpoints"] || "natural_adjusted";
-    var breakpoints = context_config["data"]["summary"]["all"]["breakpoints"][breakPointsName];
+    var breakpoints = geosite.initial_data.layers.context["data"]["summary"]["all"]["breakpoints"][breakPointsName];
     var color = undefined;
     for(var i = 0; i < breakpoints.length; i++)
     {
@@ -1520,40 +1657,6 @@ geosite.style_context = function(f, state, map_config, context_config, options)
   }
   return style;
 };
-
-var buildPageURL = function(page, state)
-{
-  var url = geosite.pages[page]
-    .replace("{iso3}", state["iso3"])
-    .replace("{hazard}", state["hazard"])
-    .replace("{month}", state["month"]);
-
-  var hash_args = [];
-  var view = state["view"];
-  if(view != undefined && view["z"] != undefined && view["lat"] != undefined && view["lon"] != undefined)
-  {
-    hash_args.push("z="+view["z"]);
-    hash_args.push("lat="+view["lat"].toFixed(4));
-    hash_args.push("lon="+view["lon"].toFixed(4));
-  }
-  var filters = state["filters"];
-  if(filters)
-  {
-      $.each(state["filters"], function(layer_id, layer_filters)
-      {
-        $.each(layer_filters, function(filter_id, filter_value)
-        {
-            hash_args.push(layer_id+":"+filter_id+"="+filter_value);
-        });
-      });
-  }
-  if(hash_args.length > 0)
-  {
-    url += "#"+hash_args.join("&");
-  }
-  return url;
-};
-
 
 geosite.utility = {};
 
@@ -2558,7 +2661,6 @@ geosite.controllers["controller_calendar"] = function(
   $element,
   $controller,
   state,
-  popatrisk_config,
   map_config,
   live)
 {
@@ -2576,9 +2678,10 @@ geosite.controllers["controller_calendar"] = function(
   });
 };
 
-geosite.controllers["controller_filter"] = function($scope, $element, $controller, $interpolate, state, popatrisk_config, map_config, live)
+geosite.controllers["controller_filter"] = function(
+  $scope, $element, $controller, $interpolate, state, map_config, live)
 {
-  var maxValueFromSummary = popatrisk_config["data"]["summary"]["all"]["max"]["at_admin2_month"];
+  var maxValueFromSummary = geosite.initial_data.layers.popatrisk["data"]["summary"]["all"]["max"]["at_admin2_month"];
   angular.extend(this, $controller('GeositeControllerBase', {$element: $element, $scope: $scope}));
 
   $scope.filters = map_config.featurelayers.popatrisk.filters;
@@ -2703,7 +2806,7 @@ var init_map = function(opts)
 };
 geosite.controllers["controller_map_map"] = function(
   $rootScope, $scope, $element, $compile, $interpolate, $templateCache,
-  state, popatrisk_config, context_config, map_config, live) {
+  state, map_config, live) {
   //////////////////////////////////////
   var listeners =
   {
@@ -2771,129 +2874,140 @@ geosite.controllers["controller_map_map"] = function(
   });
   //////////////////////////////////////
   // Feature layers
-  var popatrisk_popup_content = function(source)
+  if("context" in map_config.featurelayers)
   {
-    console.log(source);
-    var f = source.feature;
-    //
-    var $scope = angular.element("#geosite-main").scope();
-    var state = $scope.state;
-    var filters = state["filters"]["popatrisk"];
-    //
-    //var popupTemplate = map_config["featurelayers"]["popatrisk"]["popup"]["template"];
-    var popupTemplate = popup_templates["popatrisk"];
-    var ctx = $.extend({}, f.properties);
-    var month_short_3 = months_short_3[state["month"]-1];
-    var month_long = months_long[state["month"]-1];
-    ctx["month"] = month_long;
-    if(state.hazard == "flood")
+    var context_popup_content = function(source)
     {
-      var rp = filters["rp"];
-      ctx["popatrisk"] = f.properties["RP"+rp.toString(10)][month_short_3];
-    }
-    else if(state.hazard == "cyclone")
-    {
-      var prob_class_max = filters["prob_class_max"];
-      var value = 0;
-      for(var i = 0; i < f.properties.addinfo.length; i++)
-      {
-          var a = f.properties.addinfo[i];
-          if(a["category"] == filters["category"])
-          {
-            if(a["prob_class_max"] != 0 && a["prob_class_max"] <= prob_class_max)
-            {
-              console.log("matched prob_class", prob_class_max);
-              value += a[month_short_3];
-            }
-          }
-      }
-      ctx["popatrisk"] = value;
-    }
-    var chartConfig = map_config["featurelayers"]["popatrisk"]["popup"]["chart"];
-    ctx["chartID"] = chartConfig.id;
-    //Run this right after
-    setTimeout(function(){
-      var gc = buildGroupsAndColumnsForAdmin2(chartConfig, popatrisk_config, f.properties.admin2_code);
-      var chartOptions = {
-        groups: gc.groups,
-        columns: gc.columns,
-        bullet_width: function(d, i)
-        {
-          return d.id == "rp25" ? 6 : 12;
+      console.log(source);
+      var fl = map_config.featurelayers.context
+      var f = source.feature;
+      var popupTemplate = geosite.popup.buildPopupTemplate(fl.popup, fl, f);
+      var ctx = {
+        'layer': fl,
+        'feature': {
+          'attributes': f.properties,
+          'geometry': {}
         }
       };
-      buildHazardChart(chartConfig, popatrisk_config, chartOptions);
-    }, 1000);
-    return $interpolate(popupTemplate)(ctx);
-  };
-  var context_popup_content = function(source)
-  {
-    console.log(source);
-    var fl = map_config.featurelayers.context
-    var f = source.feature;
-    var popupTemplate = geosite.popup.buildPopupTemplate(fl.popup, fl, f);
-    var ctx = {
-      'layer': fl,
-      'feature': {
-        'attributes': f.properties,
-        'geometry': {}
-      }
+      return $interpolate(popupTemplate)(ctx);
     };
-    return $interpolate(popupTemplate)(ctx);
-  };
-  // Load Context Layer
-  live["featurelayers"]["context"] = L.geoJson(context_config["data"]["geojson"],{
-    renderOrder: $.inArray("context", map_config.renderlayers),
-    style: context_config["style"]["default"],
-    /* Custom */
-    hoverStyle: context_config["style"]["hover"],
-    /* End Custom */
-    onEachFeature: function(f, layer){
-      var popupOptions = {maxWidth: 300};
-      //var popupContent = "Loading ..."
-      layer.bindPopup(context_popup_content, popupOptions);
-      layer.on({
-        mouseover: highlightFeature,
-        mouseout: function(e) {
-          live["featurelayers"]["context"].resetStyle(e.target);
-        }
-      });
-    }
-  });
+    // Load Context Layer
+    live["featurelayers"]["context"] = L.geoJson(geosite.initial_data["layers"]["context"]["data"]["geojson"],{
+      renderOrder: $.inArray("context", map_config.renderlayers),
+      style: geosite.initial_data["layers"]["context"]["style"]["default"],
+      /* Custom */
+      hoverStyle: geosite.initial_data["layers"]["context"]["style"]["hover"],
+      /* End Custom */
+      onEachFeature: function(f, layer){
+        var popupOptions = {maxWidth: 300};
+        //var popupContent = "Loading ..."
+        layer.bindPopup(context_popup_content, popupOptions);
+        layer.on({
+          mouseover: highlightFeature,
+          mouseout: function(e) {
+            live["featurelayers"]["context"].resetStyle(e.target);
+          }
+        });
+      }
+    });
+  }
+
   // Load Population at Risk
-  live["featurelayers"]["popatrisk"] = L.geoJson(popatrisk_config["data"]["geojson"],{
-    renderOrder: $.inArray("popatrisk", map_config.renderlayers),
-    style: popatrisk_config["style"]["default"],
-    /* Custom */
-    hoverStyle: popatrisk_config["style"]["hover"],
-    /* End Custom */
-    onEachFeature: function(f, layer){
-      var popupOptions = {maxWidth: 300};
-      //var popupContent = "Loading ..."
-      layer.bindPopup(popatrisk_popup_content, popupOptions);
-      layer.on({
-        mouseover: highlightFeature,
-        mouseout: function(e){
-          live["featurelayers"]["popatrisk"].resetStyle(e.target);
-        },
-        click: function(e) {
-          // This is handled by setting popupContent to be a function.
-          //var popup = e.target.getPopup();
-          //popup.update();
-        }
-      });
-    }
-  });
-  geosite.layers.init_featurelayer_post(
-    $scope,
-    live,
-    "popatrisk",
-    live["featurelayers"]["popatrisk"],
-    map_config.featurelayers.popatrisk.visible);
-  // Zoom to Data
-  if(!hasViewOverride)
+  if("popatrisk" in map_config.featurelayers)
   {
-      live["map"].fitBounds(live["featurelayers"]["popatrisk"].getBounds());
+    var popatrisk_popup_content = function(source)
+    {
+      console.log(source);
+      var f = source.feature;
+      //
+      var $scope = angular.element("#geosite-main").scope();
+      var state = $scope.state;
+      var filters = state["filters"]["popatrisk"];
+      //
+      //var popupTemplate = map_config["featurelayers"]["popatrisk"]["popup"]["template"];
+      var popupTemplate = popup_templates["popatrisk"];
+      var ctx = $.extend({}, f.properties);
+      var month_short_3 = months_short_3[state["month"]-1];
+      var month_long = months_long[state["month"]-1];
+      ctx["month"] = month_long;
+      if(state.hazard == "flood")
+      {
+        var rp = filters["rp"];
+        ctx["popatrisk"] = f.properties["RP"+rp.toString(10)][month_short_3];
+      }
+      else if(state.hazard == "cyclone")
+      {
+        var prob_class_max = filters["prob_class_max"];
+        var value = 0;
+        for(var i = 0; i < f.properties.addinfo.length; i++)
+        {
+            var a = f.properties.addinfo[i];
+            if(a["category"] == filters["category"])
+            {
+              if(a["prob_class_max"] != 0 && a["prob_class_max"] <= prob_class_max)
+              {
+                console.log("matched prob_class", prob_class_max);
+                value += a[month_short_3];
+              }
+            }
+        }
+        ctx["popatrisk"] = value;
+      }
+      var chartConfig = map_config["featurelayers"]["popatrisk"]["popup"]["chart"];
+      ctx["chartID"] = chartConfig.id;
+      //Run this right after
+      setTimeout(function(){
+        var gc = buildGroupsAndColumnsForAdmin2(
+          chartConfig,
+          geosite.initial_data["layers"]["popatrisk"],
+          f.properties.admin2_code);
+        var chartOptions = {
+          groups: gc.groups,
+          columns: gc.columns,
+          bullet_width: function(d, i)
+          {
+            return d.id == "rp25" ? 6 : 12;
+          }
+        };
+        buildHazardChart(chartConfig, geosite.initial_data["layers"]["popatrisk"], chartOptions);
+      }, 1000);
+      return $interpolate(popupTemplate)(ctx);
+    };
+
+    live["featurelayers"]["popatrisk"] = L.geoJson(geosite.initial_data["layers"]["popatrisk"]["data"]["geojson"],{
+      renderOrder: $.inArray("popatrisk", map_config.renderlayers),
+      style: geosite.initial_data["layers"]["popatrisk"]["style"]["default"],
+      /* Custom */
+      hoverStyle: geosite.initial_data["layers"]["popatrisk"]["style"]["hover"],
+      /* End Custom */
+      onEachFeature: function(f, layer){
+        var popupOptions = {maxWidth: 300};
+        //var popupContent = "Loading ..."
+        layer.bindPopup(popatrisk_popup_content, popupOptions);
+        layer.on({
+          mouseover: highlightFeature,
+          mouseout: function(e){
+            live["featurelayers"]["popatrisk"].resetStyle(e.target);
+          },
+          click: function(e) {
+            // This is handled by setting popupContent to be a function.
+            //var popup = e.target.getPopup();
+            //popup.update();
+          }
+        });
+      }
+    });
+    geosite.layers.init_featurelayer_post(
+      $scope,
+      live,
+      "popatrisk",
+      live["featurelayers"]["popatrisk"],
+      map_config.featurelayers.popatrisk.visible);
+      // Zoom to Data
+      if(!hasViewOverride)
+      {
+          live["map"].fitBounds(live["featurelayers"]["popatrisk"].getBounds());
+      }
   }
   //////////////////////////////////////
   // Sidebar Toggle
@@ -2945,8 +3059,14 @@ geosite.controllers["controller_map_map"] = function(
       function(layer, i){return layer["layer"];});
     updateRenderOrder(baseLayers.concat(renderLayersSorted));
     // Update Styles
-    live["featurelayers"]["popatrisk"].setStyle(popatrisk_config["style"]["default"]);
-    live["featurelayers"]["context"].setStyle(context_config["style"]["default"]);
+    if("popatrisk" in live["featurelayers"])
+    {
+      live["featurelayers"]["popatrisk"].setStyle(geosite.initial_data["layers"]["popatrisk"]["style"]["default"]);
+    }
+    if("context" in live["featurelayers"])
+    {
+      live["featurelayers"]["context"].setStyle(geosite.initial_data["layers"]["context"]["style"]["default"]);
+    }
     // Force Refresh
     setTimeout(function(){live["map"]._onResize()}, 0);
   });
@@ -2976,12 +3096,11 @@ geosite.controllers["controller_map_map"] = function(
   });
 };
 
-geosite.controllers["controller_sidebar_sparc"] = function($scope, $element, $controller, state, popatrisk_config, map_config, live)
+geosite.controllers["controller_sidebar_sparc"] = function($scope, $element, $controller, state, map_config, live)
 {
   angular.extend(this, $controller('GeositeControllerBase', {$element: $element, $scope: $scope}));
   //
   $scope.charts = map_config.charts;
-  $scope.popatrisk_config = popatrisk_config;
 
   setTimeout(function(){
 
@@ -3009,15 +3128,46 @@ geosite.controllers["controller_sidebar_sparc"] = function($scope, $element, $co
             }
           };
         }
-        buildHazardChart($scope.charts[i], $scope.popatrisk_config, options);
+        buildHazardChart($scope.charts[i], geosite.initial_data.layers.popatrisk, options);
       }
     }
 
   }, 10);
 };
 
+var buildPageURL = function($interpolate, map_config, state)
+{
+  var url = $interpolate(map_config.pages[state["page"]])(state);
+
+  var hash_args = [];
+  var view = state["view"];
+  if(view != undefined && view["z"] != undefined && view["lat"] != undefined && view["lon"] != undefined)
+  {
+    hash_args.push("z="+view["z"]);
+    hash_args.push("lat="+view["lat"].toFixed(4));
+    hash_args.push("lon="+view["lon"].toFixed(4));
+  }
+  var filters = state["filters"];
+  if(filters)
+  {
+      $.each(state["filters"], function(layer_id, layer_filters)
+      {
+        $.each(layer_filters, function(filter_id, filter_value)
+        {
+            hash_args.push(layer_id+":"+filter_id+"="+filter_value);
+        });
+      });
+  }
+  if(hash_args.length > 0)
+  {
+    url += "#"+hash_args.join("&");
+  }
+  return url;
+};
+
 geosite.controllers["controller_main"] = function(
-  $scope, $element, $controller, $http, $q, state, map_config, stateschema, live)
+  $interpolate, $scope, $element, $controller, $http, $q,
+  state, map_config, stateschema, live)
 {
 
     $scope.state = geosite.init_state(state, stateschema);
@@ -3110,7 +3260,7 @@ geosite.controllers["controller_main"] = function(
         var $scope = angular.element("#geosite-main").scope();
         $scope.$apply(function () {
             $scope.state = $.extend($scope.state, args);
-            var url = buildPageURL("countryhazardmonth_detail", $scope.state);
+            var url = buildPageURL($interpolate, map_config, $scope.state);
             history.replaceState(state, "", url);
             // Refresh Map
             $scope.$broadcast("refreshMap", {'state': $scope.state});
@@ -3127,7 +3277,7 @@ geosite.controllers["controller_main"] = function(
             $scope.state.filters[args["layer"]] = $.extend(
               $scope.state.filters[args["layer"]],
               args["filter"]);
-            var url = buildPageURL("countryhazardmonth_detail", $scope.state);
+            var url = buildPageURL($interpolate, map_config, $scope.state);
             history.replaceState(state, "", url);
             // Refresh Map
             $scope.$broadcast("refreshMap", {'state': $scope.state});
@@ -3142,7 +3292,7 @@ geosite.controllers["controller_main"] = function(
         var $scope = angular.element("#geosite-main").scope();
         $scope.$apply(function () {
             $scope.state.styles[args["layer"]] = args["style"];
-            var url = buildPageURL("countryhazardmonth_detail", $scope.state);
+            var url = buildPageURL($interpolate, map_config, $scope.state);
             history.replaceState(state, "", url);
             // Refresh Map
             $scope.$broadcast("refreshMap", {'state': $scope.state});
@@ -3156,7 +3306,7 @@ geosite.controllers["controller_main"] = function(
         //
         var $scope = angular.element("#geosite-main").scope();
         $scope.state.view = $.extend($scope.state.view, args);
-        var url = buildPageURL("countryhazardmonth_detail", $scope.state);
+        var url = buildPageURL($interpolate, map_config, $scope.state);
         history.replaceState(state, "", url);
         // $scope.$on already wraps $scope.$apply
         /*$scope.$apply(function () {
