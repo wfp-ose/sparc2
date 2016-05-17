@@ -27,11 +27,18 @@ featurelayers:
     cartography:
       - id: "default"
         type: graduated
-        label_left: "Less Impact /\nMore Likely"
-        label_right: "More Impact /\nLess Likely"
+        label_left: "Small\nPopulation\nat Risk"
+        label_right: "Large\nPopulation\nat Risk"
         description: "For a given hazard, month, and admin 2 district, the population at risk."
         colors:
-          ramp: ['#fee5d9', '#fcbba1', '#fde79c', '#fc8d59', '#d7301f','#8162c6','#290051']
+          ramp:
+            - '#aaaaaa'
+            - '#fcbba1'
+            - '#fde79c'
+            - '#fc8d59'
+            - '#d7301f'
+            - '#8162c6'
+            - '#290051'
         styles:
           default:
             static:
@@ -40,7 +47,13 @@ featurelayers:
               opacity: 0.8
               fillOpacity: 0.4
             {% endverbatim %}
-            dynamic: "style_{{ hazard }}"
+            dynamic:
+              func: "style_{{ hazard }}"
+              options:
+                breakpoints: "popatrisk_natural_adjusted"
+                filters:
+                  - "vam_filter_fcs"
+                  - "vam_filter_csi"
             {% verbatim %}
           hover:
             static:
@@ -177,7 +190,7 @@ featurelayers:
               description: "High on the Coping Strategy Index"
               checked: true
       - label: LDI
-        description:  "The land degredation index"
+        description:  "Filter by the Land Degradation Index (LDI).  LDI combines negative land cover change and erosion propensity variables.\nHigh LDI levels indicate high land deterioration on a qualitative scale (undimensionless)."
         line_height: 36px
         height: 50px
         type: slider
@@ -209,7 +222,7 @@ featurelayers:
           step: 1
           output: landcover_delta_negative_range`
       - label: Erosion Propensity
-        description:  "The erosion propensity"
+        description:  "Filter by the erosion propensity, which indicates areas under erosion process (> 5 Tons/ha per year).\nThe erosion propensity is calculated using the RUSLE equation (Rain incidence, Slope length, Lithology, Land cover)."
         line_height: 36px
         height: 50px
         type: slider
@@ -367,7 +380,7 @@ featurelayers:
               description: "High on the Coping Strategy Index"
               checked: true
       - label: LDI
-        description:  "The land degredation index"
+        description:  "Filter by the Land Degradation Index (LDI).  LDI combines negative land cover change and erosion propensity variables.\n\nHigh LDI levels indicate high land deterioration on a qualitative scale (undimensionless)."
         line_height: 36px
         height: 50px
         type: slider
@@ -399,7 +412,7 @@ featurelayers:
           step: 1
           output: landcover_delta_negative_range
       - label: Erosion Propensity
-        description:  "The erosion propensity"
+        description:  "Filter by the erosion propensity, which indicates areas under erosion process (> 5 Tons/ha per year).\n\nThe erosion propensity is calculated using the RUSLE equation (Rain incidence, Slope length, Lithology, Land cover)."
         line_height: 36px
         height: 50px
         type: slider
@@ -451,7 +464,13 @@ featurelayers:
         description: "Mean Landcover Change"
         breakpoints: "natural_adjusted"
         colors:
-          ramp: ['rgb(222, 197, 192)','rgb(251, 112, 80)','rgb(181, 0, 22)','rgb(227, 252, 216)','rgb(122, 199, 123)','rgb(0, 68, 27)']
+          ramp:
+            - 'rgb(181, 0, 22)'
+            - 'rgb(251, 112, 80)'
+            - 'rgb(222, 197, 192)'
+            - 'rgb(227, 252, 216)'
+            - 'rgb(122, 199, 123)'
+            - 'rgb(0, 68, 27)'
           outside: "#aaaaaa"
         styles:
           default:
@@ -460,7 +479,10 @@ featurelayers:
               color: "#000000"
               opacity: 0.8
               fillOpacity: 0.6
-            dynamic: "style_context"
+            dynamic:
+              func: "style_context"
+              options:
+                breakpoints: "context_natural_adjusted"
           hover:
             static:
               weight: 2
@@ -491,7 +513,10 @@ featurelayers:
               color: "#000000"
               opacity: 0.8
               fillOpacity: 0.7
-            dynamic: "style_context"
+            dynamic:
+              func: "style_context"
+              options:
+                breakpoints: "context_natural_negative"
           hover:
             static:
               weight: 2
@@ -522,7 +547,10 @@ featurelayers:
               color: "#000000"
               opacity: 0.8
               fillOpacity: 0.4
-            dynamic: "style_context"
+            dynamic:
+              func: "style_context"
+              options:
+                breakpoints: "context_natural_positive"
           hover:
             static:
               weight: 2
@@ -544,7 +572,13 @@ featurelayers:
         description: "Crop Change"
         breakpoints: "natural_crop"
         colors:
-          ramp: ['rgb(255, 255, 178)', 'rgb(253, 141, 60)', 'rgb(181, 0, 38)', 'rgb(227, 252, 216)', 'rgb(122, 199, 123)', 'rgb(189, 0, 38)']
+          ramp:
+            - 'rgb(181, 0, 38)'
+            - 'rgb(253, 141, 60)'
+            - 'rgb(255, 255, 178)'
+            - 'rgb(227, 252, 216)'
+            - 'rgb(122, 199, 123)'
+            - 'rgb(0, 68, 27)'
           outside: "#aaaaaa"
         styles:
           default:
@@ -553,7 +587,10 @@ featurelayers:
               color: "#000000"
               opacity: 0.8
               fillOpacity: 0.4
-            dynamic: "style_context"
+            dynamic:
+              func: "style_context"
+              options:
+                breakpoints: "context_natural_crop"
           hover:
             static:
               weight: 2
@@ -575,7 +612,13 @@ featurelayers:
         description: "Forest Change"
         breakpoints: "natural_forest"
         colors:
-          ramp: ['rgb(255, 255, 178)', 'rgb(253, 141, 60)', 'rgb(181, 0, 38)', 'rgb(227, 252, 216)', 'rgb(122, 199, 123)', 'rgb(189, 0, 38)']
+          ramp:
+            - 'rgb(181, 0, 38)'
+            - 'rgb(253, 141, 60)'
+            - 'rgb(255, 255, 178)'
+            - 'rgb(227, 252, 216)'
+            - 'rgb(122, 199, 123)'
+            - 'rgb(0, 68, 27)'
           outside: "#aaaaaa"
         styles:
           default:
@@ -584,7 +627,10 @@ featurelayers:
               color: "#000000"
               opacity: 0.8
               fillOpacity: 0.4
-            dynamic: "style_context"
+            dynamic:
+              func: "style_context"
+              options:
+                breakpoints: "context_natural_forest"
           hover:
             static:
               weight: 2
@@ -615,7 +661,10 @@ featurelayers:
               color: "#000000"
               opacity: 0.8
               fillOpacity: 0.4
-            dynamic: "style_context"
+            dynamic:
+              func: "style_context"
+              options:
+                breakpoints: "context_natural_erosion_propensity"
           hover:
             static:
               weight: 2
@@ -880,7 +929,7 @@ featurelayers:
   wld_trs_supplyroutes_wfp:
     type: WMS
     title: "Global Supply Routes"
-    description: "Global supply routes for Transportation of Food and Non Food Items - Roads, Railways, Waterway, Airways.\nThis layer is built by linking origin/destination locations using the most direct route on main roads. In reality, the supply routes can divert from the ones displayed here depending on many local factors. The routes shown in this dataset are only indicative and have to be used as such."
+    description: "Global supply routes for Transportation of Food and Non Food Items - Roads, Railways, Waterway, Airways.\n\nThis layer is built by linking origin/destination locations using the most direct route on main roads. In reality, the supply routes can divert from the ones displayed here depending on many local factors. The routes shown in this dataset are only indicative and have to be used as such."
     visible: false
     source:
       name: "WFP"

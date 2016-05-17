@@ -35,6 +35,15 @@ var init_start = function(appName)
     geosite.initial_data["layers"]["context"]["data"]["summary"] = response_context_summary[0];
     geosite.initial_data["layers"]["context"]["data"]["geojson"] = response_context_geojson[0];
     geosite.initial_data["layers"]["vam"]["data"]["geojson"] = response_vam_geojson[0];
+
+    geosite.breakpoints = {};
+    $.each(geosite.initial_data["layers"]["popatrisk"]["data"]["summary"]["all"]["breakpoints"], function(k, v){
+      geosite.breakpoints["popatrisk_"+k] = v;
+    });
+    $.each(geosite.initial_data["layers"]["context"]["data"]["summary"]["all"]["breakpoints"], function(k, v){
+      geosite.breakpoints["context_"+k] = v;
+    });
+
     init_main_app(appName);
   });
 };

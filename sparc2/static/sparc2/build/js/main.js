@@ -1166,6 +1166,15 @@ var init_start = function(appName)
     geosite.initial_data["layers"]["context"]["data"]["summary"] = response_context_summary[0];
     geosite.initial_data["layers"]["context"]["data"]["geojson"] = response_context_geojson[0];
     geosite.initial_data["layers"]["vam"]["data"]["geojson"] = response_vam_geojson[0];
+
+    geosite.breakpoints = {};
+    $.each(geosite.initial_data["layers"]["popatrisk"]["data"]["summary"]["all"]["breakpoints"], function(k, v){
+      geosite.breakpoints["popatrisk_"+k] = v;
+    });
+    $.each(geosite.initial_data["layers"]["context"]["data"]["summary"]["all"]["breakpoints"], function(k, v){
+      geosite.breakpoints["context_"+k] = v;
+    });
+
     init_main_app(appName);
   });
 };
@@ -1315,7 +1324,7 @@ geosite.vam_filter_csi = function(value, filters, f)
   return value;
 };
 
-geosite.style_cyclone = function(f, state, map_config, popatrisk_config)
+geosite.style_cyclone = function(f, state, map_config, popatrisk_config, options)
 {
   var style = {};
   var filters = state["filters"]["popatrisk"];
@@ -1343,8 +1352,7 @@ geosite.style_cyclone = function(f, state, map_config, popatrisk_config)
       }
   }
 
-  value = geosite.vam_filter_fcs(value, filters, f);
-  value = geosite.vam_filter_csi(value, filters, f);
+  $.each(options.filters, function(i, x){ value = geosite[x](value, filters, f); });
 
   if(
     value >= popatrisk_range[0] && value <= popatrisk_range[1] &&
@@ -1354,7 +1362,7 @@ geosite.style_cyclone = function(f, state, map_config, popatrisk_config)
   )
   {
     var colors = map_config["featurelayers"]["popatrisk"]["cartography"][0]["colors"]["ramp"];
-    var breakpoints = popatrisk_config["data"]["summary"]["all"]["breakpoints"]["natural"];
+    var breakpoints = geosite.breakpoints[options["breakpoints"]];
     var color = undefined;
     for(var i = 0; i < breakpoints.length; i++)
     {
@@ -1374,7 +1382,7 @@ geosite.style_cyclone = function(f, state, map_config, popatrisk_config)
   return style;
 };
 
-geosite.style_drought = function(f, state, map_config, popatrisk_config)
+geosite.style_drought = function(f, state, map_config, popatrisk_config, options)
 {
   var style = {};
   var filters = state["filters"]["popatrisk"];
@@ -1401,8 +1409,7 @@ geosite.style_drought = function(f, state, map_config, popatrisk_config)
       }
   }
 
-  value = geosite.vam_filter_fcs(value, filters, f);
-  value = geosite.vam_filter_csi(value, filters, f);
+  $.each(options.filters, function(i, x){ value = geosite[x](value, filters, f); });
 
   if(
     value >= popatrisk_range[0] && value <= popatrisk_range[1] &&
@@ -1412,7 +1419,7 @@ geosite.style_drought = function(f, state, map_config, popatrisk_config)
   )
   {
     var colors = map_config["featurelayers"]["popatrisk"]["cartography"][0]["colors"]["ramp"];
-    var breakpoints = popatrisk_config["data"]["summary"]["all"]["breakpoints"]["natural"];
+    var breakpoints = geosite.breakpoints[options["breakpoints"]];
     var color = undefined;
     for(var i = 0; i < breakpoints.length; i++)
     {
@@ -1431,7 +1438,7 @@ geosite.style_drought = function(f, state, map_config, popatrisk_config)
   }
   return style;
 };
-geosite.style_flood = function(f, state, map_config, popatrisk_config)
+geosite.style_flood = function(f, state, map_config, popatrisk_config, options)
 {
   var style = {};
   var filters = state["filters"]["popatrisk"];
@@ -1447,8 +1454,7 @@ geosite.style_flood = function(f, state, map_config, popatrisk_config)
   var month_short3 = months_short_3[state["month"]-1];
   var value = f.properties["RP"+rp.toString(10)][month_short3];
 
-  value = geosite.vam_filter_fcs(value, filters, f);
-  value = geosite.vam_filter_csi(value, filters, f);
+  $.each(options.filters, function(i, x){ value = geosite[x](value, filters, f); });
 
   if(
     value >= popatrisk_range[0] && value <= popatrisk_range[1] &&
@@ -1458,11 +1464,14 @@ geosite.style_flood = function(f, state, map_config, popatrisk_config)
   )
   {
       var colors = map_config["featurelayers"]["popatrisk"]["cartography"][0]["colors"]["ramp"];
-      var breakpoints = popatrisk_config["data"]["summary"]["all"]["breakpoints"]["natural_adjusted"];
+      var breakpoints = geosite.breakpoints[options["breakpoints"]];
       var color = undefined;
-      for(var i = 0; i < breakpoints.length; i++)
+      for(var i = 0; i < breakpoints.length -1; i++)
       {
-        if(value < breakpoints[i])
+        if(
+          (value == breakpoints[i] && value == breakpoints[i+1]) ||
+          (value >= breakpoints[i] && value < breakpoints[i+1])
+        )
         {
           color = colors[i];
           break;
@@ -1477,7 +1486,7 @@ geosite.style_flood = function(f, state, map_config, popatrisk_config)
   }
   return style;
 };
-geosite.style_context = function(f, state, map_config, context_config)
+geosite.style_context = function(f, state, map_config, context_config, options)
 {
   var style = {};
 
@@ -1573,12 +1582,12 @@ geosite.utility.getClosestFeature = function(nearbyFeatures, target)
 };
 
 geosite.templates = {};
-geosite.templates["modal_layer_carto.tpl.html"] = "<div class=\"modal-dialog\" role=\"document\">\n  <div class=\"modal-content\">\n    <div class=\"modal-header\">\n      <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">×</button>\n      <h4 class=\"modal-title\" id=\"myModalLabel\">Layer / {{ layer.title }} / Cartography</h4>\n    </div>\n    <div class=\"modal-body\">\n      <div>\n        <!-- Nav tabs -->\n        <ul class=\"nav nav-tabs\" role=\"tablist\">\n          <p class=\"navbar-text\" style=\"margin-bottom:0px;\"><b>Select</b><br><b>a Style:</b></p>\n          <li\n            role=\"presentation\"\n            ng-class=\"$first ? \'active\' : \'\'\"\n            ng-repeat=\"style in layer.cartography track by $index\">\n            <a\n              class=\"geosite-intent\"\n              href=\"#modal-layer-carto-style-{{ style.id }}\"\n              aria-controls=\"modal-layer-carto-style-{{ style.id }}\"\n              data-intent-name=\"selectStyle\"\n              data-intent-data=\"{&quot;layer&quot;:&quot;{{ layerID }}&quot;,&quot;style&quot;:&quot;{{ style.id }}&quot;}\"\n              role=\"tab\"\n              data-toggle=\"tab\"\n              style=\"padding-left:8px; padding-right: 8px;\"\n              ng-bind-html=\"style.title | default:\'Default\' | tabLabel\"></a>\n          </li>\n        </ul>\n        <!-- Tab panes -->\n        <div class=\"tab-content\">\n          <div\n            ng-class=\"$first ? \'tab-pane fade in active\' : \'tab-pane fade\'\"\n            ng-repeat=\"style in layer.cartography track by $index\"\n            id=\"modal-layer-carto-style-{{ style.id }}\"\n            role=\"tabpanel\"\n            style=\"padding: 10px;\">\n            <span><b>Attribute: </b><span>{{ style.attribute | default:\"Not styled by attribute\" }}</span></span><br>\n            <span><b>Mask: </b><span ng-bind-html=\"style.mask | md2html | default:\'No Mask\'\"></span></span><br>\n            <span><b>Description: </b><span ng-bind-html=\"style.description | md2html | default:\'Not specified\'\"></span></span>\n            <br>\n            <br>\n            <div\n              ng-if=\"style.type == \'graduated\'\"\n              geosite-symbol-graduated\n              style=\"style\"\n              width=\"{{ \'300px\' }}\">\n            </div>\n            <div\n              ng-if=\"style.legend.symbol.type == \'circle\'\"\n              geosite-symbol-circle\n              style=\"style\">\n            </div>\n            <div\n              ng-if=\"style.legend.symbol.type == \'graphic\'\"\n              geosite-symbol-graphic\n              style=\"style\">\n            </div>\n          </div>\n        </div>\n      </div>\n    </div>\n    <div class=\"modal-footer\">\n      <button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Close</button>\n    </div>\n  </div>\n</div>\n";
+geosite.templates["modal_layer_carto.tpl.html"] = "<div class=\"modal-dialog\" role=\"document\">\n  <div class=\"modal-content\">\n    <div class=\"modal-header\">\n      <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">×</button>\n      <h4 class=\"modal-title\" id=\"myModalLabel\">Layer / {{ layer.title }} / Cartography</h4>\n    </div>\n    <div class=\"modal-body\">\n      <div>\n        <!-- Nav tabs -->\n        <ul class=\"nav nav-tabs\" role=\"tablist\">\n          <p class=\"navbar-text\" style=\"margin-bottom:0px;\"><b>Select</b><br><b>a Style:</b></p>\n          <li\n            role=\"presentation\"\n            ng-class=\"$first ? \'active\' : \'\'\"\n            ng-repeat=\"style in layer.cartography track by $index\">\n            <a\n              class=\"geosite-intent\"\n              href=\"#modal-layer-carto-style-{{ style.id }}\"\n              aria-controls=\"modal-layer-carto-style-{{ style.id }}\"\n              data-intent-name=\"selectStyle\"\n              data-intent-data=\"{&quot;layer&quot;:&quot;{{ layerID }}&quot;,&quot;style&quot;:&quot;{{ style.id }}&quot;}\"\n              role=\"tab\"\n              data-toggle=\"tab\"\n              style=\"padding-left:8px; padding-right: 8px;\"\n              ng-bind-html=\"style.title | default:\'Default\' | tabLabel\"></a>\n          </li>\n        </ul>\n        <!-- Tab panes -->\n        <div class=\"tab-content\">\n          <div\n            ng-class=\"$first ? \'tab-pane fade in active\' : \'tab-pane fade\'\"\n            ng-repeat=\"style in layer.cartography track by $index\"\n            id=\"modal-layer-carto-style-{{ style.id }}\"\n            role=\"tabpanel\"\n            style=\"padding: 10px;\">\n            <span><b>Attribute: </b><span>{{ style.attribute | default:\"Not styled by attribute\" }}</span></span><br>\n            <span><b>Mask: </b><span ng-bind-html=\"style.mask | md2html | default:\'No Mask\'\"></span></span><br>\n            <span><b>Description: </b><span ng-bind-html=\"style.description | md2html | default:\'Not specified\'\"></span></span>\n            <br>\n            <br>\n            <div\n              ng-if=\"style.type == \'graduated\'\"\n              geosite-symbol-graduated\n              style=\"style\"\n              container-width=\"{{ \'392px\' }}\">\n            </div>\n            <div\n              ng-if=\"style.legend.symbol.type == \'circle\'\"\n              geosite-symbol-circle\n              style=\"style\">\n            </div>\n            <div\n              ng-if=\"style.legend.symbol.type == \'graphic\'\"\n              geosite-symbol-graphic\n              style=\"style\">\n            </div>\n          </div>\n        </div>\n      </div>\n    </div>\n    <div class=\"modal-footer\">\n      <button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Close</button>\n    </div>\n  </div>\n</div>\n";
 geosite.templates["modal_layer_more.tpl.html"] = "<div class=\"modal-dialog\" role=\"document\">\n  <div class=\"modal-content\">\n    <div class=\"modal-header\">\n      <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">×</button>\n      <h4 class=\"modal-title\" id=\"myModalLabel\">Layer / {{ layer.title }}</h4>\n    </div>\n    <div class=\"modal-body\">\n      <div>\n        <!-- Nav tabs -->\n        <ul class=\"nav nav-tabs\" role=\"tablist\">\n          <li role=\"presentation\" class=\"active\">\n            <a\n              href=\"#modal-layer-more-general\"\n              aria-controls=\"modal-layer-more-general\"\n              role=\"tab\"\n              data-toggle=\"tab\"\n              style=\"padding-left:8px; padding-right: 8px;\">General</a>\n          </li>\n          <li ng-if=\"layer.wms\" role=\"presentation\" class=\"\">\n            <a\n              href=\"#modal-layer-more-source\"\n              aria-controls=\"modal-layer-more-source\"\n              role=\"tab\"\n              data-toggle=\"tab\"\n              style=\"padding-left:8px; padding-right: 8px;\">Source</a>\n          </li>\n          <li ng-if=\"layer.wms\" role=\"presentation\" class=\"\">\n            <a\n              href=\"#modal-layer-more-wms\"\n              aria-controls=\"modal-layer-more-wms\"\n              role=\"tab\"\n              data-toggle=\"tab\"\n              style=\"padding-left:8px; padding-right: 8px;\">WMS</a>\n          </li>\n          <li ng-if=\"layer.wfs\" role=\"presentation\" class=\"\">\n            <a\n              href=\"#modal-layer-more-wfs\"\n              aria-controls=\"modal-layer-more-wfs\"\n              role=\"tab\"\n              data-toggle=\"tab\"\n              style=\"padding-left:8px; padding-right: 8px;\">WFS</a>\n          </li>\n          <li ng-if=\"layer.wfs\" role=\"presentation\" class=\"\">\n            <a\n              href=\"#modal-layer-more-download\"\n              aria-controls=\"modal-layer-more-download\"\n              role=\"tab\"\n              data-toggle=\"tab\"\n              style=\"padding-left:8px; padding-right: 8px;\">Download</a>\n          </li>\n        </ul>\n        <div class=\"tab-content\">\n          <div\n            id=\"modal-layer-more-general\"\n            class=\"tab-pane fade in active\"\n            role=\"tabpanel\"\n            style=\"padding: 10px;\">\n            <span ng-bind-html=\"layer.description | md2html | default:\'No description given.\'\"></span>\n            <br><br><b>Type:</b> {{ layer.type }}\n            <br><br><b>Source:</b> {{ layer.source.name | default:\"Not specified\" }}\n          </div>\n          <div\n            ng-if=\"layer.source\"\n            id=\"modal-layer-more-source\"\n            class=\"tab-pane fade\"\n            role=\"tabpanel\"\n            style=\"padding: 10px;\">\n            <span><b>Name:</b> {{ layer.source.name | default:\"Not specified\" }}</span><br>\n            <span><b>Attribution:</b> {{ layer.source.attribution | default:\"Not specified\" }}</span><br>\n            <span><b>URL:</b> {{ layer.source.url | default:\"Not specified\" }}</span><br>\n          </div>\n          <div\n            ng-if=\"layer.wms\"\n            id=\"modal-layer-more-wms\"\n            class=\"tab-pane fade\"\n            role=\"tabpanel\"\n            style=\"padding: 10px;\">\n            <span><b>URL:</b> {{ layer.wms.url | default:\"Not specified\" }}</span><br>\n            <span><b>Layers:</b> {{ layer.wms.layers|join:\', \'|default:\"Not specified\" }}</span><br>\n            <span><b>Styles:</b> {{ layer.wms.styles|join:\', \'|default:\"Not specified\" }}</span><br>\n            <span><b>Format:</b> {{ layer.wms.format | default:\"Not specified\" }}</span><br>\n            <span><b>Version:</b> {{ layer.wms.version | default:\"Not specified\" }}</span><br>\n            <span><b>Transparent:</b> {{ layer.wms.transparent | default:\"No\" }}</span><br>\n            <hr>\n            <span><a target=\"_blank\" href=\"{{ layer.wms.url }}?SERVICE=WMS&Request=GetCapabilities\">Capabilities</a><br>\n            <span><a target=\"_blank\" href=\"{{ layer.wms.url }}?SERVICE=WMS&Request=GetLegendGraphic&format=image/png&layer={{ layer.wms.layers|first }}\">Legend Graphic</a><br>\n          </div>\n          <div\n            ng-if=\"layer.wfs\"\n            id=\"modal-layer-more-wfs\"\n            class=\"tab-pane fade\"\n            role=\"tabpanel\"\n            style=\"padding: 10px;\">\n            <span><b>URL:</b> {{ layer.wfs.url | default:\"Not specified\" }}</span><br>\n            <span><b>Version:</b> {{ layer.wfs.version | default:\"Not specified\" }}</span><br>\n            <hr>\n            <span><a target=\"_blank\" href=\"{{ layer.wfs.url }}?service=wfs&request=DescribeFeatureType&version={{ layer.wfs.version }}\">Describe Feature Type</a><br>\n          </div>\n          <div\n            ng-if=\"layer.wfs\"\n            id=\"modal-layer-more-download\"\n            class=\"tab-pane fade\"\n            role=\"tabpanel\"\n            style=\"padding: 10px;\">\n            <span><b>Download Shapefile</b>: <a target=\"_blank\" href=\"{{ layer | url_shapefile }}\">All</a>, <a target=\"_blank\" href=\"{{ layer | url_shapefile:state }}\">Current Extent</a><br>\n            <span><b>Download GeoJSON</b>: <a target=\"_blank\" href=\"{{ layer | url_geojson }}\">All</a>, <a target=\"_blank\" href=\"{{ layer | url_geojson:state }}\">Current Extent</a><br>\n            <span><b>Download Google Earth KML</b>: <a target=\"_blank\" href=\"{{ layer | url_kml }}\">All</a>, <a target=\"_blank\" href=\"{{ layer | url_kml:state }}\">Current Extent</a><br>\n          </div>\n        </div>\n      </div>\n    </div>\n    <div class=\"modal-footer\">\n      <button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Close</button>\n    </div>\n  </div>\n</div>\n";
 geosite.templates["modal_layer_config.tpl.html"] = "<div class=\"modal-dialog\" role=\"document\">\n  <div class=\"modal-content\">\n    <div class=\"modal-header\">\n      <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">×</button>\n      <h4 class=\"modal-title\" id=\"myModalLabel\">Layer / {{ layer.title }}</h4>\n    </div>\n    <div class=\"modal-body\">\n      <div>\n        <!-- Nav tabs -->\n        <ul class=\"nav nav-tabs\" role=\"tablist\">\n          <li class=\"active\" role=\"presentation\">\n            <a href=\"#modal-layer-config-input\"\n              aria-controls=\"modal-layer-config-input\"\n              role=\"tab\"\n              data-toggle=\"tab\"\n              style=\"padding-left:8px; padding-right: 8px;\">Configure</a>\n          </li>\n          <li class=\"\" role=\"presentation\">\n            <a href=\"#modal-layer-config-output\"\n              aria-controls=\"modal-layer-config-output\"\n              role=\"tab\"\n              data-toggle=\"tab\"\n              style=\"padding-left:8px; padding-right: 8px;\">Output</a>\n          </li>\n        </ul>\n        <!-- Tab panes -->\n        <div class=\"tab-content\">\n          <div\n            id=\"modal-layer-config-input\"\n            class=\"tab-pane fade in active\"\n            role=\"tabpanel\"\n            style=\"padding: 10px;\">\n            <div class=\"form-group row\" style=\"margin:0; padding-top: 10px; padding-bottom: 10px;\">\n              <div class=\"col-md-3\"><h5>Title</h5></div>\n              <div class=\"col-md-9\">\n                <label for=\"layer-config-title\" class=\"sr-only control-label\">Title</label>\n                <input\n                  id=\"layer-config-title\"\n                  type=\"text\"\n                  class=\"form-control\"\n                  placeholder=\"Title ...\"\n                  data-geosite-field-type=\"text\"\n                  ng-model=\"layer.title\"\n                  ng-change=\"validateField()\"\n                  required\n                  value=\"{{ layer.title }}\">\n              </div>\n            </div>\n            <div class=\"form-group row\" style=\"margin:0; padding-top: 10px; padding-bottom: 10px;\">\n              <div class=\"col-md-3\"><h5>Description</h5></div>\n              <div class=\"col-md-9\">\n                <label for=\"layer-config-title\" class=\"sr-only control-label\">Description</label>\n                <input\n                  id=\"layer-config-description\"\n                  type=\"text\"\n                  class=\"form-control\"\n                  placeholder=\"Title ...\"\n                  data-geosite-field-type=\"text\"\n                  ng-model=\"layer.description\"\n                  ng-change=\"validateField()\"\n                  required\n                  value=\"{{ layer.Description }}\">\n              </div>\n            </div>\n          </div>\n          <div\n            id=\"modal-layer-config-output\"\n            class=\"tab-pane fade\"\n            role=\"tabpanel\"\n            style=\"padding: 10px;\">\n            {{ layer | json }}\n          </div>\n        </div>\n      </div>\n    </div>\n    <div class=\"modal-footer\">\n      <button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Close</button>\n    </div>\n  </div>\n</div>\n";
 geosite.templates["symbol_circle.tpl.html"] = "<div>\n  <svg width=\"100%\" height=\"100%\" version=\"1.0\" xmlns=\"http://www.w3.org/2000/svg\">\n    <circle\n      cx=\"50%\"\n      cy=\"50%\"\n      ng-r=\"{{ style.legend.symbol.radius }}\"\n      ng-fill=\"{{ style.styles.default.static.color }}\"\n      stroke-width=\"1\"\n      stroke=\"#000000\"></circle>\n  </svg>\n</div>\n";
 geosite.templates["symbol_ellipse.tpl.html"] = "<div>\n  <svg width=\"100%\" height=\"100%\" version=\"1.0\" xmlns=\"http://www.w3.org/2000/svg\">\n    <ellipse\n      cx=\"50%\"\n      cy=\"50%\"\n      ng-rx=\"{{ style.legend.symbol.width }}\"\n      ng-ry=\"{{ style.legend.symbol.height }}\"\n      ng-fill=\"{{ style.styles.default.static.color }}\"\n      stroke-width=\"1\"\n      stroke=\"#000000\"></circle>\n  </svg>\n</div>\n";
-geosite.templates["symbol_graduated.tpl.html"] = "<div>\n  <div\n    style=\"display: inline-block; vertical-align:top;\"\n    ng-bind-html=\"style.label_left | md2html\"></div>\n  <svg\n    ng-attr-width=\"{{ width }}\"\n    height=\"50px\"\n    version=\"1.0\"\n    xmlns=\"http://www.w3.org/2000/svg\">\n    <rect\n      ng-repeat-start=\"color in style.colors.ramp track by $index\"\n      ng-attr-x=\"{{ $index|percent:style.colors.ramp.length }}%\"\n      ng-attr-y=\"{{ \'0\' }}\"\n      ng-attr-width=\"{{ 1|percent:style.colors.ramp.length }}%\"\n      height=\"50px\"\n      ng-attr-fill=\"{{ color }}\"\n      stroke-width=\"1\"\n      stroke=\"#000000\"/>\n    <text\n      ng-repeat-end\n      ng-attr-x=\"{{ $index|as_float|addFloat:0.5|percent:style.colors.ramp.length }}%\"\n      ng-attr-y=\"{{ \'50%\' }}\"\n      text-anchor=\"middle\"\n      ng-attr-fill=\"{{ \'white\' }}\"\n      font-size=\"18px\">{{ $index }}</text>\n  </svg>\n  <div\n    style=\"display: inline-block; vertical-align:top;\"\n    ng-bind-html=\"style.label_right | md2html\"></div>\n</div>\n";
+geosite.templates["symbol_graduated.tpl.html"] = "<div>\n  <div\n    style=\"display: inline-block; vertical-align:top;\"\n    ng-bind-html=\"style.label_left | md2html\"></div>\n  <svg\n    ng-attr-width=\"{{ containerWidth }}\"\n    height=\"90px\"\n    version=\"1.0\"\n    xmlns=\"http://www.w3.org/2000/svg\">\n    <g>\n      <rect\n        ng-repeat=\"color in style.colors.ramp track by $index\"\n        ng-attr-x=\"{{ style.colors.ramp | length | position_x : $index : containerWidth : 26 }}px\"\n        ng-attr-y=\"{{ \'0\' }}\"\n        ng-attr-width=\"{{ style.colors.ramp | length | width_x : containerWidth : 26 }}px\"\n        height=\"50px\"\n        ng-attr-fill=\"{{ color }}\"\n        stroke-width=\"1\"\n        stroke=\"#000000\"/>\n    </g>\n    <g>\n      <text\n        ng-repeat=\"breakpoint in style | breakpoints track by $index\"\n        ng-attr-x=\"{{ style | breakpoints | length | add: -1 | position_x : $index : containerWidth : 26 }}px\"\n        ng-attr-y=\"{{ $index | choose : 68 : 82 }}px\"\n        text-anchor=\"middle\"\n        ng-attr-fill=\"{{ \'black\' }}\"\n        font-size=\"14px\"\n        text-decoration=\"underline\"\n        font-family=\"\'Open Sans\', sans-serif\">{{ style | breakpoint: $index | formatBreakpoint }}</text>\n    </g>\n  </svg>\n  <div\n    style=\"display: inline-block; vertical-align:top;\"\n    ng-bind-html=\"style.label_right | md2html\"></div>\n</div>\n";
 geosite.templates["symbol_graphic.tpl.html"] = "<i class=\"fa fa-image\" style=\"color:black; font-size: 20px;\"></i>\n";
 geosite.templates["legend_baselayers.tpl.html"] = "<div class=\"geosite-map-legend-baselayers geosite-radio-group\">\n  <div\n    ng-repeat=\"layer in map_config.baselayers track by $index\"\n    ng-if=\"layer.legend!==undefined\"\n    class=\"geosite-map-legend-item noselect\"\n    data-layer=\"{{ layer.id }}\">\n    <div class=\"geosite-map-legend-item-left\">\n      <div class=\"geosite-map-legend-item-icon geosite-map-legend-item-more\">\n        <a\n          class=\"geosite-intent\"\n          data-intent-name=\"toggleModal\"\n          data-intent-data=\"{&quot;id&quot;:&quot;geosite-modal-layer-more&quot;,&quot;dynamic&quot;:{&quot;layer&quot;:[&quot;map_config&quot;,&quot;baselayers&quot;,&quot;{{ $index }}&quot;]}}\">\n          <i class=\"fa fa-info-circle\"></i>\n        </a>\n      </div><!--\n      --><div class=\"geosite-map-legend-item-icon geosite-map-legend-item-visibility\">\n           <a\n             ng-class=\" $first ? \'geosite-map-legend-item-visibility-button geosite-intent geosite-radio geosite-on\' : \'geosite-map-legend-item-visibility-button geosite-intent geosite-radio\'\"\n             data-intent-name=\"switchBaseLayer\"\n             data-intent-data=\"{&quot;layer&quot;:&quot;{{ layer.id }}&quot;}\"\n             data-intent-class-on=\"geosite-on\"\n             data-intent-class-off=\"\">\n             <i class=\"fa fa-eye geosite-on\"></i><i class=\"fa fa-eye-slash geosite-off\"></i>\n           </a>\n         </div><!--\n      --><div class=\"geosite-map-legend-item-symbol\" style=\"width: 10px;\"></div>\n    </div><!--\n    --><div class=\"geosite-map-legend-item-right\">\n      <div class=\"geosite-map-legend-item-label\" style=\"width: 100%;\">\n        <span ng-bind-html=\"layer.legend.label | md2html\"></span>\n      </div>\n    </div>\n  </div>\n</div>\n";
 geosite.templates["legend_featurelayers.tpl.html"] = "<div class=\"geosite-map-legend-featurelayers\">\n  <div\n    ng-repeat=\"layer in featurelayers track by $index\"\n    ng-init=\"layerIndex = $index\"\n    ng-if=\"layer.item.legend!==undefined\"\n    class=\"geosite-map-legend-item noselect\"\n    data-layer=\"{{ layer.key }}\">\n    <div class=\"geosite-map-legend-item-left\">\n      <div class=\"geosite-map-legend-item-icon geosite-map-legend-item-config\" style=\"display:none;\">\n        <a\n          class=\"geosite-intent\"\n          data-intent-name=\"toggleModal\"\n          data-intent-data=\"{&quot;id&quot;:&quot;geosite-modal-layer-config&quot;,&quot;static&quot;:{&quot;layerID&quot;:&quot;{{ layer.key }}&quot;},&quot;dynamic&quot;:{&quot;layer&quot;:[&quot;map_config&quot;,&quot;featurelayers&quot;,&quot;{{ layer.key }}&quot;]}}\">\n          <i class=\"fa fa-cog\"></i>\n        </a>\n      </div><!--\n      --><div class=\"geosite-map-legend-item-icon geosite-map-legend-item-more\">\n        <a\n          class=\"geosite-intent\"\n          data-intent-name=\"toggleModal\"\n          data-intent-data=\"{&quot;id&quot;:&quot;geosite-modal-layer-more&quot;,&quot;static&quot;:{&quot;layerID&quot;:&quot;{{ layer.key }}&quot;},&quot;dynamic&quot;:{&quot;layer&quot;:[&quot;map_config&quot;,&quot;featurelayers&quot;,&quot;{{ layer.key }}&quot;]}}\">\n          <i class=\"fa fa-info-circle\"></i>\n        </a>\n      </div><!--\n      --><div class=\"geosite-map-legend-item-icon geosite-map-legend-item-visibility\">\n         <a\n           ng-class=\"(layer.item.visible != undefined ? layer.item.visible : true ) ? \'geosite-map-legend-item-visibility-button geosite-intent geosite-toggle\' : \'geosite-map-legend-item-visibility-button geosite-intent geosite-toggle geosite-off\'\"\n           data-intent-names=\"[&quot;showLayer&quot;,&quot;hideLayer&quot;]\"\n           data-intent-data=\"{&quot;layer&quot;:&quot;{{ layer.key }}&quot;}\">\n           <i class=\"fa fa-eye geosite-on\"></i><i class=\"fa fa-eye-slash geosite-off\"></i>\n         </a>\n     </div><!--\n     --><div\n          ng-class=\"layer.item.type == \'geojson\' ? \'geosite-map-legend-item-icon geosite-map-legend-item-zoomto\': \'geosite-map-legend-item-icon geosite-map-legend-item-zoomto fade disabled\'\">\n        <a\n          class=\"geosite-map-legend-item-zoomto-button geosite-intent\"\n          data-intent-name=\"zoomToLayer\"\n          data-intent-data=\"{&quot;layer&quot;:&quot;{{ layer.key }}&quot;}\">\n          <i class=\"fa fa-compress\"></i>\n        </a>\n      </div>\n    </div><!--\n    --><div class=\"geosite-map-legend-item-right\">\n      <div\n        ng-if=\"layer.item.cartography[0].legend.symbol\"\n        class=\"geosite-map-legend-item-symbol\">\n        <a\n          class=\"geosite-intent\"\n          data-intent-name=\"toggleModal\"\n          data-intent-data=\"{&quot;id&quot;:&quot;geosite-modal-layer-carto&quot;,&quot;static&quot;:{&quot;layerID&quot;:&quot;{{ layer.key }}&quot;},&quot;dynamic&quot;:{&quot;layer&quot;:[&quot;map_config&quot;,&quot;featurelayers&quot;,&quot;{{ layer.key }}&quot;]}}\">\n          <div ng-if=\"layer.item.cartography[0].legend.symbol.type == \'circle\'\">\n            <svg width=\"100%\" height=\"100%\" version=\"1.0\" xmlns=\"http://www.w3.org/2000/svg\">\n              <circle\n                cx=\"50%\"\n                cy=\"50%\"\n                ng-r=\"{{ layer.item.cartography[0].legend.symbol.radius }}\"\n                ng-fill=\"{{ layer.item.cartography[0].styles.default.static.color }}\"\n                stroke-width=\"1\"\n                stroke=\"#000000\"></circle>\n            </svg>\n          </div>\n          <div ng-if=\"layer.item.cartography[0].legend.symbol.type == \'ellipse\'\">\n            <svg width=\"100%\" height=\"100%\" version=\"1.0\" xmlns=\"http://www.w3.org/2000/svg\">\n              <ellipse\n                cx=\"50%\"\n                cy=\"50%\"\n                ng-rx=\"{{ layer.item.cartography[0].legend.symbol.width }}\"\n                ng-ry=\"{{ layer.item.cartography[0].legend.symbol.height }}\"\n                ng-fill=\"{{ layer.item.cartography[0].styles.default.static.color }}\"\n                stroke-width=\"1\"\n                stroke=\"#000000\"></circle>\n            </svg>\n          </div>\n          <div\n            ng-if=\"layer.item.cartography[0].legend.symbol.type == \'graduated\'\">\n            <svg\n              ng-attr-width=\"{{ layer.item.cartography[0].legend.symbol.width }}\"\n              height=\"100%\"\n              version=\"1.0\"\n              xmlns=\"http://www.w3.org/2000/svg\">\n              <rect\n                ng-repeat=\"color in layer.item.cartography[0].colors.ramp track by $index\"\n                ng-attr-x=\"{{ $index|percent:layer.item.cartography[0].colors.ramp.length }}%\"\n                y=\"0\"\n                ng-attr-width=\"{{ 1|percent:layer.item.cartography[0].colors.ramp.length }}%\"\n                ng-attr-height=\"{{ layer.item.cartography[0].legend.symbol.height }}\"\n                ng-attr-fill=\"{{ color }}\"\n                stroke-width=\"1\"\n                stroke=\"#000000\"/>\n            </svg>\n          </div>\n          <div\n            ng-if=\"layer.item.cartography[0].legend.symbol.type == \'graphic\'\">\n            <i class=\"fa fa-image\" style=\"color:black; font-size: 20px;\"></i>\n          </div>\n        </a>\n      </div><!--\n      --><div class=\"geosite-map-legend-item-label\">\n        <span ng-bind-html=\"layer.item.legend.label | md2html\"></span>\n      </div>\n    </div>\n  </div>\n</div>\n";
@@ -1839,11 +1848,41 @@ geosite.filters["as_float"] = function()
   };
 };
 
-geosite.filters["addFloat"] = function()
+geosite.filters["choose"] = function()
 {
   return function(value, arg)
   {
-    return value + arg;
+    if(Array.isArray(arg))
+    {
+      var arr = arg;
+      return value + arr[value % arr.length];
+    }
+    else
+    {
+      var arr = Array.prototype.slice.call(arguments, [1]);
+      return arr[value % arr.length];
+    }
+  };
+};
+
+geosite.filters["add"] = function()
+{
+  return function(value, arg)
+  {
+    if(Array.isArray(arg))
+    {
+      var arr = arg;
+      return value + arr[value % arr.length];
+    }
+    else if(arguments.length > 2)
+    {
+      var arr = Array.prototype.slice.call(arguments, [1]);
+      return value + arr[value % arr.length];
+    }
+    else
+    {
+      return value + arg;
+    }
   };
 };
 
@@ -2002,6 +2041,113 @@ geosite.filters["url_kml"] = function()
     };
 };
 
+geosite.filters["breakpoint"] = function()
+{
+    return function(style, index)
+    {
+      var breakpoints = geosite.breakpoints[style.styles.default.dynamic.options.breakpoints];
+      if(breakpoints != undefined && breakpoints.length > 0)
+      {
+        return breakpoints[index];
+      }
+      else
+      {
+        return -1;
+      }
+    };
+};
+
+geosite.filters["breakpoints"] = function()
+{
+    return function(style)
+    {
+      var breakpoints = geosite.breakpoints[style.styles.default.dynamic.options.breakpoints];
+      if(breakpoints != undefined && breakpoints.length > 0)
+      {
+        return breakpoints;
+      }
+      else
+      {
+        return [];
+      }
+    };
+};
+
+geosite.filters["formatBreakpoint"] = function()
+{
+    return function(value)
+    {
+      if(Number.isInteger(value))
+      {
+        return geosite.filters["formatInteger"]()(value, 'delimited', ' ');
+      }
+      else if($.isNumeric(value))
+      {
+        return geosite.filters["formatFloat"]()(value, 2);
+      }
+      else
+      {
+        return "" + value;
+      }
+    };
+};
+
+geosite.filters["formatFloat"] = function()
+{
+  return function(value, decimals)
+  {
+    if(decimals != undefined)
+    {
+      return value.toFixed(decimals);
+    }
+    else
+    {
+      return value.toString();
+    }
+  };
+};
+
+geosite.filters["position_x"] = function()
+{
+    return function(domain, index, containerWidth, padding)
+    {
+      var parse_container_width = function(w)
+      {
+        return $.isNumeric(w) ? w : parseInt(w.substring(0, w.indexOf('px')), 10);
+      };
+      var actualWidth = parse_container_width(containerWidth) - (padding * 2);
+      return padding + (actualWidth * index / domain);
+    };
+};
+
+geosite.filters["width_x"] = function()
+{
+    return function(domain, containerWidth, padding)
+    {
+      var parse_container_width = function(w)
+      {
+        return $.isNumeric(w) ? w : parseInt(w.substring(0, w.indexOf('px')), 10);
+      };
+      var actualWidth = parse_container_width(containerWidth)  - (padding * 2);
+      return actualWidth / domain;
+    };
+};
+
+geosite.filters["len"] = geosite.filters["length"] = function()
+{
+  return function(value)
+  {
+    if($.isArray(value))
+    {
+      return value.length;
+    }
+    else
+    {
+      return 0;
+    }
+  };
+};
+
 geosite.directives["ngX"] = function(){
   return {
     scope: true,
@@ -2139,7 +2285,7 @@ geosite.directives["geositeSymbolGraduated"] = function(){
     replace: true,
     scope: {
       style: "=style",  // Text binding / one-way binding
-      width: "@" // Text binding / one-way binding
+      containerWidth: "@" // Text binding / one-way binding
     },
     templateUrl: 'symbol_graduated.tpl.html',
     link: function ($scope, element, attrs){

@@ -128,9 +128,9 @@ def get_summary_cyclone(table_popatrisk=None, iso_alpha3=None):
         print "Values: ", values
 
         values = [float(x) for x in values]
-        num_breakpoints = len(settings.SPARC_MAP_DEFAULTS["symbology"]["popatrisk"]["colors"])
+        num_breakpoints = 5
         natural = calc_breaks_natural(values, num_breakpoints)
-        natural_adjusted = []
+        natural_adjusted = natural
 
         summary = {
             'all': {
@@ -139,7 +139,8 @@ def get_summary_cyclone(table_popatrisk=None, iso_alpha3=None):
                   'at_admin2_month': None
                 },
                 'breakpoints': {
-                    'natural': natural
+                    'natural': natural,
+                    'natural_adjusted': [0] + natural_adjusted
                 }
             },
             "prob_class": {},
@@ -235,7 +236,7 @@ def get_summary_drought(table_popatrisk=None, iso_alpha3=None):
         template="sparc2/sql/_drought_data_all.sql",
         table=table_popatrisk)
 
-    num_breakpoints = len(settings.SPARC_MAP_DEFAULTS["symbology"]["popatrisk"]["colors"])
+    num_breakpoints = 5
 
     summary = {
         'all': {
@@ -357,7 +358,7 @@ def get_summary_flood(table_popatrisk=None, iso_alpha3=None):
     if (not table_popatrisk) or (not iso_alpha3):
         raise Exception("Missing table_popatrisk or iso3 for get_summary_flood.")
 
-    num_breakpoints = len(settings.SPARC_MAP_DEFAULTS["symbology"]["popatrisk"]["colors"])
+    num_breakpoints = 5
 
     connection = psycopg2.connect(settings.GEOSITE_DB_CONN_STR)
     cursor = connection.cursor()
@@ -415,7 +416,7 @@ def get_summary_flood(table_popatrisk=None, iso_alpha3=None):
     natural_adjusted.append(breakpoints[-2])
     #
     summary["all"]["max"]["at_admin2_month"] = max(values)
-    summary["all"]["breakpoints"]["natural_adjusted"] = natural_adjusted
+    summary["all"]["breakpoints"]["natural_adjusted"] = [0] + natural_adjusted + [max(values)]
 
     for rp in returnPeriods:
         # Breakpoints by RP
@@ -503,7 +504,7 @@ def get_summary_context(table_context=None, iso_alpha3=None):
     if (not table_context) or (not iso_alpha3):
         raise Exception("Missing table_context or iso3 for get_summary_context.")
 
-    num_breakpoints = len(settings.SPARC_MAP_DEFAULTS["symbology"]["context"]["colors"])
+    num_breakpoints = 7
 
     connection = psycopg2.connect(settings.GEOSITE_DB_CONN_STR)
     cursor = connection.cursor()
@@ -544,7 +545,7 @@ def get_summary_context(table_context=None, iso_alpha3=None):
         template="sparc2/sql/_admin2_data_all.sql",
         table=table_context)
     values_erosion_propensity = [float(x) for x in values_erosion_propensity]
-    natural_erosion_propensity = calc_breaks_natural(values_erosion_propensity, 2)
+    natural_erosion_propensity = calc_breaks_natural(values_erosion_propensity, 3)
     #####
     values_delta_crop = data_local_country_context_all().get(
         cursor=cursor,
@@ -577,12 +578,12 @@ def get_summary_context(table_context=None, iso_alpha3=None):
             },
             'breakpoints': {
                 'natural': natural_mean,
-                'natural_adjusted': natural_mean_negative + natural_mean_positive,
+                'natural_adjusted': natural_mean_negative + [0] + natural_mean_positive,
                 'natural_negative': natural_negative,
                 'natural_positive': natural_positive,
                 'natural_erosion_propensity': natural_erosion_propensity,
-                'natural_crop': natural_crop_negative + natural_crop_positive,
-                'natural_forest': natural_forest_negative + natural_forest_positive
+                'natural_crop': natural_crop_negative + [0] + natural_crop_positive,
+                'natural_forest': natural_forest_negative + [0] + natural_forest_positive
             }
         }
     }

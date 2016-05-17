@@ -166,34 +166,6 @@ LEAFLET_CONFIG = {
 # SPARC_HAZARDS is used for configuring what hazards are enabled.
 # Additional configuration is in enumerations.py
 SPARC_HAZARDS = ["cyclone", "drought", "flood"]
-SPARC_MAP_DEFAULTS = {
-    "latitude": 0,
-    "longitude": 30,
-    "zoom": 3,
-    "baselayers": [
-        {
-            "title": 'OSM',
-            "url": "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-            "attribution": "&copy; <a href=\"http://www.openstreetmap.org/copyright\">OpenStreetMap</a>"
-        }
-    ],
-    "symbology": {
-        "popatrisk": {
-            # colors is used by /summary.json to decide number of breakpoints
-            #"colors": ["#FF0000", "#FFA500", '#eff76a', '#76f579', '#e1d3d3', '#FFFFFF']
-            "opacity": 0.8,
-            "fillOpacity": 0.4,
-            "colors": ["#FF0000", "#fef0d9", '#fdcc8a', '#fc8d59', '#d7301f']
-        },
-        "context": {
-            # colors is used by /summary.json to decide number of breakpoints
-            #"colors": ["#FF0000", "#FFA500", '#eff76a', '#76f579', '#e1d3d3', '#FFFFFF']
-            "opacity": 0.8,
-            "fillOpacity": 0.4,
-            "colors": ['#cb181d', '#fb6a4a', '#fcae91', '#aaaaaa', '#bdd7e7','#6baed6','#2171b5']
-        }
-    }
-}
 
 GEOSITE_DB_CONN_STR = "dbname='sparc2' user='sparc2' host='localhost' password='sparc2'"
 GEOSITE_CACHE_DATA = True

@@ -24,53 +24,19 @@ from sparc2.models import SPARCCountry
 from sparc2.utils import get_month_number, get_json_admin0, get_geojson_cyclone, get_geojson_drought, get_geojson_flood, get_geojson_context, get_summary_cyclone, get_summary_drought, get_summary_flood, get_summary_context, get_events_cyclone, get_events_flood, get_events_landslide, get_geojson_vam
 
 def home(request, template="home.html"):
-    ctx = {}
-    return render_to_response(template, RequestContext(request, ctx))
+    raise NotImplementedError
 
 def explore(request, template="explore.html"):
-    now = datetime.datetime.now()
-
-    map_config = {
-        "latitude": settings.SPARC_MAP_DEFAULTS.get("latitude", 0),
-        "longitude": settings.SPARC_MAP_DEFAULTS.get("longitude", 0),
-        "zoom": settings.SPARC_MAP_DEFAULTS.get("zoom", 0),
-        "baselayers": settings.SPARC_MAP_DEFAULTS.get("baselayers", []),
-    }
-    ctx = {
-        "map_config": json.dumps(map_config),
-        'current_month': now.strftime("%B")
-    }
-    return render_to_response(template, RequestContext(request, ctx))
+    raise NotImplementedError
 
 def about(request, template="about.html"):
-    ctx = {}
-    return render_to_response(template, RequestContext(request, ctx))
+    raise NotImplementedError
 
 def download(request, template="download.html"):
-    ctx = {}
-    return render_to_response(template, RequestContext(request, ctx))
+    raise NotImplementedError
 
 def country_detail(request, iso3=None, template="country_detail.html"):
-    now = datetime.datetime.now()
-
-    country_title = SPARCCountry.objects.get(country__thesaurus__iso3=iso3).dos_short
-
-    map_config = {
-        "latitude": settings.SPARC_MAP_DEFAULTS.get("latitude", 0),
-        "longitude": settings.SPARC_MAP_DEFAULTS.get("longitude", 0),
-        "zoom": settings.SPARC_MAP_DEFAULTS.get("zoom", 0),
-        "baselayers": settings.SPARC_MAP_DEFAULTS.get("baselayers", []),
-        "legend": {
-            "colors": settings.SPARC_MAP_DEFAULTS["legend"]["colors"]
-        }
-    }
-    ctx = {
-        "iso3": iso3,
-        "country_title": country_title,
-        "map_config": json.dumps(map_config),
-        'current_month': now.strftime("%B")
-    }
-    return render_to_response(template, RequestContext(request, ctx))
+    raise NotImplementedError
 
 def hazard_detail(request, iso3=None, template="hazard_detail.html"):
     raise NotImplementedError

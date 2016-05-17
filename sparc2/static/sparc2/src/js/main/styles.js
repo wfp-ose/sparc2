@@ -76,7 +76,7 @@ geosite.vam_filter_csi = function(value, filters, f)
   return value;
 };
 
-geosite.style_cyclone = function(f, state, map_config, popatrisk_config)
+geosite.style_cyclone = function(f, state, map_config, popatrisk_config, options)
 {
   var style = {};
   var filters = state["filters"]["popatrisk"];
@@ -104,8 +104,7 @@ geosite.style_cyclone = function(f, state, map_config, popatrisk_config)
       }
   }
 
-  value = geosite.vam_filter_fcs(value, filters, f);
-  value = geosite.vam_filter_csi(value, filters, f);
+  $.each(options.filters, function(i, x){ value = geosite[x](value, filters, f); });
 
   if(
     value >= popatrisk_range[0] && value <= popatrisk_range[1] &&
@@ -115,7 +114,7 @@ geosite.style_cyclone = function(f, state, map_config, popatrisk_config)
   )
   {
     var colors = map_config["featurelayers"]["popatrisk"]["cartography"][0]["colors"]["ramp"];
-    var breakpoints = popatrisk_config["data"]["summary"]["all"]["breakpoints"]["natural"];
+    var breakpoints = geosite.breakpoints[options["breakpoints"]];
     var color = undefined;
     for(var i = 0; i < breakpoints.length; i++)
     {
@@ -135,7 +134,7 @@ geosite.style_cyclone = function(f, state, map_config, popatrisk_config)
   return style;
 };
 
-geosite.style_drought = function(f, state, map_config, popatrisk_config)
+geosite.style_drought = function(f, state, map_config, popatrisk_config, options)
 {
   var style = {};
   var filters = state["filters"]["popatrisk"];
@@ -162,8 +161,7 @@ geosite.style_drought = function(f, state, map_config, popatrisk_config)
       }
   }
 
-  value = geosite.vam_filter_fcs(value, filters, f);
-  value = geosite.vam_filter_csi(value, filters, f);
+  $.each(options.filters, function(i, x){ value = geosite[x](value, filters, f); });
 
   if(
     value >= popatrisk_range[0] && value <= popatrisk_range[1] &&
@@ -173,7 +171,7 @@ geosite.style_drought = function(f, state, map_config, popatrisk_config)
   )
   {
     var colors = map_config["featurelayers"]["popatrisk"]["cartography"][0]["colors"]["ramp"];
-    var breakpoints = popatrisk_config["data"]["summary"]["all"]["breakpoints"]["natural"];
+    var breakpoints = geosite.breakpoints[options["breakpoints"]];
     var color = undefined;
     for(var i = 0; i < breakpoints.length; i++)
     {
@@ -192,7 +190,7 @@ geosite.style_drought = function(f, state, map_config, popatrisk_config)
   }
   return style;
 };
-geosite.style_flood = function(f, state, map_config, popatrisk_config)
+geosite.style_flood = function(f, state, map_config, popatrisk_config, options)
 {
   var style = {};
   var filters = state["filters"]["popatrisk"];
@@ -208,8 +206,7 @@ geosite.style_flood = function(f, state, map_config, popatrisk_config)
   var month_short3 = months_short_3[state["month"]-1];
   var value = f.properties["RP"+rp.toString(10)][month_short3];
 
-  value = geosite.vam_filter_fcs(value, filters, f);
-  value = geosite.vam_filter_csi(value, filters, f);
+  $.each(options.filters, function(i, x){ value = geosite[x](value, filters, f); });
 
   if(
     value >= popatrisk_range[0] && value <= popatrisk_range[1] &&
@@ -219,11 +216,14 @@ geosite.style_flood = function(f, state, map_config, popatrisk_config)
   )
   {
       var colors = map_config["featurelayers"]["popatrisk"]["cartography"][0]["colors"]["ramp"];
-      var breakpoints = popatrisk_config["data"]["summary"]["all"]["breakpoints"]["natural_adjusted"];
+      var breakpoints = geosite.breakpoints[options["breakpoints"]];
       var color = undefined;
-      for(var i = 0; i < breakpoints.length; i++)
+      for(var i = 0; i < breakpoints.length -1; i++)
       {
-        if(value < breakpoints[i])
+        if(
+          (value == breakpoints[i] && value == breakpoints[i+1]) ||
+          (value >= breakpoints[i] && value < breakpoints[i+1])
+        )
         {
           color = colors[i];
           break;
@@ -238,7 +238,7 @@ geosite.style_flood = function(f, state, map_config, popatrisk_config)
   }
   return style;
 };
-geosite.style_context = function(f, state, map_config, context_config)
+geosite.style_context = function(f, state, map_config, context_config, options)
 {
   var style = {};
 
