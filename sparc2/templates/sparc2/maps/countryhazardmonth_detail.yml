@@ -45,7 +45,7 @@ featurelayers:
               weight: 1
               color: "#000000"
               opacity: 0.8
-              fillOpacity: 0.4
+              fillOpacity: 0.62
             {% endverbatim %}
             dynamic:
               func: "style_{{ hazard }}"
@@ -222,7 +222,7 @@ featurelayers:
           step: 1
           output: landcover_delta_negative_range`
       - label: Erosion Propensity
-        description:  "Filter by the erosion propensity, which indicates areas under erosion process (> 5 Tons/ha per year).\nThe erosion propensity is calculated using the RUSLE equation (Rain incidence, Slope length, Lithology, Land cover)."
+        description:  "Filter by the erosion propensity, which indicates percentage of surface area under erosion process (> 5 Tons/ha per year).\nThe erosion propensity is calculated using the RUSLE equation (Rain incidence, Slope length, Lithology, Land cover)."
         line_height: 36px
         height: 50px
         type: slider
@@ -412,7 +412,7 @@ featurelayers:
           step: 1
           output: landcover_delta_negative_range
       - label: Erosion Propensity
-        description:  "Filter by the erosion propensity, which indicates areas under erosion process (> 5 Tons/ha per year).\n\nThe erosion propensity is calculated using the RUSLE equation (Rain incidence, Slope length, Lithology, Land cover)."
+        description:  "Filter by the erosion propensity, which indicates percentage of surface area under erosion process (> 5 Tons/ha per year).\n\nThe erosion propensity is calculated using the RUSLE equation (Rain incidence, Slope length, Lithology, Land cover)."
         line_height: 36px
         height: 50px
         type: slider

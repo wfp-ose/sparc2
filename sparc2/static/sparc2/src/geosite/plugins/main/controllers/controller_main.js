@@ -36,6 +36,13 @@ geosite.controllers["controller_main"] = function(
     $scope.state = geosite.init_state(state, stateschema);
     $scope.live = live;
 
+    $scope.refreshMap = function(state){
+
+
+      // Refresh all child controllers
+      $scope.$broadcast("refreshMap", {'state': state});
+    };
+
     // Toggle Modals
     $scope.$on("toggleModal", function(event, args) {
         console.log('event', event);
@@ -125,8 +132,7 @@ geosite.controllers["controller_main"] = function(
             $scope.state = $.extend($scope.state, args);
             var url = buildPageURL($interpolate, map_config, $scope.state);
             history.replaceState(state, "", url);
-            // Refresh Map
-            $scope.$broadcast("refreshMap", {'state': $scope.state});
+            $scope.refreshMap($scope.state);
         });
     });
 
@@ -142,8 +148,7 @@ geosite.controllers["controller_main"] = function(
               args["filter"]);
             var url = buildPageURL($interpolate, map_config, $scope.state);
             history.replaceState(state, "", url);
-            // Refresh Map
-            $scope.$broadcast("refreshMap", {'state': $scope.state});
+            $scope.refreshMap($scope.state);
         });
     });
 
@@ -157,8 +162,7 @@ geosite.controllers["controller_main"] = function(
             $scope.state.styles[args["layer"]] = args["style"];
             var url = buildPageURL($interpolate, map_config, $scope.state);
             history.replaceState(state, "", url);
-            // Refresh Map
-            $scope.$broadcast("refreshMap", {'state': $scope.state});
+            $scope.refreshMap($scope.state);
         });
     });
 
@@ -205,8 +209,7 @@ geosite.controllers["controller_main"] = function(
         if($.inArray(layer, $scope.state.view.featurelayers) == -1)
         {
           $scope.state.view.featurelayers.push(layer);
-          // Refresh Map
-          $scope.$broadcast("refreshMap", {'state': $scope.state});
+          $scope.refreshMap($scope.state);
         }
     });
     $scope.$on("hideLayer", function(event, args) {
@@ -218,8 +221,7 @@ geosite.controllers["controller_main"] = function(
         if(i != -1)
         {
           $scope.state.view.featurelayers.splice(i, 1);
-          // Refresh Map
-          $scope.$broadcast("refreshMap", {'state': $scope.state});
+          $scope.refreshMap($scope.state);
         }
     });
     $scope.$on("showLayers", function(event, args) {
@@ -233,8 +235,7 @@ geosite.controllers["controller_main"] = function(
           if($.inArray(layer, $scope.state.view.featurelayers) == -1)
           {
             $scope.state.view.featurelayers.push(layer);
-            // Refresh Map
-            $scope.$broadcast("refreshMap", {'state': $scope.state});
+            $scope.refreshMap($scope.state);
           }
         }
     });
@@ -250,8 +251,7 @@ geosite.controllers["controller_main"] = function(
           if(j != -1)
           {
             $scope.state.view.featurelayers.splice(j, 1);
-            // Refresh Map
-            $scope.$broadcast("refreshMap", {'state': $scope.state});
+            $scope.refreshMap($scope.state);
           }
         }
     });
@@ -260,8 +260,7 @@ geosite.controllers["controller_main"] = function(
         console.log('args', args);
         var $scope = angular.element("#geosite-main").scope();
         $scope.state.view.baselayer = args.layer;
-        // Refresh Map
-        $scope.$broadcast("refreshMap", {'state': $scope.state});
+        $scope.refreshMap($scope.state);
     });
 
     $scope.$on("zoomToLayer", function(event, args) {
