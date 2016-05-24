@@ -7,3 +7,5 @@ enumerations:
   - breadcrumbs.js
 templates:
   - breadcrumbs.tpl.html
+less:
+  - breadcrumbs.less

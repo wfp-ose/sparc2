@@ -5,7 +5,7 @@ geosite.init_explore = function(appName)
   if(geosite.templates != undefined)
   {
     $.each(geosite.templates, function(name, template){
-      app.run(function($templateCache){$templateCache.put(name,template);});
+      app.run(function($templateCache){$templateCache.put(name, template);});
     });
   }
 

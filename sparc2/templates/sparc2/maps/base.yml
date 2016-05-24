@@ -4,6 +4,13 @@
 title: SPARC
 {% endblock %}
 
+{% block welcome %}
+welcome:
+  title: "SPARC - Spatial Risk Calendar"
+  intro: "Welcome to SPARC!\n\n SPARC is a Spatial Risk Calendar that combines data layers covering hazard exposure and population vulnerability to determine baseline probabilistic levels of humanitarian impact associated with particular hazard types, on a monthly basis, at a sub-national level, around the globe.\n\n"
+  about: "SPARC is a Spatial Risk Calendar that combines data layers covering hazard exposure and population vulnerability to determine baseline probabilistic levels of humanitarian impact associated with particular hazard types, on a monthly basis, at a sub-national level, around the globe.\n\nSPARC is a digital service provided by the World Foood Programme (WFP), Emergency Preparedness and Support Response Division (OSE)."
+{% endblock %}
+
 {% block pages %}{% verbatim %}
 pages:
   explore: "/explore"
@@ -14,15 +21,6 @@ pages:
 
 {% block baselayers %}
 baselayers:
-  - id: "osm_humanitarian"
-    title: OpenStreetMap / Humanitarian
-    description: "OpenStreetMap Basemap, Humanitarian Style"
-    source:
-      name: "OpenStreetMap"
-      attribution: "&copy; <a href=\"http://www.openstreetmap.org/copyright\">OpenStreetMap</a>"
-      url: "http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"
-    legend:
-      label: "OpenStreetMap / Humanitarian"
   - id: "osm"
     title: "OpenStreetMap"
     description: "OpenStreetMap Basemap, Standard Style"
@@ -32,6 +30,15 @@ baselayers:
       url: "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
     legend:
       label: "OpenStreetMap"
+  - id: "osm_humanitarian"
+    title: OpenStreetMap / Humanitarian
+    description: "OpenStreetMap Basemap, Humanitarian Style"
+    source:
+      name: "OpenStreetMap"
+      attribution: "&copy; <a href=\"http://www.openstreetmap.org/copyright\">OpenStreetMap</a>"
+      url: "http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"
+    legend:
+      label: "OpenStreetMap / Humanitarian"
 {% endblock %}
 
 {% block legendlayers %}

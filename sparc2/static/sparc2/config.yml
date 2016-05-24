@@ -2,6 +2,13 @@
 name: "SPARC 2.x"
 path:
   geosite: "./src/geosite"
+less:
+  pre:
+    - "./src/geosite/global/sparc.less"
+  paths:
+    - "./src/geosite/global"
+  outfile: "main.css"
+  dest: "./build/css/"
 plugins:
   - breadcrumbs
   - calendar
@@ -9,6 +16,7 @@ plugins:
   - map_map
   - sparc_sidebar
   - main
+  - sparc_welcome
 dependencies:
   production:
     javascript:
@@ -24,11 +32,6 @@ dependencies:
       - "./src/js/polyfill/*.js"
 compiler:
   list:
-    - name: "main_less"
-      type: "less"
-      src: "./src/less/main/*.less"
-      outfile: "main.css"
-      dest: "./build/css/"
     - name: "monkeypatch_js"
       type: "js"
       src: "./src/js/monkeypatch/*.js"

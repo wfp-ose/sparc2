@@ -74,6 +74,7 @@ var flatten_configs = function(n)
   return configs;
 };
 
+var rootConfig = require("./config.yml");
 var configs = flatten_configs(load_config("./config.yml"));
 
 var geosite_projects = [];
@@ -85,6 +86,7 @@ var compile_filters = [];
 var compile_directives = [];
 var compile_controllers = [];
 var compile_js = [];
+var compile_less = [];
 var test_js = [];
 var compilelist = [];
 
@@ -99,6 +101,7 @@ for(var i = 0; i < configs.length; i++)
   var project_filters = []; // Exported to the compile process
   var project_directives = []; // Exported to the compile process
   var project_controllers = []; // Exported to the compile process
+  var project_less = []; // Exported to the compile process
 
   for(var j = 0; j < config["plugins"].length; j++)
   {
@@ -108,13 +111,14 @@ for(var i = 0; i < configs.length; i++)
     geosite_plugin["id"] = config["plugins"][j];
 
     var files = collect_files_all(path_plugins, geosite_plugin,
-      ["enumerations", "filters", "controllers", "directives", "templates"]);
+      ["enumerations", "filters", "controllers", "directives", "templates", "less"]);
 
     project_templates = project_templates.concat(files["templates"]);
     project_enumerations = project_enumerations.concat(files["enumerations"]);
     project_filters = project_filters.concat(files["filters"]);
     project_directives = project_directives.concat(files["directives"]);
     project_controllers = project_controllers.concat(files["controllers"]);
+    project_less = project_less.concat(files["less"]);
   }
 
   if("templates" in config["dependencies"]["production"])
@@ -129,6 +133,7 @@ for(var i = 0; i < configs.length; i++)
   compile_filters = compile_filters.concat(project_filters);
   compile_directives = compile_directives.concat(project_directives);
   compile_controllers = compile_controllers.concat(project_controllers);
+  compile_less = compile_less.concat(project_less);
 
   compile_js = compile_js.concat(
     config["dependencies"]["production"]["javascript"].map(function(x){return path.join(config.path.base, x);})
@@ -151,6 +156,11 @@ test_js = test_js.concat(
     compile_directives,
     compile_controllers);
 
+compile_less = [].concat(
+  rootConfig["less"]["pre"],
+  compile_less
+);
+
 compilelist = compilelist.concat([
     {
         "name": "main_js",
@@ -158,9 +168,17 @@ compilelist = compilelist.concat([
         "src": compile_js,
         "outfile":"main.js",
         "dest":"./build/js/"
-    }
+    },
+    {
+        "name": "main_less",
+        "type": "less",
+        "src": compile_less,
+        "outfile": rootConfig["less"]["outfile"],
+        "dest": rootConfig["less"]["dest"],
+        "paths": rootConfig["less"]["paths"]
+    },
 ]);
-compilelist = compilelist.concat(require("./config.yml")["compiler"]["list"]);
+compilelist = compilelist.concat(rootConfig["compiler"]["list"]);
 
 var copylist =
 [
@@ -189,8 +207,8 @@ gulp.task('compile', ['geosite:templates'], function(){
         }
         else if(t.type=="less")
         {
-            gulp.src(t.src)
-                .pipe(less())
+            gulp.src(t.src, {base: './'})
+                .pipe(less({paths: t.paths}))
                 .pipe(concat(t.outfile))
                 .pipe(gulp.dest(t.dest));
         }

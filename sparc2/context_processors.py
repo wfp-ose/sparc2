@@ -31,7 +31,8 @@ def sparc2(request):
         SPARC_BREADCRUMBS=SPARC_BREADCRUMBS,
         SPARC_HAZARDS=settings.SPARC_HAZARDS,
         SPARC_HAZARDS_CONFIG=[c for c in SPARC_HAZARDS_CONFIG if c['id'] in settings.SPARC_HAZARDS],
-        SPARC_COUNTRIES_SELECT2=json.dumps([{'text': rb.name, 'children':[{'id':c.country.thesaurus.iso_alpha3, 'text': c.country.gaul.admin0_name} for c in SPARCCountry.objects.all().select_related('country') if c.country.regionalbureau == rb]} for rb in WFPRegionalBureau.objects.all()]),
+        SPARC_COUNTRIES_SELECT2=json.dumps([{'id':c.country.thesaurus.iso_alpha3, 'text': c.country.gaul.admin0_name} for c in SPARCCountry.objects.all().select_related('country')]),
+        SPARC_COUNTRIES_SELECT2_BY_RB=json.dumps([{'text': rb.name, 'children':[{'id':c.country.thesaurus.iso_alpha3, 'text': c.country.gaul.admin0_name} for c in SPARCCountry.objects.all().select_related('country') if c.country.regionalbureau == rb]} for rb in WFPRegionalBureau.objects.all()]),
         SPARC_HAZARDS_SELECT2=json.dumps([{'id':c['id'], 'text':c['title']} for c in SPARC_HAZARDS_CONFIG if c['id'] in settings.SPARC_HAZARDS])
     )
 

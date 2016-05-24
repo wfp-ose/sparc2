@@ -13,3 +13,5 @@ templates:
   - filter/filter_radio.tpl.html
   - filter/filter_slider.tpl.html
   - filter_container.tpl.html
+less:
+  - filter.less

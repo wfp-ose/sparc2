@@ -1,0 +1,23 @@
+@import "variables.less";
+
+.geosite-popup-plain {
+  word-wrap: break-word;
+  text-align:center;
+  font-family: Verdana;
+  font-size: 14px;
+
+  .geosite-popup-plain-value {
+    font-size: 18px;
+    text-decoration: underline;
+  }
+}
+
+.geosite-popup-chart {
+  width: @geosite-map-popup-chart-width;
+  height: @geosite-map-popup-chart-height;
+  margin: 0 auto;
+
+  .c3-tooltip-container {
+    z-index: @geosite-map-popup-z-index;
+  }
+}

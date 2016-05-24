@@ -1,0 +1,9 @@
+---
+controllers:
+  - controller_sparc_welcome.js
+directives:
+  - sparcModalWelcome.js
+templates:
+  - modal_welcome_sparc.tpl.html
+less:
+  - sparc_welcome.less

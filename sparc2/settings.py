@@ -221,6 +221,7 @@ GEOSITE_STATIC_DEBUG = {
     "d3": False,
     "bootstrap": False,
     "jquery": False,
-    "leaflet": True
+    "leaflet": True,
+    "select2": True
 }
 #######################################

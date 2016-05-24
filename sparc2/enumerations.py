@@ -92,7 +92,7 @@ SPARC_BREADCRUMBS = [
         "width": "resolve",
         "height": "50px",
         "output": "iso3",
-        "data": "countries_select2",
+        "data": "countries_select2_by_rb",
         "breadcrumbs": [
             {
                 "name": "country",

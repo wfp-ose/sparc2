@@ -5,3 +5,5 @@ directives:
   - geositeCalendar.js
 templates:
   - calendar.tpl.html
+less:
+  - calendar.less

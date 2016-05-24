@@ -32,9 +32,25 @@ geosite.controllers["controller_main"] = function(
   $interpolate, $scope, $element, $controller, $http, $q,
   state, map_config, stateschema, live)
 {
-
+    $scope.map_config = map_config;
     $scope.state = geosite.init_state(state, stateschema);
     $scope.live = live;
+
+    setTimeout(function(){
+
+      sparc.welcome({'scope': $scope});
+
+      /*var intentData = {
+        "id": "geosite-modal-welcome",
+        "dynamic": {},
+        "static": {
+          "welcome": map_config["welcome"]
+        }
+      };
+      geosite.intend("toggleModal", intentData, $scope);*/
+
+    }, 10);
+
 
     $scope.refreshMap = function(state){
 
@@ -50,6 +66,7 @@ geosite.controllers["controller_main"] = function(
         //
         var main_scope = angular.element("#geosite-main").scope();
         var id = args["id"];
+        //var backdrop = "backdrop" in args ? args["backdrop"] : undefined;
         var modal_scope = angular.element("#"+id).scope();
         var modal_scope_new = {
           "state": main_scope.state
@@ -354,6 +371,7 @@ var init_sparc_controller_main = function(that, app)
       { "selector": ".geosite-controller.sparc-map-breadcrumb", "controller": geosite.controllers.controller_breadcrumb },
       { "selector": ".geosite-controller.geosite-map-filter", "controller": geosite.controllers.controller_filter },
       { "selector": ".geosite-controller.geosite-map-legend", "controller": geosite.controllers.controller_legend },
+      { "selector": ".geosite-controller.sparc-welcome", "controller": geosite.controllers.controller_sparc_welcome }
     ]);
 
     // Init Modals

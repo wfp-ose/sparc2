@@ -5,3 +5,6 @@ directives:
   - sparcSidebarCharts.js
 templates:
   - sparc_sidebar_charts.tpl.html
+less:
+  - sidebar.less
+  - sidebar-toggle.less

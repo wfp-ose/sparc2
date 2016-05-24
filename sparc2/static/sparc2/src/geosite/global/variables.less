@@ -1,0 +1,69 @@
+/* Widely Used Variables */
+
+@wfp-blue: #0088FF;
+@sparc-font-family-primary: 'Open Sans', sans-serif;
+
+@geosite-header-height: 61px;
+@sparc-calendar-height: 42px;
+@sparc-calendar-transition: 1s;
+
+@screen-xs-min: 480px;
+@screen-sm-min: 808px; /* Original 768px */
+@screen-md-min: 992px;
+@screen-lg-min: 1200px;
+
+@screen-xs-max: (@screen-sm-min - 1);
+@screen-sm-max: (@screen-md-min - 1);
+@screen-md-max: (@screen-lg-min - 1);
+
+@geosite-leaflet-position-top: 60px;
+
+/* Defaults for Modals */
+@geosite-modal-z-index: 999999; /* 5 x 9s */
+@geosite-modal-select-dropdown-z-index: 999999; /* 6 x 9s */
+
+/* Defaults for Popups */
+@geosite-map-popup-z-index: 99999;
+@geosite-map-popup-chart-width: 260px;
+@geosite-map-popup-chart-height: 200px;
+
+/* Defaults for Controls */
+@geosite-map-control-background: rgba(0,0,0,0);
+@geosite-map-control-width: 258px;
+@geosite-map-control-z-index: 9999; /* 4 x 9s */
+
+/* Welcome */
+@sparc-welcome-body-font-family: @sparc-font-family-primary;
+@sparc-welcome-body-font-size: 14px;
+@sparc-welcome-body-font-size-h3: 18px;
+
+@sparc-welcome-select-font-family: @sparc-font-family-primary;
+@sparc-welcome-select-foreground: white;
+@sparc-welcome-select-background: @wfp-blue;
+@sparc-welcome-select-dropdown-height: 56px;
+@sparc-welcome-select-dropdown-font-size: 20px;
+@sparc-welcome-select-dropdown-z-index: @geosite-modal-select-dropdown-z-index;
+
+/* Breadcrumbs */
+@sparc-breadcrumbs-select-dropdown-height: 48px;
+@sparc-breadcrumbs-select-dropdown-font-size: 20px;
+
+/* Legend */
+@geosite-map-legend-width: 358px;
+@geosite-map-legend-background: #337ab7;
+@geosite-map-legend-z-index: @geosite-map-control-z-index;
+@geosite-map-legend-item-symbol-width: 40px;
+@geosite-map-legend-item-symbol-height: 100%;
+@geosite-map-legend-item-symbol-max-height: 20px;
+
+/* Filter */
+@geosite-map-filter-width: 358px;
+@geosite-map-filter-background: @geosite-map-control-background;
+@geosite-map-filter-z-index: @geosite-map-control-z-index;
+
+/* Sidebar */
+@geosite-sidebar-width: 400px;
+@geosite-sidebar-left-width: @geosite-sidebar-width;
+@geosite-sidebar-right-width: @geosite-sidebar-width;
+@geosite-sidebar-transition: 2s;
+@geosite-map-sidebar-toggle-z-index: @geosite-map-control-z-index;
