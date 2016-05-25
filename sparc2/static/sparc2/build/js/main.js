@@ -658,7 +658,12 @@ geosite.codec.parseAttributes  = function(element, fields)
 
 geosite.popup = {};
 
-geosite.popup.buildField = function(field, layer, feature)
+geosite.popup.buildChart = function(chart, layer, feature, state)
+{
+  return "<div id=\""+chart.id+"\" class=\"geosite-popup-chart\"></div>"
+}
+
+geosite.popup.buildField = function(field, layer, feature, state)
 {
   var output = field["output"] || field["attribute"];
   var html = undefined;
@@ -721,7 +726,7 @@ geosite.popup.buildField = function(field, layer, feature)
   return html;
 };
 
-geosite.popup.buildPopupTemplate = function(popup, layer, feature)
+geosite.popup.buildPopupTemplate = function(popup, layer, feature, state)
 {
   var panes = popup.panes;
   var popupTemplate = "";
@@ -736,15 +741,34 @@ geosite.popup.buildPopupTemplate = function(popup, layer, feature)
   {
     var pane = panes[i];
     var popupFields = [];
-    for(var j = 0; j < pane.fields.length; j++)
+    var popupCharts = [];
+    if("fields" in pane)
     {
-      var popupField = geosite.popup.buildField(pane.fields[j], layer, feature);
-      if(popupField != undefined)
+      for(var j = 0; j < pane.fields.length; j++)
       {
-        popupFields.push(popupField);
+        var popupField = geosite.popup.buildField(pane.fields[j], layer, feature, state);
+        if(popupField != undefined)
+        {
+          popupFields.push(popupField);
+        }
+      }  
+    }
+    if("charts" in pane)
+    {
+      for(var j = 0; j < pane.charts.length; j++)
+      {
+        var popupChart = geosite.popup.buildChart(pane.charts[j], layer, feature, state);
+        if(popupChart != undefined)
+        {
+          popupCharts.push(popupChart);
+        }
       }
     }
     var paneContent = popupFields.join("<br>");
+    if(popupCharts.length > 0)
+    {
+      paneContent += "<hr>" + popupCharts.join("<br>");
+    }
     paneContents.push(paneContent);
   }
   //////////////////
@@ -777,16 +801,21 @@ geosite.popup.buildPopupTemplate = function(popup, layer, feature)
   return popupTemplate;
 };
 
-geosite.popup.openPopup = function($interpolate, featureLayer, feature, location, map)
+geosite.popup.buildPopupContent = function($interpolate, featureLayer, feature, state)
 {
-  var fl = featureLayer;
-  var popupTemplate = geosite.popup.buildPopupTemplate(fl.popup, featureLayer, feature);
+  var popupTemplate = geosite.popup.buildPopupTemplate(featureLayer.popup, featureLayer, feature, state);
   var ctx = {
     'layer': featureLayer,
-    'feature': feature
+    'feature': feature,
+    'state': state
   };
-  var popupContent = $interpolate(popupTemplate)(ctx);
-  var popup = new L.Popup({maxWidth: (fl.popup.maxWidth || 400)}, undefined);
+  return $interpolate(popupTemplate)(ctx);
+};
+
+geosite.popup.openPopup = function($interpolate, featureLayer, feature, location, map, state)
+{
+  var popupContent = geosite.popup.buildPopupContent($interpolate, featureLayer, feature, state);
+  var popup = new L.Popup({maxWidth: (featureLayer.popup.maxWidth || 400)}, undefined);
   popup.setLatLng(new L.LatLng(location.lat, location.lon));
   popup.setContent(popupContent);
   map.openPopup(popup);
@@ -1010,6 +1039,68 @@ sparc.welcome = function(options)
     }
   };
   geosite.intend("toggleModal", intentData, scope);
+};
+
+sparc.normalize_feature = function(feature)
+{
+  var feature = {
+    'attributes': feature.attributes || feature.properties,
+    'geometry': feature.geometry
+  };
+  return feature;
+};
+
+sparc.calculate_population_at_risk = function(hazard, feature, state, filters)
+{
+  var value = 0;
+  var month_short3 = months_short_3[state["month"]-1];
+
+  if(hazard == "cyclone")
+  {
+    var prob_class_max = state["filters"]["popatrisk"]["prob_class_max"];
+    var category = state["filters"]["popatrisk"]["category"];
+    for(var i = 0; i < feature.attributes.addinfo.length; i++)
+    {
+      var a = feature.attributes.addinfo[i];
+      if(a["category"] == category)
+      {
+        if(a["prob_class_max"] != 0 && a["prob_class_max"] <= prob_class_max)
+        {
+          console.log("matched prob_class", prob_class_max);
+          value += a[month_short3];
+        }
+      }
+    }
+  }
+  else if(hazard == "drought")
+  {
+    var prob_class_max = state["filters"]["popatrisk"]["prob_class_max"];
+    for(var i = 0; i < feature.attributes.addinfo.length; i++)
+    {
+      var a = feature.attributes.addinfo[i];
+      if(a["month"] == month_short3)
+      {
+        if(a["prob"] != 0 && a["prob"] < prob_class_max)
+        {
+          value += a["popatrisk"];
+        }
+      }
+    }
+  }
+  else if(hazard == "flood")
+  {
+    var rp = state["filters"]["popatrisk"]["rp"];
+    value = feature.attributes["RP"+rp.toString(10)][month_short3];
+  }
+
+  if(filters != undefined)
+  {
+    $.each(filters, function(i, x){
+      value = geosite[x](value, state["filters"]["popatrisk"], feature);
+    });
+  }
+
+  return value;
 };
 
 var buildGroupsAndColumnsForCountry = function(chartConfig, popatrisk_config)
@@ -1499,7 +1590,6 @@ geosite.style_cyclone = function(f, state, map_config, options)
 {
   var style = {};
   var filters = state["filters"]["popatrisk"];
-  var prob_class_max = filters["prob_class_max"];
   var popatrisk_range = filters["popatrisk_range"];
   var ldi_range = filters["ldi_range"];
   var ldi = f.properties.ldi;
@@ -1507,23 +1597,12 @@ geosite.style_cyclone = function(f, state, map_config, options)
   var erosion_propensity = f.properties.erosion_propensity;
   var landcover_delta_negative_range = filters["landcover_delta_negative_range"];
   var landcover_delta_negative = f.properties.delta_negative;
-  //
-  var month_short3 = months_short_3[state["month"]-1];
-  var value = 0;
-  for(var i = 0; i < f.properties.addinfo.length; i++)
-  {
-      var a = f.properties.addinfo[i];
-      if(a["category"] == filters["category"])
-      {
-        if(a["prob_class_max"] != 0 && a["prob_class_max"] <= prob_class_max)
-        {
-          console.log("matched prob_class", prob_class_max);
-          value += a[month_short3];
-        }
-      }
-  }
 
-  $.each(options.filters, function(i, x){ value = geosite[x](value, filters, f); });
+  var value = sparc.calculate_population_at_risk(
+    'cyclone',
+    sparc.normalize_feature(f),
+    state,
+    options.filters);
 
   if(
     value >= popatrisk_range[0] && value <= popatrisk_range[1] &&
@@ -1535,9 +1614,12 @@ geosite.style_cyclone = function(f, state, map_config, options)
     var colors = map_config["featurelayers"]["popatrisk"]["cartography"][0]["colors"]["ramp"];
     var breakpoints = geosite.breakpoints[options["breakpoints"]];
     var color = undefined;
-    for(var i = 0; i < breakpoints.length; i++)
+    for(var i = 0; i < breakpoints.length -1; i++)
     {
-      if(value < breakpoints[i])
+      if(
+        (value == breakpoints[i] && value == breakpoints[i+1]) ||
+        (value >= breakpoints[i] && value < breakpoints[i+1])
+      )
       {
         color = colors[i];
         break;
@@ -1557,7 +1639,6 @@ geosite.style_drought = function(f, state, map_config, options)
 {
   var style = {};
   var filters = state["filters"]["popatrisk"];
-  var prob_class_max = filters["prob_class_max"] / 100.0;
   var popatrisk_range = filters["popatrisk_range"];
   var ldi_range = filters["ldi_range"];
   var ldi = f.properties.ldi;
@@ -1565,22 +1646,12 @@ geosite.style_drought = function(f, state, map_config, options)
   var erosion_propensity = f.properties.erosion_propensity;
   var landcover_delta_negative_range = filters["landcover_delta_negative_range"];
   var landcover_delta_negative = f.properties.delta_negative;
-  //
-  var month_short3 = months_short_3[state["month"]-1];
-  var value = 0;
-  for(var i = 0; i < f.properties.addinfo.length; i++)
-  {
-      var a = f.properties.addinfo[i];
-      if(a["month"] == month_short3)
-      {
-        if(a["prob"] < prob_class_max)
-        {
-          value += a["popatrisk"];
-        }
-      }
-  }
 
-  $.each(options.filters, function(i, x){ value = geosite[x](value, filters, f); });
+  var value = sparc.calculate_population_at_risk(
+    'drought',
+    sparc.normalize_feature(f),
+    state,
+    options.filters);
 
   if(
     value >= popatrisk_range[0] && value <= popatrisk_range[1] &&
@@ -1592,9 +1663,12 @@ geosite.style_drought = function(f, state, map_config, options)
     var colors = map_config["featurelayers"]["popatrisk"]["cartography"][0]["colors"]["ramp"];
     var breakpoints = geosite.breakpoints[options["breakpoints"]];
     var color = undefined;
-    for(var i = 0; i < breakpoints.length; i++)
+    for(var i = 0; i < breakpoints.length -1; i++)
     {
-      if(value < breakpoints[i])
+      if(
+        (value == breakpoints[i] && value == breakpoints[i+1]) ||
+        (value >= breakpoints[i] && value < breakpoints[i+1])
+      )
       {
         color = colors[i];
         break;
@@ -1613,7 +1687,6 @@ geosite.style_flood = function(f, state, map_config, options)
 {
   var style = {};
   var filters = state["filters"]["popatrisk"];
-  var rp = filters["rp"];
   var popatrisk_range = filters["popatrisk_range"];
   var ldi_range = filters["ldi_range"];
   var ldi = f.properties.ldi;
@@ -1621,11 +1694,12 @@ geosite.style_flood = function(f, state, map_config, options)
   var erosion_propensity = f.properties.erosion_propensity;
   var landcover_delta_negative_range = filters["landcover_delta_negative_range"];
   var landcover_delta_negative = f.properties.delta_negative;
-  //
-  var month_short3 = months_short_3[state["month"]-1];
-  var value = f.properties["RP"+rp.toString(10)][month_short3];
 
-  $.each(options.filters, function(i, x){ value = geosite[x](value, filters, f); });
+  var value = sparc.calculate_population_at_risk(
+    'flood',
+    sparc.normalize_feature(f),
+    state,
+    options.filters);
 
   if(
     value >= popatrisk_range[0] && value <= popatrisk_range[1] &&
@@ -1737,7 +1811,7 @@ geosite.templates["filter_radio.tpl.html"] = "<div class=\"geosite-filter geosit
 geosite.templates["filter_slider.tpl.html"] = "<div class=\"geosite-filter geosite-filter-slider\" style=\"height: {{ filter.height }};\">\n  <div class=\"geosite-filter-label\">\n    <a\n      class=\"geosite-intent\"\n      data-intent-name=\"toggleModal\"\n      data-intent-data=\"{&quot;id&quot;:&quot;geosite-modal-filter-more&quot;,&quot;static&quot;:{&quot;tab&quot;:&quot;modal-filter-more-general&quot;},&quot;dynamic&quot;:{&quot;value&quot;:[&quot;state&quot;,&quot;filters&quot;,&quot;popatrisk&quot;,&quot;{{ filter.slider.output }}&quot;],&quot;filter&quot;:[&quot;map_config&quot;,&quot;featurelayers&quot;,&quot;popatrisk&quot;,&quot;filters&quot;,&quot;{{ $index }}&quot;]}}\">\n      <i class=\"fa fa-info-circle\"></i>\n    </a>\n    <span ng-bind-html=\"filter.label | md2html\"></span> :\n  </div>\n  <div style=\"display:table; height:{{ filter.height }};padding-left:10px;padding-right:10px;\">\n    <div style=\"display:table-cell;vertical-align:middle;\">\n      <div class=\"geosite-filter-slider-label\">Placeholder</div>\n      <div\n        class=\"geosite-filter-slider-slider\"\n        style=\"width:{{ filter.slider.width }};\"\n        data-type=\"{{ filter.slider.type }}\"\n        data-value=\"{{ filter.slider.value ? filter.slider.value : \'\' }}\"\n        data-values=\"{{ filter.slider.values ? filter.slider.values : \'\' }}\"\n        data-range=\"{{ filter.slider.range == \'true\' ? \'true\': filter.slider.range }}\"\n        data-output=\"{{ filter.slider.output }}\"\n        data-min-value=\"{{ filter.slider.min|default_if_undefined:\'\' }}\"\n        data-max-value=\"{{ filter.slider.max|default_if_undefined:\'\' }}\"\n        data-step=\"{{ filter.slider.step ? filter.slider.step : \'\' }}\"\n        data-options=\"{{ filter.slider.options ? filter.slider.options : \'\' }}\"\n        data-label-template=\"{{ filter.slider.label }}\"\n        ></div>\n    </div>\n  </div>\n</div>\n";
 geosite.templates["filter_container.tpl.html"] = "<div id=\"geosite-map-filter-container\" class=\"collapse\" style=\"\">\n  <div\n    ng-repeat=\"filter in filters track by $index\">\n    <div geosite-filter-radio ng-if=\"filter.type == \'radio\'\"></div>\n    <div geosite-filter-checkbox ng-if=\"filter.type == \'checkbox\'\"></div>\n    <div geosite-filter-slider ng-if=\"filter.type == \'slider\'\"></div>\n  </div>\n</div>\n";
 geosite.templates["sparc_sidebar_charts.tpl.html"] = "<div class=\"geosite-sidebar-charts\" style=\"width:100%;\">\n  <!-- Nav tabs -->\n  <ul class=\"nav nav-tabs\" role=\"tablist\">\n    <p class=\"navbar-text\" style=\"margin-bottom:0px;\"><b>Select</b><br><b>a Chart:</b></p>\n    <li\n      role=\"presentation\"\n      ng-class=\"$first ? \'active\' : \'\'\"\n      ng-repeat=\"chart in charts track by $index\">\n      <a\n        class=\"\"\n        href=\"#sparc-chart-{{ chart.id }}-pane\"\n        aria-controls=\"sparc-chart-{{ chart.id }}-pane\"\n        role=\"tab\"\n        data-toggle=\"tab\"\n        style=\"padding-left:8px; padding-right: 8px;\"\n        ng-bind-html=\"chart.title | default:\'Default\' | tabLabel\"></a>\n    </li>\n  </ul>\n  <!-- Tab panes -->\n  <div class=\"tab-content\">\n    <div\n      ng-class=\"$first ? \'tab-pane fade in active\' : \'tab-pane fade\'\"\n      ng-repeat=\"chart in charts track by $index\"\n      on-repeat-done=\"chart_done\"\n      data-repeat-index=\"{{ $index }}\"\n      id=\"sparc-chart-{{ chart.id }}-pane\"\n      role=\"tabpanel\"\n      style=\"padding: 10px;\">\n      <div>\n        <h4 style=\"text-align:center;\">{{ chart.title }}</h4>\n      </div>\n      <div\n        id=\"{{ chart.element }}\"\n        class=\"geosite-sidebar-chart\"\n        style=\"width:360px;margin:0 auto;\"\n      ></div>\n    </div>\n  </div>\n</div>\n";
-geosite.templates["modal_welcome_sparc.tpl.html"] = "<div class=\"modal-dialog\" data-backdrop=\"static\" role=\"document\">\n  <div class=\"modal-content\">\n    <div class=\"modal-header\">\n      <h4 class=\"modal-title\" id=\"myModalLabel\">{{ welcome.title }}</h4>\n    </div>\n    <div class=\"modal-body\">\n      <div>\n        <!-- Nav tabs -->\n        <ul class=\"nav nav-tabs\" role=\"tablist\">\n          <li role=\"presentation\" class=\"active\">\n            <a\n              href=\"#modal-welcome-intro\"\n              aria-controls=\"modal-welcome-intro\"\n              role=\"tab\"\n              data-toggle=\"tab\"\n              style=\"padding-left:8px; padding-right: 8px;\">Introduction</a>\n          </li>\n          <li role=\"presentation\" class=\"\">\n            <a\n              href=\"#modal-welcome-about\"\n              aria-controls=\"modal-welcome-about\"\n              role=\"tab\"\n              data-toggle=\"tab\"\n              style=\"padding-left:8px; padding-right: 8px;\">About</a>\n          </li>\n        </ul>\n        <div class=\"tab-content\">\n          <div\n            id=\"modal-welcome-intro\"\n            class=\"tab-pane fade in active\"\n            role=\"tabpanel\"\n            style=\"padding: 10px;\">\n            <span\n              class=\"welcome-body\"\n              ng-bind-html=\"welcome.intro | md2html | default:\'No body given.\'\"></span>\n            <hr>\n            <h3 class=\"welcome-body\">Get Started!</h3>\n            <div class=\"input-group select2-bootstrap-prepend select2-bootstrap-append\">\n              <input\n                id=\"country-input-backend\"\n                name=\"country-input-backend\"\n                type=\"text\"\n                class=\"form-control\"\n                style=\"display:none;\"\n                ng-model=\"country\">\n              <span class=\"input-group-addon\" id=\"country-addon\">Country</span>\n              <input\n                id=\"country-input\"\n                name=\"country-input\"\n                type=\"text\"\n                class=\"typeahead form-control\"\n                style=\"width:400px; height: auto;\"\n                placeholder=\"Country (e.g., Haiti or Philippines)\"\n                aria-describedby=\"country-addon\"\n                data-placeholder=\"Country (e.g., Haiti or Philippines)\"\n                data-initial-data=\"countries_select2\"\n                data-backend=\"country-input-backend\"\n                data-template-empty=\"<div class=&quot;alert alert-danger empty-message&quot;>Unable to find country</div>\">\n                <div class=\"input-group-addon btn btn-danger btn-clear\" data-clear=\"country-input\">\n                  <i class=\"fa fa-times\"></i>\n                </div>\n            </div>\n            <br>\n            <div class=\"input-group select2-bootstrap-prepend select2-bootstrap-append\">\n              <input\n                id=\"hazard-input-backend\"\n                name=\"hazard-input-backend\"\n                type=\"text\"\n                class=\"form-control\"\n                style=\"display:none;\"\n                ng-model=\"hazard\">\n              <span class=\"input-group-addon\" id=\"hazard-addon\">Hazard</span>\n              <input\n                id=\"hazard-input\"\n                name=\"hazard-input\"\n                type=\"text\"\n                class=\"typeahead form-control\"\n                style=\"width:400px; height: auto;\"\n                placeholder=\"Hazard (e.g., Flood, Cyclone, Drought, or Landslide)\"\n                aria-describedby=\"hazard-addon\"\n                data-placeholder=\"Hazard (e.g., Flood, Cyclone, Drought, or Landslide)\"\n                data-initial-data=\"hazards_select2\"\n                data-backend=\"hazard-input-backend\"\n                data-template-empty=\"<div class=&quot;empty-message&quot;>Unable to find hazard</div>\">\n                <div class=\"input-group-addon btn btn-danger btn-clear\" data-clear=\"hazard-input\">\n                  <i class=\"fa fa-times\"></i>\n                </div>\n            </div>\n            <hr>\n            <ul class=\"nav nav-justified welcome-go\">\n              <li>\n                <a\n                  ng-disabled=\"country == undefined || hazard == undefined || country == \'\' || hazard == \'\'\"\n                  ng-class=\"country == undefined || hazard == undefined || country == \'\' || hazard == \'\' ? \'btn btn-default\' : \'btn btn-primary\' \"\n                  ng-href=\"{{ country == undefined || hazard == undefined || country == \'\' || hazard == \'\' ? \'#\' : \'/country/\'+country+\'/hazard/\'+hazard }}\">Go!</a>\n              </li>\n            </ul>\n          </div>\n          <div\n            id=\"modal-welcome-about\"\n            class=\"tab-pane fade\"\n            role=\"tabpanel\"\n            style=\"padding: 10px;\">\n            <span ng-bind-html=\"welcome.about | md2html | default:\'No body given.\'\"></span>\n          </div>\n        </div>\n      </div>\n    </div>\n  </div>\n</div>\n";
+geosite.templates["modal_welcome_sparc.tpl.html"] = "<div class=\"modal-dialog\" data-backdrop=\"static\" role=\"document\">\n  <div class=\"modal-content\">\n    <div class=\"modal-header\">\n      <h4 class=\"modal-title\" id=\"myModalLabel\">{{ welcome.title }}</h4>\n    </div>\n    <div class=\"modal-body\">\n      <div>\n        <!-- Nav tabs -->\n        <ul class=\"nav nav-tabs\" role=\"tablist\">\n          <li role=\"presentation\" class=\"active\">\n            <a\n              href=\"#modal-welcome-intro\"\n              aria-controls=\"modal-welcome-intro\"\n              role=\"tab\"\n              data-toggle=\"tab\"\n              style=\"padding-left:8px; padding-right: 8px;\">Introduction</a>\n          </li>\n          <li role=\"presentation\" class=\"\">\n            <a\n              href=\"#modal-welcome-about\"\n              aria-controls=\"modal-welcome-about\"\n              role=\"tab\"\n              data-toggle=\"tab\"\n              style=\"padding-left:8px; padding-right: 8px;\">About</a>\n          </li>\n        </ul>\n        <div class=\"tab-content\">\n          <div\n            id=\"modal-welcome-intro\"\n            class=\"tab-pane fade in active\"\n            role=\"tabpanel\"\n            style=\"padding: 10px;\">\n            <span\n              class=\"welcome-body\"\n              ng-bind-html=\"welcome.intro | md2html | default:\'No body given.\'\"></span>\n            <hr>\n            <h3 class=\"welcome-body\">Get Started!</h3>\n            <div class=\"input-group select2-bootstrap-prepend select2-bootstrap-append\">\n              <input\n                id=\"country-input-backend\"\n                name=\"country-input-backend\"\n                type=\"text\"\n                class=\"form-control\"\n                style=\"display:none;\"\n                ng-model=\"country\">\n              <span class=\"input-group-addon\" id=\"country-addon\">Country</span>\n              <input\n                id=\"country-input\"\n                name=\"country-input\"\n                type=\"text\"\n                class=\"typeahead form-control\"\n                style=\"width:400px; height: auto;\"\n                placeholder=\"Country (e.g., Haiti or Philippines)\"\n                aria-describedby=\"country-addon\"\n                data-placeholder=\"Country (e.g., Haiti or Philippines)\"\n                data-initial-data=\"countries_select2\"\n                data-backend=\"country-input-backend\"\n                data-template-empty=\"<div class=&quot;alert alert-danger empty-message&quot;>Unable to find country</div>\">\n                <div class=\"input-group-addon btn btn-danger btn-clear\" data-clear=\"country-input\">\n                  <i class=\"fa fa-times\"></i>\n                </div>\n            </div>\n            <br>\n            <div class=\"input-group select2-bootstrap-prepend select2-bootstrap-append\">\n              <input\n                id=\"hazard-input-backend\"\n                name=\"hazard-input-backend\"\n                type=\"text\"\n                class=\"form-control\"\n                style=\"display:none;\"\n                ng-model=\"hazard\">\n              <span class=\"input-group-addon\" id=\"hazard-addon\">Hazard</span>\n              <input\n                id=\"hazard-input\"\n                name=\"hazard-input\"\n                type=\"text\"\n                class=\"typeahead form-control\"\n                style=\"width:400px; height: auto;\"\n                placeholder=\"Hazard (e.g., Flood, Cyclone, Drought, or Landslide)\"\n                aria-describedby=\"hazard-addon\"\n                data-placeholder=\"Hazard (e.g., Flood, Cyclone, Drought, or Landslide)\"\n                data-initial-data=\"hazards_select2\"\n                data-backend=\"hazard-input-backend\"\n                data-template-empty=\"<div class=&quot;empty-message&quot;>Unable to find hazard</div>\">\n                <div class=\"input-group-addon btn btn-danger btn-clear\" data-clear=\"hazard-input\">\n                  <i class=\"fa fa-times\"></i>\n                </div>\n            </div>\n            <hr>\n            <ul class=\"nav nav-justified welcome-go\">\n              <li>\n                <a\n                  ng-disabled=\"country == undefined || hazard == undefined || country == \'\' || hazard == \'\'\"\n                  ng-class=\"country == undefined || hazard == undefined || country == \'\' || hazard == \'\' ? \'btn btn-default\' : \'btn btn-primary\' \"\n                  ng-href=\"{{ country == undefined || hazard == undefined || country == \'\' || hazard == \'\' ? \'#\' : \'/country/\'+country+\'/hazard/\'+hazard +\'/month/1\' }}\">Go!</a>\n              </li>\n            </ul>\n          </div>\n          <div\n            id=\"modal-welcome-about\"\n            class=\"tab-pane fade\"\n            role=\"tabpanel\"\n            style=\"padding: 10px;\">\n            <span ng-bind-html=\"welcome.about | md2html | default:\'No body given.\'\"></span>\n          </div>\n        </div>\n      </div>\n    </div>\n  </div>\n</div>\n";
 
 var MONTHS_NUM = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 //Array(12).fill().map((x,i)=>i)
@@ -1936,6 +2010,25 @@ geosite.filters["formatArray"] = function()
       {
           return arr;
       }
+  };
+};
+
+geosite.filters["formatMonth"] = function()
+{
+  return function(value, type)
+  {
+    if(type == "long")
+    {
+      return months_long[value-1];
+    }
+    else if(type == "short3" || type == "short_3")
+    {
+      return months_short_3[value-1];
+    }
+    else
+    {
+      return value.toString();
+    }
   };
 };
 
@@ -2982,7 +3075,7 @@ geosite.controllers["controller_map_map"] = function(
     var popatrisk_popup_content = function(source)
     {
       console.log(source);
-      var f = source.feature;
+      /*var f = source.feature;
       //
       var $scope = angular.element("#geosite-main").scope();
       var state = $scope.state;
@@ -3019,23 +3112,44 @@ geosite.controllers["controller_map_map"] = function(
       }
       var chartConfig = map_config["featurelayers"]["popatrisk"]["popup"]["chart"];
       ctx["chartID"] = chartConfig.id;
-      //Run this right after
+
+      return $interpolate(popupTemplate)(ctx);*/
+      /////////////////////////////
+      var $scope = angular.element("#geosite-main").scope();
+      var state = $scope.state;
+      var featureLayer = map_config["featurelayers"]["popatrisk"];
+      var popupConfig = featureLayer["popup"];
+      //ctx["chartID"] = chartConfig.id;
+      var feature = sparc.normalize_feature(source.feature);
+      feature.attributes.popatrisk = sparc.calculate_population_at_risk(
+        state.hazard,
+        feature,
+        state,
+        ["vam_filter_fcs", "vam_filter_csi"]);
+      var popupContent = geosite.popup.buildPopupContent($interpolate, featureLayer, feature, state);
+      //Push this at the end of the stack, so run's immediately after thread finishes execution
       setTimeout(function(){
-        var gc = buildGroupsAndColumnsForAdmin2(
-          chartConfig,
-          geosite.initial_data["layers"]["popatrisk"],
-          f.properties.admin2_code);
-        var chartOptions = {
-          groups: gc.groups,
-          columns: gc.columns,
-          bullet_width: function(d, i)
+        for(var i = 0; i < popupConfig.panes.length; i++)
+        {
+          var pane = popupConfig.panes[i];
+          for(var j = 0; j < pane.charts.length; j++)
           {
-            return d.id == "rp25" ? 6 : 12;
+            var chartConfig = pane.charts[j];
+            var gc = buildGroupsAndColumnsForAdmin2(
+              chartConfig,
+              geosite.initial_data["layers"]["popatrisk"],
+              feature.attributes.admin2_code);
+            var chartOptions = {
+              groups: gc.groups,
+              columns: gc.columns,
+              bullet_width: function(d, i) { return d.id == "rp25" ? 6 : 12; }
+            };
+            buildHazardChart(chartConfig, geosite.initial_data["layers"]["popatrisk"], chartOptions);
           }
-        };
-        buildHazardChart(chartConfig, geosite.initial_data["layers"]["popatrisk"], chartOptions);
+        }
       }, 1000);
-      return $interpolate(popupTemplate)(ctx);
+      return popupContent;
+      /////////////////////////////
     };
 
     live["featurelayers"]["popatrisk"] = L.geoJson(geosite.initial_data["layers"]["popatrisk"]["data"]["geojson"],{
@@ -3155,7 +3269,8 @@ geosite.controllers["controller_map_map"] = function(
         args["featureLayer"],
         args["feature"],
         args["location"],
-        live["map"]);
+        live["map"],
+        angular.element("#geosite-main").scope().state);
     }
   });
 };
@@ -3645,7 +3760,7 @@ geosite.controllers["controller_sparc_welcome"] = function(
       var input = $("#"+$(this).data('clear'));
       input.val(null);
       // Update Backend sync'd with AngularJS
-      var backend = $('#'+input.data('backend'))
+      var backend = $('#'+input.data('backend'));
       backend.val(null);
       backend.trigger('input');
       backend.change();

@@ -75,7 +75,7 @@ geosite.controllers["controller_sparc_welcome"] = function(
       var input = $("#"+$(this).data('clear'));
       input.val(null);
       // Update Backend sync'd with AngularJS
-      var backend = $('#'+input.data('backend'))
+      var backend = $('#'+input.data('backend'));
       backend.val(null);
       backend.trigger('input');
       backend.change();

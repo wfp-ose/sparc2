@@ -80,7 +80,6 @@ geosite.style_cyclone = function(f, state, map_config, options)
 {
   var style = {};
   var filters = state["filters"]["popatrisk"];
-  var prob_class_max = filters["prob_class_max"];
   var popatrisk_range = filters["popatrisk_range"];
   var ldi_range = filters["ldi_range"];
   var ldi = f.properties.ldi;
@@ -88,23 +87,12 @@ geosite.style_cyclone = function(f, state, map_config, options)
   var erosion_propensity = f.properties.erosion_propensity;
   var landcover_delta_negative_range = filters["landcover_delta_negative_range"];
   var landcover_delta_negative = f.properties.delta_negative;
-  //
-  var month_short3 = months_short_3[state["month"]-1];
-  var value = 0;
-  for(var i = 0; i < f.properties.addinfo.length; i++)
-  {
-      var a = f.properties.addinfo[i];
-      if(a["category"] == filters["category"])
-      {
-        if(a["prob_class_max"] != 0 && a["prob_class_max"] <= prob_class_max)
-        {
-          console.log("matched prob_class", prob_class_max);
-          value += a[month_short3];
-        }
-      }
-  }
 
-  $.each(options.filters, function(i, x){ value = geosite[x](value, filters, f); });
+  var value = sparc.calculate_population_at_risk(
+    'cyclone',
+    sparc.normalize_feature(f),
+    state,
+    options.filters);
 
   if(
     value >= popatrisk_range[0] && value <= popatrisk_range[1] &&
@@ -116,9 +104,12 @@ geosite.style_cyclone = function(f, state, map_config, options)
     var colors = map_config["featurelayers"]["popatrisk"]["cartography"][0]["colors"]["ramp"];
     var breakpoints = geosite.breakpoints[options["breakpoints"]];
     var color = undefined;
-    for(var i = 0; i < breakpoints.length; i++)
+    for(var i = 0; i < breakpoints.length -1; i++)
     {
-      if(value < breakpoints[i])
+      if(
+        (value == breakpoints[i] && value == breakpoints[i+1]) ||
+        (value >= breakpoints[i] && value < breakpoints[i+1])
+      )
       {
         color = colors[i];
         break;
@@ -138,7 +129,6 @@ geosite.style_drought = function(f, state, map_config, options)
 {
   var style = {};
   var filters = state["filters"]["popatrisk"];
-  var prob_class_max = filters["prob_class_max"] / 100.0;
   var popatrisk_range = filters["popatrisk_range"];
   var ldi_range = filters["ldi_range"];
   var ldi = f.properties.ldi;
@@ -146,22 +136,12 @@ geosite.style_drought = function(f, state, map_config, options)
   var erosion_propensity = f.properties.erosion_propensity;
   var landcover_delta_negative_range = filters["landcover_delta_negative_range"];
   var landcover_delta_negative = f.properties.delta_negative;
-  //
-  var month_short3 = months_short_3[state["month"]-1];
-  var value = 0;
-  for(var i = 0; i < f.properties.addinfo.length; i++)
-  {
-      var a = f.properties.addinfo[i];
-      if(a["month"] == month_short3)
-      {
-        if(a["prob"] < prob_class_max)
-        {
-          value += a["popatrisk"];
-        }
-      }
-  }
 
-  $.each(options.filters, function(i, x){ value = geosite[x](value, filters, f); });
+  var value = sparc.calculate_population_at_risk(
+    'drought',
+    sparc.normalize_feature(f),
+    state,
+    options.filters);
 
   if(
     value >= popatrisk_range[0] && value <= popatrisk_range[1] &&
@@ -173,9 +153,12 @@ geosite.style_drought = function(f, state, map_config, options)
     var colors = map_config["featurelayers"]["popatrisk"]["cartography"][0]["colors"]["ramp"];
     var breakpoints = geosite.breakpoints[options["breakpoints"]];
     var color = undefined;
-    for(var i = 0; i < breakpoints.length; i++)
+    for(var i = 0; i < breakpoints.length -1; i++)
     {
-      if(value < breakpoints[i])
+      if(
+        (value == breakpoints[i] && value == breakpoints[i+1]) ||
+        (value >= breakpoints[i] && value < breakpoints[i+1])
+      )
       {
         color = colors[i];
         break;
@@ -194,7 +177,6 @@ geosite.style_flood = function(f, state, map_config, options)
 {
   var style = {};
   var filters = state["filters"]["popatrisk"];
-  var rp = filters["rp"];
   var popatrisk_range = filters["popatrisk_range"];
   var ldi_range = filters["ldi_range"];
   var ldi = f.properties.ldi;
@@ -202,11 +184,12 @@ geosite.style_flood = function(f, state, map_config, options)
   var erosion_propensity = f.properties.erosion_propensity;
   var landcover_delta_negative_range = filters["landcover_delta_negative_range"];
   var landcover_delta_negative = f.properties.delta_negative;
-  //
-  var month_short3 = months_short_3[state["month"]-1];
-  var value = f.properties["RP"+rp.toString(10)][month_short3];
 
-  $.each(options.filters, function(i, x){ value = geosite[x](value, filters, f); });
+  var value = sparc.calculate_population_at_risk(
+    'flood',
+    sparc.normalize_feature(f),
+    state,
+    options.filters);
 
   if(
     value >= popatrisk_range[0] && value <= popatrisk_range[1] &&

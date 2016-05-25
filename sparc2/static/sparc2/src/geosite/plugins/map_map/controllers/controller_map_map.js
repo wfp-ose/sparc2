@@ -130,7 +130,7 @@ geosite.controllers["controller_map_map"] = function(
     var popatrisk_popup_content = function(source)
     {
       console.log(source);
-      var f = source.feature;
+      /*var f = source.feature;
       //
       var $scope = angular.element("#geosite-main").scope();
       var state = $scope.state;
@@ -167,23 +167,44 @@ geosite.controllers["controller_map_map"] = function(
       }
       var chartConfig = map_config["featurelayers"]["popatrisk"]["popup"]["chart"];
       ctx["chartID"] = chartConfig.id;
-      //Run this right after
+
+      return $interpolate(popupTemplate)(ctx);*/
+      /////////////////////////////
+      var $scope = angular.element("#geosite-main").scope();
+      var state = $scope.state;
+      var featureLayer = map_config["featurelayers"]["popatrisk"];
+      var popupConfig = featureLayer["popup"];
+      //ctx["chartID"] = chartConfig.id;
+      var feature = sparc.normalize_feature(source.feature);
+      feature.attributes.popatrisk = sparc.calculate_population_at_risk(
+        state.hazard,
+        feature,
+        state,
+        ["vam_filter_fcs", "vam_filter_csi"]);
+      var popupContent = geosite.popup.buildPopupContent($interpolate, featureLayer, feature, state);
+      //Push this at the end of the stack, so run's immediately after thread finishes execution
       setTimeout(function(){
-        var gc = buildGroupsAndColumnsForAdmin2(
-          chartConfig,
-          geosite.initial_data["layers"]["popatrisk"],
-          f.properties.admin2_code);
-        var chartOptions = {
-          groups: gc.groups,
-          columns: gc.columns,
-          bullet_width: function(d, i)
+        for(var i = 0; i < popupConfig.panes.length; i++)
+        {
+          var pane = popupConfig.panes[i];
+          for(var j = 0; j < pane.charts.length; j++)
           {
-            return d.id == "rp25" ? 6 : 12;
+            var chartConfig = pane.charts[j];
+            var gc = buildGroupsAndColumnsForAdmin2(
+              chartConfig,
+              geosite.initial_data["layers"]["popatrisk"],
+              feature.attributes.admin2_code);
+            var chartOptions = {
+              groups: gc.groups,
+              columns: gc.columns,
+              bullet_width: function(d, i) { return d.id == "rp25" ? 6 : 12; }
+            };
+            buildHazardChart(chartConfig, geosite.initial_data["layers"]["popatrisk"], chartOptions);
           }
-        };
-        buildHazardChart(chartConfig, geosite.initial_data["layers"]["popatrisk"], chartOptions);
+        }
       }, 1000);
-      return $interpolate(popupTemplate)(ctx);
+      return popupContent;
+      /////////////////////////////
     };
 
     live["featurelayers"]["popatrisk"] = L.geoJson(geosite.initial_data["layers"]["popatrisk"]["data"]["geojson"],{
@@ -303,7 +324,8 @@ geosite.controllers["controller_map_map"] = function(
         args["featureLayer"],
         args["feature"],
         args["location"],
-        live["map"]);
+        live["map"],
+        angular.element("#geosite-main").scope().state);
     }
   });
 };

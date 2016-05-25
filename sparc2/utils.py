@@ -53,10 +53,19 @@ def get_geojson_cyclone(request, iso_alpha3=None):
     collection = None
     with GeositeDatabaseConnection() as geosite_conn:
         collection = data_local_country_admin().get(cursor=geosite_conn.cursor, iso_alpha3=iso_alpha3, level=2)
-        rows = geosite_conn.exec_query_multiple(
+        rows_popatrisk = geosite_conn.exec_query_multiple(
             get_template("sparc2/sql/_cyclone.sql").render({
                 'admin2_popatrisk': 'cyclone.admin2_popatrisk',
                 'iso_alpha3': iso_alpha3}))
+
+        popatrisk_by_admin2 = {}
+        for row in rows_popatrisk:
+            newRow = json.loads(row[0]) if (type(row[0]) is not dict) else row[0]
+            admin2_code = newRow.pop(u"admin2_code", None);
+            newRow.pop(u"iso3", None)
+            if admin2_code not in popatrisk_by_admin2:
+                popatrisk_by_admin2[admin2_code] = []
+            popatrisk_by_admin2[admin2_code].append(newRow)
 
         rows_context = geosite_conn.exec_query_multiple(
             get_template("sparc2/sql/_context_by_admin2.sql").render({
@@ -80,7 +89,6 @@ def get_geojson_cyclone(request, iso_alpha3=None):
                 feature["properties"]["erosion_propensity"] = context_by_admin2[admin2_code]["erosion_propensity"]
 
             feature["properties"].update({
-                "addinfo": [],
                 "FCS": 0,
                 "FCS_border": 0,
                 "FCS_acceptable": 0,
@@ -89,13 +97,17 @@ def get_geojson_cyclone(request, iso_alpha3=None):
                 "CSI_med": 0,
                 "CSI_high": 0
             })
+            feature["properties"]["addinfo"] = popatrisk_by_admin2[admin2_code] if admin2_code in popatrisk_by_admin2 else [];
+
+
             #print "admin2_code: ", feature["properties"]["admin2_code"]
             #print "admin2_code type: ", type(feature["properties"]["admin2_code
-            #print results2
-            for rb in rows:
-                newRow = json.loads(rb[0]) if (type(rb[0]) is not dict) else rb[0]
-                if int(newRow["admin2_code"]) == admin2_code:
-                    feature["properties"]["addinfo"].append(newRow)
+            #print "rows_popatrisk: ", rows_popatrisk
+            #for rb in rows_popatrisk:
+            #    newRow = json.loads(rb[0]) if (type(rb[0]) is not dict) else rb[0]
+            #    print "newRow: ", newRow
+            #    if admin2_code == int(newRow[u"admin2_code"]):
+            #        feature["properties"]["addinfo"].append(newRow)
                     #if newRow["category_min"] == 1 and newRow["category_max"] == 5 and newRow["prob_class"] == '0.01-0.1':
                 #        feature["properties"]["active_month"] += newRow[current_month]
 
@@ -125,7 +137,7 @@ def get_summary_cyclone(table_popatrisk=None, iso_alpha3=None):
                 'admin2_popatrisk': table_popatrisk,
                 'iso_alpha3': iso_alpha3}))
 
-        print "Values: ", values
+        #print "Values: ", values
 
         values = [float(x) for x in values]
         num_breakpoints = 5

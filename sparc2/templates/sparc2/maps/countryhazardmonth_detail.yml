@@ -280,25 +280,49 @@ featurelayers:
   {% endverbatim %}{% elif hazard == "flood" %}{% verbatim %}
     description: "The population at risk of flood for each month aggregated at the administrative level 2 district."
     popup:
-      template: "popatrisk"
-      chart:
-        id: "sparc-popup-chart-popatrisk"
-        label: "Population at Risk by Month"
-        type: "bar"
-        axis:
-          x:
-            type: "months"
-          y:
-            label:
-              text: 'Population at Risk'
-              position: 'outer-middle'
-        hazard: flood
-        subtype: "bullet"
-        colors:
-          rp25: "#4169E1"
-          rp100: "#B0C4FF"
-          rp1000: "#B0C4DE"
-        returnPeriods: [25, 100, 1000]
+      title: "Population at Risk: {{ feature.attributes.admin2_name }}, {{ feature.attributes.admin1_name }}"
+      maxWidth: 550
+      panes:
+        - id: "popup_overview"
+          tab:
+            label: "Overview"
+          fields:
+            - value: "{{ feature.attributes.popatrisk | formatInteger : 'delimited' : ' ' }}"
+              label: "Population at Risk for {{ state.month | formatMonth: 'long' }}"
+          charts:
+            - id: "sparc-popup-chart-popatrisk"
+              label: "Population at Risk by Month"
+              type: "bar"
+              axis:
+                x:
+                  type: "months"
+                y:
+                  label:
+                    text: 'Population at Risk'
+                    position: 'outer-middle'
+              hazard: flood
+              subtype: "bullet"
+              colors:
+                rp25: "#4169E1"
+                rp100: "#B0C4FF"
+                rp1000: "#B0C4DE"
+              returnPeriods: [25, 100, 1000]
+        - id: "popup_location"
+          tab:
+            label: "Location"
+          fields:
+            - attribute: iso_alpha3
+              label: ISO Alpha-3 Country Code
+            - attribute: admin0_name
+              label: Admin 0
+            - attribute: admin1_name
+              label: Admin 1
+            - attribute: admin2_name
+              label: Admin 2
+        - id: "popup_links"
+          tab:
+            label: "Links"
+          fields: []
     filters:
       - label: "Pop at Risk"
         description:  "The population at risk at the admin-2 level."
