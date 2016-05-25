@@ -693,15 +693,17 @@ featurelayers:
       - id: "erosion_propensity"
         title: "Erosion Propensity"
         type: "graduated"
-        mask: "mask"
         attribute: "erosion_propensity"
         label_left: "Low"
         label_right: "High"
         description: "Erosion Propensity"
         breakpoints: "natural_erosion_propensity"
         colors:
-          ramp: ['rgb(255, 255, 212)', 'rgb(254, 153, 41)', 'rgb(153, 52, 4)']
-          outside: "#aaaaaa"
+          ramp:
+            - '#aaaaaa'
+            - 'rgb(255, 255, 212)'
+            - 'rgb(254, 153, 41)'
+            - 'rgb(153, 52, 4)'
         styles:
           default:
             static:

@@ -1770,17 +1770,33 @@ geosite.style_context = function(f, state, map_config, options)
   var currentStyleList = $.grep(fl["cartography"], function(style, i){return style.id == currentStyleID;});
   var currentStyle = (currentStyleList.length == 1) ? currentStyleList[0] : fl["cartography"][0];
   //
-  var mask = f.properties[currentStyle["mask"]];
-  var value = f.properties[currentStyle["attribute"]];
-  if(mask == 1)
+  var colorize = true;
+  if("mask" in currentStyle)
   {
+    if(f.properties[currentStyle["mask"]] == 1)
+    {
+      colorize = true;
+    }
+    else
+    {
+      style["fillColor"] = currentStyle["colors"]["outside"]
+      colorize = false;
+    }
+  }
+
+  if(colorize)
+  {
+    var value = f.properties[currentStyle["attribute"]];
     var colors = currentStyle["colors"]["ramp"];
     var breakPointsName = currentStyle["breakpoints"] || "natural_adjusted";
     var breakpoints = geosite.initial_data.layers.context["data"]["summary"]["all"]["breakpoints"][breakPointsName];
     var color = undefined;
-    for(var i = 0; i < breakpoints.length; i++)
+    for(var i = 0; i < breakpoints.length -1; i++)
     {
-      if(value < breakpoints[i])
+      if(
+        (value == breakpoints[i] && value == breakpoints[i+1]) ||
+        (value >= breakpoints[i] && value < breakpoints[i+1])
+      )
       {
         color = colors[i];
         break;
@@ -1788,10 +1804,7 @@ geosite.style_context = function(f, state, map_config, options)
     }
     style["fillColor"] = (color == undefined) ? colors[colors.length-1] : color;
   }
-  else
-  {
-    style["fillColor"] = currentStyle["colors"]["outside"]
-  }
+
   return style;
 };
 

@@ -576,8 +576,30 @@ def get_summary_context(table_context=None, iso_alpha3=None):
         template="sparc2/sql/_admin2_data_all.sql",
         table=table_context)
     values_delta_forest = [float(x) for x in values_delta_forest]
-    natural_forest_negative = calc_breaks_natural([x for x in values_delta_forest if x <= 0.0], 2)
-    natural_forest_positive = calc_breaks_natural([x for x in values_delta_forest if x >= 0.0], 2)
+    #############
+    # values_delta_forest_negative
+    values_delta_forest_negative = [x for x in values_delta_forest if x <= 0.0]
+    if len(values_delta_forest_negative) == 0:
+        natural_forest_negative = [0, 0, 0]
+    elif len(values_delta_forest_negative) == 1:
+        natural_forest_negative = [
+            values_delta_forest_negative[0],
+            values_delta_forest_negative[0],
+            values_delta_forest_negative[0]]
+    else:
+        natural_forest_negative = calc_breaks_natural(values_delta_forest_negative, 2)
+    #############
+    # values_delta_forest_positive
+    values_delta_forest_positive = [x for x in values_delta_forest if x >= 0.0]
+    if len(values_delta_forest_positive) == 0:
+        natural_forest_positive = [0, 0, 0]
+    elif len(values_delta_forest_positive) == 1:
+        natural_forest_positive = [
+            values_delta_forest_positive[0],
+            values_delta_forest_positive[0],
+            values_delta_forest_positive[0]]
+    else:
+        natural_forest_positive = calc_breaks_natural(values_delta_forest_positive, 2)
     #####
 
     summary = {
@@ -593,7 +615,7 @@ def get_summary_context(table_context=None, iso_alpha3=None):
                 'natural_adjusted': natural_mean_negative + [0] + natural_mean_positive,
                 'natural_negative': natural_negative,
                 'natural_positive': natural_positive,
-                'natural_erosion_propensity': natural_erosion_propensity,
+                'natural_erosion_propensity': [0] + natural_erosion_propensity,
                 'natural_crop': natural_crop_negative + [0] + natural_crop_positive,
                 'natural_forest': natural_forest_negative + [0] + natural_forest_positive
             }
