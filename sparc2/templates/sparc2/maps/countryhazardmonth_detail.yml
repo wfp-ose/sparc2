@@ -509,7 +509,7 @@ featurelayers:
         attribute: "delta_mean"
         label_left: "Negative<br>Change"
         label_right: "Positive<br>Change"
-        description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.\n\nMean change highlights the balance between positive and negative changes information.\n\nPositive values indicate areas with majority positive land cover change.\n\nNegative values indicate areas with majority negative land cover change."
+        description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.  Mean change highlights the balance between positive and negative changes information.  Positive values indicate areas with majority positive land cover change.  Negative values indicate areas with majority negative land cover change."
         breakpoints: "natural_adjusted"
         colors:
           ramp:
@@ -549,7 +549,7 @@ featurelayers:
         attribute: "delta_negative"
         label_left: "No<br>Change"
         label_right: "Negative<br>Change"
-        description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.\n\nPercentage of areas that experienced negative land cover change, ecological deterioration.\n\nHigh percentage values indicate large areas under negative land cover changes."
+        description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.  Percentage of areas that experienced negative land cover change, ecological deterioration.  High percentage values indicate large areas under negative land cover changes."
         breakpoints: "natural_negative"
         colors:
           ramp: ['rgb(222, 197, 192)', 'rgb(251, 112, 80)', 'rgb(181, 0, 22)']
@@ -583,7 +583,7 @@ featurelayers:
         attribute: "delta_positive"
         label_left: "No<br>Change"
         label_right: "Positive<br>Change"
-        description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.\n\nPercentage of surfaces that experienced positive land cover change, ecological improve.\n\nHigh percentage values indicate large areas under positive land cover changes."
+        description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.  Percentage of surfaces that experienced positive land cover change, ecological improve.  High percentage values indicate large areas under positive land cover changes."
         breakpoints: "natural_positive"
         colors:
           ramp: ['rgb(227, 252, 216)','rgb(122, 199, 123)','rgb(0, 68, 27)']
@@ -617,7 +617,7 @@ featurelayers:
         attribute: "delta_crop"
         label_left: "Negative<br>Change"
         label_right: "Positive<br>Change"
-        description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.\n\nPositive percentage indicates increase in Cropland surfaces.\n\nNegative percentage indicates decrease in Cropland surfaces."
+        description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.  Positive percentage indicates increase in Cropland surfaces.  Negative percentage indicates decrease in Cropland surfaces."
         breakpoints: "natural_crop"
         colors:
           ramp:
@@ -657,7 +657,7 @@ featurelayers:
         attribute: "delta_forest"
         label_left: "Negative<br>Change"
         label_right: "Positive<br>Change"
-        description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.\n\nPositive values indicates increase in Forest surfaces.\n\nNegative values indicates decrease in Forest surfaces."
+        description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.  Positive values indicates increase in Forest surfaces.  Negative values indicates decrease in Forest surfaces."
         breakpoints: "natural_forest"
         colors:
           ramp:
@@ -696,7 +696,7 @@ featurelayers:
         attribute: "erosion_propensity"
         label_left: "Low"
         label_right: "High"
-        description: "Erosion layer elaborated considering the RUSLE equation (Rain incidence, Slope length, Lithology, Land cover).\n\nErosion percentage indicates areas under erosion process (> 5 Tons/ha per year).\n\nHigh values indicate large surfaces under erosion."
+        description: "Erosion layer elaborated considering the RUSLE equation (Rain incidence, Slope length, Lithology, Land cover).  Erosion percentage indicates areas under erosion process (> 5 Tons/ha per year).  High values indicate large surfaces under erosion."
         breakpoints: "natural_erosion_propensity"
         colors:
           ramp:
