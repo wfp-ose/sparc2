@@ -1107,6 +1107,7 @@ var buildGroupsAndColumnsForCountry = function(chartConfig, popatrisk_config)
 {
   var groups = [[]];
   var columns = [];
+  var order = undefined;
 
   if (chartConfig.hazard == "cyclone")
   {
@@ -1116,6 +1117,18 @@ var buildGroupsAndColumnsForCountry = function(chartConfig, popatrisk_config)
       columns.push([prob_class].concat(data));
       groups[0].push(prob_class);
     });
+
+    groups[0].sort(function(a, b){
+      return parseFloat(b.split("-")[0]) - parseFloat(a.split("-")[0]);
+    });
+
+    columns.sort(function(a, b){
+      return parseFloat(a[0].split("-")[0]) - parseFloat(b[0].split("-")[0]);
+    });
+
+    order = function(data1, data2) {
+      return parseFloat(data2.id.split("-")[0]) - parseFloat(data1.id.split("-")[0]);
+    };
   }
   else if(chartConfig.hazard == "drought")
   {
@@ -1148,12 +1161,13 @@ var buildGroupsAndColumnsForCountry = function(chartConfig, popatrisk_config)
     columns.reverse();
   }
 
-  return {'groups': groups, 'columns': columns};
+  return {'groups': groups, 'columns': columns, 'order': order};
 };
 var buildGroupsAndColumnsForAdmin2 = function(chartConfig, popatrisk_config, admin2_code)
 {
   var groups = [[]];
   var columns = [];
+  var order = undefined;
 
   if(chartConfig.hazard == "flood")
   {
@@ -1175,21 +1189,35 @@ var buildGroupsAndColumnsForAdmin2 = function(chartConfig, popatrisk_config, adm
       columns.push([prob_class].concat(data));
       groups[0].push(prob_class);
     });
+
+
+    groups[0].sort(function(a, b){
+      return parseFloat(b.split("-")[0]) - parseFloat(a.split("-")[0]);
+    });
+
+    columns.sort(function(a, b){
+      return parseFloat(a[0].split("-")[0]) - parseFloat(b[0].split("-")[0]);
+    });
+
+    order = function(data1, data2) {
+      return parseFloat(data2.id.split("-")[0]) - parseFloat(data1.id.split("-")[0]);
+    };
   }
-  return {'groups': groups, 'columns': columns};
+  return {'groups': groups, 'columns': columns, 'order': order};
 };
 var buildHazardChart = function(chartConfig, popatrisk_config, options)
 {
   var gc = undefined;
   if(chartConfig.type == "bar")
   {
-    var groups = [[]];
-    var columns = [];
+    //var groups = [[]];
+    //var columns = [];
     if(options != undefined && options.groups != undefined && options.columns != undefined)
     {
       gc = {
         "groups": options.groups,
-        "columns": options.columns
+        "columns": options.columns,
+        "order": undefined
       };
     }
     else
@@ -1242,7 +1270,8 @@ var buildHazardChart = function(chartConfig, popatrisk_config, options)
         columns: gc.columns,
         groups: gc.groups,
         type: 'bar',
-        colors: chartConfig.colors
+        colors: chartConfig.colors,
+        order: (gc.order || 'desc')
       },
       axis : axisConfig,
       bar: barConfig
@@ -3132,19 +3161,22 @@ geosite.controllers["controller_map_map"] = function(
         for(var i = 0; i < popupConfig.panes.length; i++)
         {
           var pane = popupConfig.panes[i];
-          for(var j = 0; j < pane.charts.length; j++)
+          if("charts" in pane)
           {
-            var chartConfig = pane.charts[j];
-            var gc = buildGroupsAndColumnsForAdmin2(
-              chartConfig,
-              geosite.initial_data["layers"]["popatrisk"],
-              feature.attributes.admin2_code);
-            var chartOptions = {
-              groups: gc.groups,
-              columns: gc.columns,
-              bullet_width: function(d, i) { return d.id == "rp25" ? 6 : 12; }
-            };
-            buildHazardChart(chartConfig, geosite.initial_data["layers"]["popatrisk"], chartOptions);
+            for(var j = 0; j < pane.charts.length; j++)
+            {
+              var chartConfig = pane.charts[j];
+              var gc = buildGroupsAndColumnsForAdmin2(
+                chartConfig,
+                geosite.initial_data["layers"]["popatrisk"],
+                feature.attributes.admin2_code);
+              var chartOptions = {
+                groups: gc.groups,
+                columns: gc.columns,
+                bullet_width: function(d, i) { return d.id == "rp25" ? 6 : 12; }
+              };
+              buildHazardChart(chartConfig, geosite.initial_data["layers"]["popatrisk"], chartOptions);
+            }
           }
         }
       }, 1000);

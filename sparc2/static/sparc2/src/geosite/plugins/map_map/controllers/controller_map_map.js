@@ -187,19 +187,22 @@ geosite.controllers["controller_map_map"] = function(
         for(var i = 0; i < popupConfig.panes.length; i++)
         {
           var pane = popupConfig.panes[i];
-          for(var j = 0; j < pane.charts.length; j++)
+          if("charts" in pane)
           {
-            var chartConfig = pane.charts[j];
-            var gc = buildGroupsAndColumnsForAdmin2(
-              chartConfig,
-              geosite.initial_data["layers"]["popatrisk"],
-              feature.attributes.admin2_code);
-            var chartOptions = {
-              groups: gc.groups,
-              columns: gc.columns,
-              bullet_width: function(d, i) { return d.id == "rp25" ? 6 : 12; }
-            };
-            buildHazardChart(chartConfig, geosite.initial_data["layers"]["popatrisk"], chartOptions);
+            for(var j = 0; j < pane.charts.length; j++)
+            {
+              var chartConfig = pane.charts[j];
+              var gc = buildGroupsAndColumnsForAdmin2(
+                chartConfig,
+                geosite.initial_data["layers"]["popatrisk"],
+                feature.attributes.admin2_code);
+              var chartOptions = {
+                groups: gc.groups,
+                columns: gc.columns,
+                bullet_width: function(d, i) { return d.id == "rp25" ? 6 : 12; }
+              };
+              buildHazardChart(chartConfig, geosite.initial_data["layers"]["popatrisk"], chartOptions);
+            }
           }
         }
       }, 1000);
