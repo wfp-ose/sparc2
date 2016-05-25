@@ -631,6 +631,7 @@ charts: []
 
 {% block controls %}
 controls:
+  breadcrumbs: false
   calendar: false
   filters: false
   legend: true

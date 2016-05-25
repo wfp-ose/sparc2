@@ -36,22 +36,6 @@ geosite.controllers["controller_main"] = function(
     $scope.state = geosite.init_state(state, stateschema);
     $scope.live = live;
 
-    setTimeout(function(){
-
-      sparc.welcome({'scope': $scope});
-
-      /*var intentData = {
-        "id": "geosite-modal-welcome",
-        "dynamic": {},
-        "static": {
-          "welcome": map_config["welcome"]
-        }
-      };
-      geosite.intend("toggleModal", intentData, $scope);*/
-
-    }, 10);
-
-
     $scope.refreshMap = function(state){
 
 
@@ -66,7 +50,8 @@ geosite.controllers["controller_main"] = function(
         //
         var main_scope = angular.element("#geosite-main").scope();
         var id = args["id"];
-        //var backdrop = "backdrop" in args ? args["backdrop"] : undefined;
+        var modalOptions = args['modal'] || {};
+        modalOptions['show'] = false;
         var modal_scope = angular.element("#"+id).scope();
         var modal_scope_new = {
           "state": main_scope.state
@@ -134,6 +119,7 @@ geosite.controllers["controller_main"] = function(
                 modalElement.find('.tab-pane').slice(1).removeClass('in active');
               }
               // Toggle Modal
+              $("#"+id).modal(modalOptions);
               $("#"+id).modal('toggle');
             },0);
         });

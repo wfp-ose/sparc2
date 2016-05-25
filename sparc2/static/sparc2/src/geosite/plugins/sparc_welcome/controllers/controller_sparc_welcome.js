@@ -16,18 +16,6 @@ geosite.controllers["controller_sparc_welcome"] = function(
       var template_empty = s.data('template-empty');
       var template_suggestion = s.data('template-suggestion');
 
-      /*
-      var s2 = s.select2({
-        theme: "bootstrap",
-        data: geosite.initial_data["data"][initialData], // global variable set in header
-        placeholder: placeholder,
-        allowClear: false,
-        width: w,
-        height: h,
-        dropdownCssClass: css
-      });
-      s.data('s2', s2);*/
-
       // Twitter Typeahead with
       //https://github.com/bassjobsen/typeahead.js-bootstrap-css
       var engine = new Bloodhound({
@@ -92,6 +80,8 @@ geosite.controllers["controller_sparc_welcome"] = function(
       backend.trigger('input');
       backend.change();
     });
+
+    sparc.welcome({'scope': $scope});
 
   }, 10);
 

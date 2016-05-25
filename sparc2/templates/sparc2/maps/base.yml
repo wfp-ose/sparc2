@@ -21,15 +21,6 @@ pages:
 
 {% block baselayers %}
 baselayers:
-  - id: "osm"
-    title: "OpenStreetMap"
-    description: "OpenStreetMap Basemap, Standard Style"
-    source:
-      name: "OpenStreetMap"
-      attribution: "&copy; <a href=\"http://www.openstreetmap.org/copyright\">OpenStreetMap</a>"
-      url: "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-    legend:
-      label: "OpenStreetMap"
   - id: "osm_humanitarian"
     title: OpenStreetMap / Humanitarian
     description: "OpenStreetMap Basemap, Humanitarian Style"
@@ -39,6 +30,15 @@ baselayers:
       url: "http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"
     legend:
       label: "OpenStreetMap / Humanitarian"
+  - id: "osm"
+    title: "OpenStreetMap"
+    description: "OpenStreetMap Basemap, Standard Style"
+    source:
+      name: "OpenStreetMap"
+      attribution: "&copy; <a href=\"http://www.openstreetmap.org/copyright\">OpenStreetMap</a>"
+      url: "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+    legend:
+      label: "OpenStreetMap"
 {% endblock %}
 
 {% block legendlayers %}

@@ -114,7 +114,7 @@ featurelayers:
     type: WMS
     title: "Global WFP Facilities"
     description: "WFP Facilities worldwide, Country Office, Sub-Office, Field Office, Area Office, Humanitarian Response Depot."
-    visible: false
+    visible: true
     source:
       name: "WFP"
       attribution: "WFP GeoNode"
@@ -214,7 +214,7 @@ featurelayers:
     type: WMS
     title: "Global Supply Routes"
     description: "Global supply routes for Transportation of Food and Non Food Items - Roads, Railways, Waterway, Airways.\n\nThis layer is built by linking origin/destination locations using the most direct route on main roads. In reality, the supply routes can divert from the ones displayed here depending on many local factors. The routes shown in this dataset are only indicative and have to be used as such."
-    visible: false
+    visible: true
     source:
       name: "WFP"
       attribution: "WFP GeoNode"
@@ -331,6 +331,7 @@ charts: []
 
 {% block controls %}
 controls:
+  breadcrumbs: false
   calendar: false
   filters: false
   legend: true

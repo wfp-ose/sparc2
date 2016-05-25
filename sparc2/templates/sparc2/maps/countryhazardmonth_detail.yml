@@ -1296,6 +1296,7 @@ charts:
 
 {% block controls %}
 controls:
+  breadcrumbs: true
   calendar: true
   filters: true
   legend: true
