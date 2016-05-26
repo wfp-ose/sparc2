@@ -28,14 +28,6 @@ urlpatterns = [
         views.explore,
         name='explore'),
     url(
-        r'^download$',
-        views.download,
-        name='download'),
-    url(
-        r'^about$',
-        views.about,
-        name='about'),
-    url(
         r'^country/(?P<iso3>[^/]+)$',
         views.country_detail,
         name='country_detail'),

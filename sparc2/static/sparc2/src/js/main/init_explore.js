@@ -30,6 +30,10 @@ geosite.init_explore = function(appName)
     };
   });
 
+  // Initialize UI interaction for intents.
+  // Listen's for events bubbling up to body element, so can initialize before children.
+  geosite.init.intents();
+
   /*
   init_sparc_controller_main will kick off a recursive search for controllers
   to add to the angular app/module.  However, the initialization code in
@@ -47,4 +51,5 @@ geosite.init_explore = function(appName)
   init_sparc_controller_main($('.geosite-controller.geosite-main'), app);
 
   angular.bootstrap(document, [appName]);
+
 };

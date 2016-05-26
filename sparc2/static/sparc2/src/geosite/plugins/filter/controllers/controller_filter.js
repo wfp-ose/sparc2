@@ -27,7 +27,7 @@ geosite.controllers["controller_filter"] = function(
           filter[output].push($(this).data('value'))
         }
       });
-      geosite.intend("filterChanged", {"layer": "popatrisk", "filter": filter}, $scope);
+      geosite.api.intend("filterChanged", {"layer": "popatrisk", "filter": filter}, $scope);
     });
 
     // Initialize Radio Filters
@@ -36,7 +36,7 @@ geosite.controllers["controller_filter"] = function(
       var output = $(this).data('output');
       var filter = {};
       filter[output] = this.value;
-      geosite.intend("filterChanged", {"layer": "popatrisk", "filter": filter}, $scope);
+      geosite.api.intend("filterChanged", {"layer": "popatrisk", "filter": filter}, $scope);
     });
 
     // Initialize Slider Filters

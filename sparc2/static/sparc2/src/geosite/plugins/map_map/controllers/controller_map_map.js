@@ -28,14 +28,14 @@ geosite.controllers["controller_map_map"] = function(
         "lat": c.lat,
         "lon": c.lng
       };
-      geosite.intend("clickedOnMap", delta, $scope);
+      geosite.api.intend("clickedOnMap", delta, $scope);
     },
     zoomend: function(e){
       var delta = {
         "extent": live["map"].getBounds().toBBoxString(),
         "z": live["map"].getZoom()
       };
-      geosite.intend("viewChanged", delta, $scope);
+      geosite.api.intend("viewChanged", delta, $scope);
     },
     dragend: function(e){
       var c = live["map"].getCenter();
@@ -44,7 +44,7 @@ geosite.controllers["controller_map_map"] = function(
         "lat": c.lat,
         "lon": c.lng
       };
-      geosite.intend("viewChanged", delta, $scope);
+      geosite.api.intend("viewChanged", delta, $scope);
     },
     moveend: function(e){
       var c = live["map"].getCenter();
@@ -53,7 +53,7 @@ geosite.controllers["controller_map_map"] = function(
         "lat": c.lat,
         "lon": c.lng
       };
-      geosite.intend("viewChanged", delta, $scope);
+      geosite.api.intend("viewChanged", delta, $scope);
     }
   };
   //////////////////////////////////////
@@ -75,8 +75,8 @@ geosite.controllers["controller_map_map"] = function(
   $.extend(live["baselayers"], baseLayers);
   var baseLayerID = map_config["baselayers"][0].id;
   live["baselayers"][baseLayerID].addTo(live["map"]);
-  geosite.intend("viewChanged", {'baselayer': baseLayerID}, $scope);
-  geosite.intend("layerLoaded", {'type':'baselayer', 'layer': baseLayerID}, $scope);
+  geosite.api.intend("viewChanged", {'baselayer': baseLayerID}, $scope);
+  geosite.api.intend("layerLoaded", {'type':'baselayer', 'layer': baseLayerID}, $scope);
   //////////////////////////////////////
   $.each(map_config.featurelayers, function(id, layerConfig){
     if(id != "popatrisk" && id != "context")

@@ -4,11 +4,51 @@
 title: SPARC
 {% endblock %}
 
+{% block about %}
+about:
+  title: "SPARC / About"
+  panes:
+    - id: "about_overview"
+      tab:
+        label: "Overview"
+      content: "**SPARC** is a Spatial Risk Calendar that combines data layers covering hazard exposure and population vulnerability to determine baseline probabilistic levels of humanitarian impact associated with particular hazard types, on a monthly basis, at a sub-national level, around the globe.\n\nSPARC is a digital service provided by the World Foood Programme (WFP), Emergency Preparedness and Support Response Division (OSE)."
+    - id: "about_data"
+      tab:
+        label: "Data"
+      content: "Data on the SPARC platform comes from many sources, including UNISDR, EM-DAT, and others.  To learn more see the info pages for each layer."
+    - id: "about_help"
+      tab:
+        label: "Help"
+      content: "To learn how to use SPARC, please see the Hands on Workshop created at: ____________."
+    - id: "about_contact"
+      tab:
+        label: "Contact"
+      content: "SPARC is a digital service provided by the World Foood Programme (WFP), Emergency Preparedness and Support Response Division (OSE).\n\nPlease contact the HQ GIS team for support at HQ[dot]GIS[at]wfp.org."
+{% endblock %}
+
 {% block welcome %}
 welcome:
   title: "SPARC - Spatial Risk Calendar"
   intro: "Welcome to SPARC!\n\n SPARC is a Spatial Risk Calendar that combines data layers covering hazard exposure and population vulnerability to determine baseline probabilistic levels of humanitarian impact associated with particular hazard types, on a monthly basis, at a sub-national level, around the globe.\n\n"
   about: "SPARC is a Spatial Risk Calendar that combines data layers covering hazard exposure and population vulnerability to determine baseline probabilistic levels of humanitarian impact associated with particular hazard types, on a monthly basis, at a sub-national level, around the globe.\n\nSPARC is a digital service provided by the World Foood Programme (WFP), Emergency Preparedness and Support Response Division (OSE)."
+{% endblock %}
+
+{% block download %}
+download:
+  title: "SPARC / Download"
+  panes:
+    - id: "download_overview"
+      tab:
+        label: "Overview"
+      content: "Future Information on how to download data"
+    - id: "download_help"
+      tab:
+        label: "Help"
+      content: "To learn how to use SPARC, please see the Hands on Workshop created at: ____________."
+    - id: "download_contact"
+      tab:
+        label: "Contact"
+      content: "SPARC is a digital service provided by the World Foood Programme (WFP), Emergency Preparedness and Support Response Division (OSE).\n\nPlease contact the HQ GIS team for support at HQ[dot]GIS[at]wfp.org."
 {% endblock %}
 
 {% block pages %}{% verbatim %}

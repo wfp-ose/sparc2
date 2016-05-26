@@ -21,10 +21,20 @@
             <a href="{% url "explore" %}">Explore</a>
           </li>
           <li id="nav_download" class="navbar-right-text">
-            <a href="{% url "download" %}">Download</a>
+            <a
+              class="geosite-intent"
+              href="#"
+              data-intent-name="toggleModal"
+              data-intent-data="{&quot;id&quot;:&quot;geosite-modal-download&quot;,&quot;dynamic&quot;:{&quot;download&quot;:[&quot;map_config&quot;,&quot;download&quot;]}}"
+              data-intent-ctrl="geosite-main">Download</a>
           </li>
           <li id="nav_about" class="navbar-right-text">
-            <a href="{% url "about" %}">About</a>
+            <a
+              class="geosite-intent"
+              href="#"
+              data-intent-name="toggleModal"
+              data-intent-data="{&quot;id&quot;:&quot;geosite-modal-about&quot;,&quot;dynamic&quot;:{&quot;about&quot;:[&quot;map_config&quot;,&quot;about&quot;]}}"
+              data-intent-ctrl="geosite-main">About</a>
           </li>
           {% if user.is_authenticated %}
           <li id="nav_admin" class="navbar-right-text">

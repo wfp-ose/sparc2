@@ -81,7 +81,10 @@ geosite.init_countryhazardmonth_main_app = function(appName)
       }
     };
   });
-
+  // Initialize UI interaction for intents.
+  // Listen's for events bubbling up to body element, so can initialize before children.
+  geosite.init.intents();
+  
   /*
   init_sparc_controller_main will kick off a recursive search for controllers
   to add to the angular app/module.  However, the initialization code in

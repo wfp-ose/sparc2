@@ -338,6 +338,12 @@ var init_sparc_controller_main = function(that, app)
 {
   geosite.init_controller(that, app, geosite.controllers.controller_main);
 
+  // Init About
+  geosite.init_controllers(that, app, [
+    { "selector": ".geosite-controller.geosite-about", "controller": geosite.controllers.controller_about },
+    { "selector": ".geosite-controller.geosite-download", "controller": geosite.controllers.controller_download }
+  ]);
+
   $('.geosite-controller.geosite-sidebar.geosite-sidebar-left', that).each(function(){
     geosite.init_controller($(this), app, geosite.controllers.controller_sidebar_sparc);
   });

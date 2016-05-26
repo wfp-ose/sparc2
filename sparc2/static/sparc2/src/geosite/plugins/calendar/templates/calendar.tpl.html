@@ -7,6 +7,7 @@
       href="/country/{{ state.iso3 }}/hazard/{{ state.hazard }}/month/{{ month.num }}"
       data-intent-name="stateChanged"
       data-intent-data="{&quot;month&quot;: {{ month.num }} }"
+      data-intent-ctrl="sparc-map-calendar"
       data-intent-class-on="btn-primary selected"
       data-intent-class-off="btn-default" ng-bind-html="month.short3 | title"></a>
   </li>

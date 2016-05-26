@@ -69,12 +69,7 @@ def explore(request):
     }
 
     return render_to_response(t, RequestContext(request, ctx))
-
-def about(request, template="about.html"):
-    raise NotImplementedError
-
-def download(request, template="download.html"):
-    raise NotImplementedError
+    
 
 def country_detail(request, iso3=None, hazard=None, month=None):
     now = datetime.datetime.now()
