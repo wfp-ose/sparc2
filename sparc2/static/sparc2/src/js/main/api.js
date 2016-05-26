@@ -119,7 +119,7 @@ sparc.calculate_population_at_risk = function(hazard, feature, state, filters)
       var a = feature.attributes.addinfo[i];
       if(a["category"] == category)
       {
-        if(a["prob_class_max"] != 0 && a["prob_class_max"] <= prob_class_max)
+        if(a["prob_class_max"] >= prob_class_max)
         {
           console.log("matched prob_class", prob_class_max);
           value += a[month_short3];
