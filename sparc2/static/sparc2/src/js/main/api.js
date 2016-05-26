@@ -135,7 +135,7 @@ sparc.calculate_population_at_risk = function(hazard, feature, state, filters)
       var a = feature.attributes.addinfo[i];
       if(a["month"] == month_short3)
       {
-        if(a["prob"] != 0 && a["prob"] < prob_class_max)
+        if(a["prob_class_max"] >= prob_class_max)
         {
           value += a["popatrisk"];
         }
@@ -146,6 +146,10 @@ sparc.calculate_population_at_risk = function(hazard, feature, state, filters)
   {
     var rp = state["filters"]["popatrisk"]["rp"];
     value = feature.attributes["RP"+rp.toString(10)][month_short3];
+  }
+  else if(hazard == "landslide")
+  {
+    value = feature.attributes["values_by_month"][month_short3];
   }
 
   if(filters != undefined)

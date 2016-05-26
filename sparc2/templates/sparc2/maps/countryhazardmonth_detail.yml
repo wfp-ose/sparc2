@@ -264,43 +264,173 @@ featurelayers:
   {% endverbatim %}{% elif hazard == "drought" %}{% verbatim %}
     description: "The population at risk of drought for each month aggregated at the administrative level 2 district."
     popup:
-      template: "popatrisk"
-      chart:
-        id: "sparc-popup-chart-popatrisk"
-        label: "Population at Risk by Month"
-        type: "bar"
-        axis:
-          x:
-            type: "months"
-          y:
-            label:
-              text: 'Population at Risk'
-              position: 'outer-middle'
-        hazard: flood
-        subtype: "bullet"
-        colors:
-          p6: "#4169E1"
-          p8: "#B0C4FF"
-          p25: "#B0C4DE"
-        group_prefix: "p"
-        group_key: "prob_max"
-        group_modifier: 1
-        groups: [6, 8, 25]
+      title: "Population at Risk: {{ feature.attributes.admin2_name }}, {{ feature.attributes.admin1_name }}"
+      maxWidth: 550
+      panes:
+        - id: "popup_overview"
+          tab:
+            label: "Overview"
+          fields:
+            - value: "{{ feature.attributes.popatrisk | formatInteger : 'delimited' : ' ' }}"
+              label: "Population at Risk for {{ state.month | formatMonth: 'long' }}"
+          charts:
+            - id: "sparc-popup-chart-popatrisk"
+              label: "Population at Risk by Month"
+              type: "bar"
+              axis:
+                x:
+                  type: "months"
+                y:
+                  label:
+                    text: 'Population at Risk'
+                    position: 'outer-middle'
+              hazard: drought
+        - id: "popup_location"
+          tab:
+            label: "Location"
+          fields:
+            - attribute: iso_alpha3
+              label: ISO Alpha-3 Country Code
+            - attribute: admin0_name
+              label: Admin 0
+            - attribute: admin1_name
+              label: Admin 1
+            - attribute: admin2_name
+              label: Admin 2
+        - id: "popup_links"
+          tab:
+            label: "Links"
+          fields: []
     filters:
-      - label: "Frequency"
-        description:  "The frequency by admin2-month that a drought will happen."
+      - label: "Pop at Risk"
+        description:  "The population at risk at the admin-2 level."
+        line_height: 36px
+        height: 50px
+        type: slider
+        slider:
+          id: sparc-popatrisk-slider
+          type: continuous
+          width: 100px
+          range: true  # See https://jqueryui.com/slider/#range
+          label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
+          values: [0, {% endverbatim %}{{ maxValue }}{% verbatim %}]
+          min: 0
+          max: summary  # Overridden by max value from summary data
+          step: 1
+          output: popatrisk_range
+      - label: "Probability"
+        description:  "The probability by admin2-month that a drought will occur."
         line_height: 36px
         height: 50px
         type: slider
         slider:
           id: sparc-probabilities-slider
-          type: ordinal
+          type: continuous
           width: 120px
-          range: min
-          value: .04
-          label: "&lt; {{ value }} %"
-          options: [2, 4, 6, 8, 10, 15, 20, 25, 50, 100]
+          range: max
+          label: "&gt; {{ value }}"
+          value: 0.1
+          min: 0
+          max: 1.0
+          step: 0.1
           output: prob_class_max
+      - label: FCS
+        description: "Filter by VAM Food Consumption Score (FCS).\n\nReference: [http://documents.wfp.org/stellent/groups/public/documents/manual_guide_proced/wfp197216.pdf](http://documents.wfp.org/stellent/groups/public/documents/manual_guide_proced/wfp197216.pdf)"
+        height: 34px
+        type: checkbox
+        checkbox:
+          output: fcs
+          options:
+            - id: "sparc-poor"
+              value: "poor"
+              label: "Poor"
+              description: "Food Consumption Score (FCS) from 0 to 21.  This means a household is expected NOT to eat at least staple and vegetables on a daily base and therefore considered to have poor food consumption.  The value 21 comes from an expected daily consumption of staple (frequency * weight, 7 * 2 = 14) and vegetables (7 * 1 = 7)."
+              checked: true
+            - id: "sparc-borderline"
+              value: "borderline"
+              label: "Borderline"
+              description: "Food Consumption Score (FCS) from 21.5 to 35.  This means households are assessed having borderline food consumption.  The value 35 comes from an expected daily consumption of staple and vegetables complemented by a frequent (4 day/week) consumption of oil and pulses (staple*weight + vegetables*weight + oil*weight + pulses*weight = 7*2+7*1+4*0.5+4*3=35)."
+              checked: true
+            - id: "sparc-acceptable"
+              value: "acceptable"
+              label: "Acceptable"
+              description: "Food Consumption Score (FCS) greater than 35.  This means households that score above 35 are estimated having acceptable food consumption.  The value 35 comes from an expected daily consumption of staple and vegetables complemented by a frequent (4 day/week) consumption of oil and pulses (staple*weight + vegetables*weight + oil*weight + pulses*weight = 7*2+7*1+4*0.5+4*3=35)."
+              checked: true
+      - label: CSI
+        description: "Filter by VAM Coping Strategy Index (CSI).\n\nReference: [The Coping Strategies Index](http://documents.wfp.org/stellent/groups/public/documents/manual_guide_proced/wfp211058.pdf)"
+        height: 34px
+        type: checkbox
+        checkbox:
+          output: csi
+          options:
+            - id: "sparc-no"
+              value: "no"
+              label: "No"
+              description: "No on the Coping Strategy Index"
+              checked: true
+            - id: "sparc-low"
+              value: "low"
+              label: "Low"
+              description: "Low on the Coping Strategy Index"
+              checked: true
+            - id: "sparc-medium"
+              value: "medium"
+              label: "Medium"
+              description: "Medium on the Coping Strategy Index"
+              checked: true
+            - id: "sparc-high"
+              value: "high"
+              label: "High"
+              description: "High on the Coping Strategy Index"
+              checked: true
+      - label: LDI
+        description:  "Filter by the Land Degradation Index (LDI).  LDI combines negative land cover change and erosion propensity variables.\nHigh LDI levels indicate high land deterioration on a qualitative scale (undimensionless)."
+        line_height: 36px
+        height: 50px
+        type: slider
+        slider:
+          id: sparc-ldi-slider
+          type: continuous
+          width: 100px
+          range: true  # See https://jqueryui.com/slider/#range
+          label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
+          values: [1, 9]
+          min: 1
+          max: 9
+          step: 1
+          output: ldi_range
+      - label: "Negative Landcover Change"
+        description: "Negative Landcover Change"
+        line_height: 36px
+        height: 50px
+        type: slider
+        slider:
+          id: sparc-landcover-delta-negative-slider
+          type: continuous
+          width: 100px
+          range: true  # See https://jqueryui.com/slider/#range
+          label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
+          values: [0, 100]
+          min: 0
+          max: 100
+          step: 1
+          output: landcover_delta_negative_range`
+      - label: Erosion Propensity
+        description:  "Filter by the erosion propensity, which indicates percentage of surface area under erosion process (> 5 Tons/ha per year).\nThe erosion propensity is calculated using the RUSLE equation (Rain incidence, Slope length, Lithology, Land cover)."
+        line_height: 36px
+        height: 50px
+        type: slider
+        slider:
+          id: sparc-erosion-propensity-slider
+          type: continuous
+          width: 100px
+          range: true  # See https://jqueryui.com/slider/#range
+          label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
+          values: [0, 100]
+          min: 0
+          max: 100
+          step: 1
+          output: erosion_propensity_range
   {% endverbatim %}{% elif hazard == "flood" %}{% verbatim %}
     description: "The population at risk of flood for each month aggregated at the administrative level 2 district."
     popup:
@@ -378,6 +508,149 @@ featurelayers:
           label: "&lt;= {{ value }} RP"
           options: [25, 50, 100, 200, 500, 1000]
           output: rp
+      - label: FCS
+        description: "Filter by VAM Food Consumption Score (FCS).\n\n\nReference: [Food Consumption Analysis](http://documents.wfp.org/stellent/groups/public/documents/manual_guide_proced/wfp197216.pdf)"
+        height: 34px
+        type: checkbox
+        checkbox:
+          output: fcs
+          options:
+            - id: "sparc-poor"
+              value: "poor"
+              label: "Poor"
+              description: "Food Consumption Score (FCS) from 0 to 21.  This means a household is expected NOT to eat at least staple and vegetables on a daily base and therefore considered to have poor food consumption.  The value 21 comes from an expected daily consumption of staple (frequency * weight, 7 * 2 = 14) and vegetables (7 * 1 = 7)."
+              checked: true
+            - id: "sparc-borderline"
+              value: "borderline"
+              label: "Borderline"
+              description: "Food Consumption Score (FCS) from 21.5 to 35.  This means households are assessed having borderline food consumption.  The value 35 comes from an expected daily consumption of staple and vegetables complemented by a frequent (4 day/week) consumption of oil and pulses (staple*weight + vegetables*weight + oil*weight + pulses*weight = 7*2+7*1+4*0.5+4*3=35)."
+              checked: true
+            - id: "sparc-acceptable"
+              value: "acceptable"
+              label: "Acceptable"
+              description: "Food Consumption Score (FCS) greater than 35.  This means households that score above 35 are estimated having acceptable food consumption.  The value 35 comes from an expected daily consumption of staple and vegetables complemented by a frequent (4 day/week) consumption of oil and pulses (staple*weight + vegetables*weight + oil*weight + pulses*weight = 7*2+7*1+4*0.5+4*3=35)."
+              checked: true
+      - label: CSI
+        description: "Filter by VAM Coping Strategy Index (CSI).\n\nReference: [The Coping Strategies Index](http://documents.wfp.org/stellent/groups/public/documents/manual_guide_proced/wfp211058.pdf)"
+        height: 34px
+        type: checkbox
+        checkbox:
+          output: csi
+          options:
+            - id: "sparc-no"
+              value: "no"
+              label: "No"
+              description: "No on the Coping Strategy Index"
+              checked: true
+            - id: "sparc-low"
+              value: "low"
+              label: "Low"
+              description: "Low on the Coping Strategy Index"
+              checked: true
+            - id: "sparc-medium"
+              value: "medium"
+              label: "Medium"
+              description: "Medium on the Coping Strategy Index"
+              checked: true
+            - id: "sparc-high"
+              value: "high"
+              label: "High"
+              description: "High on the Coping Strategy Index"
+              checked: true
+      - label: LDI
+        description:  "Filter by the Land Degradation Index (LDI).  LDI combines negative land cover change and erosion propensity variables.\n\nHigh LDI levels indicate high land deterioration on a qualitative scale (undimensionless)."
+        line_height: 36px
+        height: 50px
+        type: slider
+        slider:
+          id: sparc-ldi-slider
+          type: continuous
+          width: 100px
+          range: true  # See https://jqueryui.com/slider/#range
+          label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
+          values: [1, 9]
+          min: 1
+          max: 9
+          step: 1
+          output: ldi_range
+      - label: "Negative Landcover Change"
+        description: "Negative Landcover Change"
+        line_height: 36px
+        height: 50px
+        type: slider
+        slider:
+          id: sparc-landcover-delta-negative-slider
+          type: continuous
+          width: 100px
+          range: true  # See https://jqueryui.com/slider/#range
+          label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
+          values: [0, 100]
+          min: 0
+          max: 100
+          step: 1
+          output: landcover_delta_negative_range
+      - label: Erosion Propensity
+        description:  "Filter by the erosion propensity, which indicates percentage of surface area under erosion process (> 5 Tons/ha per year).\n\nThe erosion propensity is calculated using the RUSLE equation (Rain incidence, Slope length, Lithology, Land cover)."
+        line_height: 36px
+        height: 50px
+        type: slider
+        slider:
+          id: sparc-erosion-propensity-slider
+          type: continuous
+          width: 100px
+          range: true  # See https://jqueryui.com/slider/#range
+          label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
+          values: [0, 100]
+          min: 0
+          max: 100
+          step: 1
+          output: erosion_propensity_range
+  {% endverbatim %}{% elif hazard == "landslide" %}{% verbatim %}
+    description: "The population at risk of landslide for each month aggregated at the administrative level 2 district."
+    popup:
+      title: "Population at Risk: {{ feature.attributes.admin2_name }}, {{ feature.attributes.admin1_name }}"
+      maxWidth: 550
+      panes:
+        - id: "popup_overview"
+          tab:
+            label: "Overview"
+          fields:
+            - value: "{{ feature.attributes.popatrisk | formatInteger : 'delimited' : ' ' }}"
+              label: "Population at Risk for {{ state.month | formatMonth: 'long' }}"
+          charts: []
+        - id: "popup_location"
+          tab:
+            label: "Location"
+          fields:
+            - attribute: iso_alpha3
+              label: ISO Alpha-3 Country Code
+            - attribute: admin0_name
+              label: Admin 0
+            - attribute: admin1_name
+              label: Admin 1
+            - attribute: admin2_name
+              label: Admin 2
+        - id: "popup_links"
+          tab:
+            label: "Links"
+          fields: []
+    filters:
+      - label: "Pop at Risk"
+        description:  "The population at risk at the admin-2 level."
+        line_height: 36px
+        height: 50px
+        type: slider
+        slider:
+          id: sparc-popatrisk-slider
+          type: continuous
+          width: 100px
+          range: true  # See https://jqueryui.com/slider/#range
+          label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
+          values: [0, {% endverbatim %}{{ maxValue }}{% verbatim %}]
+          min: 0
+          max: {% endverbatim %}{{ maxValue }}{% verbatim %}  # Overridden by max value from summary data
+          step: 1
+          output: popatrisk_range
       - label: FCS
         description: "Filter by VAM Food Consumption Score (FCS).\n\n\nReference: [Food Consumption Analysis](http://documents.wfp.org/stellent/groups/public/documents/manual_guide_proced/wfp197216.pdf)"
         height: 34px
@@ -1271,6 +1544,10 @@ legendlayers:
   - flood_events
   - landslide_events
   - flood_probability
+  {% endverbatim %}{% elif hazard == "landslide" %}{% verbatim %}
+  - flood_events
+  - landslide_events
+  - flood_probability
   {% endverbatim %}{% endif %}
   - wld_poi_facilities_wfp
   - wld_trs_supplyroutes_wfp
@@ -1291,6 +1568,10 @@ renderlayers:
   - cyclone_probability
   - cyclone_events
   {% endverbatim %}{% elif hazard == "flood" %}{% verbatim %}
+  - flood_events
+  - landslide_events
+  - flood_probability
+  {% endverbatim %}{% elif hazard == "landslide" %}{% verbatim %}
   - flood_events
   - landslide_events
   - flood_probability

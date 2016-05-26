@@ -15,7 +15,7 @@ except ImportError:
 
 from geosite.enumerations import MONTHS_SHORT3
 
-from geosite.data import GeositeDatabaseConnection, calc_breaks_natural, insertIntoObject
+from geosite.data import GeositeDatabaseConnection, calc_breaks_natural, insertIntoObject, valuesByMonthToList, rowsToDict
 from sparc2.data import data_local_country_admin, data_local_country_hazard_all, data_local_country_context_all
 from sparc2.enumerations import URL_VAM
 
@@ -49,6 +49,24 @@ def get_json_admin0(request, template="sparc2/sql/_admin0_data.sql"):
     results = cursor.fetchall()
     return results
 
+
+def get_context_by_admin2(geosite_conn=None, iso_alpha3=None):
+    context_by_admin2 = {}
+
+    rows_context = geosite_conn.exec_query_multiple(
+        get_template("sparc2/sql/_context_by_admin2.sql").render({
+            'admin2_context': 'context.admin2_context',
+            'iso_alpha3': iso_alpha3}))
+
+    for row in rows_context:
+        admin2_code, ldi, delta_negative, erosion_propensity = row
+        context_by_admin2[str(admin2_code)] = {
+            'ldi': ldi,
+            'delta_negative': delta_negative,
+            'erosion_propensity': erosion_propensity
+        }
+    return context_by_admin2
+
 def get_geojson_cyclone(request, iso_alpha3=None):
     collection = None
     with GeositeDatabaseConnection() as geosite_conn:
@@ -67,19 +85,7 @@ def get_geojson_cyclone(request, iso_alpha3=None):
                 popatrisk_by_admin2[admin2_code] = []
             popatrisk_by_admin2[admin2_code].append(newRow)
 
-        rows_context = geosite_conn.exec_query_multiple(
-            get_template("sparc2/sql/_context_by_admin2.sql").render({
-                'admin2_context': 'context.admin2_context',
-                'iso_alpha3': iso_alpha3}))
-
-        context_by_admin2 = {}
-        for row in rows_context:
-            admin2_code, ldi, delta_negative, erosion_propensity = row
-            context_by_admin2[str(admin2_code)] = {
-                'ldi': ldi,
-                'delta_negative': delta_negative,
-                'erosion_propensity': erosion_propensity
-            }
+        context_by_admin2 = get_context_by_admin2(geosite_conn=geosite_conn, iso_alpha3=iso_alpha3)
 
         for feature in collection["features"]:
             admin2_code = str(feature["properties"]["admin2_code"])
@@ -206,7 +212,11 @@ def get_summary_cyclone(table_popatrisk=None, iso_alpha3=None):
 def get_geojson_drought(request, iso_alpha3=None):
     collection = None
     with GeositeDatabaseConnection() as geosite_conn:
-        collection = data_local_country_admin().get(cursor=geosite_conn.cursor, iso_alpha3=iso_alpha3, level=2)
+        collection = data_local_country_admin().get(
+          cursor=geosite_conn.cursor,
+          iso_alpha3=iso_alpha3,
+          level=2)
+
         for feature in collection["features"]:
             feature["properties"]["addinfo"] = []
 
@@ -338,19 +348,7 @@ def get_geojson_flood(request, iso_alpha3=None):
                 data.pop(u"admin2_code")
                 values_by_admin2[str(admin2_code)] = data
 
-            rows_context = geosite_conn.exec_query_multiple(
-                get_template("sparc2/sql/_context_by_admin2.sql").render({
-                    'admin2_context': 'context.admin2_context',
-                    'iso_alpha3': iso_alpha3}))
-
-            context_by_admin2 = {}
-            for row in rows_context:
-                admin2_code, ldi, delta_negative, erosion_propensity = row
-                context_by_admin2[str(admin2_code)] = {
-                    'ldi': ldi,
-                    'delta_negative': delta_negative,
-                    'erosion_propensity': erosion_propensity
-                }
+            context_by_admin2 = get_context_by_admin2(geosite_conn=geosite_conn, iso_alpha3=iso_alpha3)
 
             for feature in collection["features"]:
                 admin2_code = str(feature["properties"]["admin2_code"])
@@ -462,6 +460,81 @@ def get_summary_flood(table_popatrisk=None, iso_alpha3=None):
             keys = [admin2_code, "rp", str(rp), 'by_month']
             value = [float(x) for x in values.split(",")]
             summary["admin2"] = insertIntoObject(summary["admin2"], keys, value)
+
+    return summary
+
+def get_geojson_landslide(request, iso_alpha3=None):
+    collection = None
+    with GeositeDatabaseConnection() as geosite_conn:
+        collection = data_local_country_admin().get(cursor=geosite_conn.cursor, iso_alpha3=iso_alpha3, level=2)
+
+        rows = geosite_conn.exec_query_multiple(
+            get_template("sparc2/sql/_landslide_data_by_admin2_month_asjson.sql").render({
+                'admin2_popatrisk': 'landslide.admin2_popatrisk',
+                'iso_alpha3': iso_alpha3}))
+
+        values_by_admin2 = {}
+        for row in rows:
+            admin2_code, data = row
+            data.pop(u"admin2_code")
+            values_by_admin2[str(admin2_code)] = data
+
+        print values_by_admin2
+
+        context_by_admin2 = get_context_by_admin2(geosite_conn=geosite_conn, iso_alpha3=iso_alpha3)
+
+        for feature in collection["features"]:
+            admin2_code = str(feature["properties"]["admin2_code"])
+            feature["properties"]["values_by_month"] = values_by_admin2.get(admin2_code, [])
+            if admin2_code in context_by_admin2:
+                feature["properties"]["ldi"] = context_by_admin2[admin2_code]["ldi"]
+                feature["properties"]["delta_negative"] = context_by_admin2[admin2_code]["delta_negative"]
+                feature["properties"]["erosion_propensity"] = context_by_admin2[admin2_code]["erosion_propensity"]
+
+    return collection
+
+def get_summary_landslide(table_popatrisk=None, iso_alpha3=None):
+    now = datetime.datetime.now()
+    current_month = now.strftime("%b").lower()
+
+    if (not table_popatrisk) or (not iso_alpha3):
+        raise Exception("Missing table_popatrisk or iso3 for get_summary_flood.")
+
+    summary = {
+        'all': {
+            "max": {
+              'at_country_month': None,
+              'at_admin2_month': None
+            },
+            'breakpoints': {
+                'natural': None,
+                'natural_adjusted': None
+            }
+        },
+        "admin2": {}
+    }
+
+    num_breakpoints = 5
+
+    connection = psycopg2.connect(settings.GEOSITE_DB_CONN_STR)
+    cursor = connection.cursor()
+
+    values = data_local_country_hazard_all().get(
+        cursor=cursor,
+        iso_alpha3=iso_alpha3,
+        hazard="landslide",
+        template="sparc2/sql/_hazard_data_all.sql",
+        table=table_popatrisk)
+
+    natural = calc_breaks_natural(values, num_breakpoints)
+    values_as_integer = [int(x) for x in values]
+    natural_adjusted = natural
+
+    print "values: ", values
+
+    summary["all"]["max"]["at_admin2_month"] = max(values_as_integer)
+    summary["all"]["breakpoints"]["natural"] = natural
+    summary["all"]["breakpoints"]["natural_adjusted"] =  [0] + natural_adjusted + [max(values_as_integer)]
 
     return summary
 

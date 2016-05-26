@@ -1164,7 +1164,7 @@ sparc.calculate_population_at_risk = function(hazard, feature, state, filters)
       var a = feature.attributes.addinfo[i];
       if(a["month"] == month_short3)
       {
-        if(a["prob"] != 0 && a["prob"] < prob_class_max)
+        if(a["prob_class_max"] >= prob_class_max)
         {
           value += a["popatrisk"];
         }
@@ -1175,6 +1175,10 @@ sparc.calculate_population_at_risk = function(hazard, feature, state, filters)
   {
     var rp = state["filters"]["popatrisk"]["rp"];
     value = feature.attributes["RP"+rp.toString(10)][month_short3];
+  }
+  else if(hazard == "landslide")
+  {
+    value = feature.attributes["values_by_month"][month_short3];
   }
 
   if(filters != undefined)
@@ -1744,6 +1748,54 @@ geosite.style_flood = function(f, state, map_config, options)
 
   var value = sparc.calculate_population_at_risk(
     'flood',
+    sparc.normalize_feature(f),
+    state,
+    options.filters);
+
+  if(
+    value >= popatrisk_range[0] && value <= popatrisk_range[1] &&
+    (ldi == undefined || (ldi >= ldi_range[0] && ldi <= ldi_range[1])) &&
+    (erosion_propensity == undefined || (erosion_propensity >= erosion_propensity_range[0] && erosion_propensity <= erosion_propensity_range[1])) &&
+    (landcover_delta_negative == undefined || (landcover_delta_negative >= landcover_delta_negative_range[0] && landcover_delta_negative <= landcover_delta_negative_range[1]))
+  )
+  {
+      var colors = map_config["featurelayers"]["popatrisk"]["cartography"][0]["colors"]["ramp"];
+      var breakpoints = geosite.breakpoints[options["breakpoints"]];
+      var color = undefined;
+      for(var i = 0; i < breakpoints.length -1; i++)
+      {
+        if(
+          (value == breakpoints[i] && value == breakpoints[i+1]) ||
+          (value >= breakpoints[i] && value < breakpoints[i+1])
+        )
+        {
+          color = colors[i];
+          break;
+        }
+      }
+      style["fillColor"] = (color == undefined) ? colors[colors.length-1] : color;
+  }
+  else
+  {
+    style["opacity"] = 0;
+    style["fillOpacity"] = 0;
+  }
+  return style;
+};
+geosite.style_landslide = function(f, state, map_config, options)
+{
+  var style = {};
+  var filters = state["filters"]["popatrisk"];
+  var popatrisk_range = filters["popatrisk_range"];
+  var ldi_range = filters["ldi_range"];
+  var ldi = f.properties.ldi;
+  var erosion_propensity_range = filters["erosion_propensity_range"];
+  var erosion_propensity = f.properties.erosion_propensity;
+  var landcover_delta_negative_range = filters["landcover_delta_negative_range"];
+  var landcover_delta_negative = f.properties.delta_negative;
+
+  var value = sparc.calculate_population_at_risk(
+    'landslide',
     sparc.normalize_feature(f),
     state,
     options.filters);

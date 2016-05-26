@@ -1,86 +1,19 @@
 SPARC_HAZARDS_CONFIG = [
     {
         "id": "cyclone",
-        "title":"Cyclones",
-        "filters": [
-            {
-                "label": "Category",
-                "description": "The category of the cyclone.  See http://www.srh.noaa.gov/jetstream/tropics/tc_classification.htm for more details.",
-                "height": "34px",
-                "type": "radio",
-                "radio": {
-                    "output": "category",
-                    "options": [
-                        {
-                            "id": "sparc-cat1_5",
-                            "name": "cat",
-                            "value": "cat1_5",
-                            "label": "1-5",
-                            "checked": True
-                        },
-                        {
-                            "id": "sparc-cat1_3",
-                            "name": "cat",
-                            "value": "cat1_3",
-                            "label": "1-3"
-                        },
-                        {
-                            "id": "sparc-cat4_5",
-                            "name": "cat",
-                            "value": "cat4_5",
-                            "label": "4-5"
-                        }
-                    ]
-                }
-            },
-            {
-                "label": "Probability",
-                "description": "The probability by admin2-month that a cyclone will hit.",
-                "line_height": "36px",
-                "height": "50px",
-                "type": "slider",
-                "slider": {
-                    "id": "sparc-probabilities-slider",
-                    "type": "continuous",
-                    "width": "120px",
-                    "range": "min",
-                    "label": "&lt;= {value}",
-                    "value": 0.1,
-                    "min": 0,
-                    "max": 1.0,
-                    "step": 0.1,
-                    "output":"prob_class_max"
-                }
-            }
-        ]
+        "title":"Cyclones"
     },
     {
         "id": "drought",
-        "title": "Drought",
-        "filters": []
+        "title": "Drought"
     },
     {
         "id": "flood",
-        "title": "Floods",
-        "filters": [
-            {
-                "label": "Return Period",
-                "description": "Probability is based on the concept of \"return period\".  A return period is an estimate of the likelihood of an event, such as a flood, to occur. The theoretical return period is the inverse of the probability that the event will be exceeded in any one year (or more accurately the inverse of the expected number of occurrences in a year). In this case, a 100 year flood has a 0.01 or 1% chance of being exceeded in any one year.",
-                "line_height": "36px",
-                "height": "50px",
-                "type": "slider",
-                "slider": {
-                    "id": "sparc-probabilities-slider",
-                    "type": "ordinal",
-                    "width": "100px",
-                    "range": "min",
-                    "value": 50,
-                    "label": "&lt;= {value} RP",
-                    "options": [25, 50, 100, 200, 500, 1000],
-                    "output": "rp"
-                }
-            }
-        ]
+        "title": "Floods"
+    },
+    {
+        "id": "landslide",
+        "title": "Landslides"
     }
 ]
 
@@ -142,16 +75,4 @@ URL_EMDAT_BY_HAZARD = {
 URL_VAM = {
     "FCS": "http://reporting.vam.wfp.org/API/Get_FCS.aspx?adm0={admin0}&adm1={admin1}&indTypeID=2",
     "CSI":"http://reporting.vam.wfp.org/API/Get_CSI.aspx?type=cs&adm0={admin0}&adm1={admin1}&indTypeID=2"
-}
-
-TEMPLATES_BY_HAZARD = {
-    "cyclone": "sparc2/countryhazardmonth_detail.html",
-    "drought": "sparc2/countryhazardmonth_detail.html",
-    "flood": "sparc2/countryhazardmonth_detail.html"
-}
-
-POPATRISK_BY_HAZARD = {
-    "cyclone": "cyclone.admin2_popatrisk",
-    "drought": "drought.admin2_popatrisk",
-    "flood": "flood.admin2_popatrisk"
 }

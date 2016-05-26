@@ -19,9 +19,9 @@ from geosite.enumerations import MONTHS_SHORT3
 from geosite.views import geosite_data_view
 
 from geosite.cache import provision_memcached_client
-from sparc2.enumerations import URL_EMDAT_BY_HAZARD, TEMPLATES_BY_HAZARD, SPARC_HAZARDS_CONFIG, POPATRISK_BY_HAZARD
+from sparc2.enumerations import URL_EMDAT_BY_HAZARD, SPARC_HAZARDS_CONFIG
 from sparc2.models import SPARCCountry
-from sparc2.utils import get_month_number, get_json_admin0, get_geojson_cyclone, get_geojson_drought, get_geojson_flood, get_geojson_context, get_summary_cyclone, get_summary_drought, get_summary_flood, get_summary_context, get_events_cyclone, get_events_flood, get_events_landslide, get_geojson_vam
+from sparc2.utils import get_month_number, get_json_admin0, get_geojson_cyclone, get_geojson_drought, get_geojson_flood, get_geojson_landslide, get_geojson_context, get_summary_cyclone, get_summary_drought, get_summary_flood, get_summary_landslide, get_summary_context, get_events_cyclone, get_events_flood, get_events_landslide, get_geojson_vam
 
 def home(request, template="home.html"):
     raise NotImplementedError
@@ -69,7 +69,7 @@ def explore(request):
     }
 
     return render_to_response(t, RequestContext(request, ctx))
-    
+
 
 def country_detail(request, iso3=None, hazard=None, month=None):
     now = datetime.datetime.now()
@@ -139,9 +139,7 @@ def countryhazardmonth_detail(request, iso3=None, hazard=None, month=None):
     #current_month = now.strftime("%B")
     current_month = now.month
 
-    t = TEMPLATES_BY_HAZARD.get(hazard, None)
-    if not t:
-        raise Exception("Could not find template for hazard")
+    t = "sparc2/countryhazardmonth_detail.html"
 
     country_title = WFPCountry.objects.filter(thesaurus__iso_alpha3=iso3).values_list('gaul__admin0_name', flat=True)[0]
 
@@ -157,11 +155,13 @@ def countryhazardmonth_detail(request, iso3=None, hazard=None, month=None):
     # This is inefficient, since not hitting cache.  Need to rework
     summary = None
     if hazard == "cyclone":
-        summary = get_summary_cyclone(table_popatrisk=POPATRISK_BY_HAZARD[hazard], iso_alpha3=iso3)
+        summary = get_summary_cyclone(table_popatrisk="cyclone.admin2_popatrisk", iso_alpha3=iso3)
     elif hazard == "drought":
-        summary = get_summary_drought(table_popatrisk=POPATRISK_BY_HAZARD[hazard], iso_alpha3=iso3)
+        summary = get_summary_drought(table_popatrisk="drought.admin2_popatrisk", iso_alpha3=iso3)
     elif hazard == "flood":
-        summary = get_summary_flood(table_popatrisk=POPATRISK_BY_HAZARD[hazard], iso_alpha3=iso3)
+        summary = get_summary_flood(table_popatrisk="flood.admin2_popatrisk", iso_alpha3=iso3)
+    elif hazard == "landslide":
+        summary = get_summary_landslide(table_popatrisk="landslide.admin2_popatrisk", iso_alpha3=iso3)
     #############
 
     map_config_yml = get_template("sparc2/maps/countryhazardmonth_detail.yml").render({
@@ -324,6 +324,8 @@ class countryhazard_data_local_popatrisk(geosite_data_view):
             data = get_geojson_drought(request, iso_alpha3=iso3)
         elif hazard == u'flood':
             data = get_geojson_flood(request, iso_alpha3=iso3)
+        elif hazard == u'landslide':
+            data = get_geojson_landslide(request, iso_alpha3=iso3)
         return data
 
 class countryhazard_data_local_summary(geosite_data_view):
@@ -337,11 +339,13 @@ class countryhazard_data_local_summary(geosite_data_view):
         iso3 = kwargs.pop('iso3', None)
         data = None
         if hazard == "cyclone":
-            data = get_summary_cyclone(table_popatrisk=POPATRISK_BY_HAZARD[hazard], iso_alpha3=iso3)
+            data = get_summary_cyclone(table_popatrisk="cyclone.admin2_popatrisk", iso_alpha3=iso3)
         elif hazard == "drought":
-            data = get_summary_drought(table_popatrisk=POPATRISK_BY_HAZARD[hazard], iso_alpha3=iso3)
+            data = get_summary_drought(table_popatrisk="drought.admin2_popatrisk", iso_alpha3=iso3)
         elif hazard == "flood":
-            data = get_summary_flood(table_popatrisk=POPATRISK_BY_HAZARD[hazard], iso_alpha3=iso3)
+            data = get_summary_flood(table_popatrisk="flood.admin2_popatrisk", iso_alpha3=iso3)
+        elif hazard == "landslide":
+            data = get_summary_landslide(table_popatrisk="landslide.admin2_popatrisk", iso_alpha3=iso3)
         return data
 
 class countrycontext_data_local(geosite_data_view):

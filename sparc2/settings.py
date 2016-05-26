@@ -165,7 +165,7 @@ LEAFLET_CONFIG = {
 
 # SPARC_HAZARDS is used for configuring what hazards are enabled.
 # Additional configuration is in enumerations.py
-SPARC_HAZARDS = ["cyclone", "drought", "flood"]
+SPARC_HAZARDS = ["cyclone", "drought", "flood", "landslide"]
 
 GEOSITE_DB_CONN_STR = "dbname='sparc2' user='sparc2' host='localhost' password='sparc2'"
 GEOSITE_CACHE_DATA = True
