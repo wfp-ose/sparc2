@@ -617,7 +617,18 @@ featurelayers:
           fields:
             - value: "{{ feature.attributes.popatrisk | formatInteger : 'delimited' : ' ' }}"
               label: "Population at Risk for {{ state.month | formatMonth: 'long' }}"
-          charts: []
+          charts:
+            - id: "sparc-popup-chart-popatrisk"
+              label: "Population at Risk by Month"
+              type: "bar"
+              axis:
+                x:
+                  type: "months"
+                y:
+                  label:
+                    text: 'Population at Risk'
+                    position: 'outer-middle'
+              hazard: landslide
         - id: "popup_location"
           tab:
             label: "Location"
@@ -1622,6 +1633,8 @@ charts:
     group_key: "rp"
     group_modifier: 1
     groups: [25, 100, 1000]
+    {% endverbatim %}{% elif hazard == "landslide" %}{% verbatim %}
+    hazard: landslide
     {% endverbatim %}{% endif %}
 {% endblock %}
 

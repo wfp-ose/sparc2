@@ -509,7 +509,8 @@ def get_summary_landslide(table_popatrisk=None, iso_alpha3=None):
             'breakpoints': {
                 'natural': None,
                 'natural_adjusted': None
-            }
+            },
+            "by_month": None
         },
         "admin2": {}
     }
@@ -530,11 +531,32 @@ def get_summary_landslide(table_popatrisk=None, iso_alpha3=None):
     values_as_integer = [int(x) for x in values]
     natural_adjusted = natural
 
-    print "values: ", values
-
     summary["all"]["max"]["at_admin2_month"] = max(values_as_integer)
     summary["all"]["breakpoints"]["natural"] = natural
     summary["all"]["breakpoints"]["natural_adjusted"] =  [0] + natural_adjusted + [max(values_as_integer)]
+
+    with GeositeDatabaseConnection() as geosite_conn:
+        values = geosite_conn.exec_query_single_aslist(
+            get_template("sparc2/sql/_landslide_data_by_month.sql").render({
+                'admin2_popatrisk': 'landslide.admin2_popatrisk',
+                'iso_alpha3': iso_alpha3}))
+
+        print "values by month: ", values
+
+        summary["all"]["by_month"] = [int(x) for x in values]
+
+        rows = geosite_conn.exec_query_multiple(
+            get_template("sparc2/sql/_landslide_data_by_admin2_month_asjson.sql").render({
+                'admin2_popatrisk': 'landslide.admin2_popatrisk',
+                'iso_alpha3': iso_alpha3}))
+
+        values_by_admin2 = {}
+        for row in rows:
+            admin2_code, data = row
+            data.pop(u"admin2_code")
+            summary["admin2"][str(admin2_code)] = {}
+            summary["admin2"][str(admin2_code)]["by_month"] = valuesByMonthToList(data)
+
 
     return summary
 

@@ -1197,7 +1197,7 @@ var buildGroupsAndColumnsForCountry = function(chartConfig, popatrisk_config)
   var columns = [];
   var order = undefined;
 
-  if (chartConfig.hazard == "cyclone")
+  if(chartConfig.hazard == "cyclone")
   {
     $.each(popatrisk_config["data"]["summary"]["prob_class"], function(prob_class, value){
       var data = value["by_month"];
@@ -1248,6 +1248,13 @@ var buildGroupsAndColumnsForCountry = function(chartConfig, popatrisk_config)
     }
     columns.reverse();
   }
+  else if(chartConfig.hazard == "landslide")
+  {
+    var data = popatrisk_config["data"]["summary"]["all"]["by_month"];
+    var g = "Population at Risk";
+    columns.push([g].concat(data));
+    groups[0].push(g);
+  }
 
   return {'groups': groups, 'columns': columns, 'order': order};
 };
@@ -1257,19 +1264,7 @@ var buildGroupsAndColumnsForAdmin2 = function(chartConfig, popatrisk_config, adm
   var columns = [];
   var order = undefined;
 
-  if(chartConfig.hazard == "flood")
-  {
-    for(var i = 0; i < chartConfig.returnPeriods.length; i++)
-    {
-      var rp = chartConfig.returnPeriods[i];
-      var data = popatrisk_config["data"]["summary"]["admin2"][admin2_code]["rp"][""+rp]["by_month"];
-      //
-      columns.push(['rp'+rp].concat(data));
-      groups[0].push('rp'+rp);
-    }
-    columns.reverse();
-  }
-  else if (chartConfig.hazard == "cyclone")
+  if(chartConfig.hazard == "cyclone")
   {
     $.each(popatrisk_config["data"]["summary"]["admin2"][admin2_code]["prob_class"], function(prob_class, value){
       var data = value["by_month"];
@@ -1277,7 +1272,6 @@ var buildGroupsAndColumnsForAdmin2 = function(chartConfig, popatrisk_config, adm
       columns.push([prob_class].concat(data));
       groups[0].push(prob_class);
     });
-
 
     groups[0].sort(function(a, b){
       return parseFloat(b.split("-")[0]) - parseFloat(a.split("-")[0]);
@@ -1290,6 +1284,25 @@ var buildGroupsAndColumnsForAdmin2 = function(chartConfig, popatrisk_config, adm
     order = function(data1, data2) {
       return parseFloat(data2.id.split("-")[0]) - parseFloat(data1.id.split("-")[0]);
     };
+  }
+  else if(chartConfig.hazard == "flood")
+  {
+    for(var i = 0; i < chartConfig.returnPeriods.length; i++)
+    {
+      var rp = chartConfig.returnPeriods[i];
+      var data = popatrisk_config["data"]["summary"]["admin2"][admin2_code]["rp"][""+rp]["by_month"];
+      //
+      columns.push(['rp'+rp].concat(data));
+      groups[0].push('rp'+rp);
+    }
+    columns.reverse();
+  }
+  else if(chartConfig.hazard == "landslide")
+  {
+    var data = popatrisk_config["data"]["summary"]["admin2"][admin2_code]["by_month"];
+    var g = "Risk";
+    columns.push([g].concat(data));
+    groups[0].push(g);
   }
   return {'groups': groups, 'columns': columns, 'order': order};
 };
