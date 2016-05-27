@@ -181,8 +181,8 @@ GEOSITE_DNS_PREFETCH = [
 ]
 #-----------------------------
 # Dependencies Management
-SPARC_STATIC_VERSION="2016-05-27-10:42:41"
-GEOSITE_STATIC_VERSION="1.0.0"
+SPARC_STATIC_VERSION="0.1.1"
+GEOSITE_STATIC_VERSION="0.1.1"
 GEOSITE_STATIC_DEPS = {
     "angular": {
         "version": "1.4.0-beta.4"
