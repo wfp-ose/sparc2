@@ -655,9 +655,27 @@ def get_summary_context(table_context=None, iso_alpha3=None):
         template="sparc2/sql/_admin2_data_all.sql",
         table=table_context)
     values_delta_mean = [float(x) for x in values_delta_mean]
+    values_delta_mean_negative = [x for x in values_delta_mean if x <= 0.0]
+    values_delta_mean_positive = [x for x in values_delta_mean if x >= 0.0]
     natural_mean = calc_breaks_natural(values_delta_mean, 6)
-    natural_mean_negative = calc_breaks_natural([x for x in values_delta_mean if x <= 0.0], 2)
-    natural_mean_positive = calc_breaks_natural([x for x in values_delta_mean if x >= 0.0], 2)
+    if len(values_delta_mean_negative) == 0:
+        natural_mean_negative = [0, 0, 0]
+    elif len(values_delta_mean_negative) == 1:
+        natural_mean_negative = [
+            values_delta_mean_negative[0],
+            values_delta_mean_negative[0],
+            values_delta_mean_negative[0]]
+    else:
+        natural_mean_negative = calc_breaks_natural(values_delta_mean_negative, 2)
+    if len(values_delta_mean_positive) == 0:
+        natural_mean_positive = [0, 0, 0]
+    elif len(values_delta_mean_positive) == 1:
+        natural_mean_positive = [
+            values_delta_mean_positive[0],
+            values_delta_mean_positive[0],
+            values_delta_mean_positive[0]]
+    else:
+        natural_mean_positive = calc_breaks_natural(values_delta_mean_positive, 2)
     #####
     values_delta_negative = data_local_country_context_all().get(
         cursor=cursor,
