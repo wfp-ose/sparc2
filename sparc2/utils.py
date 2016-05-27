@@ -67,6 +67,37 @@ def get_context_by_admin2(geosite_conn=None, iso_alpha3=None):
         }
     return context_by_admin2
 
+def get_vam_by_admin1(request=None, iso_alpha3=None):
+    vam_by_admin1 = {}
+
+    vam = get_geojson_vam(request, iso_alpha3=iso_alpha3)
+
+    for feature in vam["features"]:
+        attributes = feature["properties"]
+        print attributes
+        if "vam" in attributes:
+            vam_by_admin1[str(attributes["admin1_code"])] = {}
+        if "fcs" in attributes["vam"]:
+            vam_by_admin1[str(attributes["admin1_code"])].update({
+                "vam_fcs_year": attributes["vam"]["fcs"]["year"],
+                "vam_fcs_month": attributes["vam"]["fcs"]["month"],
+                "vam_fcs_source": attributes["vam"]["fcs"]["source"],
+                "vam_fcs_poor": attributes["vam"]["fcs"]["poor"],
+                "vam_fcs_borderline": attributes["vam"]["fcs"]["borderline"],
+                "vam_fcs_acceptable": attributes["vam"]["fcs"]["acceptable"]
+            })
+        if "csi" in attributes["vam"]:
+            vam_by_admin1[str(attributes["admin1_code"])].update({
+                "vam_csi_year": attributes["vam"]["csi"]["year"],
+                "vam_csi_month": attributes["vam"]["csi"]["month"],
+                "vam_csi_source": attributes["vam"]["csi"]["source"],
+                "vam_csi_no": attributes["vam"]["csi"]["no"],
+                "vam_csi_low": attributes["vam"]["csi"]["low"],
+                "vam_csi_medium": attributes["vam"]["csi"]["medium"],
+                "vam_csi_high": attributes["vam"]["csi"]["high"]
+            })
+    return vam_by_admin1
+
 def get_geojson_cyclone(request, iso_alpha3=None):
     collection = None
     with GeositeDatabaseConnection() as geosite_conn:
@@ -335,6 +366,8 @@ def get_geojson_flood(request, iso_alpha3=None):
     with GeositeDatabaseConnection() as geosite_conn:
         collection = data_local_country_admin().get(cursor=geosite_conn.cursor, iso_alpha3=iso_alpha3, level=2)
 
+        vam_by_admin1 = get_vam_by_admin1(request, iso_alpha3=iso_alpha3)
+
         returnPeriods = [25, 50, 100, 200, 500, 1000]
         for rp in returnPeriods:
             rows = geosite_conn.exec_query_multiple(
@@ -351,12 +384,16 @@ def get_geojson_flood(request, iso_alpha3=None):
             context_by_admin2 = get_context_by_admin2(geosite_conn=geosite_conn, iso_alpha3=iso_alpha3)
 
             for feature in collection["features"]:
+                admin1_code = str(feature["properties"]["admin1_code"])
                 admin2_code = str(feature["properties"]["admin2_code"])
                 feature["properties"]["RP"+str(rp)] = values_by_admin2[admin2_code]
                 if admin2_code in context_by_admin2:
                     feature["properties"]["ldi"] = context_by_admin2[admin2_code]["ldi"]
                     feature["properties"]["delta_negative"] = context_by_admin2[admin2_code]["delta_negative"]
                     feature["properties"]["erosion_propensity"] = context_by_admin2[admin2_code]["erosion_propensity"]
+                if admin1_code in vam_by_admin1:
+                    feature["properties"].update(vam_by_admin1[admin1_code])
+
 
     return collection
 
@@ -737,6 +774,9 @@ def get_geojson_vam(request, iso_alpha3=None):
             if vam_data_fcs:
                 vam_data_fcs = vam_data_fcs[0]
                 vam["fcs"] = {
+                    "year": vam_data_fcs["FCS_year"],
+                    "month": vam_data_fcs["FCS_month"],
+                    "source": vam_data_fcs["FCS_dataSource"],
                     "poor": vam_data_fcs["FCS_poor"],
                     "borderline": vam_data_fcs["FCS_borderline"],
                     "acceptable": vam_data_fcs["FCS_acceptable"]
@@ -744,6 +784,9 @@ def get_geojson_vam(request, iso_alpha3=None):
             if vam_data_csi:
                 vam_data_csi = vam_data_csi[0]
                 vam["csi"] = {
+                    "year": vam_data_csi["CSI_rYear"],
+                    "month": vam_data_csi["CSI_rMonth"],
+                    "source": vam_data_csi["CSI_rDataSource"],
                     "no": vam_data_csi["CSI_rNoCoping"],
                     "low": vam_data_csi["CSI_rLowCoping"],
                     "medium": vam_data_csi["CSI_rMediumCoping"],

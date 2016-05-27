@@ -104,6 +104,36 @@ featurelayers:
               label: Admin 1
             - attribute: admin2_name
               label: Admin 2
+        - id: "popup_vam_fcs"
+          tab:
+            label: "FCS"
+          fields:
+            - value: "{{ feature.attributes.vam_fcs_month | formatMonth:'long' }} {{ feature.attributes.vam_fcs_year }}"
+              label: VAM FCS Date
+            - attribute: vam_fcs_source
+              label: VAM FCS Source
+            - attribute: vam_fcs_poor
+              label: VAM FCS Poor
+            - attribute: vam_fcs_borderline
+              label: VAM FCS Borderline
+            - attribute: vam_fcs_acceptable
+              label: VAM FCS Acceptable
+        - id: "popup_vam_csi"
+          tab:
+            label: "CSI"
+          fields:
+            - value: "{{ feature.attributes.vam_csi_month | formatMonth:'long' }} {{ feature.attributes.vam_csi_year }}"
+              label: VAM CSI Date
+            - attribute: vam_csi_source
+              label: VAM CSI Source
+            - value: "{{ feature.attributes.vam_csi_no | formatFloat: 2 }}"
+              label: VAM CSI No
+            - value: "{{ feature.attributes.vam_csi_low | formatFloat: 2 }}"
+              label: VAM CSI Low
+            - value: "{{ feature.attributes.vam_csi_medium | formatFloat: 2 }}"
+              label: VAM CSI Medium
+            - value: "{{ feature.attributes.vam_csi_high | formatFloat: 2 }}"
+              label: VAM CSI high
         - id: "popup_links"
           tab:
             label: "Links"
@@ -297,6 +327,36 @@ featurelayers:
               label: Admin 1
             - attribute: admin2_name
               label: Admin 2
+        - id: "popup_vam_fcs"
+          tab:
+            label: "FCS"
+          fields:
+            - value: "{{ feature.attributes.vam_fcs_month | formatMonth:'long' }} {{ feature.attributes.vam_fcs_year }}"
+              label: VAM FCS Date
+            - attribute: vam_fcs_source
+              label: VAM FCS Source
+            - attribute: vam_fcs_poor
+              label: VAM FCS Poor
+            - attribute: vam_fcs_borderline
+              label: VAM FCS Borderline
+            - attribute: vam_fcs_acceptable
+              label: VAM FCS Acceptable
+        - id: "popup_vam_csi"
+          tab:
+            label: "CSI"
+          fields:
+            - value: "{{ feature.attributes.vam_csi_month | formatMonth:'long' }} {{ feature.attributes.vam_csi_year }}"
+              label: VAM CSI Date
+            - attribute: vam_csi_source
+              label: VAM CSI Source
+            - value: "{{ feature.attributes.vam_csi_no | formatFloat: 2 }}"
+              label: VAM CSI No
+            - value: "{{ feature.attributes.vam_csi_low | formatFloat: 2 }}"
+              label: VAM CSI Low
+            - value: "{{ feature.attributes.vam_csi_medium | formatFloat: 2 }}"
+              label: VAM CSI Medium
+            - value: "{{ feature.attributes.vam_csi_high | formatFloat: 2 }}"
+              label: VAM CSI high
         - id: "popup_links"
           tab:
             label: "Links"
@@ -473,6 +533,36 @@ featurelayers:
               label: Admin 1
             - attribute: admin2_name
               label: Admin 2
+        - id: "popup_vam_fcs"
+          tab:
+            label: "FCS"
+          fields:
+            - value: "{{ feature.attributes.vam_fcs_month | formatMonth:'long' }} {{ feature.attributes.vam_fcs_year }}"
+              label: VAM FCS Date
+            - attribute: vam_fcs_source
+              label: VAM FCS Source
+            - attribute: vam_fcs_poor
+              label: VAM FCS Poor
+            - attribute: vam_fcs_borderline
+              label: VAM FCS Borderline
+            - attribute: vam_fcs_acceptable
+              label: VAM FCS Acceptable
+        - id: "popup_vam_csi"
+          tab:
+            label: "CSI"
+          fields:
+            - value: "{{ feature.attributes.vam_csi_month | formatMonth:'long' }} {{ feature.attributes.vam_csi_year }}"
+              label: VAM CSI Date
+            - attribute: vam_csi_source
+              label: VAM CSI Source
+            - value: "{{ feature.attributes.vam_csi_no | formatFloat: 2 }}"
+              label: VAM CSI No
+            - value: "{{ feature.attributes.vam_csi_low | formatFloat: 2 }}"
+              label: VAM CSI Low
+            - value: "{{ feature.attributes.vam_csi_medium | formatFloat: 2 }}"
+              label: VAM CSI Medium
+            - value: "{{ feature.attributes.vam_csi_high | formatFloat: 2 }}"
+              label: VAM CSI high
         - id: "popup_links"
           tab:
             label: "Links"
@@ -641,6 +731,36 @@ featurelayers:
               label: Admin 1
             - attribute: admin2_name
               label: Admin 2
+        - id: "popup_vam_fcs"
+          tab:
+            label: "FCS"
+          fields:
+            - value: "{{ feature.attributes.vam_fcs_month | formatMonth:'long' }} {{ feature.attributes.vam_fcs_year }}"
+              label: VAM FCS Date
+            - attribute: vam_fcs_source
+              label: VAM FCS Source
+            - attribute: vam_fcs_poor
+              label: VAM FCS Poor
+            - attribute: vam_fcs_borderline
+              label: VAM FCS Borderline
+            - attribute: vam_fcs_acceptable
+              label: VAM FCS Acceptable
+        - id: "popup_vam_csi"
+          tab:
+            label: "CSI"
+          fields:
+            - value: "{{ feature.attributes.vam_csi_month | formatMonth:'long' }} {{ feature.attributes.vam_csi_year }}"
+              label: VAM CSI Date
+            - attribute: vam_csi_source
+              label: VAM CSI Source
+            - value: "{{ feature.attributes.vam_csi_no | formatFloat: 2 }}"
+              label: VAM CSI No
+            - value: "{{ feature.attributes.vam_csi_low | formatFloat: 2 }}"
+              label: VAM CSI Low
+            - value: "{{ feature.attributes.vam_csi_medium | formatFloat: 2 }}"
+              label: VAM CSI Medium
+            - value: "{{ feature.attributes.vam_csi_high | formatFloat: 2 }}"
+              label: VAM CSI high
         - id: "popup_links"
           tab:
             label: "Links"

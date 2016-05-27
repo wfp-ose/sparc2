@@ -1299,7 +1299,7 @@ var buildGroupsAndColumnsForAdmin2 = function(chartConfig, popatrisk_config, adm
   }
   else if(chartConfig.hazard == "landslide")
   {
-    var data = popatrisk_config["data"]["summary"]["admin2"][admin2_code]["by_month"];
+    var data = popatrisk_config["data"]["summary"]["admin2"][""+admin2_code]["by_month"];
     var g = "Risk";
     columns.push([g].concat(data));
     groups[0].push(g);
@@ -2144,17 +2144,24 @@ geosite.filters["formatMonth"] = function()
 {
   return function(value, type)
   {
-    if(type == "long")
+    if(value != undefined && value != "")
     {
-      return months_long[value-1];
-    }
-    else if(type == "short3" || type == "short_3")
-    {
-      return months_short_3[value-1];
+      if(type == "long")
+      {
+        return months_long[value-1];
+      }
+      else if(type == "short3" || type == "short_3")
+      {
+        return months_short_3[value-1];
+      }
+      else
+      {
+        return value.toString();
+      }
     }
     else
     {
-      return value.toString();
+      return ""
     }
   };
 };
@@ -2455,13 +2462,20 @@ geosite.filters["formatFloat"] = function()
 {
   return function(value, decimals)
   {
-    if(decimals != undefined)
+    if(value != undefined && value != "")
     {
-      return value.toFixed(decimals);
+      if(decimals != undefined)
+      {
+        return value.toFixed(decimals);
+      }
+      else
+      {
+        return value.toString();
+      }
     }
     else
     {
-      return value.toString();
+      return "";
     }
   };
 };
