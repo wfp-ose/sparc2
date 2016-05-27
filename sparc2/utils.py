@@ -101,7 +101,11 @@ def get_vam_by_admin1(request=None, iso_alpha3=None):
 def get_geojson_cyclone(request, iso_alpha3=None):
     collection = None
     with GeositeDatabaseConnection() as geosite_conn:
+        # Admin 2 Districts
         collection = data_local_country_admin().get(cursor=geosite_conn.cursor, iso_alpha3=iso_alpha3, level=2)
+        # Vam Data
+        vam_by_admin1 = get_vam_by_admin1(request, iso_alpha3=iso_alpha3)
+        # Population at Risk Data
         rows_popatrisk = geosite_conn.exec_query_multiple(
             get_template("sparc2/sql/_cyclone.sql").render({
                 'admin2_popatrisk': 'cyclone.admin2_popatrisk',
@@ -119,6 +123,7 @@ def get_geojson_cyclone(request, iso_alpha3=None):
         context_by_admin2 = get_context_by_admin2(geosite_conn=geosite_conn, iso_alpha3=iso_alpha3)
 
         for feature in collection["features"]:
+            admin1_code = str(feature["properties"]["admin1_code"])
             admin2_code = str(feature["properties"]["admin2_code"])
             if admin2_code in context_by_admin2:
                 feature["properties"]["ldi"] = context_by_admin2[admin2_code]["ldi"]
@@ -135,18 +140,8 @@ def get_geojson_cyclone(request, iso_alpha3=None):
                 "CSI_high": 0
             })
             feature["properties"]["addinfo"] = popatrisk_by_admin2[admin2_code] if admin2_code in popatrisk_by_admin2 else [];
-
-
-            #print "admin2_code: ", feature["properties"]["admin2_code"]
-            #print "admin2_code type: ", type(feature["properties"]["admin2_code
-            #print "rows_popatrisk: ", rows_popatrisk
-            #for rb in rows_popatrisk:
-            #    newRow = json.loads(rb[0]) if (type(rb[0]) is not dict) else rb[0]
-            #    print "newRow: ", newRow
-            #    if admin2_code == int(newRow[u"admin2_code"]):
-            #        feature["properties"]["addinfo"].append(newRow)
-                    #if newRow["category_min"] == 1 and newRow["category_max"] == 5 and newRow["prob_class"] == '0.01-0.1':
-                #        feature["properties"]["active_month"] += newRow[current_month]
+            if admin1_code in vam_by_admin1:
+                feature["properties"].update(vam_by_admin1[admin1_code])
 
     return collection
 
@@ -162,19 +157,10 @@ def get_summary_cyclone(table_popatrisk=None, iso_alpha3=None):
 
     with GeositeDatabaseConnection() as geosite_conn:
 
-        #values = data_local_country_hazard_all().get(
-        #    cursor=cursor,
-        #    iso_alpha3=iso_alpha3,
-        #    hazard="flood",
-        #    template="sparc2/sql/_hazard_data_all.sql",
-        #    table=table_popatrisk)
-
         values = geosite_conn.exec_query_single_aslist(
             get_template("sparc2/sql/_cyclone_data_all_at_admin2.sql").render({
                 'admin2_popatrisk': table_popatrisk,
                 'iso_alpha3': iso_alpha3}))
-
-        #print "Values: ", values
 
         values = [float(x) for x in values]
         num_breakpoints = 5
@@ -243,10 +229,11 @@ def get_summary_cyclone(table_popatrisk=None, iso_alpha3=None):
 def get_geojson_drought(request, iso_alpha3=None):
     collection = None
     with GeositeDatabaseConnection() as geosite_conn:
-        collection = data_local_country_admin().get(
-          cursor=geosite_conn.cursor,
-          iso_alpha3=iso_alpha3,
-          level=2)
+        # Admin 2 Districts
+        collection = data_local_country_admin().get(cursor=geosite_conn.cursor, iso_alpha3=iso_alpha3, level=2)
+        # Vam Data
+        vam_by_admin1 = get_vam_by_admin1(request, iso_alpha3=iso_alpha3)
+        # Population at Risk Data
 
         for feature in collection["features"]:
             feature["properties"]["addinfo"] = []
@@ -364,10 +351,11 @@ def get_summary_drought(table_popatrisk=None, iso_alpha3=None):
 def get_geojson_flood(request, iso_alpha3=None):
     collection = None
     with GeositeDatabaseConnection() as geosite_conn:
+        # Admin 2 Districts
         collection = data_local_country_admin().get(cursor=geosite_conn.cursor, iso_alpha3=iso_alpha3, level=2)
-
+        # Vam Data
         vam_by_admin1 = get_vam_by_admin1(request, iso_alpha3=iso_alpha3)
-
+        # Population at Risk Data
         returnPeriods = [25, 50, 100, 200, 500, 1000]
         for rp in returnPeriods:
             rows = geosite_conn.exec_query_multiple(
@@ -503,7 +491,11 @@ def get_summary_flood(table_popatrisk=None, iso_alpha3=None):
 def get_geojson_landslide(request, iso_alpha3=None):
     collection = None
     with GeositeDatabaseConnection() as geosite_conn:
+        # Admin 2 Districts
         collection = data_local_country_admin().get(cursor=geosite_conn.cursor, iso_alpha3=iso_alpha3, level=2)
+        # Vam Data
+        vam_by_admin1 = get_vam_by_admin1(request, iso_alpha3=iso_alpha3)
+        # Population at Risk Data
 
         rows = geosite_conn.exec_query_multiple(
             get_template("sparc2/sql/_landslide_data_by_admin2_month_asjson.sql").render({
@@ -521,12 +513,15 @@ def get_geojson_landslide(request, iso_alpha3=None):
         context_by_admin2 = get_context_by_admin2(geosite_conn=geosite_conn, iso_alpha3=iso_alpha3)
 
         for feature in collection["features"]:
+            admin1_code = str(feature["properties"]["admin1_code"])
             admin2_code = str(feature["properties"]["admin2_code"])
             feature["properties"]["values_by_month"] = values_by_admin2.get(admin2_code, [])
             if admin2_code in context_by_admin2:
                 feature["properties"]["ldi"] = context_by_admin2[admin2_code]["ldi"]
                 feature["properties"]["delta_negative"] = context_by_admin2[admin2_code]["delta_negative"]
                 feature["properties"]["erosion_propensity"] = context_by_admin2[admin2_code]["erosion_propensity"]
+            if admin1_code in vam_by_admin1:
+                feature["properties"].update(vam_by_admin1[admin1_code])
 
     return collection
 

@@ -2095,7 +2095,7 @@ geosite.filters["formatInteger"] = function()
 {
   return function(value, type, delimiter)
   {
-    if(value != undefined && value != "")
+    if(value != undefined && value !== "")
     {
       if(type == "delimited")
       {
@@ -2151,7 +2151,7 @@ geosite.filters["formatMonth"] = function()
 {
   return function(value, type)
   {
-    if(value != undefined && value != "")
+    if(value != undefined && value !== "")
     {
       if(type == "long")
       {
@@ -2469,7 +2469,7 @@ geosite.filters["formatFloat"] = function()
 {
   return function(value, decimals)
   {
-    if(value != undefined && value != "")
+    if(value != undefined && value !== "")
     {
       if(decimals != undefined)
       {
