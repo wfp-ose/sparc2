@@ -7,6 +7,7 @@
 {% endblock %}
 
 {% block sidebar_left %}
+{% if hazard != "drought" %}
 <div
   id="geosite-sidebar-left"
   class="geosite-sidebar geosite-sidebar-left geosite-controller"
@@ -15,13 +16,16 @@
   data-controller-type="geosite-sidebar-left">
   <div sparc-sidebar-charts></div>
 </div>
+{% endif %}
 {% endblock %}
 
 {% block map_controllers %}
 {% include "sparc2/_includes/map_breadcrumb.html" %}
 {% include "geosite/_includes/map_legend.html" %}
+{% if hazard != "drought" %}
 {% include "geosite/_includes/map_filter.html" %}
 {% include "geosite/_includes/map_sidebar_toggle_left.html" %}
+{% endif %}
 {% include "sparc2/_includes/map_calendar.html" %}
 {% endblock %}
 

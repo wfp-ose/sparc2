@@ -1515,12 +1515,18 @@ geosite.init_countryhazardmonth = function(appName)
     geosite.initial_data["layers"]["vam"]["data"]["geojson"] = response_vam_geojson[0];
 
     geosite.breakpoints = {};
-    $.each(geosite.initial_data["layers"]["popatrisk"]["data"]["summary"]["all"]["breakpoints"], function(k, v){
-      geosite.breakpoints["popatrisk_"+k] = v;
-    });
-    $.each(geosite.initial_data["layers"]["context"]["data"]["summary"]["all"]["breakpoints"], function(k, v){
-      geosite.breakpoints["context_"+k] = v;
-    });
+    if("all" in geosite.initial_data["layers"]["popatrisk"]["data"]["summary"])
+    {
+      $.each(geosite.initial_data["layers"]["popatrisk"]["data"]["summary"]["all"]["breakpoints"], function(k, v){
+        geosite.breakpoints["popatrisk_"+k] = v;
+      });
+    }
+    if("all" in geosite.initial_data["layers"]["context"]["data"]["summary"])
+    {
+      $.each(geosite.initial_data["layers"]["context"]["data"]["summary"]["all"]["breakpoints"], function(k, v){
+        geosite.breakpoints["context_"+k] = v;
+      });
+    }
 
     geosite.init_countryhazardmonth_main_app(appName);
   });
@@ -1562,7 +1568,7 @@ geosite.init_countryhazardmonth_main_app = function(appName)
   // Initialize UI interaction for intents.
   // Listen's for events bubbling up to body element, so can initialize before children.
   geosite.init.intents();
-  
+
   /*
   init_sparc_controller_main will kick off a recursive search for controllers
   to add to the angular app/module.  However, the initialization code in
@@ -2160,6 +2166,10 @@ geosite.filters["formatMonth"] = function()
       else if(type == "short3" || type == "short_3")
       {
         return months_short_3[value-1];
+      }
+      else if(type == "int2")
+      {
+        return value < 10 ? ('0'+ value.toString()) : value.toString();
       }
       else
       {
@@ -3223,7 +3233,7 @@ geosite.controllers["controller_map_map"] = function(
   });
   //////////////////////////////////////
   // Feature layers
-  if("context" in map_config.featurelayers)
+  if("context" in map_config.featurelayers && "features" in geosite.initial_data["layers"]["context"]["data"]["geojson"])
   {
     var context_popup_content = function(source)
     {
@@ -3262,50 +3272,12 @@ geosite.controllers["controller_map_map"] = function(
   }
 
   // Load Population at Risk
-  if("popatrisk" in map_config.featurelayers)
+  if("popatrisk" in map_config.featurelayers
+    && "features" in geosite.initial_data["layers"]["popatrisk"]["data"]["geojson"])
   {
     var popatrisk_popup_content = function(source)
     {
       console.log(source);
-      /*var f = source.feature;
-      //
-      var $scope = angular.element("#geosite-main").scope();
-      var state = $scope.state;
-      var filters = state["filters"]["popatrisk"];
-      //
-      //var popupTemplate = map_config["featurelayers"]["popatrisk"]["popup"]["template"];
-      var popupTemplate = popup_templates["popatrisk"];
-      var ctx = $.extend({}, f.properties);
-      var month_short_3 = months_short_3[state["month"]-1];
-      var month_long = months_long[state["month"]-1];
-      ctx["month"] = month_long;
-      if(state.hazard == "flood")
-      {
-        var rp = filters["rp"];
-        ctx["popatrisk"] = f.properties["RP"+rp.toString(10)][month_short_3];
-      }
-      else if(state.hazard == "cyclone")
-      {
-        var prob_class_max = filters["prob_class_max"];
-        var value = 0;
-        for(var i = 0; i < f.properties.addinfo.length; i++)
-        {
-            var a = f.properties.addinfo[i];
-            if(a["category"] == filters["category"])
-            {
-              if(a["prob_class_max"] != 0 && a["prob_class_max"] <= prob_class_max)
-              {
-                console.log("matched prob_class", prob_class_max);
-                value += a[month_short_3];
-              }
-            }
-        }
-        ctx["popatrisk"] = value;
-      }
-      var chartConfig = map_config["featurelayers"]["popatrisk"]["popup"]["chart"];
-      ctx["chartID"] = chartConfig.id;
-
-      return $interpolate(popupTemplate)(ctx);*/
       /////////////////////////////
       var $scope = angular.element("#geosite-main").scope();
       var state = $scope.state;
@@ -3432,11 +3404,11 @@ geosite.controllers["controller_map_map"] = function(
       function(layer, i){return layer["layer"];});
     updateRenderOrder(baseLayers.concat(renderLayersSorted));
     // Update Styles
-    if("popatrisk" in live["featurelayers"])
+    if("popatrisk" in live["featurelayers"] && live["featurelayers"]["popatrisk"] != undefined)
     {
       live["featurelayers"]["popatrisk"].setStyle(geosite.initial_data["layers"]["popatrisk"]["style"]["default"]);
     }
-    if("context" in live["featurelayers"])
+    if("context" in live["featurelayers"] && live["featurelayers"]["context"] != undefined)
     {
       live["featurelayers"]["context"].setStyle(geosite.initial_data["layers"]["context"]["style"]["default"]);
     }

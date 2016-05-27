@@ -37,12 +37,18 @@ geosite.init_countryhazardmonth = function(appName)
     geosite.initial_data["layers"]["vam"]["data"]["geojson"] = response_vam_geojson[0];
 
     geosite.breakpoints = {};
-    $.each(geosite.initial_data["layers"]["popatrisk"]["data"]["summary"]["all"]["breakpoints"], function(k, v){
-      geosite.breakpoints["popatrisk_"+k] = v;
-    });
-    $.each(geosite.initial_data["layers"]["context"]["data"]["summary"]["all"]["breakpoints"], function(k, v){
-      geosite.breakpoints["context_"+k] = v;
-    });
+    if("all" in geosite.initial_data["layers"]["popatrisk"]["data"]["summary"])
+    {
+      $.each(geosite.initial_data["layers"]["popatrisk"]["data"]["summary"]["all"]["breakpoints"], function(k, v){
+        geosite.breakpoints["popatrisk_"+k] = v;
+      });
+    }
+    if("all" in geosite.initial_data["layers"]["context"]["data"]["summary"])
+    {
+      $.each(geosite.initial_data["layers"]["context"]["data"]["summary"]["all"]["breakpoints"], function(k, v){
+        geosite.breakpoints["context_"+k] = v;
+      });
+    }
 
     geosite.init_countryhazardmonth_main_app(appName);
   });
@@ -84,7 +90,7 @@ geosite.init_countryhazardmonth_main_app = function(appName)
   // Initialize UI interaction for intents.
   // Listen's for events bubbling up to body element, so can initialize before children.
   geosite.init.intents();
-  
+
   /*
   init_sparc_controller_main will kick off a recursive search for controllers
   to add to the angular app/module.  However, the initialization code in

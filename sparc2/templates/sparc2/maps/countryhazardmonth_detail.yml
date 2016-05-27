@@ -1542,6 +1542,142 @@ featurelayers:
             height: 12
     legend:
       label: "Cyclone Events"
+  {% endverbatim %}{% elif hazard == "drought" %}{% verbatim %}
+  wlddsi_fot01d3:
+    type: WMS
+    title: "Drought Frequency (January)"
+    description: "Drought Frequency (January)"
+    visible: true
+    source:
+      name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
+      attribution: "WFP/OSEP/AEW&GIS"
+    wms:
+      version: "1.1.1"
+      layers: ["wlddsi_fot01d3"]
+      styles:
+      format: 'image/png'
+      transparent: true
+      url: "http://staging.geonode.wfp.org/geoserver/geonode/wms"
+    cartography:
+      - id: default
+        type: graphic
+        description: "Drought Frequency (January)"
+        legend:
+          symbol:
+            type: "graphic"
+            width: 16
+            height: 8
+            preview: false
+    legend:
+      label: "Drought Frequency (January)"
+  wlddsi_fot02d3:
+    type: WMS
+    title: "Drought Frequency (February)"
+    description: "Drought Frequency (February)"
+    visible: false
+    source:
+      name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
+      attribution: "WFP/OSEP/AEW&GIS"
+    wms:
+      version: "1.1.1"
+      layers: ["wlddsi_fot02d3"]
+      styles:
+      format: 'image/png'
+      transparent: true
+      url: "http://staging.geonode.wfp.org/geoserver/geonode/wms"
+    cartography:
+      - id: default
+        type: graphic
+        description: "Drought Frequency (February)"
+        legend:
+          symbol:
+            type: "graphic"
+            width: 16
+            height: 8
+            preview: false
+    legend:
+      label: "Drought Frequency (February)"
+  wlddsi_fot03d3:
+    type: WMS
+    title: "Drought Frequency (March)"
+    description: "Drought Frequency (March)"
+    visible: false
+    source:
+      name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
+      attribution: "WFP/OSEP/AEW&GIS"
+    wms:
+      version: "1.1.1"
+      layers: ["wlddsi_fot03d3"]
+      styles:
+      format: 'image/png'
+      transparent: true
+      url: "http://staging.geonode.wfp.org/geoserver/geonode/wms"
+    cartography:
+      - id: default
+        type: graphic
+        description: "Drought Frequency (March)"
+        legend:
+          symbol:
+            type: "graphic"
+            width: 16
+            height: 8
+            preview: false
+    legend:
+      label: "Drought Frequency (March)"
+  wlddsi_fot04d3:
+    type: WMS
+    title: "Drought Frequency (April)"
+    description: "Drought Frequency (April)"
+    visible: false
+    source:
+      name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
+      attribution: "WFP/OSEP/AEW&GIS"
+    wms:
+      version: "1.1.1"
+      layers: ["wlddsi_fot04d3"]
+      styles:
+      format: 'image/png'
+      transparent: true
+      url: "http://staging.geonode.wfp.org/geoserver/geonode/wms"
+    cartography:
+      - id: default
+        type: graphic
+        description: "Drought Frequency (April)"
+        legend:
+          symbol:
+            type: "graphic"
+            width: 16
+            height: 8
+            preview: false
+    legend:
+      label: "Drought Frequency (April)"
+  wlddsi_fot05d3:
+    type: WMS
+    title: "Drought Frequency (May)"
+    description: "Drought Frequency (May)"
+    visible: false
+    source:
+      name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
+      attribution: "WFP/OSEP/AEW&GIS"
+    wms:
+      version: "1.1.1"
+      layers: ["wlddsi_fot05d3"]
+      styles:
+      format: 'image/png'
+      transparent: true
+      url: "http://staging.geonode.wfp.org/geoserver/geonode/wms"
+    cartography:
+      - id: default
+        type: graphic
+        description: "Drought Frequency (May)"
+        legend:
+          symbol:
+            type: "graphic"
+            width: 16
+            height: 8
+            preview: false
+    legend:
+      label: "Drought Frequency (May)"
   {% endverbatim %}{% elif hazard == "flood" %}{% verbatim %}
   flood_probability:
     type: WMS
@@ -1665,17 +1801,38 @@ featurelayers:
 
 {% block legendlayers %}
 legendlayers:
+  {% if hazard == "cyclone" %}{% verbatim %}
   - popatrisk
   - context
   - landscan
-  {% if hazard == "cyclone" %}{% verbatim %}
   - cyclone_probability
   - cyclone_events
+  {% endverbatim %}{% elif hazard == "drought" %}{% verbatim %}
+  - context
+  - landscan
+  - wlddsi_fot01d3
+  - wlddsi_fot02d3
+  - wlddsi_fot03d3
+  - wlddsi_fot04d3
+  - wlddsi_fot05d3
+  - wlddsi_fot06d3
+  - wlddsi_fot07d3
+  - wlddsi_fot08d3
+  - wlddsi_fot09d3
+  - wlddsi_fot10d3
+  - wlddsi_fot11d3
+  - wlddsi_fot12d3
   {% endverbatim %}{% elif hazard == "flood" %}{% verbatim %}
+  - popatrisk
+  - context
+  - landscan
   - flood_events
   - landslide_events
   - flood_probability
   {% endverbatim %}{% elif hazard == "landslide" %}{% verbatim %}
+  - popatrisk
+  - context
+  - landscan
   - flood_events
   - landslide_events
   - flood_probability
@@ -1693,16 +1850,34 @@ legendlayers:
 renderlayers:
   - wld_poi_facilities_wfp
   - wld_trs_supplyroutes_wfp
+  {% if hazard == "cyclone" %}{% verbatim %}
   - popatrisk
   - context
-  {% if hazard == "cyclone" %}{% verbatim %}
   - cyclone_probability
   - cyclone_events
+  {% endverbatim %}{% elif hazard == "drought" %}{% verbatim %}
+  - context
+  - wlddsi_fot01d3
+  - wlddsi_fot02d3
+  - wlddsi_fot03d3
+  - wlddsi_fot04d3
+  - wlddsi_fot05d3
+  - wlddsi_fot06d3
+  - wlddsi_fot07d3
+  - wlddsi_fot08d3
+  - wlddsi_fot09d3
+  - wlddsi_fot10d3
+  - wlddsi_fot11d3
+  - wlddsi_fot12d3
   {% endverbatim %}{% elif hazard == "flood" %}{% verbatim %}
+  - popatrisk
+  - context
   - flood_events
   - landslide_events
   - flood_probability
   {% endverbatim %}{% elif hazard == "landslide" %}{% verbatim %}
+  - popatrisk
+  - context
   - flood_events
   - landslide_events
   - flood_probability

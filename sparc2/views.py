@@ -163,16 +163,16 @@ def countryhazardmonth_detail(request, iso3=None, hazard=None, month=None):
     elif hazard == "landslide":
         summary = get_summary_landslide(table_popatrisk="landslide.admin2_popatrisk", iso_alpha3=iso3)
     #############
-
+    maxValue = summary["all"]["max"]["at_admin2_month"] if hazard != "drought" else 0
     map_config_yml = get_template("sparc2/maps/countryhazardmonth_detail.yml").render({
         "iso_alpha3": iso3,
         "hazard_title": hazard_title,
         "country_title": country_title,
         "hazard": hazard,
-        "maxValue": summary["all"]["max"]["at_admin2_month"]
+        "maxValue": maxValue
     })
     map_config = yaml.load(map_config_yml)
-
+    popatrisk_range = [0.0, summary["all"]["max"]["at_admin2_month"]] if hazard != "drought" else [0, 0]
     ##############
     initial_state = {
         "page": "countryhazardmonth_detail",
@@ -189,7 +189,7 @@ def countryhazardmonth_detail(request, iso3=None, hazard=None, month=None):
         "filters": {
             "popatrisk":
             {
-              "popatrisk_range": [0.0, summary["all"]["max"]["at_admin2_month"]],
+              "popatrisk_range": popatrisk_range,
               "ldi_range": [1, 9],
               "erosion_propensity_range": [0, 100],
               "landcover_delta_negative_range": [0, 100],
@@ -256,7 +256,7 @@ def countryhazardmonth_detail(request, iso3=None, hazard=None, month=None):
         "country_title": country_title,
         "hazard_title": hazard_title,
         "month_title": month_title,
-        "maxValue": summary["all"]["max"]["at_admin2_month"],
+        "maxValue": maxValue,
     })
 
     print "filters: ", map_config["featurelayers"]["popatrisk"]["filters"]
@@ -321,7 +321,8 @@ class countryhazard_data_local_popatrisk(geosite_data_view):
         if hazard == u'cyclone':
             data = get_geojson_cyclone(request, iso_alpha3=iso3)
         elif hazard == u'drought':
-            data = get_geojson_drought(request, iso_alpha3=iso3)
+            #data = get_geojson_drought(request, iso_alpha3=iso3)
+            data = {}
         elif hazard == u'flood':
             data = get_geojson_flood(request, iso_alpha3=iso3)
         elif hazard == u'landslide':
@@ -341,7 +342,8 @@ class countryhazard_data_local_summary(geosite_data_view):
         if hazard == "cyclone":
             data = get_summary_cyclone(table_popatrisk="cyclone.admin2_popatrisk", iso_alpha3=iso3)
         elif hazard == "drought":
-            data = get_summary_drought(table_popatrisk="drought.admin2_popatrisk", iso_alpha3=iso3)
+            #data = get_summary_drought(table_popatrisk="drought.admin2_popatrisk", iso_alpha3=iso3)
+            data = {}
         elif hazard == "flood":
             data = get_summary_flood(table_popatrisk="flood.admin2_popatrisk", iso_alpha3=iso3)
         elif hazard == "landslide":
