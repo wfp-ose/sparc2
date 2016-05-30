@@ -666,7 +666,10 @@ geosite.popup = {};
 
 geosite.popup.buildChart = function(chart, layer, feature, state)
 {
-  return "<div id=\""+chart.id+"\" class=\"geosite-popup-chart\"></div>"
+  var html = "";
+  html += "<div style=\"text-align:center;\"><b>"+chart.label+"</b></div><br>";
+  html += "<div id=\""+chart.id+"\" class=\"geosite-popup-chart\"></div>";
+  return html;
 }
 
 geosite.popup.buildField = function(field, layer, feature, state)
@@ -757,7 +760,7 @@ geosite.popup.buildPopupTemplate = function(popup, layer, feature, state)
         {
           popupFields.push(popupField);
         }
-      }  
+      }
     }
     if("charts" in pane)
     {
@@ -782,23 +785,26 @@ geosite.popup.buildPopupTemplate = function(popup, layer, feature, state)
   {
     var tabs = [];
     var pane = panes[0];
-    tabs.push("<li class=\"active\"><a data-toggle=\"tab\" href=\"#"+pane.id+"\">"+pane.tab.label+"</a></li>");
+    var html_tab ="<li class=\"active\"><a data-toggle=\"tab\" href=\"#"+pane.id+"\">"+pane.tab.label+"</a></li>";
+    tabs.push(html_tab);
     for(var i = 1; i < panes.length; i++)
     {
       pane = panes[i];
-      tabs.push("<li><a data-toggle=\"tab\" href=\"#"+pane.id+"\">"+pane.tab.label+"</a></li>");
+      html_tab = "<li><a data-toggle=\"tab\" href=\"#"+pane.id+"\">"+pane.tab.label+"</a></li>"
+      tabs.push(html_tab);
     }
-    var tab_html = "<ul class=\"nav nav-tabs nav-justified\">"+tabs.join("")+"</ul>";
+    var html_tabs = "<ul class=\"nav nav-tabs nav-justified\">"+tabs.join("")+"</ul>";
     ///////////////
     var paneContentsWithWrapper = [];
-    paneContentsWithWrapper.push("<div id=\""+panes[0].id+"\" class=\"tab-pane fade in active\">"+paneContents[0]+"</div>");
+    var html_pane = "<div id=\""+panes[0].id+"\" class=\"tab-pane fade in active\">"+paneContents[0]+"</div>";
+    paneContentsWithWrapper.push(html_pane);
     for(var i = 1; i < panes.length; i++)
     {
-      paneContentsWithWrapper.push("<div id=\""+panes[i].id+"\" class=\"tab-pane fade\">"+paneContents[i]+"</div>");
+      html_pane = "<div id=\""+panes[i].id+"\" class=\"tab-pane fade\">"+paneContents[i]+"</div>";
+      paneContentsWithWrapper.push(html_pane);
     }
     ///////////////
-    var content_html = "<div class=\"tab-content\">"+paneContentsWithWrapper.join("")+"</div>";
-    popupTemplate += tab_html + content_html;
+    popupTemplate += html_tabs + "<div class=\"tab-content\">"+paneContentsWithWrapper.join("")+"</div>";
   }
   else
   {

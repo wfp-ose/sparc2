@@ -82,14 +82,14 @@ featurelayers:
               label: "Population at Risk for {{ state.month | formatMonth: 'long' }}"
           charts:
             - id: "sparc-popup-chart-popatrisk"
-              label: "Population at Risk by Month"
+              label: "Population at Risk for {{ feature.attributes.admin2_name }} by Month"
               type: "bar"
               axis:
                 x:
                   type: "months"
                 y:
                   label:
-                    text: 'Population at Risk'
+                    text: 'Pop at Risk'
                     position: 'outer-middle'
               hazard: cyclone
         - id: "popup_location"
@@ -110,30 +110,41 @@ featurelayers:
           fields:
             - value: "{{ feature.attributes.vam_fcs_month | formatMonth:'long' }} {{ feature.attributes.vam_fcs_year }}"
               label: VAM FCS Date
+              when: defined
             - attribute: vam_fcs_source
               label: VAM FCS Source
+              when: defined
             - attribute: vam_fcs_poor
               label: VAM FCS Poor
+              when: defined
             - attribute: vam_fcs_borderline
               label: VAM FCS Borderline
+              when: defined
             - attribute: vam_fcs_acceptable
               label: VAM FCS Acceptable
+              when: defined
         - id: "popup_vam_csi"
           tab:
             label: "CSI"
           fields:
             - value: "{{ feature.attributes.vam_csi_month | formatMonth:'long' }} {{ feature.attributes.vam_csi_year }}"
               label: VAM CSI Date
+              when: defined
             - attribute: vam_csi_source
               label: VAM CSI Source
+              when: defined
             - value: "{{ feature.attributes.vam_csi_no | formatFloat: 2 }}"
               label: VAM CSI No
+              when: defined
             - value: "{{ feature.attributes.vam_csi_low | formatFloat: 2 }}"
               label: VAM CSI Low
+              when: defined
             - value: "{{ feature.attributes.vam_csi_medium | formatFloat: 2 }}"
               label: VAM CSI Medium
+              when: defined
             - value: "{{ feature.attributes.vam_csi_high | formatFloat: 2 }}"
               label: VAM CSI high
+              when: defined
         - id: "popup_links"
           tab:
             label: "Links"
@@ -305,14 +316,14 @@ featurelayers:
               label: "Population at Risk for {{ state.month | formatMonth: 'long' }}"
           charts:
             - id: "sparc-popup-chart-popatrisk"
-              label: "Population at Risk by Month"
+              label: "Population at Risk for {{ feature.attributes.admin2_name }} by Month"
               type: "bar"
               axis:
                 x:
                   type: "months"
                 y:
                   label:
-                    text: 'Population at Risk'
+                    text: 'Pop at Risk'
                     position: 'outer-middle'
               hazard: drought
         - id: "popup_location"
@@ -333,30 +344,41 @@ featurelayers:
           fields:
             - value: "{{ feature.attributes.vam_fcs_month | formatMonth:'long' }} {{ feature.attributes.vam_fcs_year }}"
               label: VAM FCS Date
+              when: defined
             - attribute: vam_fcs_source
               label: VAM FCS Source
+              when: defined
             - attribute: vam_fcs_poor
               label: VAM FCS Poor
+              when: defined
             - attribute: vam_fcs_borderline
               label: VAM FCS Borderline
+              when: defined
             - attribute: vam_fcs_acceptable
               label: VAM FCS Acceptable
+              when: defined
         - id: "popup_vam_csi"
           tab:
             label: "CSI"
           fields:
             - value: "{{ feature.attributes.vam_csi_month | formatMonth:'long' }} {{ feature.attributes.vam_csi_year }}"
               label: VAM CSI Date
+              when: defined
             - attribute: vam_csi_source
               label: VAM CSI Source
+              when: defined
             - value: "{{ feature.attributes.vam_csi_no | formatFloat: 2 }}"
               label: VAM CSI No
+              when: defined
             - value: "{{ feature.attributes.vam_csi_low | formatFloat: 2 }}"
               label: VAM CSI Low
+              when: defined
             - value: "{{ feature.attributes.vam_csi_medium | formatFloat: 2 }}"
               label: VAM CSI Medium
+              when: defined
             - value: "{{ feature.attributes.vam_csi_high | formatFloat: 2 }}"
               label: VAM CSI high
+              when: defined
         - id: "popup_links"
           tab:
             label: "Links"
@@ -505,14 +527,14 @@ featurelayers:
               label: "Population at Risk for {{ state.month | formatMonth: 'long' }}"
           charts:
             - id: "sparc-popup-chart-popatrisk"
-              label: "Population at Risk by Month"
+              label: "Population at Risk for {{ feature.attributes.admin2_name }} by Month"
               type: "bar"
               axis:
                 x:
                   type: "months"
                 y:
                   label:
-                    text: 'Population at Risk'
+                    text: 'Pop at Risk'
                     position: 'outer-middle'
               hazard: flood
               subtype: "bullet"
@@ -539,30 +561,41 @@ featurelayers:
           fields:
             - value: "{{ feature.attributes.vam_fcs_month | formatMonth:'long' }} {{ feature.attributes.vam_fcs_year }}"
               label: VAM FCS Date
+              when: defined
             - attribute: vam_fcs_source
               label: VAM FCS Source
+              when: defined
             - attribute: vam_fcs_poor
               label: VAM FCS Poor
+              when: defined
             - attribute: vam_fcs_borderline
               label: VAM FCS Borderline
+              when: defined
             - attribute: vam_fcs_acceptable
               label: VAM FCS Acceptable
+              when: defined
         - id: "popup_vam_csi"
           tab:
             label: "CSI"
           fields:
             - value: "{{ feature.attributes.vam_csi_month | formatMonth:'long' }} {{ feature.attributes.vam_csi_year }}"
               label: VAM CSI Date
+              when: defined
             - attribute: vam_csi_source
               label: VAM CSI Source
+              when: defined
             - value: "{{ feature.attributes.vam_csi_no | formatFloat: 2 }}"
               label: VAM CSI No
+              when: defined
             - value: "{{ feature.attributes.vam_csi_low | formatFloat: 2 }}"
               label: VAM CSI Low
+              when: defined
             - value: "{{ feature.attributes.vam_csi_medium | formatFloat: 2 }}"
               label: VAM CSI Medium
+              when: defined
             - value: "{{ feature.attributes.vam_csi_high | formatFloat: 2 }}"
               label: VAM CSI high
+              when: defined
         - id: "popup_links"
           tab:
             label: "Links"
@@ -709,14 +742,14 @@ featurelayers:
               label: "Population at Risk for {{ state.month | formatMonth: 'long' }}"
           charts:
             - id: "sparc-popup-chart-popatrisk"
-              label: "Population at Risk by Month"
+              label: "Population at Risk for {{ feature.attributes.admin2_name }} by Month"
               type: "bar"
               axis:
                 x:
                   type: "months"
                 y:
                   label:
-                    text: 'Population at Risk'
+                    text: 'Pop at Risk'
                     position: 'outer-middle'
               hazard: landslide
         - id: "popup_location"
@@ -737,30 +770,41 @@ featurelayers:
           fields:
             - value: "{{ feature.attributes.vam_fcs_month | formatMonth:'long' }} {{ feature.attributes.vam_fcs_year }}"
               label: VAM FCS Date
+              when: defined
             - attribute: vam_fcs_source
               label: VAM FCS Source
+              when: defined
             - attribute: vam_fcs_poor
               label: VAM FCS Poor
+              when: defined
             - attribute: vam_fcs_borderline
               label: VAM FCS Borderline
+              when: defined
             - attribute: vam_fcs_acceptable
               label: VAM FCS Acceptable
+              when: defined
         - id: "popup_vam_csi"
           tab:
             label: "CSI"
           fields:
             - value: "{{ feature.attributes.vam_csi_month | formatMonth:'long' }} {{ feature.attributes.vam_csi_year }}"
               label: VAM CSI Date
+              when: defined
             - attribute: vam_csi_source
               label: VAM CSI Source
+              when: defined
             - value: "{{ feature.attributes.vam_csi_no | formatFloat: 2 }}"
               label: VAM CSI No
+              when: defined
             - value: "{{ feature.attributes.vam_csi_low | formatFloat: 2 }}"
               label: VAM CSI Low
+              when: defined
             - value: "{{ feature.attributes.vam_csi_medium | formatFloat: 2 }}"
               label: VAM CSI Medium
+              when: defined
             - value: "{{ feature.attributes.vam_csi_high | formatFloat: 2 }}"
               label: VAM CSI high
+              when: defined
         - id: "popup_links"
           tab:
             label: "Links"
@@ -1894,7 +1938,7 @@ renderlayers:
 charts:
   - id: "popatrisk"
     element: "sparc-chart-popatrisk"
-    title: "Population at Risk by Month"
+    title: "Population at Risk by Month for Country"
     type: "bar"
     axis:
       x:
