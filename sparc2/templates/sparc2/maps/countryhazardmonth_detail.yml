@@ -57,10 +57,10 @@ featurelayers:
             {% verbatim %}
           hover:
             static:
-              weight: 2
+              weight: 5
               color: "#0000FF"
               opacity: 0.8
-              fillOpacity: 0.3
+              fillOpacity: 0.5
         legend:
           symbol:
             type: "graduated"

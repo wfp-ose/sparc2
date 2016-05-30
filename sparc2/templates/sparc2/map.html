@@ -64,6 +64,25 @@
                 $.extend(style, delta);
               }
               return style;
+            },
+            "hover": function(f, layer){
+              var $scope = angular.element("#geosite-main").scope();
+              var state = $scope.state;
+              var map_config = angular.element(document.body).injector().get('map_config');
+              //
+              var style_static = map_config["featurelayers"]["popatrisk"]["cartography"][0]["styles"]["hover"]["static"];
+              var style = $.extend({}, style_static);
+              if("dynamic" in map_config["featurelayers"]["popatrisk"]["cartography"][0]["styles"]["hover"])
+              {
+                var style_dynamic = map_config["featurelayers"]["popatrisk"]["cartography"][0]["styles"]["hover"]["dynamic"]["func"];
+                var options = map_config["featurelayers"]["popatrisk"]["cartography"][0]["styles"]["hover"]["dynamic"]["options"];
+                var delta = angular.isFunction(geosite[style_dynamic]) ? geosite[style_dynamic](f, state, map_config, options) : undefined;
+                if(delta != undefined)
+                {
+                  $.extend(style, delta);
+                }
+              }
+              return style;
             }
           }
         },

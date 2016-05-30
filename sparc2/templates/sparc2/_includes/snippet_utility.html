@@ -36,11 +36,4 @@
   {
     return _opt(options, names, fallback, {});
   };
-  var highlightFeature = function(e){
-    var layer = e.target;
-    layer.setStyle(layer.options.hoverStyle);
-    if (!L.Browser.ie && !L.Browser.opera){
-      layer.bringToFront();
-    }
-  };
 </script>

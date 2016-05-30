@@ -1,3 +1,15 @@
+var highlightFeature = function(e){
+  var layer = e.target;
+  /*if("hoverStyle" in layer.options && layer.options.hoverStyle != undefined)
+  {
+    var newStyle = layer.options.hoverStyle;
+    layer.setStyle(newStyle);
+    if (!L.Browser.ie && !L.Browser.opera){
+      layer.bringToFront();
+    }
+  }*/
+};
+
 var init_map = function(opts)
 {
   var map = L.map('map',
@@ -182,6 +194,7 @@ geosite.controllers["controller_map_map"] = function(
         var popupOptions = {maxWidth: 300};
         //var popupContent = "Loading ..."
         layer.bindPopup(popatrisk_popup_content, popupOptions);
+        layer.bindLabel(f.properties.admin2_name);
         layer.on({
           mouseover: highlightFeature,
           mouseout: function(e){
