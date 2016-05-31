@@ -25,6 +25,11 @@ geosite.controllers["controller_filter"] = function(
         if($(this).is(':checked'))
         {
           filter[output].push($(this).data('value'))
+          $(this).parent('label').removeClass('btn-default').addClass('btn-warning');
+        }
+        else
+        {
+          $(this).parent('label').addClass('btn-default').removeClass('btn-warning');
         }
       });
       geosite.api.intend("filterChanged", {"layer": "popatrisk", "filter": filter}, $scope);

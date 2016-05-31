@@ -16,7 +16,7 @@
     data-output="{{ filter.checkbox.output }}">
     <label
       ng-repeat="opt in filter.checkbox.options track by $index"
-      ng-class="opt.checked ? 'btn btn-sm btn-default active' : 'btn btn-sm btn-default'">
+      ng-class="opt.checked ? 'btn btn-sm btn-warning active' : 'btn btn-sm btn-default'">
       <input
         type="checkbox"
         id="{{ opt.id }}"

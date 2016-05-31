@@ -529,6 +529,12 @@
 .geosite-map-filter .geosite-filter .geosite-filter-label a:hover {
   color: black;
 }
+.geosite-map-filter .geosite-filter .btn {
+  color: #aaa;
+}
+.geosite-map-filter .geosite-filter .btn.active {
+  color: black;
+}
 .geosite-map-filter .geosite-filter .geosite-filter-slider-label {
   text-align: center;
   margin-bottom: 4px;
