@@ -41,8 +41,10 @@ featurelayers:
         type: "graduated"
         mask: "mask"
         attribute: "delta_mean"
-        label_left: "Negative<br>Change"
-        label_right: "Positive<br>Change"
+        ramp:
+          label:
+            left: "Negative<br>Change"
+            right: "Positive<br>Change"
         description: "Mean Landcover Change"
         breakpoints: "natural_adjusted"
         colors:
@@ -81,8 +83,10 @@ featurelayers:
         type: "graduated"
         mask: "mask"
         attribute: "delta_negative"
-        label_left: "No<br>Change"
-        label_right: "Negative<br>Change"
+        ramp:
+          label:
+            left: "No<br>Change"
+            right: "Negative<br>Change"
         description: "Negative Landcover Change"
         breakpoints: "natural_negative"
         colors:
@@ -115,8 +119,10 @@ featurelayers:
         type: "graduated"
         mask: "mask"
         attribute: "delta_positive"
-        label_left: "No<br>Change"
-        label_right: "Positive<br>Change"
+        ramp:
+          label:
+            left: "No<br>Change"
+            right: "Positive<br>Change"
         description: "Positive Landcover Change"
         breakpoints: "natural_positive"
         colors:
@@ -149,8 +155,10 @@ featurelayers:
         type: "graduated"
         mask: "mask"
         attribute: "delta_crop"
-        label_left: "Negative<br>Change"
-        label_right: "Positive<br>Change"
+        ramp:
+          label:
+            left: "Negative<br>Change"
+            right: "Positive<br>Change"
         description: "Crop Change"
         breakpoints: "natural_crop"
         colors:
@@ -189,8 +197,10 @@ featurelayers:
         type: "graduated"
         mask: "mask"
         attribute: "delta_forest"
-        label_left: "Negative<br>Change"
-        label_right: "Positive<br>Change"
+        ramp:
+          label:
+            left: "Negative<br>Change"
+            right: "Positive<br>Change"
         description: "Forest Change"
         breakpoints: "natural_forest"
         colors:
@@ -229,8 +239,10 @@ featurelayers:
         type: "graduated"
         mask: "mask"
         attribute: "erosion_propensity"
-        label_left: "Low"
-        label_right: "High"
+        ramp:
+          label:
+            left: "Low"
+            right: "High"
         description: "Erosion Propensity"
         breakpoints: "natural_erosion_propensity"
         colors:

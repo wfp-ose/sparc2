@@ -126,6 +126,18 @@ geosite.controllers["controller_map_map"] = function(
         var popupOptions = {maxWidth: 300};
         //var popupContent = "Loading ..."
         layer.bindPopup(context_popup_content, popupOptions);
+        var fl = map_config.featurelayers.context;
+        if("label" in fl.cartography[0])
+        {
+          var featureLabel = $interpolate(fl.cartography[0].label.value)({
+            'layer': fl,
+            'feature': {
+              'attributes': f.properties,
+              'geometry': {}
+            }
+          });
+          layer.bindLabel(featureLabel);
+        }
         layer.on({
           mouseover: highlightFeature,
           mouseout: function(e) {
@@ -194,7 +206,18 @@ geosite.controllers["controller_map_map"] = function(
         var popupOptions = {maxWidth: 300};
         //var popupContent = "Loading ..."
         layer.bindPopup(popatrisk_popup_content, popupOptions);
-        layer.bindLabel(f.properties.admin2_name);
+        var fl = map_config.featurelayers.popatrisk;
+        if("label" in fl.cartography[0])
+        {
+          var featureLabel = $interpolate(fl.cartography[0].label.value)({
+            'layer': fl,
+            'feature': {
+              'attributes': f.properties,
+              'geometry': {}
+            }
+          });
+          layer.bindLabel(featureLabel);
+        }
         layer.on({
           mouseover: highlightFeature,
           mouseout: function(e){

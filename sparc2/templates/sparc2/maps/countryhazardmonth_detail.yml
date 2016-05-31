@@ -27,8 +27,12 @@ featurelayers:
     cartography:
       - id: "default"
         type: graduated
-        label_left: "Small\nPopulation\nat Risk"
-        label_right: "Large\nPopulation\nat Risk"
+        label:
+          value: "{{ feature.attributes.admin2_name }}, {{ feature.attributes.admin1_name }}"
+        ramp:
+          label:
+            left: "Small\nPopulation\nat Risk"
+            right: "Large\nPopulation\nat Risk"
         description: "For a given hazard, month, and admin 2 district, the population at risk."
         colors:
           ramp:
@@ -40,6 +44,7 @@ featurelayers:
             - '#8162c6'
             - '#290051'
         styles:
+          label: ""
           default:
             static:
               weight: 1
@@ -955,8 +960,12 @@ featurelayers:
         type: "graduated"
         mask: "mask"
         attribute: "delta_mean"
-        label_left: "Negative<br>Change"
-        label_right: "Positive<br>Change"
+        label:
+          value: "{{ feature.attributes.admin2_name }}, {{ feature.attributes.admin1_name }}"
+        ramp:
+          label:
+            left: "Negative<br>Change"
+            right: "Positive<br>Change"
         description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.  Mean change highlights the balance between positive and negative changes information.  Positive values indicate areas with majority positive land cover change.  Negative values indicate areas with majority negative land cover change."
         breakpoints: "natural_adjusted"
         colors:
@@ -995,8 +1004,10 @@ featurelayers:
         type: "graduated"
         mask: "mask"
         attribute: "delta_negative"
-        label_left: "No<br>Change"
-        label_right: "Negative<br>Change"
+        ramp:
+          label:
+            left: "No<br>Change"
+            right: "Negative<br>Change"
         description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.  Percentage of areas that experienced negative land cover change, ecological deterioration.  High percentage values indicate large areas under negative land cover changes."
         breakpoints: "natural_negative"
         colors:
@@ -1029,8 +1040,10 @@ featurelayers:
         type: "graduated"
         mask: "mask"
         attribute: "delta_positive"
-        label_left: "No<br>Change"
-        label_right: "Positive<br>Change"
+        ramp:
+          label:
+            left: "No<br>Change"
+            right: "Positive<br>Change"
         description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.  Percentage of surfaces that experienced positive land cover change, ecological improve.  High percentage values indicate large areas under positive land cover changes."
         breakpoints: "natural_positive"
         colors:
@@ -1063,8 +1076,10 @@ featurelayers:
         type: "graduated"
         mask: "mask"
         attribute: "delta_crop"
-        label_left: "Negative<br>Change"
-        label_right: "Positive<br>Change"
+        ramp:
+          label:
+            left: "Negative<br>Change"
+            right: "Positive<br>Change"
         description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.  Positive percentage indicates increase in Cropland surfaces.  Negative percentage indicates decrease in Cropland surfaces."
         breakpoints: "natural_crop"
         colors:
@@ -1103,8 +1118,10 @@ featurelayers:
         type: "graduated"
         mask: "mask"
         attribute: "delta_forest"
-        label_left: "Negative<br>Change"
-        label_right: "Positive<br>Change"
+        ramp:
+          label:
+            left: "Negative<br>Change"
+            right: "Positive<br>Change"
         description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.  Positive values indicates increase in Forest surfaces.  Negative values indicates decrease in Forest surfaces."
         breakpoints: "natural_forest"
         colors:
@@ -1142,8 +1159,10 @@ featurelayers:
         title: "Erosion Propensity"
         type: "graduated"
         attribute: "erosion_propensity"
-        label_left: "Low"
-        label_right: "High"
+        ramp:
+          label:
+            left: "Low"
+            right: "High"
         description: "Erosion layer elaborated considering the RUSLE equation (Rain incidence, Slope length, Lithology, Land cover).  Erosion percentage indicates areas under erosion process (> 5 Tons/ha per year).  High values indicate large surfaces under erosion."
         breakpoints: "natural_erosion_propensity"
         colors:
@@ -1561,8 +1580,10 @@ featurelayers:
     cartography:
       - id: "default"
         type: graduated
-        label_left: "Less Frequent"
-        label_right: "More Frequent"
+        ramp:
+          label:
+            left: "Less Frequent"
+            right: "More Frequent"
         description: "For a given admin 2 district, the frequency of landslide events."
         colors:
           ramp: ['#fee5d9', '#fcbba1', '#fde79c', '#fc8d59', '#d7301f','#8162c6','#290051']
@@ -1770,8 +1791,10 @@ featurelayers:
     cartography:
       - id: "default"
         type: graduated
-        label_left: "Less Frequent"
-        label_right: "More Frequent"
+        ramp:
+          label:
+            left: "Less Frequent"
+            right: "More Frequent"
         description: "For a given admin 2 district, the frequency of flood events."
         colors:
           ramp: ['#fee5d9', '#fcbba1', '#fde79c', '#fc8d59', '#d7301f','#8162c6','#290051']
@@ -1815,8 +1838,10 @@ featurelayers:
     cartography:
       - id: "default"
         type: graduated
-        label_left: "Less Frequent"
-        label_right: "More Frequent"
+        ramp:
+          label:
+            left: "Less Frequent"
+            right: "More Frequent"
         description: "For a given admin 2 district, the frequency of landslide events."
         colors:
           ramp: ['#fee5d9', '#fcbba1', '#fde79c', '#fc8d59', '#d7301f','#8162c6','#290051']
