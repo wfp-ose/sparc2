@@ -21,7 +21,7 @@ from geosite.views import geosite_data_view
 from geosite.cache import provision_memcached_client
 from sparc2.enumerations import URL_EMDAT_BY_HAZARD, SPARC_HAZARDS_CONFIG
 from sparc2.models import SPARCCountry
-from sparc2.utils import get_month_number, get_json_admin0, get_geojson_cyclone, get_geojson_drought, get_geojson_flood, get_geojson_landslide, get_geojson_context, get_summary_cyclone, get_summary_drought, get_summary_flood, get_summary_landslide, get_summary_context, get_events_cyclone, get_events_flood, get_events_landslide, get_geojson_vam
+from sparc2.utils import get_month_number, get_json_admin0, get_geojson_cyclone, get_geojson_drought, get_geojson_flood, get_geojson_landslide, get_geojson_context, get_summary_cyclone, get_summary_drought, get_summary_flood, get_summary_landslide, get_summary_context, get_events_cyclone, get_events_flood, get_events_landslide, get_geojson_vam, get_json_coverage_countryhazard
 
 def home(request, template="home.html"):
     raise NotImplementedError
@@ -266,6 +266,16 @@ def countryhazardmonth_detail(request, iso3=None, hazard=None, month=None):
 
     return render_to_response(t, RequestContext(request, ctx))
 
+
+class data_local_coverage_countryhazard(geosite_data_view):
+
+    def _build_key(self, request, *args, **kwargs):
+        return "data/local/coverage/countryhazard/json".format(**kwargs)
+
+    def _build_data(self, request, *args, **kwargs):
+        print kwargs
+        data = get_json_coverage_countryhazard(request)
+        return data
 
 class admin0_data(geosite_data_view):
 

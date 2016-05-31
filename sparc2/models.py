@@ -44,6 +44,48 @@ class SPARCCountry(models.Model):
         verbose_name = ("SPARC Country")
         verbose_name_plural = ("SPARC Countries")
 
+class Hazard(models.Model):
+    id = models.IntegerField(primary_key=True)
+    slug = models.CharField(max_length=255, null=True, blank=True)
+    title = models.CharField(max_length=255, null=True, blank=True)
+
+    def __str__(self):
+        return "%s" % self.title.encode('utf-8')
+
+    class Meta:
+        ordering = ("title",)
+        verbose_name = ("Hazard")
+        verbose_name_plural = ("Hazards")
+
+class CountryHazard(models.Model):
+    id = models.IntegerField(primary_key=True)
+    country = models.ManyToManyField(SPARCCountry)
+    hazard = models.ManytoManyField(Hazard)
+
+    @property
+    def country_title(self):
+        if self.country_id:
+            return GAULAdmin0.objects
+                .filter(pk=self.country.country.gaul_id)
+                .values_list('admin0_name', flat=True)[0]
+        else:
+            return None
+
+    @property
+    def hazard_title(self):
+        if self.hazard_id:
+            return self.hazard.title
+        else:
+            return None
+
+    def __str__(self):
+        return "%s" % self.title.encode('utf-8')
+
+    class Meta:
+        ordering = ("title",)
+        verbose_name = ("SPARC Hazard")
+        verbose_name_plural = ("SPARC Hazards")
+
 class CountryGeneralInfo(models.Model):
     country = models.OneToOneField(SPARCCountry)
     tot_pop = models.IntegerField(null=True, blank=True)

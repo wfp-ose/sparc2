@@ -18,6 +18,7 @@ from geosite.enumerations import MONTHS_SHORT3
 from geosite.data import GeositeDatabaseConnection, calc_breaks_natural, insertIntoObject, valuesByMonthToList, rowsToDict
 from sparc2.data import data_local_country_admin, data_local_country_hazard_all, data_local_country_context_all
 from sparc2.enumerations import URL_VAM
+from sparc2.models import SPARCCountry
 
 def get_month_number(month):
     month_num = -1
@@ -97,6 +98,16 @@ def get_vam_by_admin1(request=None, iso_alpha3=None):
                 "vam_csi_high": attributes["vam"]["csi"]["high"]
             })
     return vam_by_admin1
+
+def get_json_coverage_countryhazard(request):
+    data = None
+    for country in SPARCCountry.objects.all().select_related('country'):
+        data.append({
+          'id': c.country.thesaurus.iso_alpha3,
+          'text': c.country.gaul.admin0_name,
+          'hazards': []
+         })
+    return
 
 def get_geojson_cyclone(request, iso_alpha3=None):
     collection = None

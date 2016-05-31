@@ -46,9 +46,17 @@ urlpatterns = [
 
     # Data Services
     url(
+        r'^data/local/coverage/countryhazard[.]json$',
+        views.data_local_coverage_countryhazard.as_view(),
+        name='data_local_coverage_countryhazard'),
+    url(
         r'^data/local/admin0[.]json$',
         views.admin0_data.as_view(),
         name='admin0_data'),
+    #url(
+    #    r'^data/local/country/(?P<iso_alpha3>[^/]+)/coverage[.]json$',
+    #    views.data_local_coverage_hazard.as_view(),
+    #    name='data_local_coverage_hazard'),
     url(
         r'^data/local/country/(?P<iso_alpha3>[^/]+)/admin/(?P<level>[^/]+)[.]json$',
         views.data_local_country_admin.as_view(),
