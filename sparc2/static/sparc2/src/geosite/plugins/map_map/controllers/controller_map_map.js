@@ -14,15 +14,15 @@ var init_map = function(opts)
 {
   var map = L.map('map',
   {
-    zoomControl: opt_b(opts, "zoomControl", false),
-    minZoom: opt_i(opts, "minZoom", 3),
-    maxZoom: opt_i(opts, "maxZoom", 18)
+    zoomControl: geosite.api.opt_b(opts, "zoomControl", false),
+    minZoom: geosite.api.opt_i(opts, "minZoom", 3),
+    maxZoom: geosite.api.opt_i(opts, "maxZoom", 18)
   });
   map.setView(
-    [opt_i(opts,["latitude", "lat"],0), opt_i(opts,["longitude", "lon", "lng", "long"], 0)],
-    opt_i(opts, ["zoom", "z"], 0));
+    [geosite.api.opt_i(opts,["latitude", "lat"],0), geosite.api.opt_i(opts,["longitude", "lon", "lng", "long"], 0)],
+    geosite.api.opt_i(opts, ["zoom", "z"], 0));
 
-  $.each(opt_j(opts, "listeners"), function(e, f){
+  $.each(geosite.api.opt_j(opts, "listeners"), function(e, f){
     map.on(e, f);
   });
 
@@ -161,7 +161,7 @@ geosite.controllers["controller_map_map"] = function(
       var featureLayer = map_config["featurelayers"]["popatrisk"];
       var popupConfig = featureLayer["popup"];
       //ctx["chartID"] = chartConfig.id;
-      var feature = sparc.normalize_feature(source.feature);
+      var feature = geosite.api.normalize_feature(source.feature);
       feature.attributes.popatrisk = sparc.calculate_population_at_risk(
         state.hazard,
         feature,

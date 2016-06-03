@@ -16,6 +16,7 @@
   "devDependencies": {
     "del": "*",
     "gulp": "^3.9.0",
+    "gulp-util": "*",
     "gulp-angular-templatecache": "^1.8.0",
     "gulp-concat": "*",
     "gulp-jshint": "*",
@@ -24,6 +25,7 @@
     "gulp-rename": "*",
     "gulp-uglify": "*",
     "path": "*",
-    "yamljs": "^0.2.7"
+    "yamljs": "^0.2.7",
+    "yargs": "*"
   }
 }

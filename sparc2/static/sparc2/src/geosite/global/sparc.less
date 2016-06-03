@@ -179,8 +179,15 @@
       height: 100%;
     }
 
-    .leaflet-top.leaflet-left {
-      top: @geosite-leaflet-position-top;
+    .leaflet-control-container {
+
+      .leaflet-top.leaflet-left, .leaflet-top.leaflet-right {
+        top: @geosite-leaflet-position-top;
+      }
+      .leaflet-bottom.leaflet-left, .leaflet-bottom.leaflet-right {
+        bottom: @geosite-leaflet-position-bottom;
+      }
+
     }
 
     .leaflet-popup-content {

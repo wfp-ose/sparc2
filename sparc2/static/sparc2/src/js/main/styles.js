@@ -12,7 +12,7 @@ geosite.style_cyclone = function(f, state, map_config, options)
 
   var value = sparc.calculate_population_at_risk(
     'cyclone',
-    sparc.normalize_feature(f),
+    geosite.api.normalize_feature(f),
     state,
     options.filters);
 
@@ -61,7 +61,7 @@ geosite.style_drought = function(f, state, map_config, options)
 
   var value = sparc.calculate_population_at_risk(
     'drought',
-    sparc.normalize_feature(f),
+    geosite.api.normalize_feature(f),
     state,
     options.filters);
 
@@ -109,7 +109,7 @@ geosite.style_flood = function(f, state, map_config, options)
 
   var value = sparc.calculate_population_at_risk(
     'flood',
-    sparc.normalize_feature(f),
+    geosite.api.normalize_feature(f),
     state,
     options.filters);
 
@@ -157,7 +157,7 @@ geosite.style_landslide = function(f, state, map_config, options)
 
   var value = sparc.calculate_population_at_risk(
     'landslide',
-    sparc.normalize_feature(f),
+    geosite.api.normalize_feature(f),
     state,
     options.filters);
 

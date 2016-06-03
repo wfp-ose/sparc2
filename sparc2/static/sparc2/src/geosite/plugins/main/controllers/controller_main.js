@@ -44,86 +44,7 @@ geosite.controllers["controller_main"] = function(
     };
 
     // Toggle Modals
-    $scope.$on("toggleModal", function(event, args) {
-        console.log('event', event);
-        console.log('args', args);
-        //
-        var main_scope = angular.element("#geosite-main").scope();
-        var id = args["id"];
-        var modalOptions = args['modal'] || {};
-        modalOptions['show'] = false;
-        var modal_scope = angular.element("#"+id).scope();
-        var modal_scope_new = {
-          "state": main_scope.state
-        };
-        if("static" in args)
-        {
-          modal_scope_new = $.extend(modal_scope_new, args["static"]);
-        }
-        $.each(args["dynamic"],function(key, value){
-          if(angular.isArray(value))
-          {
-            if(value[0] == "map_config")
-            {
-                modal_scope_new[key] = extract(value.slice(1), map_config);
-            }
-            else if(value[0] == "state")
-            {
-                modal_scope_new[key] = extract(value.slice(1), modal_scope_new.state);
-            }
-          }
-          else
-          {
-              modal_scope_new[key] = value;
-          }
-        });
-        modal_scope.$apply(function () {
-            // Update Scope
-            modal_scope = $.extend(modal_scope, modal_scope_new);
-            setTimeout(function(){
-              // Update Modal Tab Selection
-              // See https://github.com/angular-ui/bootstrap/issues/1741
-              var modalElement = $("#"+id);
-              var targetTab = modal_scope.tab;
-              if(targetTab != undefined)
-              {
-                modalElement.find('.nav-tabs li').each(function(){
-                  var that = $(this);
-                  var thisTab = that.find('a').attr('href').substring(1);
-                  if(targetTab == thisTab)
-                  {
-                      that.addClass('active');
-                  }
-                  else
-                  {
-                      that.removeClass('active');
-                  }
-                });
-                modalElement.find('.tab-pane').each(function(){
-                  var that = $(this);
-                  if(targetTab == that.attr('id'))
-                  {
-                      that.addClass('in active');
-                  }
-                  else
-                  {
-                      that.removeClass('in active');
-                  }
-                });
-              }
-              else
-              {
-                modalElement.find('.nav-tabs li').slice(0, 1).addClass('active');
-                modalElement.find('.nav-tabs li').slice(1).removeClass('active');
-                modalElement.find('.tab-pane').slice(0, 1).addClass('in active');
-                modalElement.find('.tab-pane').slice(1).removeClass('in active');
-              }
-              // Toggle Modal
-              $("#"+id).modal(modalOptions);
-              $("#"+id).modal('toggle');
-            },0);
-        });
-    });
+    $scope.$on("toggleModal", geosite.listeners.toggleModal)
 
     // Calendar, Country, Hazard, or Filter Changed
     $scope.$on("stateChanged", function(event, args) {
@@ -346,10 +267,6 @@ var init_sparc_controller_main = function(that, app)
 
   $('.geosite-controller.geosite-sidebar.geosite-sidebar-left', that).each(function(){
     geosite.init_controller($(this), app, geosite.controllers.controller_sidebar_sparc);
-  });
-
-  $('.geosite-controller.geosite-sidebar.geosite-sidebar-right', that).each(function(){
-    geosite.init_controller($(this), app, geosite.controllers.controller_sidebar_editor);
   });
 
   $('.geosite-controller.geosite-map', that).each(function(){

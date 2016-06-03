@@ -32,7 +32,7 @@ geosite.init_explore = function(appName)
 
   // Initialize UI interaction for intents.
   // Listen's for events bubbling up to body element, so can initialize before children.
-  geosite.init.intents();
+  geosite.init.listeners();
 
   /*
   init_sparc_controller_main will kick off a recursive search for controllers

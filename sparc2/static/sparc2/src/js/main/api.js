@@ -18,15 +18,6 @@ sparc.welcome = function(options)
   geosite.api.intend("toggleModal", intentData, scope);
 };
 
-sparc.normalize_feature = function(feature)
-{
-  var feature = {
-    'attributes': feature.attributes || feature.properties,
-    'geometry': feature.geometry
-  };
-  return feature;
-};
-
 geosite.vam_filter_fcs = function(value, filters, f)
 {
   // Adjust by VAM FCS Filter

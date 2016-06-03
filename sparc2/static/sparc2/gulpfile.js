@@ -1,4 +1,5 @@
 var gulp = require('gulp');
+var gutil = require('gulp-util');
 var pkg = require('./package.json');
 var fs = require('fs');
 var concat = require('gulp-concat');
@@ -11,11 +12,18 @@ var templateCache = require('gulp-angular-templatecache');
 var yaml = require("yamljs");
 var del = require('del');
 var path = require('path');
+var argv = require('yargs').argv;
 var spawn = require('child_process').spawn;
 
 require.extensions['.yml'] = function (module, filename) {
     module.exports = yaml.parse(fs.readFileSync(filename, 'utf8'));
 };
+
+if(argv.debug)
+{
+  gutil.log(gutil.colors.magenta('Debugging...'));
+  gutil.log(gutil.colors.magenta('Done with imports'));
+}
 
 var collect_files = function(basePath, plugin, sType)
 {
@@ -74,6 +82,11 @@ var flatten_configs = function(n)
   return configs;
 };
 
+if(argv.debug)
+{
+  gutil.log(gutil.colors.magenta('Initialized common functions'));
+}
+
 var rootConfig = require("./config.yml");
 var configs = flatten_configs(load_config("./config.yml"));
 
@@ -90,9 +103,19 @@ var compile_less = [];
 var test_js = [];
 var compilelist = [];
 
+if(argv.debug)
+{
+  gutil.log(gutil.colors.magenta('Loaded configs and ready to build pipelines.'));
+}
+
 for(var i = 0; i < configs.length; i++)
 {
   var config = configs[i];
+  if(argv.debug)
+  {
+    gutil.log(gutil.colors.magenta('########'));
+    gutil.log(gutil.colors.magenta('Project '+i+': '+config.name));
+  }
 
   var path_plugins = path.join(config.path.base, config.path.geosite, "plugins")
 
@@ -105,6 +128,11 @@ for(var i = 0; i < configs.length; i++)
 
   for(var j = 0; j < config["plugins"].length; j++)
   {
+    if(argv.debug)
+    {
+      gutil.log(gutil.colors.magenta('Plugin '+i+'.'+j+': '+config["plugins"][j]));
+    }
+
     var pluginPath = path.join(path_plugins, config["plugins"][j], "config.yml");
 
     var geosite_plugin = require(pluginPath[0] == "/" ? pluginPath : ("./"+ pluginPath));
@@ -183,6 +211,8 @@ compilelist = compilelist.concat(rootConfig["compiler"]["list"]);
 var copylist =
 [
 ];
+
+gutil.log(gutil.colors.magenta('Compilelist built.'));
 
 gulp.task('compile', ['geosite:templates'], function(){
     for(var i = 0; i < compilelist.length; i++)

@@ -103,11 +103,11 @@ featurelayers:
           fields:
             - attribute: iso_alpha3
               label: ISO Alpha-3 Country Code
-            - attribute: admin0_name
+            - value: "{{ feature.attributes.admin0_name }} ({{ feature.attributes.admin0_code }})"
               label: Admin 0
-            - attribute: admin1_name
+            - value: "{{ feature.attributes.admin1_name }} ({{ feature.attributes.admin1_code }})"
               label: Admin 1
-            - attribute: admin2_name
+            - value: "{{ feature.attributes.admin2_name }} ({{ feature.attributes.admin2_code }})"
               label: Admin 2
         - id: "popup_vam_fcs"
           tab:
@@ -120,12 +120,15 @@ featurelayers:
               label: VAM FCS Source
               when: defined
             - attribute: vam_fcs_poor
+              value: "{{ feature.attributes.vam_fcs_poor | formatFloat: 2 }}"
               label: VAM FCS Poor
               when: defined
             - attribute: vam_fcs_borderline
+              value: "{{ feature.attributes.vam_fcs_borderline | formatFloat: 2 }}"
               label: VAM FCS Borderline
               when: defined
             - attribute: vam_fcs_acceptable
+              value: "{{ feature.attributes.vam_fcs_acceptable | formatFloat: 2 }}"
               label: VAM FCS Acceptable
               when: defined
         - id: "popup_vam_csi"
@@ -337,11 +340,11 @@ featurelayers:
           fields:
             - attribute: iso_alpha3
               label: ISO Alpha-3 Country Code
-            - attribute: admin0_name
+            - value: "{{ feature.attributes.admin0_name }} ({{ feature.attributes.admin0_code }})"
               label: Admin 0
-            - attribute: admin1_name
+            - value: "{{ feature.attributes.admin1_name }} ({{ feature.attributes.admin1_code }})"
               label: Admin 1
-            - attribute: admin2_name
+            - value: "{{ feature.attributes.admin2_name }} ({{ feature.attributes.admin2_code }})"
               label: Admin 2
         - id: "popup_vam_fcs"
           tab:
@@ -354,12 +357,15 @@ featurelayers:
               label: VAM FCS Source
               when: defined
             - attribute: vam_fcs_poor
+              value: "{{ feature.attributes.vam_fcs_poor | formatFloat: 2 }}"
               label: VAM FCS Poor
               when: defined
             - attribute: vam_fcs_borderline
+              value: "{{ feature.attributes.vam_fcs_borderline | formatFloat: 2 }}"
               label: VAM FCS Borderline
               when: defined
             - attribute: vam_fcs_acceptable
+              value: "{{ feature.attributes.vam_fcs_acceptable | formatFloat: 2 }}"
               label: VAM FCS Acceptable
               when: defined
         - id: "popup_vam_csi"
@@ -554,11 +560,11 @@ featurelayers:
           fields:
             - attribute: iso_alpha3
               label: ISO Alpha-3 Country Code
-            - attribute: admin0_name
+            - value: "{{ feature.attributes.admin0_name }} ({{ feature.attributes.admin0_code }})"
               label: Admin 0
-            - attribute: admin1_name
+            - value: "{{ feature.attributes.admin1_name }} ({{ feature.attributes.admin1_code }})"
               label: Admin 1
-            - attribute: admin2_name
+            - value: "{{ feature.attributes.admin2_name }} ({{ feature.attributes.admin2_code }})"
               label: Admin 2
         - id: "popup_vam_fcs"
           tab:
@@ -571,12 +577,15 @@ featurelayers:
               label: VAM FCS Source
               when: defined
             - attribute: vam_fcs_poor
+              value: "{{ feature.attributes.vam_fcs_poor | formatFloat: 2 }}"
               label: VAM FCS Poor
               when: defined
             - attribute: vam_fcs_borderline
+              value: "{{ feature.attributes.vam_fcs_borderline | formatFloat: 2 }}"
               label: VAM FCS Borderline
               when: defined
             - attribute: vam_fcs_acceptable
+              value: "{{ feature.attributes.vam_fcs_acceptable | formatFloat: 2 }}"
               label: VAM FCS Acceptable
               when: defined
         - id: "popup_vam_csi"
@@ -763,11 +772,11 @@ featurelayers:
           fields:
             - attribute: iso_alpha3
               label: ISO Alpha-3 Country Code
-            - attribute: admin0_name
+            - value: "{{ feature.attributes.admin0_name }} ({{ feature.attributes.admin0_code }})"
               label: Admin 0
-            - attribute: admin1_name
+            - value: "{{ feature.attributes.admin1_name }} ({{ feature.attributes.admin1_code }})"
               label: Admin 1
-            - attribute: admin2_name
+            - value: "{{ feature.attributes.admin2_name }} ({{ feature.attributes.admin2_code }})"
               label: Admin 2
         - id: "popup_vam_fcs"
           tab:
@@ -780,12 +789,15 @@ featurelayers:
               label: VAM FCS Source
               when: defined
             - attribute: vam_fcs_poor
+              value: "{{ feature.attributes.vam_fcs_poor | formatFloat: 2 }}"
               label: VAM FCS Poor
               when: defined
             - attribute: vam_fcs_borderline
+              value: "{{ feature.attributes.vam_fcs_borderline | formatFloat: 2 }}"
               label: VAM FCS Borderline
               when: defined
             - attribute: vam_fcs_acceptable
+              value: "{{ feature.attributes.vam_fcs_acceptable | formatFloat: 2 }}"
               label: VAM FCS Acceptable
               when: defined
         - id: "popup_vam_csi"
@@ -1233,11 +1245,11 @@ featurelayers:
           fields:
             - attribute: iso_alpha3
               label: ISO Alpha-3 Country Code
-            - attribute: admin0_name
+            - value: "{{ feature.attributes.admin0_name }} ({{ feature.attributes.admin0_code }})"
               label: Admin 0
-            - attribute: admin1_name
+            - value: "{{ feature.attributes.admin1_name }} ({{ feature.attributes.admin1_code }})"
               label: Admin 1
-            - attribute: admin2_name
+            - value: "{{ feature.attributes.admin2_name }} ({{ feature.attributes.admin2_code }})"
               label: Admin 2
         - id: "popup_links"
           tab:
@@ -1365,6 +1377,8 @@ featurelayers:
       geometry: shape
     kml:
       url: "http://geonode.wfp.org/cors/geoserver/wms/kml"
+    gwc:
+      tiles: "http://geonode.wfp.org/geoserver/gwc/service/tms/1.0.0/{typename}@EPSG:900913@png/{z}/{x}/{y}.png"
     cartography:
       - id: default
         legend:
@@ -1464,6 +1478,10 @@ featurelayers:
       version: "1.0.0"  # Needs to 1.0.0 or returns bad results for some reason.
       url: "http://geonode.wfp.org/cors/geoserver/wfs"
       geometry: shape
+    kml:
+      url: "http://geonode.wfp.org/cors/geoserver/wms/kml"
+    gwc:
+      tiles: "http://geonode.wfp.org/geoserver/gwc/service/tms/1.0.0/{typename}@EPSG:900913@png/{z}/{x}/{y}.png"
     cartography:
       - title: "Default"
         legend:

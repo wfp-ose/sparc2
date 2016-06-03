@@ -27,6 +27,10 @@
 
 {% block head_inline %}
 {% include "geosite/_includes/snippet_const.html" %}
+{% include "sparc2/_includes/snippet_utility.html" %}
+{% endblock %}
+
+{% block initial_data %}
 <script type="text/javascript" language="Javascript">
     geosite.initial_data =
     {
@@ -120,7 +124,6 @@
       }
     };
 </script>
-{% include "sparc2/_includes/snippet_utility.html" %}
 {% endblock %}
 
 {% block map_config %}
