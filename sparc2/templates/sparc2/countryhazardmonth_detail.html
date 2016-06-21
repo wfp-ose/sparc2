@@ -9,11 +9,10 @@
 {% block sidebar_left %}
 {% if hazard != "drought" %}
 <div
-  id="geosite-sidebar-left"
-  class="geosite-sidebar geosite-sidebar-left geosite-controller"
-  ng-controller="geosite-sidebar-left"
-  data-controller-name="geosite-sidebar-left"
-  data-controller-type="geosite-sidebar-left">
+  id="sparc-sidebar-left"
+  class="geodash-sidebar geodash-sidebar-left geodash-controller"
+  geodash-controller="sparc-sidebar-left"
+  ng-controller="sparc-sidebar-left">
   <div sparc-sidebar-charts></div>
 </div>
 {% endif %}
@@ -21,10 +20,10 @@
 
 {% block map_controllers %}
 {% include "sparc2/_includes/map_breadcrumb.html" %}
-{% include "geosite/_includes/map_legend.html" %}
+{% include "geodash/_includes/map_legend.html" with legend_title="Legend - Click to Open" %}
 {% if hazard != "drought" %}
-{% include "geosite/_includes/map_filter.html" %}
-{% include "geosite/_includes/map_sidebar_toggle_left.html" %}
+{% include "geodash/_includes/map_filter.html" %}
+{% include "geodash/_includes/map_sidebar_toggle_left.html" %}
 {% endif %}
 {% include "sparc2/_includes/map_calendar.html" %}
 {% endblock %}

@@ -7,11 +7,11 @@ from jenks import jenks
 from django.conf import settings
 from django.template.loader import get_template
 
-from geosite.enumerations import MONTHS_SHORT3
+from geodash.enumerations import MONTHS_SHORT3
 
-from geosite.cache import provision_memcached_client
+from geodash.cache import provision_memcached_client
 
-from geosite.data import data_local_country
+from geodash.data import data_local_country
 
 
 class data_local_country_admin(data_local_country):

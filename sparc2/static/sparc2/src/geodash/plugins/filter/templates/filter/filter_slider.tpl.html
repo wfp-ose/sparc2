@@ -1,0 +1,31 @@
+<div class="geodash-filter geodash-filter-slider" style="height: {{ filter.height }};">
+  <div class="geodash-filter-label">
+    <a
+      class="geodash-intent"
+      data-intent-name="toggleModal"
+      data-intent-data="{&quot;id&quot;:&quot;geodash-modal-filter-more&quot;,&quot;static&quot;:{&quot;tab&quot;:&quot;modal-filter-more-general&quot;},&quot;dynamic&quot;:{&quot;value&quot;:[&quot;state&quot;,&quot;filters&quot;,&quot;popatrisk&quot;,&quot;{{ filter.slider.output }}&quot;],&quot;filter&quot;:[&quot;map_config&quot;,&quot;featurelayers&quot;,&quot;popatrisk&quot;,&quot;filters&quot;,&quot;{{ $index }}&quot;]}}"
+      data-intent-ctrl="geodash-map-filter">
+      <i class="fa fa-info-circle"></i>
+    </a>
+    <span ng-bind-html="filter.label | md2html"></span> :
+  </div>
+  <div style="display:table; height:{{ filter.height }};padding-left:10px;padding-right:10px;">
+    <div style="display:table-cell;vertical-align:middle;">
+      <div class="geodash-filter-slider-label">Placeholder</div>
+      <div
+        class="geodash-filter-slider-slider"
+        style="width:{{ filter.slider.width }};"
+        data-type="{{ filter.slider.type }}"
+        data-value="{{ filter.slider.value ? filter.slider.value : '' }}"
+        data-values="{{ filter.slider.values ? filter.slider.values : '' }}"
+        data-range="{{ filter.slider.range == 'true' ? 'true': filter.slider.range }}"
+        data-output="{{ filter.slider.output }}"
+        data-min-value="{{ filter.slider.min|default_if_undefined:'' }}"
+        data-max-value="{{ filter.slider.max|default_if_undefined:'' }}"
+        data-step="{{ filter.slider.step ? filter.slider.step : '' }}"
+        data-options="{{ filter.slider.options ? filter.slider.options : '' }}"
+        data-label-template="{{ filter.slider.label }}"
+        ></div>
+    </div>
+  </div>
+</div>

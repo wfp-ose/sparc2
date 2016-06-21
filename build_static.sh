@@ -1,9 +1,7 @@
 #!/bin/bash
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 #===============#
-OS_USER=vagrant
 VENV=sparc2
-DEPLOY_KEY_EMAIL="sparc@wfp.org"
 DJ_PROJ="sparc2"
 #===============#
 BUILD_BOOTSTRAP=0
@@ -28,5 +26,5 @@ if [[ BUILD_BOOTSTRAP -eq 1 ]]; then
 fi
 cd $DIR
 PY=/home/vagrant/.venvs/$VENV/bin/python
-sudo $PY manage.py collectstatic --noinput -i gulpfile.js -i package.json -i temp -i node_modules
+sudo $PY manage.py collectstatic --noinput -i gulpfile.js -i package.json -i temp -i node_modules -i config.yml
 #sudo /home/vagrant/.venvs/sparc2/bin/python manage.py collectstatic --noinput -i gulpfile.js -i package.json -i temp -i node_modules

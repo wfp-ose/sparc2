@@ -1,14 +1,20 @@
 ---
 name: "SPARC 2.x"
+version: "0.0.1"
+description: "SPARC 2.x"
 path:
-  geosite: "./src/geosite"
+  geodash: "./src/geodash"
 less:
   pre:
-    - "./src/geosite/global/sparc.less"
+    - "./src/geodash/global/sparc.less"
   paths:
-    - "./src/geosite/global"
+    - "./src/geodash/global"
   outfile: "main.css"
   dest: "./build/css/"
+bootstrap:
+  src: "/home/vagrant/geodash-framework-django.git/geodash/static/geodash/lib/bootstrap/3.3.5/less"
+  variables: "./src/less/bootstrap/variables.less"
+  dest: "./build/bootstrap"
 plugins:
   - breadcrumbs
   - calendar
@@ -21,11 +27,12 @@ dependencies:
   production:
     javascript:
       - "./src/js/main/*.js"
+      - "./build/meta/meta.js"
       - "./build/templates/templates.js"
     templates:
       - "./src/templates/*.html"
     project:
-      - "/home/vagrant/geosite-framework-django.git/geosite/static/geosite/config.yml"
+      - "~/geodash.js.git/config.yml"
   test:
     javascript:
       - "./src/js/main/*.js"

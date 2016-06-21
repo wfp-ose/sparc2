@@ -1,21 +1,27 @@
-geosite.init_countryhazardmonth = function(appName)
+geodash.init_countryhazardmonth = function(appName)
 {
-  var url_popatrisk_summary = geosite.map_config["featurelayers"]["popatrisk"]["urls"]["summary"]
-    .replace("{iso3}", geosite.initial_state["iso3"])
-    .replace("{hazard}", geosite.initial_state["hazard"]);
+  var popatrisk = $.grep(geodash.map_config.featurelayers, function(x, i){ return x.id == "popatrisk"; })[0];
 
-  var url_popatrisk_geojson = geosite.map_config["featurelayers"]["popatrisk"]["urls"]["geojson"]
-    .replace("{iso3}", geosite.initial_state["iso3"])
-    .replace("{hazard}", geosite.initial_state["hazard"]);
+  var url_popatrisk_summary = popatrisk["sparc"]["summary"]
+    .replace("{iso3}", geodash.initial_state["iso3"])
+    .replace("{hazard}", geodash.initial_state["hazard"]);
 
-  var url_context_summary = geosite.map_config["featurelayers"]["context"]["urls"]["summary"]
-    .replace("{iso3}", geosite.initial_state["iso3"]);
+  var url_popatrisk_geojson = popatrisk["geojson"]["url"]
+    .replace("{iso3}", geodash.initial_state["iso3"])
+    .replace("{hazard}", geodash.initial_state["hazard"]);
 
-  var url_context_geojson = geosite.map_config["featurelayers"]["context"]["urls"]["geojson"]
-    .replace("{iso3}", geosite.initial_state["iso3"]);
+  var context = $.grep(geodash.map_config.featurelayers, function(x, i){ return x.id == "context"; })[0];
 
-  var url_vam_geojson = geosite.map_config["featurelayers"]["vam"]["urls"]["geojson"]
-    .replace("{iso3}", geosite.initial_state["iso3"]);
+  var url_context_summary = context["sparc"]["summary"]
+    .replace("{iso3}", geodash.initial_state["iso3"]);
+
+  var url_context_geojson = context["geojson"]["url"]
+    .replace("{iso3}", geodash.initial_state["iso3"]);
+
+  var vam = $.grep(geodash.map_config.featurelayers, function(x, i){ return x.id == "vam"; })[0];
+
+  var url_vam_geojson = vam["geojson"]["url"]
+    .replace("{iso3}", geodash.initial_state["iso3"]);
 
   $.when(
     $.ajax({dataType: "json", url: url_popatrisk_summary}),
@@ -30,54 +36,43 @@ geosite.init_countryhazardmonth = function(appName)
     response_context_geojson,
     response_vam_geojson
     ){
-    geosite.initial_data["layers"]["popatrisk"]["data"]["summary"] = response_popatrisk_summary[0];
-    geosite.initial_data["layers"]["popatrisk"]["data"]["geojson"] = response_popatrisk_geojson[0];
-    geosite.initial_data["layers"]["context"]["data"]["summary"] = response_context_summary[0];
-    geosite.initial_data["layers"]["context"]["data"]["geojson"] = response_context_geojson[0];
-    geosite.initial_data["layers"]["vam"]["data"]["geojson"] = response_vam_geojson[0];
+    geodash.initial_data["layers"]["popatrisk"]["data"]["summary"] = response_popatrisk_summary[0];
+    geodash.initial_data["layers"]["popatrisk"]["data"]["geojson"] = response_popatrisk_geojson[0];
+    geodash.initial_data["layers"]["context"]["data"]["summary"] = response_context_summary[0];
+    geodash.initial_data["layers"]["context"]["data"]["geojson"] = response_context_geojson[0];
+    geodash.initial_data["layers"]["vam"]["data"]["geojson"] = response_vam_geojson[0];
 
-    geosite.breakpoints = {};
-    if("all" in geosite.initial_data["layers"]["popatrisk"]["data"]["summary"])
+    geodash.breakpoints = {};
+
+    if("all" in geodash.initial_data["layers"]["popatrisk"]["data"]["summary"])
     {
-      $.each(geosite.initial_data["layers"]["popatrisk"]["data"]["summary"]["all"]["breakpoints"], function(k, v){
-        geosite.breakpoints["popatrisk_"+k] = v;
-      });
-    }
-    if("all" in geosite.initial_data["layers"]["context"]["data"]["summary"])
-    {
-      $.each(geosite.initial_data["layers"]["context"]["data"]["summary"]["all"]["breakpoints"], function(k, v){
-        geosite.breakpoints["context_"+k] = v;
+      $.each(geodash.initial_data["layers"]["popatrisk"]["data"]["summary"]["all"]["breakpoints"], function(k, v){
+        geodash.breakpoints["popatrisk_"+k] = v;
       });
     }
 
-    geosite.init_countryhazardmonth_main_app(appName);
+    if("all" in geodash.initial_data["layers"]["context"]["data"]["summary"])
+    {
+      $.each(geodash.initial_data["layers"]["context"]["data"]["summary"]["all"]["breakpoints"], function(k, v){
+        geodash.breakpoints["context_"+k] = v;
+      });
+    }
+
+    geodash.init_countryhazardmonth_main_app(appName);
   });
 };
 
-geosite.init_countryhazardmonth_main_app = function(appName)
+geodash.init_countryhazardmonth_main_app = function(appName)
 {
-  geosite.app = app = angular.module(appName, ['ngRoute','ngSanitize']);
+  geodash.app = app = angular.module(appName, ['ngRoute','ngSanitize', 'ngCookies']);
 
-  if(geosite.templates != undefined)
-  {
-    $.each(geosite.templates, function(name, template){
-      app.run(function($templateCache){$templateCache.put(name,template);});
-    });
-  }
+  geodash.init.templates(app);
+  geodash.init.filters(app);
+  geodash.init.directives(app);
 
-  if(geosite.filters != undefined)
-  {
-    $.each(geosite.filters, function(name, func){ app.filter(name, func); });
-  }
-
-  if(geosite.directives != undefined)
-  {
-    $.each(geosite.directives, function(name, dir){ app.directive(name, dir); });
-  }
-
-  app.factory('state', function(){return $.extend({}, geosite.initial_state);});
-  app.factory('stateschema', function(){return $.extend({}, geosite.state_schema);});
-  app.factory('map_config', function(){return $.extend({}, geosite.map_config);});
+  app.factory('state', function(){return $.extend({}, geodash.initial_state);});
+  app.factory('stateschema', function(){return $.extend({}, geodash.state_schema);});
+  app.factory('map_config', function(){return $.extend({}, geodash.map_config);});
   app.factory('live', function(){
     return {
       "map": undefined,
@@ -89,7 +84,7 @@ geosite.init_countryhazardmonth_main_app = function(appName)
   });
   // Initialize UI interaction for intents.
   // Listen's for events bubbling up to body element, so can initialize before children.
-  geosite.init.listeners();
+  geodash.init.listeners();
 
   /*
   init_sparc_controller_main will kick off a recursive search for controllers
@@ -103,9 +98,10 @@ geosite.init_countryhazardmonth_main_app = function(appName)
   and is not good.  So you NEED!!! to get to it first!!!!!!
   */
 
-  geosite.init_controller_base(app);
+  geodash.init_controller_base(app);
 
-  init_sparc_controller_main($('.geosite-controller.geosite-main'), app);
+  var mainController = $('#geodash-main');
+  init_sparc_controller_main(mainController, app);
 
   angular.bootstrap(document, [appName]);
 };

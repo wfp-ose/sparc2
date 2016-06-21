@@ -1,0 +1,39 @@
+@import "variables.less";
+
+.sparc-map-calendar {
+  position: absolute;
+  background: rgba(0,0,0,0);
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  z-index: @geodash-map-control-z-index;
+  border-radius: 3px;
+  border: 0;
+
+  li {
+    vertical-align: bottom;
+
+    a {
+      border-radius: 6px 6px 0px 0px;
+      transition: width @sparc-calendar-transition ease-in-out;
+      transition: height @sparc-calendar-transition ease-in-out;
+    }
+
+    a:hover {
+      height: 60px;
+      line-height: 38px;
+    }
+
+    a.btn-primary:hover, a.btn-primary:focus {
+      color: #fff;
+      background-color: #286090;
+      border-color: #204d74;
+    }
+
+    a.selected {
+      height: 60px;
+      line-height: 38px;
+    }
+  }
+
+}

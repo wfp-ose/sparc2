@@ -3,7 +3,7 @@ var sparc = {};
 sparc.welcome = function(options)
 {
   options = options || {};
-  var scope = options['$scope'] || options['scope'] || angular.element("#geosite-main").scope();
+  var scope = options['$scope'] || options['scope'] || angular.element("#geodash-main").scope();
   var intentData = {
     "id": "sparc-modal-welcome",
     "modal": {
@@ -15,10 +15,10 @@ sparc.welcome = function(options)
       "welcome": scope.map_config["welcome"]
     }
   };
-  geosite.api.intend("toggleModal", intentData, scope);
+  geodash.api.intend("toggleModal", intentData, scope);
 };
 
-geosite.vam_filter_fcs = function(value, filters, f)
+geodash.vam_filter_fcs = function(value, filters, f)
 {
   // Adjust by VAM FCS Filter
   if(filters["fcs"] != undefined)
@@ -34,7 +34,7 @@ geosite.vam_filter_fcs = function(value, filters, f)
       {
         console.log("FCS Filter:", filters["fcs"]);
         var admin1_code = f.attributes.admin1_code;
-        var matches = $.grep(geosite.initial_data.layers.vam.data.geojson.features, function(x, i){
+        var matches = $.grep(geodash.initial_data.layers.vam.data.geojson.features, function(x, i){
             return x.properties.admin1_code == admin1_code;
         });
         if(matches.length > 0)
@@ -57,7 +57,7 @@ geosite.vam_filter_fcs = function(value, filters, f)
   }
   return value;
 };
-geosite.vam_filter_csi = function(value, filters, f)
+geodash.vam_filter_csi = function(value, filters, f)
 {
   // Adjust by VAM FCS Filter
   if(filters["csi"] != undefined)
@@ -72,7 +72,7 @@ geosite.vam_filter_csi = function(value, filters, f)
       if(filters["csi"].join(",") != "no,low,medium,high")
       {
         var admin1_code = f.attributes.admin1_code;
-        var matches = $.grep(geosite.initial_data.layers.vam.data.geojson.features, function(x, i){
+        var matches = $.grep(geodash.initial_data.layers.vam.data.geojson.features, function(x, i){
             return x.properties.admin1_code == admin1_code;
         });
         if(matches.length > 0)
@@ -146,7 +146,7 @@ sparc.calculate_population_at_risk = function(hazard, feature, state, filters)
   if(filters != undefined)
   {
     $.each(filters, function(i, x){
-      value = geosite[x](value, state["filters"]["popatrisk"], feature);
+      value = geodash[x](value, state["filters"]["popatrisk"], feature);
     });
   }
 

@@ -13,9 +13,9 @@ try:
 except ImportError:
     import json
 
-from geosite.enumerations import MONTHS_SHORT3
+from geodash.enumerations import MONTHS_SHORT3
 
-from geosite.data import GeositeDatabaseConnection, calc_breaks_natural, insertIntoObject, valuesByMonthToList, rowsToDict
+from geodash.data import GeoDashDatabaseConnection, calc_breaks_natural, insertIntoObject, valuesByMonthToList, rowsToDict
 from sparc2.data import data_local_country_admin, data_local_country_hazard_all, data_local_country_context_all
 from sparc2.enumerations import URL_VAM
 
@@ -42,7 +42,7 @@ def get_month_number(month):
     return month_num
 
 def get_json_admin0(request, template="sparc2/sql/_admin0_data.sql"):
-    connection = psycopg2.connect(settings.GEOSITE_DB_CONN_STR)
+    connection = psycopg2.connect(settings.GEODASH_DB_CONN_STR)
     cursor = connection.cursor()
     q = get_template(template).render({'admin0_data': "sparc2_country"})
     cursor.execute(q)
@@ -50,10 +50,10 @@ def get_json_admin0(request, template="sparc2/sql/_admin0_data.sql"):
     return results
 
 
-def get_context_by_admin2(geosite_conn=None, iso_alpha3=None):
+def get_context_by_admin2(geodash_conn=None, iso_alpha3=None):
     context_by_admin2 = {}
 
-    rows_context = geosite_conn.exec_query_multiple(
+    rows_context = geodash_conn.exec_query_multiple(
         get_template("sparc2/sql/_context_by_admin2.sql").render({
             'admin2_context': 'context.admin2_context',
             'iso_alpha3': iso_alpha3}))
@@ -100,13 +100,13 @@ def get_vam_by_admin1(request=None, iso_alpha3=None):
 
 def get_geojson_cyclone(request, iso_alpha3=None):
     collection = None
-    with GeositeDatabaseConnection() as geosite_conn:
+    with GeoDashDatabaseConnection() as geodash_conn:
         # Admin 2 Districts
-        collection = data_local_country_admin().get(cursor=geosite_conn.cursor, iso_alpha3=iso_alpha3, level=2)
+        collection = data_local_country_admin().get(cursor=geodash_conn.cursor, iso_alpha3=iso_alpha3, level=2)
         # Vam Data
         vam_by_admin1 = get_vam_by_admin1(request, iso_alpha3=iso_alpha3)
         # Population at Risk Data
-        rows_popatrisk = geosite_conn.exec_query_multiple(
+        rows_popatrisk = geodash_conn.exec_query_multiple(
             get_template("sparc2/sql/_cyclone.sql").render({
                 'admin2_popatrisk': 'cyclone.admin2_popatrisk',
                 'iso_alpha3': iso_alpha3}))
@@ -120,7 +120,7 @@ def get_geojson_cyclone(request, iso_alpha3=None):
                 popatrisk_by_admin2[admin2_code] = []
             popatrisk_by_admin2[admin2_code].append(newRow)
 
-        context_by_admin2 = get_context_by_admin2(geosite_conn=geosite_conn, iso_alpha3=iso_alpha3)
+        context_by_admin2 = get_context_by_admin2(geodash_conn=geodash_conn, iso_alpha3=iso_alpha3)
 
         for feature in collection["features"]:
             admin1_code = str(feature["properties"]["admin1_code"])
@@ -155,9 +155,9 @@ def get_summary_cyclone(table_popatrisk=None, iso_alpha3=None):
 
     summary = None
 
-    with GeositeDatabaseConnection() as geosite_conn:
+    with GeoDashDatabaseConnection() as geodash_conn:
 
-        values = geosite_conn.exec_query_single_aslist(
+        values = geodash_conn.exec_query_single_aslist(
             get_template("sparc2/sql/_cyclone_data_all_at_admin2.sql").render({
                 'admin2_popatrisk': table_popatrisk,
                 'iso_alpha3': iso_alpha3}))
@@ -198,7 +198,7 @@ def get_summary_cyclone(table_popatrisk=None, iso_alpha3=None):
 
         for prob_class in prob_classes:
 
-            values = geosite_conn.exec_query_single_aslist(
+            values = geodash_conn.exec_query_single_aslist(
                 get_template("sparc2/sql/_cyclone_data_by_prob_class_month.sql").render({
                     'admin2_popatrisk': table_popatrisk,
                     'iso_alpha3': iso_alpha3,
@@ -207,7 +207,7 @@ def get_summary_cyclone(table_popatrisk=None, iso_alpha3=None):
             summary["prob_class"][prob_class] = {};
             summary["prob_class"][prob_class]['by_month'] = [float(x) for x in values]
 
-            rows = geosite_conn.exec_query_multiple(
+            rows = geodash_conn.exec_query_multiple(
                 get_template("sparc2/sql/_cyclone_data_by_group_prob_class_month.sql").render({
                     'admin2_popatrisk': table_popatrisk,
                     'iso_alpha3': iso_alpha3,
@@ -228,9 +228,9 @@ def get_summary_cyclone(table_popatrisk=None, iso_alpha3=None):
 
 def get_geojson_drought(request, iso_alpha3=None):
     collection = None
-    with GeositeDatabaseConnection() as geosite_conn:
+    with GeoDashDatabaseConnection() as geodash_conn:
         # Admin 2 Districts
-        collection = data_local_country_admin().get(cursor=geosite_conn.cursor, iso_alpha3=iso_alpha3, level=2)
+        collection = data_local_country_admin().get(cursor=geodash_conn.cursor, iso_alpha3=iso_alpha3, level=2)
         # Vam Data
         vam_by_admin1 = get_vam_by_admin1(request, iso_alpha3=iso_alpha3)
         # Population at Risk Data
@@ -239,7 +239,7 @@ def get_geojson_drought(request, iso_alpha3=None):
             feature["properties"]["addinfo"] = []
 
         for month in MONTHS_SHORT3:
-            rows = geosite_conn.exec_query_multiple(
+            rows = geodash_conn.exec_query_multiple(
                 get_template("sparc2/sql/_drought_data_by_admin2_month_asjson.sql").render({
                     'admin2_popatrisk': 'drought.admin2_popatrisk',
                     'iso_alpha3': iso_alpha3,
@@ -266,7 +266,7 @@ def get_summary_drought(table_popatrisk=None, iso_alpha3=None):
     if (not table_popatrisk) or (not iso_alpha3):
         raise Exception("Missing table_popatrisk or iso3 for get_summary_drought.")
 
-    connection = psycopg2.connect(settings.GEOSITE_DB_CONN_STR)
+    connection = psycopg2.connect(settings.GEODASH_DB_CONN_STR)
     cursor = connection.cursor()
 
     values = data_local_country_hazard_all().get(
@@ -350,15 +350,15 @@ def get_summary_drought(table_popatrisk=None, iso_alpha3=None):
 
 def get_geojson_flood(request, iso_alpha3=None):
     collection = None
-    with GeositeDatabaseConnection() as geosite_conn:
+    with GeoDashDatabaseConnection() as geodash_conn:
         # Admin 2 Districts
-        collection = data_local_country_admin().get(cursor=geosite_conn.cursor, iso_alpha3=iso_alpha3, level=2)
+        collection = data_local_country_admin().get(cursor=geodash_conn.cursor, iso_alpha3=iso_alpha3, level=2)
         # Vam Data
         vam_by_admin1 = get_vam_by_admin1(request, iso_alpha3=iso_alpha3)
         # Population at Risk Data
         returnPeriods = [25, 50, 100, 200, 500, 1000]
         for rp in returnPeriods:
-            rows = geosite_conn.exec_query_multiple(
+            rows = geodash_conn.exec_query_multiple(
                 get_template("sparc2/sql/_flood_data_by_admin2_rp_month_asjson.sql").render({
                     'admin2_popatrisk': 'flood.admin2_popatrisk',
                     'iso_alpha3': iso_alpha3,
@@ -369,7 +369,7 @@ def get_geojson_flood(request, iso_alpha3=None):
                 data.pop(u"admin2_code")
                 values_by_admin2[str(admin2_code)] = data
 
-            context_by_admin2 = get_context_by_admin2(geosite_conn=geosite_conn, iso_alpha3=iso_alpha3)
+            context_by_admin2 = get_context_by_admin2(geodash_conn=geodash_conn, iso_alpha3=iso_alpha3)
 
             for feature in collection["features"]:
                 admin1_code = str(feature["properties"]["admin1_code"])
@@ -395,7 +395,7 @@ def get_summary_flood(table_popatrisk=None, iso_alpha3=None):
 
     num_breakpoints = 5
 
-    connection = psycopg2.connect(settings.GEOSITE_DB_CONN_STR)
+    connection = psycopg2.connect(settings.GEODASH_DB_CONN_STR)
     cursor = connection.cursor()
 
     values = data_local_country_hazard_all().get(
@@ -490,14 +490,14 @@ def get_summary_flood(table_popatrisk=None, iso_alpha3=None):
 
 def get_geojson_landslide(request, iso_alpha3=None):
     collection = None
-    with GeositeDatabaseConnection() as geosite_conn:
+    with GeoDashDatabaseConnection() as geodash_conn:
         # Admin 2 Districts
-        collection = data_local_country_admin().get(cursor=geosite_conn.cursor, iso_alpha3=iso_alpha3, level=2)
+        collection = data_local_country_admin().get(cursor=geodash_conn.cursor, iso_alpha3=iso_alpha3, level=2)
         # Vam Data
         vam_by_admin1 = get_vam_by_admin1(request, iso_alpha3=iso_alpha3)
         # Population at Risk Data
 
-        rows = geosite_conn.exec_query_multiple(
+        rows = geodash_conn.exec_query_multiple(
             get_template("sparc2/sql/_landslide_data_by_admin2_month_asjson.sql").render({
                 'admin2_popatrisk': 'landslide.admin2_popatrisk',
                 'iso_alpha3': iso_alpha3}))
@@ -510,7 +510,7 @@ def get_geojson_landslide(request, iso_alpha3=None):
 
         print values_by_admin2
 
-        context_by_admin2 = get_context_by_admin2(geosite_conn=geosite_conn, iso_alpha3=iso_alpha3)
+        context_by_admin2 = get_context_by_admin2(geodash_conn=geodash_conn, iso_alpha3=iso_alpha3)
 
         for feature in collection["features"]:
             admin1_code = str(feature["properties"]["admin1_code"])
@@ -549,7 +549,7 @@ def get_summary_landslide(table_popatrisk=None, iso_alpha3=None):
 
     num_breakpoints = 5
 
-    connection = psycopg2.connect(settings.GEOSITE_DB_CONN_STR)
+    connection = psycopg2.connect(settings.GEODASH_DB_CONN_STR)
     cursor = connection.cursor()
 
     values = data_local_country_hazard_all().get(
@@ -567,8 +567,8 @@ def get_summary_landslide(table_popatrisk=None, iso_alpha3=None):
     summary["all"]["breakpoints"]["natural"] = natural
     summary["all"]["breakpoints"]["natural_adjusted"] =  [0] + natural_adjusted + [max(values_as_integer)]
 
-    with GeositeDatabaseConnection() as geosite_conn:
-        values = geosite_conn.exec_query_single_aslist(
+    with GeoDashDatabaseConnection() as geodash_conn:
+        values = geodash_conn.exec_query_single_aslist(
             get_template("sparc2/sql/_landslide_data_by_month.sql").render({
                 'admin2_popatrisk': 'landslide.admin2_popatrisk',
                 'iso_alpha3': iso_alpha3}))
@@ -577,7 +577,7 @@ def get_summary_landslide(table_popatrisk=None, iso_alpha3=None):
 
         summary["all"]["by_month"] = [int(x) for x in values]
 
-        rows = geosite_conn.exec_query_multiple(
+        rows = geodash_conn.exec_query_multiple(
             get_template("sparc2/sql/_landslide_data_by_admin2_month_asjson.sql").render({
                 'admin2_popatrisk': 'landslide.admin2_popatrisk',
                 'iso_alpha3': iso_alpha3}))
@@ -594,7 +594,7 @@ def get_summary_landslide(table_popatrisk=None, iso_alpha3=None):
 
 
 def get_events_cyclone(iso3=None):
-    connection = psycopg2.connect(settings.GEOSITE_DB_CONN_STR)
+    connection = psycopg2.connect(settings.GEODASH_DB_CONN_STR)
     cursor = connection.cursor()
     q = get_template("sparc2/sql/_cyclone_events.sql").render(context=Context({'iso3': iso3}))
     cursor.execute(q)
@@ -602,7 +602,7 @@ def get_events_cyclone(iso3=None):
     return results
 
 def get_events_flood(iso3=None):
-    connection = psycopg2.connect(settings.GEOSITE_DB_CONN_STR)
+    connection = psycopg2.connect(settings.GEODASH_DB_CONN_STR)
     cursor = connection.cursor()
     q = get_template("sparc2/sql/_flood_events_by_admin2.sql").render(context=Context({'iso3': iso3}))
     cursor.execute(q)
@@ -610,7 +610,7 @@ def get_events_flood(iso3=None):
     return results
 
 def get_events_landslide(iso3=None):
-    connection = psycopg2.connect(settings.GEOSITE_DB_CONN_STR)
+    connection = psycopg2.connect(settings.GEODASH_DB_CONN_STR)
     cursor = connection.cursor()
     q = get_template("sparc2/sql/_landslide_events.sql").render(context=Context({'iso3': iso3}))
     cursor.execute(q)
@@ -620,9 +620,9 @@ def get_events_landslide(iso3=None):
 
 def get_geojson_context(request, iso_alpha3=None):
     collection = None
-    with GeositeDatabaseConnection() as geosite_conn:
-        collection = data_local_country_admin().get(cursor=geosite_conn.cursor, iso_alpha3=iso_alpha3, level=2)
-        rows_context = geosite_conn.exec_query_multiple(
+    with GeoDashDatabaseConnection() as geodash_conn:
+        collection = data_local_country_admin().get(cursor=geodash_conn.cursor, iso_alpha3=iso_alpha3, level=2)
+        rows_context = geodash_conn.exec_query_multiple(
             get_template("sparc2/sql/_context.sql").render({
                 'admin2_context': 'context.admin2_context',
                 'iso_alpha3': iso_alpha3}))
@@ -645,7 +645,7 @@ def get_summary_context(table_context=None, iso_alpha3=None):
 
     num_breakpoints = 7
 
-    connection = psycopg2.connect(settings.GEOSITE_DB_CONN_STR)
+    connection = psycopg2.connect(settings.GEODASH_DB_CONN_STR)
     cursor = connection.cursor()
 
     values_delta_mean = data_local_country_context_all().get(
@@ -772,8 +772,8 @@ def get_summary_context(table_context=None, iso_alpha3=None):
 
 def get_geojson_vam(request, iso_alpha3=None):
     collection = None
-    with GeositeDatabaseConnection() as geosite_conn:
-        collection = data_local_country_admin().get(cursor=geosite_conn.cursor, iso_alpha3=iso_alpha3, level=1)
+    with GeoDashDatabaseConnection() as geodash_conn:
+        collection = data_local_country_admin().get(cursor=geodash_conn.cursor, iso_alpha3=iso_alpha3, level=1)
         for feature in collection["features"]:
             response = requests.get(url=URL_VAM["FCS"].format(
                 admin0=feature["properties"]["admin0_code"],

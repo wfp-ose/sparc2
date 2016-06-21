@@ -1,0 +1,14 @@
+<ul class="nav nav-justified geodash-radio-group">
+  <li
+    ng-repeat="month in months track by $index">
+    <a
+      ng-class="state.month == month.num ? 'btn btn-primary selected geodash-intent geodash-radio geodash-on' : 'btn btn-default geodash-intent geodash-radio'"
+      title="{{ month.long }}"
+      href="/country/{{ state.iso3 }}/hazard/{{ state.hazard }}/month/{{ month.num }}"
+      data-intent-name="stateChanged"
+      data-intent-data="{&quot;month&quot;: {{ month.num }} }"
+      data-intent-ctrl="sparc-map-calendar"
+      data-intent-class-on="btn-primary selected"
+      data-intent-class-off="btn-default" ng-bind-html="month.short3 | title"></a>
+  </li>
+</ul>

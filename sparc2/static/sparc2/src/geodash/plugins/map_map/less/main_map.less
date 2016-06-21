@@ -1,0 +1,23 @@
+@import "variables.less";
+
+.geodash-popup-plain {
+  word-wrap: break-word;
+  text-align:center;
+  font-family: Verdana;
+  font-size: 14px;
+
+  .geodash-popup-plain-value {
+    font-size: 18px;
+    text-decoration: underline;
+  }
+}
+
+.geodash-popup-chart {
+  width: @geodash-map-popup-chart-width;
+  height: @geodash-map-popup-chart-height;
+  margin: 0 auto;
+
+  .c3-tooltip-container {
+    z-index: @geodash-map-popup-z-index;
+  }
+}

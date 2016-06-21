@@ -3,7 +3,7 @@ from django.contrib.sites.models import Site
 
 from wfppresencedjango.models import WFPRegionalBureau
 
-from geosite.enumerations import MONTHS_NUM, MONTHS_LONG, MONTHS_SHORT3, MONTHS_ALL, DAYSOFTHEWEEK
+from geodash.enumerations import MONTHS_NUM, MONTHS_LONG, MONTHS_SHORT3, MONTHS_ALL, DAYSOFTHEWEEK
 
 from sparc2.enumerations import SPARC_HAZARDS_CONFIG, SPARC_BREADCRUMBS
 from sparc2.models import SPARCCountry

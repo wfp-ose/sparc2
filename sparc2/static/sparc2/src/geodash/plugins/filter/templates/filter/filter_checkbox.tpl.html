@@ -1,0 +1,29 @@
+<div class="geodash-filter geodash-filter-checkbox" style="height: {{ filter.height }};">
+  <div class="geodash-filter-label">
+    <a
+      class="geodash-intent"
+      data-intent-name="toggleModal"
+      data-intent-data="{&quot;id&quot;:&quot;geodash-modal-filter-more&quot;,&quot;static&quot;:{&quot;tab&quot;:&quot;modal-filter-more-general&quot;},&quot;dynamic&quot;:{&quot;value&quot;:[&quot;state&quot;,&quot;filters&quot;,&quot;popatrisk&quot;,&quot;{{ filter.checkbox.output }}&quot;],&quot;filter&quot;:[&quot;map_config&quot;,&quot;featurelayers&quot;,&quot;popatrisk&quot;,&quot;filters&quot;,&quot;{{ $index }}&quot;]}}"
+      data-intent-ctrl="geodash-map-filter">
+      <i class="fa fa-info-circle"></i>
+    </a>
+    <span ng-bind-html="filter.label | md2html"></span> :
+  </div>
+  <div
+    class="btn-group"
+    style="float:left;"
+    data-toggle="buttons"
+    data-output="{{ filter.checkbox.output }}">
+    <label
+      ng-repeat="opt in filter.checkbox.options track by $index"
+      ng-class="opt.checked ? 'btn btn-sm btn-warning active' : 'btn btn-sm btn-default'">
+      <input
+        type="checkbox"
+        id="{{ opt.id }}"
+        data-value="{{ opt.value }}"
+        autocomplete="off"
+        ng-checked="opt.checked || opt.selected"/>
+      {{ opt.label }}
+    </label>
+  </div>
+</div>

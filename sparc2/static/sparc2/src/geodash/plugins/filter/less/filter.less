@@ -1,0 +1,72 @@
+@import "variables.less";
+
+.geodash-map-filter {
+  /* Layout */
+  position: absolute;
+  background: @geodash-map-filter-background;
+  top: 4px;
+  right: 4px;
+  width: @geodash-map-filter-width;
+  z-index: @geodash-map-legend-z-index;
+
+  /* Colors & Background */
+  color: #fff;
+  background-color: #337ab7;
+  /*opacity: 0.8;*/
+  /*filter: alpha(opacity=80);*/ /* For IE8 and earlier */
+
+  /* Border */
+  border-radius: 3px;
+  border: 1;
+  border-color: #2e6da4;
+
+  .geodash-map-filter-label {
+    width: 100%;
+
+    a {
+      width: 100%;
+    }
+  }
+
+  .geodash-filter {
+    position: relative;
+    width: 100%;
+
+    .geodash-filter-label {
+      float:left;
+      padding: 6px 12px;
+      /*display: inline-block;*/
+      /*line_height:34px;*/
+
+      a {
+        color:white;
+        cursor: pointer;
+      }
+
+      a:hover {
+        color: black;
+      }
+    }
+
+    .btn {
+      color: #aaa;
+    }
+    .btn.active {
+      color: black;
+    }
+
+    .geodash-filter-slider-label {
+      text-align:center;
+      margin-bottom:4px;
+      font-size: 12px;
+      font-family: 'Open Sans', sans-serif;
+      letter-spacing: 0.4;
+    }
+
+  }
+}
+
+.geodash-map-filter:hover {
+  /*opacity: 1.0;*/
+  /*filter: alpha(opacity=100);*/ /* For IE8 and earlier */
+}

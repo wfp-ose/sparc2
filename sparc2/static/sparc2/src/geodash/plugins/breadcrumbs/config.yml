@@ -1,0 +1,11 @@
+---
+controllers:
+  - controller_breadcrumb.js
+directives:
+  - geodashBreadcrumbs.js
+enumerations:
+  - breadcrumbs.js
+templates:
+  - breadcrumbs.tpl.html
+less:
+  - breadcrumbs.less

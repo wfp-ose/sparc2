@@ -15,10 +15,10 @@ except ImportError:
 
 from wfppresencedjango.models import WFPCountry
 
-from geosite.enumerations import MONTHS_SHORT3
-from geosite.views import geosite_data_view
+from geodash.enumerations import MONTHS_SHORT3
+from geodash.views import geodash_data_view
 
-from geosite.cache import provision_memcached_client
+from geodash.cache import provision_memcached_client
 from sparc2.enumerations import URL_EMDAT_BY_HAZARD, SPARC_HAZARDS_CONFIG
 from sparc2.models import SPARCCountry
 from sparc2.utils import get_month_number, get_json_admin0, get_geojson_cyclone, get_geojson_drought, get_geojson_flood, get_geojson_landslide, get_geojson_context, get_summary_cyclone, get_summary_drought, get_summary_flood, get_summary_landslide, get_summary_context, get_events_cyclone, get_events_flood, get_events_landslide, get_geojson_vam
@@ -259,7 +259,7 @@ def countryhazardmonth_detail(request, iso3=None, hazard=None, month=None):
         "maxValue": maxValue,
     })
 
-    print "filters: ", map_config["featurelayers"]["popatrisk"]["filters"]
+    #print "filters: ", map_config["featurelayers"]["popatrisk"]["filters"]
 
     #if hazard:
     #     ctx["data_filters"] = [h for h in SPARC_HAZARDS_CONFIG if h["id"]==hazard][0]["filters"]
@@ -267,7 +267,7 @@ def countryhazardmonth_detail(request, iso3=None, hazard=None, month=None):
     return render_to_response(t, RequestContext(request, ctx))
 
 
-class admin0_data(geosite_data_view):
+class admin0_data(geodash_data_view):
 
     key = "data/local/admin0/json"
 
@@ -275,7 +275,7 @@ class admin0_data(geosite_data_view):
         return get_json_admin0(request)
 
 
-class data_local_country_admin(geosite_data_view):
+class data_local_country_admin(geodash_data_view):
 
     def _build_key(self, request, *args, **kwargs):
         return "data/local/country/{iso_alpha3}/admin/{level}/json".format(**kwargs)
@@ -289,7 +289,7 @@ class data_local_country_admin(geosite_data_view):
             data = get_geojson_admin2(request, iso_alpha3=iso_alpha3, level=level)
         return data
 
-class countryhazard_data_local_events(geosite_data_view):
+class countryhazard_data_local_events(geodash_data_view):
 
     def _build_key(self, request, *args, **kwargs):
         return "data/local/{iso3}/{hazard}/events/json".format(**kwargs)
@@ -308,7 +308,7 @@ class countryhazard_data_local_events(geosite_data_view):
         return data
 
 
-class countryhazard_data_local_popatrisk(geosite_data_view):
+class countryhazard_data_local_popatrisk(geodash_data_view):
 
     def _build_key(self, request, *args, **kwargs):
         return "data/local/{iso3}/{hazard}/popatrisk/json".format(**kwargs)
@@ -329,7 +329,7 @@ class countryhazard_data_local_popatrisk(geosite_data_view):
             data = get_geojson_landslide(request, iso_alpha3=iso3)
         return data
 
-class countryhazard_data_local_summary(geosite_data_view):
+class countryhazard_data_local_summary(geodash_data_view):
 
     def _build_key(self, request, *args, **kwargs):
         return "data/local/country/{iso3}/hazard/{hazard}/summary/json".format(**kwargs)
@@ -350,7 +350,7 @@ class countryhazard_data_local_summary(geosite_data_view):
             data = get_summary_landslide(table_popatrisk="landslide.admin2_popatrisk", iso_alpha3=iso3)
         return data
 
-class countrycontext_data_local(geosite_data_view):
+class countrycontext_data_local(geodash_data_view):
 
     def _build_key(self, request, *args, **kwargs):
         return "data/local/country/{iso3}/context/json".format(**kwargs)
@@ -362,7 +362,7 @@ class countrycontext_data_local(geosite_data_view):
         data = get_geojson_context(request, iso_alpha3=iso3)
         return data
 
-class countrycontext_data_local_summary(geosite_data_view):
+class countrycontext_data_local_summary(geodash_data_view):
 
     def _build_key(self, request, *args, **kwargs):
         return "data/local/country/{iso3}/context/summary/json".format(**kwargs)
@@ -374,7 +374,7 @@ class countrycontext_data_local_summary(geosite_data_view):
         data = get_summary_context(table_context='context.admin2_context', iso_alpha3=iso3)
         return data
 
-class countryhazard_data_emdat(geosite_data_view):
+class countryhazard_data_emdat(geodash_data_view):
 
     def _build_key(self, request, *args, **kwargs):
         return "data/emdat/{iso3}/{hazard}/json".format(**kwargs)
@@ -388,7 +388,7 @@ class countryhazard_data_emdat(geosite_data_view):
         response = requests.get(url=url.format(iso3=iso3))
         return response.json()
 
-class country_data_vam(geosite_data_view):
+class country_data_vam(geodash_data_view):
 
     def _build_key(self, request, *args, **kwargs):
         return "data/vam/{iso3}/json".format(**kwargs)

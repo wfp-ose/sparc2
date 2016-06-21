@@ -4,13 +4,18 @@
 title: SPARC - {{ country_title }} - {{ hazard_title }}
 {% endblock %}
 
+{% block legend %}
+legend:
+  title: "Legend - Click to Open"
+{% endblock %}
+
 {% block view %}{{ block.super }}{% endblock %}
 
 {% block baselayers %}{{ block.super }}{% endblock %}
 
 {% block featurelayers %}{% verbatim %}
 featurelayers:
-  popatrisk:
+  - id: popatrisk
     type: geojson
     title: "Population at Risk"
     description: "Population at Risk"
@@ -18,8 +23,9 @@ featurelayers:
     source:
       name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
       attribution: "WFP/OSEP/AEW&GIS"
-    urls:
-      geojson: "/data/local/country/{iso3}/hazard/{hazard}/popatrisk.json"
+    geojson:
+      url: "/data/local/country/{iso3}/hazard/{hazard}/popatrisk.json"
+    sparc:
       summary: "/data/local/country/{iso3}/hazard/{hazard}/summary.json"
     routes:
       geojson: "/data/local/country/:iso3/hazard/:hazard/popatrisk*.json"
@@ -941,7 +947,7 @@ featurelayers:
           step: 1
           output: erosion_propensity_range
   {% endverbatim %}{% endif %}{% verbatim %}
-  vam:
+  - id: vam
     type: geojson
     title: "VAM"
     description: "VAM"
@@ -949,10 +955,11 @@ featurelayers:
     source:
       name: "WFP/VAM"
       attribution: "WFP/VAM"
-    urls:
-      geojson: "/data/vam/country/{iso3}.json"
+    geojson:
+      url: "/data/vam/country/{iso3}.json"
+    sparc:
       summary: "/data/vam/country/{iso3}/summary.json"
-  context:
+  - id: context
     type: geojson
     title: "Aggravating Factors"
     description: "Aggravating Factors"
@@ -960,8 +967,9 @@ featurelayers:
     source:
       name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
       attribution: "WFP/OSEP/AEW&GIS"
-    urls:
-      geojson: "/data/local/country/{iso3}/context.json"
+    geojson:
+      url: "/data/local/country/{iso3}/context.json"
+    sparc:
       summary: "/data/local/country/{iso3}/context/summary.json"
     routes:
       geojson: "/data/local/country/:iso3/context*.json"
@@ -1255,7 +1263,7 @@ featurelayers:
           tab:
             label: "Links"
           fields: []
-  landscan:
+  - id: landscan
     type: WMS
     title: "Landscan (2013)"
     description: "Landscan (2013)"
@@ -1280,7 +1288,7 @@ featurelayers:
             preview: false
     legend:
       label: "Landscan"
-  imerg_1day:
+  - id: imerg_1day
     type: WMS
     title: "Rainfall Total: 1 day"
     description: "IMERG 1-Day"
@@ -1305,7 +1313,7 @@ featurelayers:
             preview: false
     legend:
       label: "Rainfall Total: 1 day"
-  imerg_3day:
+  - id: imerg_3day
     type: WMS
     title: "Rainfall Total: 3 days"
     description: "IMERG 3-Day"
@@ -1330,7 +1338,7 @@ featurelayers:
             preview: false
     legend:
       label: "Rainfall Total: 3 days"
-  imerg_7day:
+  - id: imerg_7day
     type: WMS
     title: "Rainfall Total: 7 days"
     description: "IMERG 7-Day"
@@ -1355,7 +1363,7 @@ featurelayers:
             preview: false
     legend:
       label: "Rainfall Total: 7 days"
-  wld_poi_facilities_wfp:
+  - id: wld_poi_facilities_wfp
     type: WMS
     title: "Global WFP Facilities"
     description: "WFP Facilities worldwide, Country Office, Sub-Office, Field Office, Area Office, Humanitarian Response Depot."
@@ -1457,7 +1465,7 @@ featurelayers:
               type: link
               label: "OpenStreetMap"
               url: "https://www.openstreetmap.org/#map=15/{{ feature.geometry.lat }}/{{ feature.geometry.lng }}"
-  wld_trs_supplyroutes_wfp:
+  - id: wld_trs_supplyroutes_wfp
     type: WMS
     title: "Global Supply Routes"
     description: "Global supply routes for Transportation of Food and Non Food Items - Roads, Railways, Waterway, Airways.\n\nThis layer is built by linking origin/destination locations using the most direct route on main roads. In reality, the supply routes can divert from the ones displayed here depending on many local factors. The routes shown in this dataset are only indicative and have to be used as such."
@@ -1551,7 +1559,7 @@ featurelayers:
               label: "Source"
               url: "http://geonode.wfp.org/layers/{{ layer.wms.layers | first }}"
   {% endverbatim %}{% if hazard == "cyclone" %}{% verbatim %}
-  cyclone_probability:
+  - id: cyclone_probability
     type: WMS
     title: "Cyclone Probability"
     description: "Cyclone Probability"
@@ -1578,7 +1586,7 @@ featurelayers:
             preview: false
     legend:
       label: "Cyclone Probability"
-  cyclone_events:
+  - id: cyclone_events
     enabled: true
     type: geojson
     title: "Cyclone Events (Heatmap)"
@@ -1626,7 +1634,7 @@ featurelayers:
     legend:
       label: "Cyclone Events"
   {% endverbatim %}{% elif hazard == "drought" %}{% verbatim %}
-  wlddsi_fot01d3:
+  - id: wlddsi_fot01d3
     type: WMS
     title: "Drought Frequency (January)"
     description: "Drought Frequency (January)"
@@ -1653,7 +1661,7 @@ featurelayers:
             preview: false
     legend:
       label: "Drought Frequency (January)"
-  wlddsi_fot02d3:
+  - id: wlddsi_fot02d3
     type: WMS
     title: "Drought Frequency (February)"
     description: "Drought Frequency (February)"
@@ -1680,7 +1688,7 @@ featurelayers:
             preview: false
     legend:
       label: "Drought Frequency (February)"
-  wlddsi_fot03d3:
+  - id: wlddsi_fot03d3
     type: WMS
     title: "Drought Frequency (March)"
     description: "Drought Frequency (March)"
@@ -1707,7 +1715,7 @@ featurelayers:
             preview: false
     legend:
       label: "Drought Frequency (March)"
-  wlddsi_fot04d3:
+  - id: wlddsi_fot04d3
     type: WMS
     title: "Drought Frequency (April)"
     description: "Drought Frequency (April)"
@@ -1734,7 +1742,7 @@ featurelayers:
             preview: false
     legend:
       label: "Drought Frequency (April)"
-  wlddsi_fot05d3:
+  - id: wlddsi_fot05d3
     type: WMS
     title: "Drought Frequency (May)"
     description: "Drought Frequency (May)"
@@ -1762,7 +1770,7 @@ featurelayers:
     legend:
       label: "Drought Frequency (May)"
   {% endverbatim %}{% elif hazard == "flood" %}{% verbatim %}
-  flood_probability:
+  - id: flood_probability
     type: WMS
     title: "Flood Probability"
     description: "Flood Probability"
@@ -1789,7 +1797,7 @@ featurelayers:
             preview: false
     legend:
       label: "Flood Probability"
-  flood_events:
+  - id: flood_events
     enabled: true
     type: geojson
     title: "Flood Events (Heatmap)"
@@ -1798,6 +1806,7 @@ featurelayers:
     source:
       name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
       attribution: "WFP/OSEP/AEW&GIS"
+    geojson:
       url: "/data/local/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/flood/events.json"
     transform: heatmap
     heatmap:
@@ -1836,7 +1845,7 @@ featurelayers:
             height: 12
     legend:
       label: "Flood Events"
-  landslide_events:
+  - id: landslide_events
     enabled: true
     type: geojson
     title: "Landslide Events (Heatmap)"
@@ -1845,6 +1854,7 @@ featurelayers:
     source:
       name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
       attribution: "WFP/OSEP/AEW&GIS"
+    geojson:
       url: "/data/local/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/landslide/events.json"
     transform: heatmap
     heatmap:
@@ -2022,6 +2032,7 @@ charts:
 
 {% block controls %}
 controls:
+  attribution: true
   breadcrumbs: true
   calendar: true
   filters: true

@@ -1,0 +1,17 @@
+---
+controllers:
+  - controller_filter.js
+directives:
+  - geodashModalFilterMore.js
+  - geodashFilterCheckbox.js
+  - geodashFilterRadio.js
+  - geodashFilterSlider.js
+  - geodashFilterContainer.js
+templates:
+  - modal/modal_filter_more.tpl.html
+  - filter/filter_checkbox.tpl.html
+  - filter/filter_radio.tpl.html
+  - filter/filter_slider.tpl.html
+  - filter_container.tpl.html
+less:
+  - filter.less

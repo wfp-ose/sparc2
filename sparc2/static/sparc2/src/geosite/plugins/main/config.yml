@@ -1,7 +1,0 @@
----
-controllers:
-  - controller_main.js
-directives: []
-templates: []
-api:
-  - showlayers.js

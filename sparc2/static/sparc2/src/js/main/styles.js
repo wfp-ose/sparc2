@@ -1,5 +1,6 @@
-geosite.style_cyclone = function(f, state, map_config, options)
+geodash.style_cyclone = function(f, state, map_config, options)
 {
+  var fl = geodash.api.getFeatureLayer("popatrisk");
   var style = {};
   var filters = state["filters"]["popatrisk"];
   var popatrisk_range = filters["popatrisk_range"];
@@ -12,7 +13,7 @@ geosite.style_cyclone = function(f, state, map_config, options)
 
   var value = sparc.calculate_population_at_risk(
     'cyclone',
-    geosite.api.normalize_feature(f),
+    geodash.api.normalize_feature(f),
     state,
     options.filters);
 
@@ -23,8 +24,8 @@ geosite.style_cyclone = function(f, state, map_config, options)
     (landcover_delta_negative == undefined || (landcover_delta_negative >= landcover_delta_negative_range[0] && landcover_delta_negative <= landcover_delta_negative_range[1]))
   )
   {
-    var colors = map_config["featurelayers"]["popatrisk"]["cartography"][0]["colors"]["ramp"];
-    var breakpoints = geosite.breakpoints[options["breakpoints"]];
+    var colors = fl["cartography"][0]["colors"]["ramp"];
+    var breakpoints = geodash.breakpoints[options["breakpoints"]];
     var color = undefined;
     for(var i = 0; i < breakpoints.length -1; i++)
     {
@@ -47,8 +48,9 @@ geosite.style_cyclone = function(f, state, map_config, options)
   return style;
 };
 
-geosite.style_drought = function(f, state, map_config, options)
+geodash.style_drought = function(f, state, map_config, options)
 {
+  var fl = geodash.api.getFeatureLayer("popatrisk");
   var style = {};
   var filters = state["filters"]["popatrisk"];
   var popatrisk_range = filters["popatrisk_range"];
@@ -61,7 +63,7 @@ geosite.style_drought = function(f, state, map_config, options)
 
   var value = sparc.calculate_population_at_risk(
     'drought',
-    geosite.api.normalize_feature(f),
+    geodash.api.normalize_feature(f),
     state,
     options.filters);
 
@@ -72,8 +74,8 @@ geosite.style_drought = function(f, state, map_config, options)
     (landcover_delta_negative == undefined || (landcover_delta_negative >= landcover_delta_negative_range[0] && landcover_delta_negative <= landcover_delta_negative_range[1]))
   )
   {
-    var colors = map_config["featurelayers"]["popatrisk"]["cartography"][0]["colors"]["ramp"];
-    var breakpoints = geosite.breakpoints[options["breakpoints"]];
+    var colors = fl["cartography"][0]["colors"]["ramp"];
+    var breakpoints = geodash.breakpoints[options["breakpoints"]];
     var color = undefined;
     for(var i = 0; i < breakpoints.length -1; i++)
     {
@@ -95,8 +97,9 @@ geosite.style_drought = function(f, state, map_config, options)
   }
   return style;
 };
-geosite.style_flood = function(f, state, map_config, options)
+geodash.style_flood = function(f, state, map_config, options)
 {
+  var fl = geodash.api.getFeatureLayer("popatrisk");
   var style = {};
   var filters = state["filters"]["popatrisk"];
   var popatrisk_range = filters["popatrisk_range"];
@@ -109,7 +112,7 @@ geosite.style_flood = function(f, state, map_config, options)
 
   var value = sparc.calculate_population_at_risk(
     'flood',
-    geosite.api.normalize_feature(f),
+    geodash.api.normalize_feature(f),
     state,
     options.filters);
 
@@ -120,8 +123,8 @@ geosite.style_flood = function(f, state, map_config, options)
     (landcover_delta_negative == undefined || (landcover_delta_negative >= landcover_delta_negative_range[0] && landcover_delta_negative <= landcover_delta_negative_range[1]))
   )
   {
-      var colors = map_config["featurelayers"]["popatrisk"]["cartography"][0]["colors"]["ramp"];
-      var breakpoints = geosite.breakpoints[options["breakpoints"]];
+      var colors = fl["cartography"][0]["colors"]["ramp"];
+      var breakpoints = geodash.breakpoints[options["breakpoints"]];
       var color = undefined;
       for(var i = 0; i < breakpoints.length -1; i++)
       {
@@ -143,8 +146,9 @@ geosite.style_flood = function(f, state, map_config, options)
   }
   return style;
 };
-geosite.style_landslide = function(f, state, map_config, options)
+geodash.style_landslide = function(f, state, map_config, options)
 {
+  var fl = geodash.api.getFeatureLayer("popatrisk");
   var style = {};
   var filters = state["filters"]["popatrisk"];
   var popatrisk_range = filters["popatrisk_range"];
@@ -157,7 +161,7 @@ geosite.style_landslide = function(f, state, map_config, options)
 
   var value = sparc.calculate_population_at_risk(
     'landslide',
-    geosite.api.normalize_feature(f),
+    geodash.api.normalize_feature(f),
     state,
     options.filters);
 
@@ -168,8 +172,8 @@ geosite.style_landslide = function(f, state, map_config, options)
     (landcover_delta_negative == undefined || (landcover_delta_negative >= landcover_delta_negative_range[0] && landcover_delta_negative <= landcover_delta_negative_range[1]))
   )
   {
-      var colors = map_config["featurelayers"]["popatrisk"]["cartography"][0]["colors"]["ramp"];
-      var breakpoints = geosite.breakpoints[options["breakpoints"]];
+      var colors = fl["cartography"][0]["colors"]["ramp"];
+      var breakpoints = geodash.breakpoints[options["breakpoints"]];
       var color = undefined;
       for(var i = 0; i < breakpoints.length -1; i++)
       {
@@ -191,11 +195,10 @@ geosite.style_landslide = function(f, state, map_config, options)
   }
   return style;
 };
-geosite.style_context = function(f, state, map_config, options)
+geodash.style_context = function(f, state, map_config, options)
 {
+  var fl = geodash.api.getFeatureLayer("context");
   var style = {};
-
-  var fl = map_config["featurelayers"]["context"];
   var filters = state["filters"]["context"];
   var currentStyleID = state["styles"]["context"];
   var currentStyleList = $.grep(fl["cartography"], function(style, i){return style.id == currentStyleID;});
@@ -220,7 +223,7 @@ geosite.style_context = function(f, state, map_config, options)
     var value = f.properties[currentStyle["attribute"]];
     var colors = currentStyle["colors"]["ramp"];
     var breakPointsName = currentStyle["breakpoints"] || "natural_adjusted";
-    var breakpoints = geosite.initial_data.layers.context["data"]["summary"]["all"]["breakpoints"][breakPointsName];
+    var breakpoints = geodash.initial_data.layers.context["data"]["summary"]["all"]["breakpoints"][breakPointsName];
     var color = undefined;
     for(var i = 0; i < breakpoints.length -1; i++)
     {

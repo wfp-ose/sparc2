@@ -13,10 +13,21 @@ var yaml = require("yamljs");
 var del = require('del');
 var path = require('path');
 var argv = require('yargs').argv;
+var expandHomeDir = require('expand-home-dir');
 var spawn = require('child_process').spawn;
 
 require.extensions['.yml'] = function (module, filename) {
+  try {
     module.exports = yaml.parse(fs.readFileSync(filename, 'utf8'));
+  }
+  catch(err)
+  {
+    if(argv.debug)
+    {
+      gutil.log(gutil.colors.magenta('Could not open yaml file '+filename));
+    }
+    module.exports = null;
+  }
 };
 
 if(argv.debug)
@@ -52,7 +63,7 @@ var load_config = function(configPath)
 {
   var children = [];
 
-  var configObject = require(configPath);
+  var configObject = require(expandHomeDir(configPath));
   if("project" in configObject["dependencies"]["production"])
   {
     var projects = configObject["dependencies"]["production"]["project"];
@@ -71,7 +82,7 @@ var load_config = function(configPath)
 var flatten_configs = function(n)
 {
   var configs = [];
-  var config = require(n.path);
+  var config = require(expandHomeDir(n.path));
   config["path"]["base"] = path.dirname(n.path);
   configs.push(config);
 
@@ -90,8 +101,8 @@ if(argv.debug)
 var rootConfig = require("./config.yml");
 var configs = flatten_configs(load_config("./config.yml"));
 
-var geosite_projects = [];
-var geosite_plugins = [];
+var geodash_meta_projects = [];
+var geodash_meta_plugins = [];
 
 var compile_templates = [];
 var compile_enumerations = [];
@@ -111,13 +122,17 @@ if(argv.debug)
 for(var i = 0; i < configs.length; i++)
 {
   var config = configs[i];
+  geodash_meta_projects.push({
+    'name':config.name,
+    'version': config.version,
+    'description': config.description});
   if(argv.debug)
   {
     gutil.log(gutil.colors.magenta('########'));
     gutil.log(gutil.colors.magenta('Project '+i+': '+config.name));
   }
 
-  var path_plugins = path.join(config.path.base, config.path.geosite, "plugins")
+  var path_plugins = path.join(config.path.base, config.path.geodash, "plugins")
 
   var project_templates = [];  // Exported to the compile process
   var project_enumerations = []; // Exported to the compile process
@@ -133,12 +148,26 @@ for(var i = 0; i < configs.length; i++)
       gutil.log(gutil.colors.magenta('Plugin '+i+'.'+j+': '+config["plugins"][j]));
     }
 
-    var pluginPath = path.join(path_plugins, config["plugins"][j], "config.yml");
+    var pluginPath = expandHomeDir(path.join(path_plugins, config["plugins"][j], "config.yml"));
+    if(argv.debug)
+    {
+      gutil.log(gutil.colors.magenta('Loding plugin from '+pluginPath));
+    }
+    var geodash_plugin = require(expandHomeDir(pluginPath[0] == "/" ? pluginPath : ("./"+ pluginPath)));
+    if(geodash_plugin == null || geodash_plugin == undefined)
+    {
+      var errorMessage = 'Could not load plugin '+i+'.'+j+' '+ config["plugins"][j];
+      if(argv.debug)
+      {
+        gutil.log(gutil.colors.magenta(errorMessage));
+      }
+      throw errorMessage;
+    }
+    geodash_plugin["project"] = config.name;
+    geodash_plugin["id"] = config["plugins"][j];
+    geodash_meta_plugins.push(geodash_plugin);
 
-    var geosite_plugin = require(pluginPath[0] == "/" ? pluginPath : ("./"+ pluginPath));
-    geosite_plugin["id"] = config["plugins"][j];
-
-    var files = collect_files_all(path_plugins, geosite_plugin,
+    var files = collect_files_all(path_plugins, geodash_plugin,
       ["enumerations", "filters", "controllers", "directives", "templates", "less"]);
 
     project_templates = project_templates.concat(files["templates"]);
@@ -171,6 +200,8 @@ for(var i = 0; i < configs.length; i++)
     config["dependencies"]["test"]["javascript"].map(function(x){return path.join(config.path.base, x);})
   );
 }
+
+compile_templates = compile_templates.map(expandHomeDir);
 
 compile_js = compile_js.concat(
     compile_enumerations,
@@ -208,18 +239,37 @@ compilelist = compilelist.concat([
 ]);
 compilelist = compilelist.concat(rootConfig["compiler"]["list"]);
 
+compilelist = compilelist.map(function(obj){
+  if(Array.isArray(obj['src']))
+  {
+    obj['src'] = obj['src'].map(expandHomeDir);
+  }
+  else
+  {
+    obj['src'] = expandHomeDir(obj['src']);
+  }
+  obj['dest'] = expandHomeDir(obj['dest']);
+  return obj;
+});
+
 var copylist =
 [
 ];
 
-gutil.log(gutil.colors.magenta('Compilelist built.'));
+if(argv.debug)
+{
+  gutil.log(gutil.colors.magenta('Compilelist built.'));
+  gutil.log(gutil.colors.magenta(yaml.stringify(compilelist, 5)));
+}
 
-gulp.task('compile', ['geosite:templates'], function(){
+gulp.task('compile', ['clean', 'geodash:templates'], function(){
     for(var i = 0; i < compilelist.length; i++)
     {
         var t = compilelist[i];
-        process.stdout.write(t.name);
-        process.stdout.write("\n");
+        if(argv.debug)
+        {
+          gutil.log(gutil.colors.magenta(t.name));
+        }
         if(t.type=="js")
         {
             gulp.src(t.src, {base: './'})
@@ -246,8 +296,8 @@ gulp.task('compile', ['geosite:templates'], function(){
         {
             gulp.src(t.src)
                 .pipe(templateCache('templates.js', {
-                  templateHeader: 'geosite.templates = {};\n',
-                  templateBody: 'geosite.templates["<%= url %>"] = "<%= contents %>";',
+                  templateHeader: 'geodash.templates = {};\n',
+                  templateBody: 'geodash.templates["<%= url %>"] = "<%= contents %>";',
                   templateFooter: '\n'
                 }))
                 .pipe(gulp.dest(t.dest));
@@ -255,18 +305,35 @@ gulp.task('compile', ['geosite:templates'], function(){
     }
 });
 
-gulp.task('geosite:templates', function(){
+gulp.task('geodash:meta', ['clean'], function(cb){
+
+  var lines = [];
+  lines.push("geodash.meta = {};");
+  lines.push("geodash.meta.projects = "+JSON.stringify(geodash_meta_projects)+";");
+  lines.push("geodash.meta.plugins = "+JSON.stringify(geodash_meta_plugins)+";");
+  var contents = lines.join("\n");
+  if(argv.debug)
+  {
+    gutil.log(gutil.colors.magenta('Contents of GeoDash meta.js'));
+    gutil.log(gutil.colors.magenta(contents));
+  }
+  if (!fs.existsSync('./build')){ fs.mkdirSync('./build'); }
+  if (!fs.existsSync('./build/meta')){ fs.mkdirSync('./build/meta'); }
+  fs.writeFile('./build/meta/meta.js',contents, cb);
+});
+
+gulp.task('geodash:templates', ['clean'], function(){
 
   return gulp.src(compile_templates)
       .pipe(templateCache('templates.js', {
-        templateHeader: 'geosite.templates = {};\n',
-        templateBody: 'geosite.templates["<%= url %>"] = "<%= contents %>";',
+        templateHeader: 'geodash.templates = {};\n',
+        templateBody: 'geodash.templates["<%= url %>"] = "<%= contents %>";',
         templateFooter: '\n'
       }))
       .pipe(gulp.dest("./build/templates/"));
 });
 
-gulp.task('copy', function(){
+gulp.task('copy', ['clean'], function(){
     for(var i = 0; i < copylist.length; i++)
     {
         var t = copylist[i];
@@ -285,32 +352,37 @@ gulp.task('clean', function () {
 gulp.task('test', function(){
     for(var i = 0; i < test_js.length; i++)
     {
-        gulp.src(test_js[i])
-            .pipe(jshint()).
-            pipe(jshint.reporter('default'));
+      gulp.src(test_js[i])
+          .pipe(jshint()).
+          pipe(jshint.reporter('default'));
     }
 });
 
-gulp.task('default', ['clean', 'copy', 'geosite:templates', 'compile']);
+gulp.task('default', [
+  'clean',
+  'copy',
+  'geodash:meta',
+  'geodash:templates',
+  'compile']);
 
 
 gulp.task('bootstrap:clean', function() {
     return del([
         './temp/**/*',
-        './build/bootstrap/**/*'
+        (rootConfig.bootstrap.dest+'/**/*')
     ]);
 });
 gulp.task('bootstrap:prepareLess', ['bootstrap:clean'], function() {
-    var base = "./lib/bootstrap/3.3.5/less/";
+    var base = rootConfig.bootstrap.src;
     return gulp.src([base+'/**', '!'+base+'/{variables.less}'])
         .pipe(gulp.dest('./temp'));
 });
 gulp.task('bootstrap:prepareVariables', ['bootstrap:prepareLess'], function() {
-    return gulp.src('./src/less/bootstrap/variables.less')
+    return gulp.src(rootConfig.bootstrap.variables)
         .pipe(gulp.dest('./temp'));
 });
 gulp.task('bootstrap:compile', ['bootstrap:prepareVariables'], function() {
     return gulp.src('./temp/bootstrap.less')
         .pipe(less())
-        .pipe(gulp.dest('./build/bootstrap'));
+        .pipe(gulp.dest(rootConfig.bootstrap.dest));
 });

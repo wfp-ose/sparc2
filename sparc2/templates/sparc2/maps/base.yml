@@ -1,4 +1,4 @@
-{% extends "geosite/maps/base.yml" %}
+{% extends "geodash/maps/base.yml" %}
 
 {% block title %}
 title: SPARC
@@ -60,6 +60,7 @@ pages:
 {% endverbatim %}{% endblock %}
 
 {% block baselayers %}
+baselayer: osm
 baselayers:
   - id: "osm_humanitarian"
     title: OpenStreetMap / Humanitarian
