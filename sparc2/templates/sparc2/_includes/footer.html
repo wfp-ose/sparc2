@@ -5,17 +5,17 @@
               <a href="{% url "home" %}/">Home</a> |
 	            <a href="{% url "explore" %}">Explore</a> |
               <a
-                class="geosite-intent"
+                class="geodash-intent"
                 href="#"
                 data-intent-name="toggleModal"
-                data-intent-data="{&quot;id&quot;:&quot;geosite-modal-download&quot;,&quot;dynamic&quot;:{&quot;download&quot;:[&quot;map_config&quot;,&quot;download&quot;]}}"
-                data-intent-ctrl="geosite-main">Download</a> |
+                data-intent-data="{&quot;id&quot;:&quot;geodash-modal-download&quot;,&quot;dynamic&quot;:{&quot;download&quot;:[&quot;map_config&quot;,&quot;download&quot;]}}"
+                data-intent-ctrl="geodash-main">Download</a> |
               <a
-                class="geosite-intent"
+                class="geodash-intent"
                 href="#"
                 data-intent-name="toggleModal"
-                data-intent-data="{&quot;id&quot;:&quot;geosite-modal-about&quot;,&quot;dynamic&quot;:{&quot;about&quot;:[&quot;map_config&quot;,&quot;about&quot;]}}"
-                data-intent-ctrl="geosite-main">About</a>
+                data-intent-data="{&quot;id&quot;:&quot;geodash-modal-about&quot;,&quot;dynamic&quot;:{&quot;about&quot;:[&quot;map_config&quot;,&quot;about&quot;]}}"
+                data-intent-ctrl="geodash-main">About</a>
               {% if user.is_authenticated %} | <a href="{% url "admin:index" %}" style="text-decoration: underline;">Admin</a>{% endif %}
           </div>
           <div class="col-md-4" id="right-footer-menu">

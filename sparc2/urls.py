@@ -21,7 +21,7 @@ urlpatterns = [
     # Web Pages
     url(
         r'^$',
-        views.explore,
+        views.home,
         name='home'),
     url(
         r'^explore$',
@@ -44,55 +44,48 @@ urlpatterns = [
         views.countryhazardmonth_detail,
         name='countryhazardmonth_detail'),
 
+    # SPARC-specific APIS
+    url(
+        r'^api/countries[.](?P<extension>[^.]+)$',
+        views.api_countries.as_view(),
+        name='api_countries'),
+
+    url(
+        r'^api/hazards[.](?P<extension>[^.]+)$',
+        views.api_hazards.as_view(),
+        name='api_hazards'),
+
+    url(
+        r'^api/data/country/(?P<iso3>[^/]+)/dataset/(?P<dataset>[^/]+)[.](?P<extension>[^.]+)$',
+        views.api_data_country.as_view(),
+        name='api_data_country'),
+
+    url(
+        r'^api/data/country/(?P<iso3>[^/]+)/hazard/(?P<hazard>[^/]+)/dataset/(?P<dataset>[^/]+)[.](?P<extension>[^.]+)$',
+        views.api_data_countryhazard.as_view(),
+        name='api_data_countryhazard'),
+
+    url(
+        r'^api/cache/data/flush$',
+        views.api_cache_data_flush,
+        name='api_cache_data_flush'),
+
     # Data Services
     url(
-        r'^data/local/admin0[.]json$',
+        r'^data/local/admin0[.](?P<extension>[^.]+)$',
         views.admin0_data.as_view(),
         name='admin0_data'),
+
     url(
-        r'^data/local/country/(?P<iso_alpha3>[^/]+)/admin/(?P<level>[^/]+)[.]json$',
-        views.data_local_country_admin.as_view(),
-        name='data_local_country_admin'),
-    url(
-        r'^data/local/country/(?P<iso3>[^/]+)/hazard/(?P<hazard>[^/]+)/events[.]json$',
-        views.countryhazard_data_local_events.as_view(),
-        name='countryhazard_data_local_events'),
-    url(
-        r'^data/local/country/(?P<iso3>[^/]+)/hazard/(?P<hazard>[^/]+)/popatrisk[.]json$',
-        views.countryhazard_data_local_popatrisk.as_view(),
-        name='countryhazard_data_local_popatrisk'),
-    url(
-        r'^data/local/country/(?P<iso3>[^/]+)/hazard/(?P<hazard>[^/]+)/summary[.]json$',
+        r'^data/local/country/(?P<iso3>[^/]+)/hazard/(?P<hazard>[^/]+)/summary[.](?P<extension>[^.]+)$',
         views.countryhazard_data_local_summary.as_view(),
         name='countryhazard_data_local_summary'),
 
     ## Emdat APIS
     url(
-        r'^data/emdat/country/(?P<iso3>[^/]+)/hazard/(?P<hazard>[^/]+)[.]json$',
+        r'^data/emdat/country/(?P<iso3>[^/]+)/hazard/(?P<hazard>[^/]+)[.](?P<extension>[^.]+)$',
         views.countryhazard_data_emdat.as_view(),
         name='countryhazard_data_emdat'),
-
-    ## VAM APIS
-    url(
-        r'^data/vam/country/(?P<iso3>[^/]+)[.]json$',
-        views.country_data_vam.as_view(),
-        name='countrydata_vam'),
-
-    ## Country-Context APIS
-    url(
-        r'^data/local/country/(?P<iso3>[^/]+)/context[.]json$',
-        views.countrycontext_data_local.as_view(),
-        name='countrycontext_data_local'),
-    url(
-        r'^data/local/country/(?P<iso3>[^/]+)/context/summary[.]json$',
-        views.countrycontext_data_local_summary.as_view(),
-        name='countrycontext_data_local_summary'),
-
-    # Cache control
-    url(
-        r'^cache/data/flush$',
-        views.cache_data_flush,
-        name='cache_data_flush'),
 
     # Django urls
     url(

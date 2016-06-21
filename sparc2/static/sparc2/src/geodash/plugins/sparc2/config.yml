@@ -1,0 +1,4 @@
+---
+name: sparc2
+endpoints:
+  - endpoints.yml

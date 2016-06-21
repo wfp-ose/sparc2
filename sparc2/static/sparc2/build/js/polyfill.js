@@ -23,6 +23,12 @@ if (!String.prototype.toTitleCase) {
   };
 }
 
+if(typeof String.prototype.trim !== 'function') {
+  String.prototype.trim = function() {
+    return this.replace(/^\s+|\s+$/g, '');
+  };
+}
+
 if (!Array.prototype.unique) {
   Array.prototype.unique = function() {
       var arr = [];

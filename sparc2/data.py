@@ -7,11 +7,11 @@ from jenks import jenks
 from django.conf import settings
 from django.template.loader import get_template
 
-from geosite.enumerations import MONTHS_SHORT3
+from geodash.enumerations import MONTHS_SHORT3
 
-from geosite.cache import provision_memcached_client
+from geodash.cache import provision_memcached_client
 
-from geosite.data import data_local_country
+from geodash.data import data_local_country
 
 
 class data_local_country_admin(data_local_country):
@@ -28,7 +28,7 @@ class data_local_country_admin(data_local_country):
         results = None
         if level == 2:
             q = get_template("sparc2/sql/_admin2_polygons.sql").render({
-                'tolerance': '.005',
+                'tolerance': '.002',
                 'iso_alpha3': iso_alpha3})
             cursor.execute(q)
             res = cursor.fetchone()

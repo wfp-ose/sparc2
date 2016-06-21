@@ -30,7 +30,7 @@ TEMPLATES = [
         'OPTIONS': {
             'context_processors': [
                 'sparc2.context_processors.sparc2',
-                'geosite.context_processors.geosite',
+                'geodash.context_processors.geodash',
                 'django.contrib.auth.context_processors.auth',
                 'django.template.context_processors.debug',
                 'django.template.context_processors.i18n',
@@ -79,7 +79,7 @@ WFP_APPS = (
     'wfppresencedjango',
     'lsibdjango',
     'gauldjango',
-    'geosite'
+    'geodash'
 )
 
 SPARC_APPS = (
@@ -166,24 +166,42 @@ LEAFLET_CONFIG = {
 # SPARC_HAZARDS is used for configuring what hazards are enabled.
 # Additional configuration is in enumerations.py
 SPARC_HAZARDS = ["cyclone", "drought", "flood", "landslide"]
-
-GEOSITE_DB_CONN_STR = "dbname='sparc2' user='sparc2' host='localhost' password='sparc2'"
-GEOSITE_CACHE_DATA = True
-GEOSITE_MEMCACHED_HOST = 'localhost'
-GEOSITE_MEMCACHED_PORT = 11212  # So doesn't interfer with root/built-in memcached
+SPARC_COLOR_RAMP = ['#fee5d9', '#fde79c', '#fcbba1', '#fc8d59', '#d7301f','#8162c6','#290051'];
+#######################################
+#-----------------------------
+# Mapping Library
+GEODASH_MAPPING_LIBRARY = "ol3"
+#-----------------------------
+# Database
+GEODASH_DB_CONN_STR = "dbname='sparc2' user='sparc2' host='localhost' password='sparc2'"
+GEODASH_CACHE_DATA = True
+GEODASH_MEMCACHED_HOST = 'localhost'
+GEODASH_MEMCACHED_PORT = 11212  # So doesn't interfer with root/built-in memcached
+#-----------------------------
+# Performance & Caching
+GEODASH_CLIP_DECIMAL_PLACES = 4
+GEODASH_REGEX_CLIP_COORDS_PATTERN = '(?P<prefix>"coordinates"\\:\\s*\\[)(?P<x>\\d+([.]\\d{0,'+str(GEODASH_CLIP_DECIMAL_PLACES)+'})?)(.*?)(,\s*?)(?P<y>\\d+([.]\\d{0,'+str(GEODASH_CLIP_DECIMAL_PLACES)+'})?)(.*?)(?P<suffix>\\])'
+GEODASH_REGEX_CLIP_COORDS_REPL = '\\g<prefix>\\g<x>,\\g<y>\\g<suffix>'
 #-----------------------------
 # DNS Prefetch
-GEOSITE_DNS_PREFETCH = [
+GEODASH_DNS_PREFETCH = [
     '//wfp.org',
     '//mapbox.com', '//api.mapbox.com',
     '//thunderforest.com',
     '//openstreetmap.org', '//openstreetmap.fr'
 ]
 #-----------------------------
+# Static Management
+GEODASH_STATIC_MONOLITH_CSS = False
+GEODASH_STATIC_MONOLITH_JS = True
+
+SPARC_STATIC_VERSION = "0.0.1"
+GEODASH_STATIC_VERSION = "0.0.1"
+#-----------------------------
 # Dependencies Management
-SPARC_STATIC_VERSION="0.1.1"
-GEOSITE_STATIC_VERSION="0.1.1"
-GEOSITE_STATIC_DEPS = {
+SPARC_STATIC_VERSION="0.0.1"
+GEODASH_STATIC_VERSION="0.0.1"
+GEODASH_STATIC_DEPS = {
     "angular": {
         "version": "1.4.0-beta.4"
     },
@@ -210,18 +228,18 @@ GEOSITE_STATIC_DEPS = {
 #-----------------------------
 # Debugging & Testing
 SPARC_STATIC_DEBUG = {
-    "main": True
+    "main": True,
+    "polyfill": False
 }
 
-GEOSITE_STATIC_DEBUG = {
-    "polyfill": False,
-    "main": True,
-    "angular": False,
+GEODASH_STATIC_DEBUG = {
+    "angular": True,
     "c3": False,
     "d3": False,
     "bootstrap": False,
     "jquery": False,
     "leaflet": True,
-    "select2": True
+    "select2": True,
+    "monolith": True
 }
 #######################################

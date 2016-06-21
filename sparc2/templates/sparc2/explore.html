@@ -8,8 +8,17 @@
 
 {% block sidebar_left %}{% endblock %}
 
-{% block map_controllers %}
-{% include "sparc2/_includes/sparc_welcome.html" %}
+{% block map_controllers %}{% endblock %}
+
+{% block modals %}
+{{ block.super }}
+<div
+  class="geodash-controller geodash-controller-modal geodash-modal modal fade sparc-modal-welcome"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="myModalLabel"
+  sparc-modal-welcome>
+</div>
 {% endblock %}
 
 {% block extra_content %}{% endblock %}

@@ -1,4 +1,4 @@
-{% extends "geosite/maps/base.yml" %}
+{% extends "geodash/maps/base.yml" %}
 
 {% block title %}
 title: SPARC
@@ -29,7 +29,7 @@ about:
 {% block welcome %}
 welcome:
   title: "SPARC - Spatial Risk Calendar"
-  intro: "Welcome to SPARC!\n\n SPARC is a Spatial Risk Calendar that combines data layers covering hazard exposure and population vulnerability to determine baseline probabilistic levels of humanitarian impact associated with particular hazard types, on a monthly basis, at a sub-national level, around the globe.\n\n"
+  intro: "Welcome to SPARC!\n\n SPARC is a Spatial Risk Calendar that combines data layers covering hazard exposure and population vulnerability to determine baseline probabilistic levels of humanitarian impact associated with particular hazard types, on a monthly basis, at a sub-national level, around the globe.\n\n<center>![logo](/static/sparc2/assets/img/wfp_logo_blue.png =*x*)</center>"
   about: "SPARC is a Spatial Risk Calendar that combines data layers covering hazard exposure and population vulnerability to determine baseline probabilistic levels of humanitarian impact associated with particular hazard types, on a monthly basis, at a sub-national level, around the globe.\n\nSPARC is a digital service provided by the World Foood Programme (WFP), Emergency Preparedness and Support Response Division (OSE)."
 {% endblock %}
 
@@ -53,13 +53,20 @@ download:
 
 {% block pages %}{% verbatim %}
 pages:
-  explore: "/explore"
-  country_detail: "/country/{{ iso3 }}"
-  countryhazard_detail: "/country/{{ iso3 }}/hazard/{{ hazard }}"
-  countryhazardmonth_detail: "/country/{{ iso3 }}/hazard/{{ hazard }}/month/{{ month }}"
+  - id: "home"
+    url: "/"
+  - id: "explore"
+    url: "/explore"
+  - id: country_detail
+    url: "/country/{{ iso3 }}"
+  - id: countryhazard_detail
+    url: "/country/{{ iso3 }}/hazard/{{ hazard }}"
+  - id: countryhazardmonth_detail
+    url: "/country/{{ iso3 }}/hazard/{{ hazard }}/month/{{ month }}"
 {% endverbatim %}{% endblock %}
 
 {% block baselayers %}
+baselayer: osm
 baselayers:
   - id: "osm_humanitarian"
     title: OpenStreetMap / Humanitarian
@@ -67,7 +74,8 @@ baselayers:
     source:
       name: "OpenStreetMap"
       attribution: "&copy; <a href=\"http://www.openstreetmap.org/copyright\">OpenStreetMap</a>"
-      url: "http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"
+      tile:
+        url: "http://{a-c}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"
     legend:
       label: "OpenStreetMap / Humanitarian"
   - id: "osm"
@@ -76,7 +84,8 @@ baselayers:
     source:
       name: "OpenStreetMap"
       attribution: "&copy; <a href=\"http://www.openstreetmap.org/copyright\">OpenStreetMap</a>"
-      url: "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+      tile:
+        url: "http://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png"
     legend:
       label: "OpenStreetMap"
 {% endblock %}

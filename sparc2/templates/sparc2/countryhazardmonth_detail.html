@@ -7,27 +7,35 @@
 {% endblock %}
 
 {% block sidebar_left %}
-{% if hazard != "drought" %}
+{% if include_sidebar_left %}
 <div
-  id="geosite-sidebar-left"
-  class="geosite-sidebar geosite-sidebar-left geosite-controller"
-  ng-controller="geosite-sidebar-left"
-  data-controller-name="geosite-sidebar-left"
-  data-controller-type="geosite-sidebar-left">
-  <div sparc-sidebar-charts></div>
+  id="sparc-sidebar-left"
+  class="geodash-sidebar geodash-sidebar-left geodash-controller sidebar-open sidebar-left-open"
+  sparc-sidebar>
 </div>
 {% endif %}
 {% endblock %}
 
 {% block map_controllers %}
-{% include "sparc2/_includes/map_breadcrumb.html" %}
-{% include "geosite/_includes/map_legend.html" %}
-{% if hazard != "drought" %}
-{% include "geosite/_includes/map_filter.html" %}
-{% include "geosite/_includes/map_sidebar_toggle_left.html" %}
+{% include "geodash/_includes/map_legend.html" with legend_title="Legend - Click to Open" %}
+{% include "geodash/_includes/map_overlays.html" %}
+{% if include_sidebar_left %}
+<div
+  id="geodash-map-sidebar-toggle-left"
+  class="geodash-controller"
+  selector="#geodash-map-sidebar-toggle-left, #geodash-sidebar-left, #geodash-map"
+  geodash-sidebar-toggle-left>
+</div>
 {% endif %}
-{% include "sparc2/_includes/map_calendar.html" %}
+<nav
+  class="geodash-controller"
+  geodash-controller="sparc-map-calendar"
+  ng-controller="sparc-map-calendar"
+  sparc-calendar>
+</nav>
 {% endblock %}
+
+{% block modals %}{{ block.super }}{% endblock %}
 
 {% block extra_content %}
 {% endblock %}

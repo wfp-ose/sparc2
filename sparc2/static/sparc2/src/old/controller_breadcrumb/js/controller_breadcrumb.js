@@ -1,6 +1,6 @@
-geosite.controllers.controller_breadcrumb = function($scope, $element, $controller, state)
+geodash.controllers.controller_breadcrumb = function($scope, $element, $controller, state)
 {
-  angular.extend(this, $controller('GeositeControllerBase', {$element: $element, $scope: $scope}));
+  angular.extend(this, $controller('GeoDashControllerBase', {$element: $element, $scope: $scope}));
   //
   $('select', $element).each(function(){
     var s = $(this);
@@ -12,7 +12,7 @@ geosite.controllers.controller_breadcrumb = function($scope, $element, $controll
     var css = 'sparc-select-dropdown';
 
     s.select2({
-      data: geosite.initial_data["data"][initialData], // global variable set in header
+      data: geodash.initial_data["data"][initialData], // global variable set in header
       placeholder: placeholder,
       allowClear: false,
       width: w,

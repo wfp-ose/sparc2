@@ -1,21 +1,38 @@
-{% extends "geosite/map.html" %}
+{% extends "geodash/map.html" %}
 
-{% load geosite_tags %}
+{% load geodash_tags %}
+
+{% block title %}SPARC{% endblock %}
 
 {% block head_fonts %}
 <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700,400italic' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="{{ STATIC_URL }}wfp/assets/fonts/lato/lato.css">
+<link rel="stylesheet" href="{{ STATIC_URL }}wfp/assets/fonts/aleo/aleo.css">
 {% endblock %}
 
 {% block head_bootstrap_css %}
 <link href="{{ STATIC_URL }}sparc2/build/bootstrap/bootstrap.css" rel="stylesheet"/>
+<link rel="stylesheet" href="{{ STATIC_URL }}wfp/css/bootstrap-theme.css">
 {% endblock %}
 
 {% block head_main_css %}
-<link href='{{ STATIC_URL }}sparc2/build/css/main.css?v={{ SPARC_STATIC_VERSION }}' rel='stylesheet' />
+<link href='{{ STATIC_URL }}sparc2/build/css/sparc2.css?v={{ SPARC_STATIC_VERSION }}' rel='stylesheet' />
+{% endblock %}
+
+{% block head_monolith_css %}
+<link href='{{ STATIC_URL }}sparc2/build/css/sparc2.full.css?v={{ SPARC_STATIC_VERSION }}' rel='stylesheet' />
+{% endblock %}
+
+{% block polyfill %}
+{% if SPARC_STATIC_DEPS.polyfill %}
+<script src="{{ STATIC_URL }}sparc2/build/js/polyfill.js?v={{ SPARC_STATIC_VERSION }}"></script>
+{% else %}
+<script src="{{ STATIC_URL }}sparc2/build/js/polyfill.min.js?v={{ SPARC_STATIC_VERSION }}"></script>
+{% endif %}
 {% endblock %}
 
 {% block head_main_js %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.3.0/showdown.min.js"></script>
+<script src="{{ STATIC_URL }}geodash/lib/showdown/1.3.0/showdown.min.js"></script>
 {% if SPARC_STATIC_DEBUG.main %}
 <script src="{{ STATIC_URL }}sparc2/build/js/monkeypatch.js?v={{ SPARC_STATIC_VERSION }}"></script>
 <script src="{{ STATIC_URL }}sparc2/build/js/main.js?v={{ SPARC_STATIC_VERSION }}"></script>
@@ -25,24 +42,35 @@
 {% endif %}
 {% endblock %}
 
+{% block head_monolith_js %}
+{% if GEODASH_STATIC_DEBUG.monolith %}
+<script src="{{ STATIC_URL }}sparc2/build/js/sparc2.full.js?v={{ SPARC_STATIC_VERSION }}"></script>
+{% else %}
+<script src="{{ STATIC_URL }}sparc2/build/js/sparc2.full.min.js?v={{ SPARC_STATIC_VERSION }}"></script>
+{% endif %}
+{% endblock %}
+
 {% block head_inline %}
-{% include "geosite/_includes/snippet_const.html" %}
+{% include "geodash/_includes/snippet_const.html" %}
 {% include "sparc2/_includes/snippet_utility.html" %}
+{% endblock %}
+
+{% block map_config %}
+<script>
+  geodash.mapping_library = "{{ GEODASH_MAPPING_LIBRARY }}";
+  geodash.map_config = {{ map_config_json|safe }};
+</script>
 {% endblock %}
 
 {% block initial_data %}
 <script type="text/javascript" language="Javascript">
-    geosite.initial_data =
+    geodash.initial_data =
     {
       "data": {
         "countries_select2": {{ SPARC_COUNTRIES_SELECT2|safe }},
         "countries_select2_by_rb": {{ SPARC_COUNTRIES_SELECT2_BY_RB|safe }},
-        "hazards_select2": {{ SPARC_HAZARDS_SELECT2|safe }}
-      },
-      "pages": {
-          "countryhazardmonth_detail": {
-            "url": "/country/{iso3}/hazard/{hazard}/month/{month}"
-          }
+        "hazards_select2": {{ SPARC_HAZARDS_SELECT2|safe }},
+        "endpoints": {{ endpoints_json | safe }}
       },
       "layers": {
         "popatrisk": {
@@ -54,33 +82,40 @@
             "default": function(f, layer){
               //
               //var state = angular.element(document.body).injector().get('state');
-              var $scope = angular.element("#geosite-main").scope();
+              var $scope = angular.element("#geodash-main").scope();
               var state = $scope.state;
               var map_config = angular.element(document.body).injector().get('map_config');
               //
-              var style_static = map_config["featurelayers"]["popatrisk"]["cartography"][0]["styles"]["default"]["static"];
-              var style = $.extend({}, style_static);
-              var style_dynamic = map_config["featurelayers"]["popatrisk"]["cartography"][0]["styles"]["default"]["dynamic"]["func"];
-              var options = map_config["featurelayers"]["popatrisk"]["cartography"][0]["styles"]["default"]["dynamic"]["options"];
-              var delta = angular.isFunction(geosite[style_dynamic]) ? geosite[style_dynamic](f, state, map_config, options) : undefined;
-              if(delta != undefined)
+              var style = {};
+              var popatrisk = geodash.api.getFeatureLayer("popatrisk", {"$scope": $scope});
+              if(angular.isDefined(popatrisk))
               {
-                $.extend(style, delta);
+                var style_static = extract(["cartography", 0, "styles", "default", "static"], popatrisk);
+                $.extend(style, style_static);
+                var style_dynamic = extract(["cartography", 0, "styles", "default", "dynamic", "func"], popatrisk);
+                var options = extract(["cartography", 0, "styles", "default", "dynamic", "options"], popatrisk);
+                var delta = angular.isFunction(geodash[style_dynamic]) ? geodash[style_dynamic](f, state, map_config, options) : undefined;
+                if(delta != undefined)
+                {
+                  $.extend(style, delta);
+                }
               }
               return style;
             },
             "hover": function(f, layer){
-              var $scope = angular.element("#geosite-main").scope();
+              var $scope = angular.element("#geodash-main").scope();
               var state = $scope.state;
               var map_config = angular.element(document.body).injector().get('map_config');
               //
-              var style_static = map_config["featurelayers"]["popatrisk"]["cartography"][0]["styles"]["hover"]["static"];
-              var style = $.extend({}, style_static);
-              if("dynamic" in map_config["featurelayers"]["popatrisk"]["cartography"][0]["styles"]["hover"])
+              var style = {};
+              var popatrisk = geodash.api.getFeatureLayer("popatrisk", {"$scope": $scope});
+              if(angular.isDefined(popatrisk))
               {
-                var style_dynamic = map_config["featurelayers"]["popatrisk"]["cartography"][0]["styles"]["hover"]["dynamic"]["func"];
-                var options = map_config["featurelayers"]["popatrisk"]["cartography"][0]["styles"]["hover"]["dynamic"]["options"];
-                var delta = angular.isFunction(geosite[style_dynamic]) ? geosite[style_dynamic](f, state, map_config, options) : undefined;
+                var style_static = extract(["cartography", 0, "styles", "hover", "static"], popatrisk);
+                $.extend(style, style_static);
+                var style_dynamic = extract(["cartography", 0, "styles", "hover", "dynamic", "func"], popatrisk);
+                var options = extract(["cartography", 0, "styles", "hover", "dynamic", "options"], popatrisk);
+                var delta = angular.isFunction(geodash[style_dynamic]) ? geodash[style_dynamic](f, state, map_config, options) : undefined;
                 if(delta != undefined)
                 {
                   $.extend(style, delta);
@@ -99,20 +134,26 @@
             "default": function(f, layer){
               //
               //var state = angular.element(document.body).injector().get('state');
-              var $scope = angular.element("#geosite-main").scope();
+              var $scope = angular.element("#geodash-main").scope();
               var state = $scope.state;
               var map_config = angular.element(document.body).injector().get('map_config');
               //
-              var style_static = map_config["featurelayers"]["context"]["cartography"][0]["styles"]["default"]["static"];
-              var style = $.extend({}, style_static);
-              var style_dynamic = map_config["featurelayers"]["context"]["cartography"][0]["styles"]["default"]["dynamic"]["func"];
-              var options = map_config["featurelayers"]["context"]["cartography"][0]["styles"]["default"]["dynamic"]["options"];
-              var delta = angular.isFunction(geosite[style_dynamic]) ? geosite[style_dynamic](f, state, map_config, options) : undefined;
-              if(delta != undefined)
+              var style = {};
+              var context = geodash.api.getFeatureLayer("context", {"$scope": $scope});
+              if(angular.isDefined(context))
               {
-                $.extend(style, delta);
+                var style_static = context["cartography"][0]["styles"]["default"]["static"];
+                $.extend(style, style_static);
+                var style_dynamic = context["cartography"][0]["styles"]["default"]["dynamic"]["func"];
+                var options = context["cartography"][0]["styles"]["default"]["dynamic"]["options"];
+                var delta = angular.isFunction(geodash[style_dynamic]) ? geodash[style_dynamic](f, state, map_config, options) : undefined;
+                if(delta != undefined)
+                {
+                  $.extend(style, delta);
+                }
+                return style;
               }
-              return style;
+
             }
           }
         },
@@ -126,28 +167,19 @@
 </script>
 {% endblock %}
 
-{% block map_config %}
-<script>
-  geosite.map_config = {{ map_config_json|safe }};
-  var popup_templates = {
-      "popatrisk": "{{ "sparc2/_includes/popup_template.html"|template2string|safe }}"
-  };
-</script>
-{% endblock %}
 {% block initial_state %}
 <script>
-  geosite.initial_state = {{ state_json|safe }};
-  geosite.state_schema = {{ state_schema_json|safe }};
+  geodash.initial_state = {{ state_json|safe }};
+  geodash.state_schema = {{ state_schema_json|safe }};
 </script>
 {% endblock %}
 
-{% block header %}{% include "sparc2/_includes/header.html" %}{% endblock %}
+{% block header %}{% endblock %}
 
 {% block sidebar_left %}{% endblock %}
 
 {% block map_controllers %}
-{% include "sparc2/_includes/map_breadcrumb.html" %}
-{% include "geosite/_includes/map_legend.html" %}
+{% include "geodash/_includes/map_legend.html" with legend_title="Legend - Click to Open" %}
 {% endblock %}
 
 {% block footer %}{% include "sparc2/_includes/footer.html" %}{% endblock %}

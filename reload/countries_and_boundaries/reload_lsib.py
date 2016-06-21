@@ -135,3 +135,4 @@ print "Hardcoding known values"
 GeographicThesaurusEntry.objects.filter(dos_short="Burma").update(gaul=171)
 GeographicThesaurusEntry.objects.filter(dos_short="Laos").update(gaul=139)
 GeographicThesaurusEntry.objects.filter(dos_short="United Kingdom").update(gaul=256)
+GeographicThesaurusEntry.objects.filter(dos_short="Korea, North").update(gaul=67)

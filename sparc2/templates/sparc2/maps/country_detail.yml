@@ -10,7 +10,7 @@ title: SPARC - {{ country_title }}
 
 {% block featurelayers %}{% verbatim %}
 featurelayers:
-  vam:
+  - id: vam
     type: geojson
     title: "VAM"
     description: "VAM"
@@ -18,10 +18,9 @@ featurelayers:
     source:
       name: "WFP/VAM"
       attribution: "WFP/VAM"
-    urls:
-      geojson: "/data/vam/country/{iso3}.json"
-      summary: "/data/vam/country/{iso3}/summary.json"
-  context:
+    geojson:
+      local: "layers.vam.data.geojson"
+  - id: context
     type: geojson
     title: "Aggravating Factors"
     description: "Aggravating Factors"
@@ -29,12 +28,8 @@ featurelayers:
     source:
       name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
       attribution: "WFP/OSEP/AEW&GIS"
-    urls:
-      geojson: "/data/local/country/{iso3}/context.json"
-      summary: "/data/local/country/{iso3}/context/summary.json"
-    routes:
-      geojson: "/data/local/country/:iso3/context*.json"
-      summary: "/data/local/country/:iso3/context/summary.json"
+    geojson:
+      url: "/data/local/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/context.json"
     cartography:
       - id: "delta_mean"
         title: "Mean Change"
@@ -320,7 +315,7 @@ featurelayers:
           tab:
             label: "Links"
           fields: []
-  landscan:
+  - id: landscan
     type: WMS
     title: "Landscan (2013)"
     description: "Landscan (2013)"
@@ -345,7 +340,7 @@ featurelayers:
             preview: false
     legend:
       label: "Landscan"
-  imerg_1day:
+  - id: imerg_1day
     type: WMS
     title: "Rainfall Total: 1 day"
     description: "IMERG 1-Day"
@@ -370,7 +365,7 @@ featurelayers:
             preview: false
     legend:
       label: "Rainfall Total: 1 day"
-  imerg_3day:
+  - id: imerg_3day
     type: WMS
     title: "Rainfall Total: 3 days"
     description: "IMERG 3-Day"
@@ -395,7 +390,7 @@ featurelayers:
             preview: false
     legend:
       label: "Rainfall Total: 3 days"
-  imerg_7day:
+  - id: imerg_7day
     type: WMS
     title: "Rainfall Total: 7 days"
     description: "IMERG 7-Day"
@@ -420,7 +415,7 @@ featurelayers:
             preview: false
     legend:
       label: "Rainfall Total: 7 days"
-  wld_poi_facilities_wfp:
+  - id: wld_poi_facilities_wfp
     type: WMS
     title: "Global WFP Facilities"
     description: "WFP Facilities worldwide, Country Office, Sub-Office, Field Office, Area Office, Humanitarian Response Depot."
@@ -520,7 +515,7 @@ featurelayers:
               type: link
               label: "OpenStreetMap"
               url: "https://www.openstreetmap.org/#map=15/{{ feature.geometry.lat }}/{{ feature.geometry.lng }}"
-  wld_trs_supplyroutes_wfp:
+  - id: wld_trs_supplyroutes_wfp
     type: WMS
     title: "Global Supply Routes"
     description: "Global supply routes for Transportation of Food and Non Food Items - Roads, Railways, Waterway, Airways.\n\nThis layer is built by linking origin/destination locations using the most direct route on main roads. In reality, the supply routes can divert from the ones displayed here depending on many local factors. The routes shown in this dataset are only indicative and have to be used as such."
@@ -643,6 +638,7 @@ charts: []
 
 {% block controls %}
 controls:
+  attribution: true
   breadcrumbs: false
   calendar: false
   filters: false
