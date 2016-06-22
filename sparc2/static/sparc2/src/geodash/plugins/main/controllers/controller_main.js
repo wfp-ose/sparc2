@@ -50,7 +50,7 @@ geodash.controllers["controller_main"] = function(
         console.log('event', event);
         console.log('args', args);
         //
-        var $scope = angular.element("#geodash-main").scope();
+        var $scope = geodash.api.getScope("geodash-main");
         $scope.$apply(function () {
             $scope.state = $.extend($scope.state, args);
             var url = buildPageURL($interpolate, map_config, $scope.state);
@@ -64,7 +64,7 @@ geodash.controllers["controller_main"] = function(
         console.log('event', event);
         console.log('args', args);
         //
-        var $scope = angular.element("#geodash-main").scope();
+        var $scope = geodash.api.getScope("geodash-main");
         $scope.$apply(function () {
             $scope.state.filters[args["layer"]] = $.extend(
               $scope.state.filters[args["layer"]],
@@ -80,7 +80,7 @@ geodash.controllers["controller_main"] = function(
         console.log('event', event);
         console.log('args', args);
         //
-        var $scope = angular.element("#geodash-main").scope();
+        var $scope = geodash.api.getScope("geodash-main");
         $scope.$apply(function () {
             $scope.state.styles[args["layer"]] = args["style"];
             var url = buildPageURL($interpolate, map_config, $scope.state);
@@ -94,7 +94,7 @@ geodash.controllers["controller_main"] = function(
         console.log('event', event);
         console.log('args', args);
         //
-        var $scope = angular.element("#geodash-main").scope();
+        var $scope = geodash.api.getScope("geodash-main");
         $scope.state.view = $.extend($scope.state.view, args);
         var url = buildPageURL($interpolate, map_config, $scope.state);
         history.replaceState(state, "", url);
@@ -107,7 +107,7 @@ geodash.controllers["controller_main"] = function(
     });
 
     $scope.$on("layerLoaded", function(event, args) {
-        var $scope = angular.element("#geodash-main").scope();
+        var $scope = geodash.api.getScope("geodash-main");
         var type = args.type;
         var layer = args.layer;
         var visible = args.visible != undefined ? args.visible : true;
@@ -127,7 +127,7 @@ geodash.controllers["controller_main"] = function(
     $scope.$on("showLayer", function(event, args) {
         console.log('event', event);
         console.log('args', args);
-        var $scope = angular.element("#geodash-main").scope();
+        var $scope = geodash.api.getScope("geodash-main");
         var layer = args.layer;
         if($.inArray(layer, $scope.state.view.featurelayers) == -1)
         {
@@ -138,7 +138,7 @@ geodash.controllers["controller_main"] = function(
     $scope.$on("hideLayer", function(event, args) {
         console.log('event', event);
         console.log('args', args);
-        var $scope = angular.element("#geodash-main").scope();
+        var $scope = geodash.api.getScope("geodash-main");
         var layer = args.layer;
         var i = $.inArray(layer, $scope.state.view.featurelayers);
         if(i != -1)
@@ -150,7 +150,7 @@ geodash.controllers["controller_main"] = function(
     $scope.$on("showLayers", function(event, args) {
         console.log('event', event);
         console.log('args', args);
-        var $scope = angular.element("#geodash-main").scope();
+        var $scope = geodash.api.getScope("geodash-main");
         var layers = args.layers;
         for(var i = 0; i < layers.length; i++)
         {
@@ -165,7 +165,7 @@ geodash.controllers["controller_main"] = function(
     $scope.$on("hideLayers", function(event, args) {
         console.log('event', event);
         console.log('args', args);
-        var $scope = angular.element("#geodash-main").scope();
+        var $scope = geodash.api.getScope("geodash-main");
         var layers = args.layers;
         for(var i = 0; i < layers.length; i++)
         {
@@ -181,13 +181,13 @@ geodash.controllers["controller_main"] = function(
     $scope.$on("switchBaseLayer", function(event, args) {
         console.log('event', event);
         console.log('args', args);
-        var $scope = angular.element("#geodash-main").scope();
+        var $scope = geodash.api.getScope("geodash-main");
         $scope.state.view.baselayer = args.layer;
         $scope.refreshMap($scope.state);
     });
 
     $scope.$on("zoomToLayer", function(event, args) {
-        var $scope = angular.element("#geodash-main").scope();
+        var $scope = geodash.api.getScope("geodash-main");
         var layer = args.layer;
         var i = $.inArray(layer, $scope.state.view.featurelayers);
         if(i != -1)
@@ -200,7 +200,7 @@ geodash.controllers["controller_main"] = function(
         console.log('event', event);
         console.log('args', args);
         //
-        var $scope = angular.element("#geodash-main").scope();
+        var $scope = geodash.api.getScope("geodash-main");
         var z = $scope.state.view.z;
         var visibleFeatureLayers = $scope.state.view.featurelayers;
         console.log("visibleFeatureLayers", visibleFeatureLayers);

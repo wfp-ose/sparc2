@@ -1,0 +1,105 @@
+<div
+  class="geodash-map-legend-item noselect"
+  data-layer="{{ layer.id }}">
+  <div class="geodash-map-legend-item-left">
+    <div class="geodash-map-legend-item-icon geodash-map-legend-item-config" style="display:none;">
+      <a
+        class="geodash-intent"
+        data-intent-name="toggleModal"
+        data-intent-data="{{ html5data('toggleModal', 'geodash-modal-layer-config', 'featurelayer', layer) }}"
+        data-intent-ctrl="geodash-map-legend">
+        <i class="fa fa-cog"></i>
+      </a>
+    </div><!--
+    --><div class="geodash-map-legend-item-icon geodash-map-legend-item-more">
+      <a
+        class="geodash-intent"
+        data-intent-name="toggleModal"
+        data-intent-data="{{ html5data('toggleModal', 'geodash-modal-layer-more', 'featurelayer', layer) }}"
+        data-intent-ctrl="geodash-map-legend">
+        <i class="fa fa-info-circle"></i>
+      </a>
+    </div><!--
+    --><div class="geodash-map-legend-item-icon geodash-map-legend-item-visibility">
+       <a
+         ng-class="layer.id | inArray : state.view.featurelayers | ternary : 'geodash-map-legend-item-visibility-button geodash-intent geodash-toggle' : 'geodash-map-legend-item-visibility-button geodash-intent geodash-toggle geodash-off'"
+         data-intent-names="[&quot;showLayer&quot;,&quot;hideLayer&quot;]"
+         data-intent-data="{&quot;layer&quot;:&quot;{{ layer.id }}&quot;}"
+         data-intent-ctrl="geodash-map-legend">
+         <i class="fa fa-eye geodash-on"></i><i class="fa fa-eye-slash geodash-off"></i>
+       </a>
+   </div><!--
+   --><div
+        ng-class="layer.type == 'geojson' ? 'geodash-map-legend-item-icon geodash-map-legend-item-zoomto': 'geodash-map-legend-item-icon geodash-map-legend-item-zoomto fade disabled'">
+      <a
+        class="geodash-map-legend-item-zoomto-button geodash-intent"
+        data-intent-name="zoomToLayer"
+        data-intent-data="{&quot;layer&quot;:&quot;{{ layer.id }}&quot;}"
+        data-intent-ctrl="geodash-map-legend">
+        <i class="fa fa-compress"></i>
+      </a>
+    </div>
+  </div><!--
+  --><div class="geodash-map-legend-item-right">
+    <div
+      ng-if="layer.cartography[0].legend.symbol"
+      class="geodash-map-legend-item-symbol">
+      <a
+        class="geodash-intent"
+        data-intent-name="toggleModal"
+        data-intent-data="{{ html5data('toggleModal', 'geodash-modal-layer-carto', 'featurelayer', layer) }}"
+        data-intent-ctrl="geodash-map-legend">
+        <div ng-if="layer.cartography[0].legend.symbol.type == 'circle'">
+          <svg width="100%" height="100%" version="1.0" xmlns="http://www.w3.org/2000/svg">
+            <circle
+              cx="50%"
+              cy="50%"
+              ng-r="{{ layer.cartography[0].legend.symbol.radius }}"
+              ng-fill="{{ layer.cartography[0].styles.default.static.color }}"
+              stroke-width="1"
+              stroke="#000000"></circle>
+          </svg>
+        </div>
+        <div ng-if="layer.cartography[0].legend.symbol.type == 'ellipse'">
+          <svg width="100%" height="100%" version="1.0" xmlns="http://www.w3.org/2000/svg">
+            <ellipse
+              cx="50%"
+              cy="50%"
+              ng-rx="{{ layer.cartography[0].legend.symbol.width }}"
+              ng-ry="{{ layer.cartography[0].legend.symbol.height }}"
+              ng-fill="{{ layer.cartography[0].styles.default.static.color }}"
+              stroke-width="1"
+              stroke="#000000"></circle>
+          </svg>
+        </div>
+        <div
+          ng-if="layer.cartography[0].legend.symbol.type == 'graduated'">
+          <svg
+            ng-attr-width="{{ layer.cartography[0].legend.symbol.width }}"
+            height="100%"
+            version="1.0"
+            xmlns="http://www.w3.org/2000/svg">
+            <rect
+              ng-repeat="color in layer.cartography[0].colors.ramp track by $index"
+              ng-attr-x="{{ $index|percent:layer.cartography[0].colors.ramp.length }}%"
+              y="0"
+              ng-attr-width="{{ 1|percent:layer.cartography[0].colors.ramp.length }}%"
+              ng-attr-height="{{ layer.cartography[0].legend.symbol.height }}"
+              ng-attr-fill="{{ color }}"
+              stroke-width="1"
+              stroke="#000000"/>
+          </svg>
+        </div>
+        <div
+          ng-if="layer.cartography[0].legend.symbol.type == 'graphic'">
+          <i class="fa fa-image" style="color:black; font-size: 20px;"></i>
+        </div>
+      </a>
+    </div><!--
+    --><div
+         class="geodash-map-legend-item-label"
+         style="{{ layer.id | inArray : state.view.featurelayers | ternary : '' : 'opacity: 0.4;' }}">
+      <span ng-bind-html="layer.legend.label | md2html"></span>
+    </div>
+  </div>
+</div>

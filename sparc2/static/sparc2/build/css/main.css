@@ -143,10 +143,10 @@
   transition: all 1.6s ease-in-out;
 }
 .geodash-main .geodash-sidebar.geodash-sidebar-left.sidebar-open {
-  width: 400px;
+  width: 460px;
 }
 .geodash-main .geodash-sidebar.geodash-sidebar-right.sidebar-open {
-  width: 400px;
+  width: 460px;
 }
 .geodash-main .geodash-sidebar.geodash-sidebar-left {
   left: 0px;
@@ -186,10 +186,10 @@
   padding: 10px;
 }
 .geodash-main .geodash-map.sidebar-left-open {
-  left: 400px;
+  left: 460px;
 }
 .geodash-main .geodash-map.sidebar-right-open {
-  right: 400px;
+  right: 460px;
 }
 .geodash-modal {
   color: black;
@@ -685,6 +685,116 @@
   font-family: Verdana;
   letter-spacing: 0.1em;
   font-size: 14px;
+}
+.geodash-sidebar hr {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+.geodash-sidebar .geodash-sidebar-label {
+  width: 100%;
+}
+.geodash-sidebar .geodash-sidebar-label a {
+  width: 100%;
+}
+.geodash-sidebar .geodash-sidebar-item {
+  display: block;
+  width: 100%;
+  position: relative;
+  height: 28px;
+}
+.geodash-sidebar .geodash-sidebar-item .geodash-sidebar-item-left {
+  position: relative;
+  display: inline-block;
+  height: 28px;
+  vertical-align: top;
+}
+.geodash-sidebar .geodash-sidebar-item .geodash-sidebar-item-right {
+  position: relative;
+  padding-left: 4px;
+  box-sizing: border-box;
+  display: inline-block;
+  border-left: 1px solid white;
+  width: calc(100% - 91px);
+  vertical-align: top;
+}
+.geodash-sidebar .geodash-sidebar-item .geodash-sidebar-item-icon {
+  display: inline-block;
+  width: 20px;
+  height: 100%;
+  vertical-align: text-bottom;
+  font-size: 20px;
+  margin-right: 4px;
+}
+.geodash-sidebar .geodash-sidebar-item .geodash-sidebar-item-icon a {
+  color: black;
+  cursor: pointer;
+}
+.geodash-sidebar .geodash-sidebar-item .geodash-sidebar-item-icon a i {
+  line-height: 28px;
+}
+.geodash-sidebar .geodash-sidebar-item .geodash-sidebar-item-icon a:hover {
+  color: #337ab7;
+}
+.geodash-sidebar .geodash-sidebar-item .geodash-sidebar-item-icon.fade {
+  opacity: 0.4;
+}
+.geodash-sidebar .geodash-sidebar-item .geodash-toggle .geodash-on,
+.geodash-sidebar .geodash-sidebar-item .geodash-radio.geodash-on .geodash-on {
+  display: inline-block;
+}
+.geodash-sidebar .geodash-sidebar-item .geodash-toggle .geodash-off,
+.geodash-sidebar .geodash-sidebar-item .geodash-radio.geodash-on .geodash-off {
+  display: none;
+}
+.geodash-sidebar .geodash-sidebar-item .geodash-toggle.geodash-off .geodash-on,
+.geodash-sidebar .geodash-sidebar-item .geodash-radio .geodash-on {
+  display: none;
+}
+.geodash-sidebar .geodash-sidebar-item .geodash-toggle.geodash-off .geodash-off,
+.geodash-sidebar .geodash-sidebar-item .geodash-radio .geodash-off {
+  display: inline-block;
+}
+.geodash-sidebar .geodash-sidebar-item .geodash-sidebar-item-symbol {
+  display: inline-block;
+  width: 28px;
+  height: 100%;
+  max-height: 28px;
+  text-align: center;
+  vertical-align: text-bottom;
+}
+.geodash-sidebar .geodash-sidebar-item .geodash-sidebar-item-symbol a {
+  cursor: pointer;
+}
+.geodash-sidebar .geodash-sidebar-item .geodash-sidebar-item-symbol i.fa {
+  color: black;
+}
+.geodash-sidebar .geodash-sidebar-item .geodash-sidebar-item-symbol i.fa:hover {
+  color: blue;
+}
+.geodash-sidebar .geodash-sidebar-item .geodash-sidebar-item-label {
+  display: inline-block;
+  width: calc(100% - 101px);
+  height: 100%;
+  vertical-align: top;
+}
+.geodash-sidebar .geodash-sidebar-item .geodash-sidebar-item-label span {
+  color: black;
+  vertical-align: middle;
+  width: 100%;
+  height: 100%;
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 28px;
+}
+.geodash-sidebar .geodash-sidebar-item .geodash-sidebar-item-label.geodash-intent {
+  cursor: pointer;
+}
+.geodash-sidebar .geodash-sidebar-item .geodash-sidebar-item-label.geodash-intent:hover {
+  color: #337ab7;
+}
+.geodash-sidebar .geodash-sidebar-item.fade {
+  opacity: 0.3;
 }
 
 /* Widely Used Variables */
