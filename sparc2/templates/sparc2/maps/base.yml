@@ -29,7 +29,7 @@ about:
 {% block welcome %}
 welcome:
   title: "SPARC - Spatial Risk Calendar"
-  intro: "Welcome to SPARC!\n\n SPARC is a Spatial Risk Calendar that combines data layers covering hazard exposure and population vulnerability to determine baseline probabilistic levels of humanitarian impact associated with particular hazard types, on a monthly basis, at a sub-national level, around the globe.\n\n"
+  intro: "Welcome to SPARC!\n\n SPARC is a Spatial Risk Calendar that combines data layers covering hazard exposure and population vulnerability to determine baseline probabilistic levels of humanitarian impact associated with particular hazard types, on a monthly basis, at a sub-national level, around the globe.\n\n<center>![logo](/static/sparc2/assets/img/wfp_logo_blue.png =*x*)</center>"
   about: "SPARC is a Spatial Risk Calendar that combines data layers covering hazard exposure and population vulnerability to determine baseline probabilistic levels of humanitarian impact associated with particular hazard types, on a monthly basis, at a sub-national level, around the globe.\n\nSPARC is a digital service provided by the World Foood Programme (WFP), Emergency Preparedness and Support Response Division (OSE)."
 {% endblock %}
 
