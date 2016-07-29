@@ -12,6 +12,8 @@ geodash.directives["sparcSidebar"] = function(){
     {
       setTimeout(function(){
 
+        $('[data-toggle="tooltip"]', $element).tooltip(); 
+
         var jqe = $($element);
         if($scope.charts != undefined)
         {

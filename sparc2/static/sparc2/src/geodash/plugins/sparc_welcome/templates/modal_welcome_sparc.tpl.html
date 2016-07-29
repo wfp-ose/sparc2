@@ -49,14 +49,27 @@
                 name="country-input"
                 type="text"
                 class="typeahead form-control"
-                style="width:400px; height: auto;"
+                style="width:360px; height: auto;"
                 placeholder="Country (e.g., Haiti or Philippines)"
                 aria-describedby="country-addon"
                 data-placeholder="Country (e.g., Haiti, Nepal, or Philippines)"
                 data-initial-data="countries_select2"
                 data-backend="country-input-backend"
                 data-template-empty="<div class=&quot;alert alert-danger empty-message&quot;>Unable to find country</div>">
-                <div class="input-group-addon btn btn-danger btn-clear" data-clear="#country-input">
+                <div
+                  class="input-group-addon btn btn-primary btn-show-options"
+                  data-toggle="tooltip"
+                  data-placement="bottom"
+                  title="Show Options"
+                  ng-click="showOptions($event, '#country-input')">
+                  <i class="fa fa-chevron-down"></i>
+                </div>
+                <div
+                  class="input-group-addon btn btn-danger btn-clear"
+                  data-clear="#country-input"
+                  data-toggle="tooltip"
+                  data-placement="bottom"
+                  title="Clear Selection">
                   <i class="fa fa-times"></i>
                 </div>
             </div>
@@ -75,14 +88,27 @@
                 name="hazard-input"
                 type="text"
                 class="typeahead form-control"
-                style="width:400px; height: auto;"
+                style="width:360px; height: auto;"
                 placeholder="Hazard (e.g., Flood, Cyclone, Drought, or Landslide)"
                 aria-describedby="hazard-addon"
                 data-placeholder="Hazard (e.g., Flood, Cyclone, Drought, or Landslide)"
                 data-initial-data="hazards_select2"
                 data-backend="hazard-input-backend"
                 data-template-empty="<div class=&quot;empty-message&quot;>Unable to find hazard</div>">
-                <div class="input-group-addon btn btn-danger btn-clear" data-clear="#hazard-input">
+                <div
+                  class="input-group-addon btn btn-primary btn-show-options"
+                  data-toggle="tooltip"
+                  data-placement="bottom"
+                  title="Show Options"
+                  ng-click="showOptions($event, '#hazard-input')">
+                  <i class="fa fa-chevron-down"></i>
+                </div>
+                <div
+                  class="input-group-addon btn btn-danger btn-clear"
+                  data-clear="#hazard-input"
+                  data-toggle="tooltip"
+                  data-placement="bottom"
+                  title="Clear Selection">
                   <i class="fa fa-times"></i>
                 </div>
             </div>

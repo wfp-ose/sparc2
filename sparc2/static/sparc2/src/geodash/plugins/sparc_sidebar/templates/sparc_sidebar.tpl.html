@@ -60,16 +60,22 @@
                    class="geodash-sidebar-item-visibility-button geodash-intent"
                    data-intent-name="hideLayer"
                    data-intent-data="{&quot;layer&quot;:&quot;{{ layer.id }}&quot;}"
-                   data-intent-ctrl="sparc-sidebar-left">
+                   data-intent-ctrl="sparc-sidebar-left"
+                   data-toggle="tooltip"
+                   data-placement="bottom"
+                   title="Click to hide this layer.">
                    <i class="fa fa-times"></i>
                  </a>
               </div><!--
               --><div class="geodash-sidebar-item-icon geodash-sidebar-item-more">
                 <a
                   class="geodash-intent"
-                  data-intent-name="toggleModal"
-                  data-intent-data="{{ html5data('toggleModal', 'geodash-modal-layer-more', 'featurelayer', layer) }}"
-                  data-intent-ctrl="sparc-sidebar-left">
+                  data-intent-name="showModal"
+                  data-intent-data="{{ html5data('showModal', 'geodash-modal-layer-more', 'featurelayer', layer) }}"
+                  data-intent-ctrl="sparc-sidebar-left"
+                  data-toggle="tooltip"
+                  data-placement="bottom"
+                  title="Click to learn more about this layer.">
                   <i class="fa fa-info-circle"></i>
                 </a>
               </div><!--
@@ -79,7 +85,10 @@
                    class="geodash-sidebar-item-zoomto-button geodash-intent"
                    data-intent-name="zoomToLayer"
                    data-intent-data="{&quot;layer&quot;:&quot;{{ layer.id }}&quot;}"
-                   data-intent-ctrl="sparc-sidebar-left">
+                   data-intent-ctrl="sparc-sidebar-left"
+                   data-toggle="tooltip"
+                   data-placement="bottom"
+                   title="Click to zoom to this layer.">
                    <i class="fa fa-compress"></i>
                  </a>
               </div>
@@ -108,7 +117,10 @@
                   class="geodash-intent"
                   data-intent-name="toggleModal"
                   data-intent-data="{{ html5data('toggleModal', 'geodash-modal-layer-more', 'featurelayer', layer) }}"
-                  data-intent-ctrl="sparc-sidebar-left">
+                  data-intent-ctrl="sparc-sidebar-left"
+                  data-toggle="tooltip"
+                  data-placement="bottom"
+                  title="Click to learn more about this layer.">
                   <i class="fa fa-info-circle"></i>
                 </a>
               </div>
@@ -140,7 +152,10 @@
                   class="geodash-intent"
                   data-intent-name="toggleModal"
                   data-intent-data="{{ html5data('toggleModal', 'geodash-modal-layer-more', 'featurelayer', layer) }}"
-                  data-intent-ctrl="sparc-sidebar-left">
+                  data-intent-ctrl="sparc-sidebar-left"
+                  data-toggle="tooltip"
+                  data-placement="bottom"
+                  title="Click to learn more about this layer.">
                   <i class="fa fa-info-circle"></i>
                 </a>
               </div>
@@ -172,7 +187,10 @@
                   class="geodash-intent"
                   data-intent-name="toggleModal"
                   data-intent-data="{{ html5data('toggleModal', 'geodash-modal-layer-more', 'featurelayer', layer) }}"
-                  data-intent-ctrl="sparc-sidebar-left">
+                  data-intent-ctrl="sparc-sidebar-left"
+                  data-toggle="tooltip"
+                  data-placement="bottom"
+                  title="Click to learn more about this layer.">
                   <i class="fa fa-info-circle"></i>
                 </a>
               </div>
@@ -204,7 +222,10 @@
                   class="geodash-intent"
                   data-intent-name="toggleModal"
                   data-intent-data="{{ html5data('toggleModal', 'geodash-modal-layer-more', 'baselayer', layer) }}"
-                  data-intent-ctrl="sparc-sidebar-left">
+                  data-intent-ctrl="sparc-sidebar-left"
+                  data-toggle="tooltip"
+                  data-placement="bottom"
+                  title="Click to learn more about this layer.">
                   <i class="fa fa-info-circle"></i>
                 </a>
               </div><!--

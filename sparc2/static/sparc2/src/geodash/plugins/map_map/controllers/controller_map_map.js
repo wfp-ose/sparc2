@@ -247,7 +247,19 @@ geodash.controllers["controller_map_map"] = function(
   }
   //////////////////////////////////////
   // Sidebar Toggle
-  $("#geodash-map-sidebar-toggle-left").click(function (){
+  $scope.$on("toggleComponent", function(event, args) {
+    var component = args.component;
+    var position = args.position;
+    var classes = component+"-open "+component+"-"+position+"-open";
+    $(args.selector).toggleClass(classes);
+    setTimeout(function(){
+      live["map"].invalidateSize({
+        animate: true,
+        pan: false
+      });
+    },2000);
+  });
+  /*$("#geodash-map-sidebar-toggle-left").click(function (){
     $(this).toggleClass("sidebar-open sidebar-left-open");
     $("#sparc-sidebar-left, #geodash-map").toggleClass("sidebar-open sidebar-left-open");
     setTimeout(function(){
@@ -256,7 +268,7 @@ geodash.controllers["controller_map_map"] = function(
         pan: false
       });
     },2000);
-  });
+  });*/
   //////////////////////////////////////
   $scope.$on("refreshMap", function(event, args) {
     // Forces Refresh

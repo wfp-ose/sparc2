@@ -65,7 +65,9 @@ def explore(request):
         "state_json": json.dumps(initial_state),
         "state_schema": state_schema,
         "state_schema_json": json.dumps(state_schema),
-        "init_function": "init_explore"
+        "init_function": "init_explore",
+        "geodash_main_id": "geodash-main",
+        "include_sidebar_left": False
     }
 
     return render_to_response(t, RequestContext(request, ctx))
@@ -121,7 +123,9 @@ def country_detail(request, iso3=None, hazard=None, month=None):
         "state_json": json.dumps(initial_state),
         "state_schema": state_schema,
         "state_schema_json": json.dumps(state_schema),
-        "init_function": "init_country"
+        "init_function": "init_country",
+        "geodash_main_id": "geodash-main",
+        "include_sidebar_left": True
     }
 
     ctx.update({
@@ -247,7 +251,9 @@ def countryhazardmonth_detail(request, iso3=None, hazard=None, month=None):
         "state_schema": state_schema,
         "state_schema_json": json.dumps(state_schema),
         "sidebar_left_open": True,
-        "init_function": "init_countryhazardmonth"
+        "init_function": "init_countryhazardmonth",
+        "geodash_main_id": "geodash-main",
+        "include_sidebar_left": True
     }
 
     ctx.update({
@@ -257,7 +263,7 @@ def countryhazardmonth_detail(request, iso3=None, hazard=None, month=None):
         "country_title": country_title,
         "hazard_title": hazard_title,
         "month_title": month_title,
-        "maxValue": maxValue,
+        "maxValue": maxValue
     })
 
     #print "filters: ", map_config["featurelayers"]["popatrisk"]["filters"]

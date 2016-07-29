@@ -181,6 +181,13 @@ GEODASH_DNS_PREFETCH = [
     '//openstreetmap.org', '//openstreetmap.fr'
 ]
 #-----------------------------
+# Static Management
+GEODASH_STATIC_MONOLITH_CSS = False
+GEODASH_STATIC_MONOLITH_JS = True
+
+SPARC_STATIC_VERSION = "0.0.1"
+GEODASH_STATIC_VERSION = "0.0.1"
+#-----------------------------
 # Dependencies Management
 SPARC_STATIC_VERSION="0.0.1"
 GEODASH_STATIC_VERSION="0.0.1"
@@ -222,6 +229,7 @@ GEODASH_STATIC_DEBUG = {
     "bootstrap": False,
     "jquery": False,
     "leaflet": True,
-    "select2": True
+    "select2": True,
+    "monolith": True
 }
 #######################################

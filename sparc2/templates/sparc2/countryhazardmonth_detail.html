@@ -21,7 +21,11 @@
 {% include "geodash/_includes/map_legend.html" with legend_title="Legend - Click to Open" %}
 {% if hazard != "drought" %}
 {% include "geodash/_includes/map_filter.html" %}
-{% include "geodash/_includes/map_sidebar_toggle_left.html" %}
+<div
+  id="geodash-map-sidebar-toggle-left"
+  class="geodash-controller"
+  geodash-sidebar-toggle-left>
+</div>
 {% endif %}
 {% include "sparc2/_includes/map_calendar.html" %}
 {% endblock %}

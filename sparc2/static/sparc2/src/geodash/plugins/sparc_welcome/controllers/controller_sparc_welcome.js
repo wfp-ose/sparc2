@@ -4,6 +4,8 @@ geodash.controllers["controller_sparc_welcome"] = function(
   angular.extend(this, $controller('GeoDashControllerBase', {$element: $element, $scope: $scope}));
   //angular.extend(this, $controller('GeoDashControllerModal', {$element: $element, $scope: $scope}));
 
+  $scope.showOptions = geodash.ui.showOptions;
+
   setTimeout(function(){
 
     $('#country-input, #hazard-input', $element).each(function(){

@@ -2,6 +2,7 @@ geodash.controllers["controller_sparc_sidebar"] = function($scope, $element, $co
 {
   angular.extend(this, $controller('GeoDashControllerBase', {$element: $element, $scope: $scope}));
   //
+  $scope.html5data = sparc.html5data;
   $scope.charts = map_config.charts;
 
   $scope.updateVariables = function(){

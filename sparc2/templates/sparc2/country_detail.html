@@ -9,7 +9,18 @@
 {% block sidebar_left %}{% endblock %}
 
 {% block map_controllers %}
-{% include "sparc2/_includes/sparc_welcome.html" %}
+<div class="sparc-welcome-modals">
+  <div
+    id="sparc-modal-welcome"
+    class="geodash-controller geodash-modal modal fade sparc-welcome"
+    geodash-controller="sparc-modal-welcome"
+    ng-controller="sparc-modal-welcome"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="myModalLabel">
+    <div sparc-modal-welcome id="sparc-welcome"></div>
+  </div>
+</div>
 {% endblock %}
 
 {% block extra_content %}{% endblock %}
