@@ -1,6 +1,10 @@
 ---
 controllers:
-  - controller_map_map.js
+  - name: controller_map_map
+    path: controller_map_map.js
+    handlers:
+      - event: toggleComponent
+        handler: toggleComponent
 directives: []
 templates: []
 less:

@@ -30,7 +30,30 @@ var init_map = function(opts)
 };
 geodash.controllers["controller_map_map"] = function(
   $rootScope, $scope, $element, $compile, $interpolate, $templateCache,
+  $http, $q,
   state, map_config, live) {
+  //////////////////////////////////////
+  $scope.processEvent = function(event, args)
+  {
+    var c = $.grep(geodash.meta.controllers, function(x, i){
+      return x['name'] == 'controller_map_map';
+    })[0];
+
+    for(var i = 0; i < c.handlers.length; i++)
+    {
+      if(c.handlers[i]['event'] == event.name)
+      {
+        geodash.handlers[c.handlers[i]['handler']]($scope, $interpolate, $http, $q, event, args);
+      }
+    }
+  };
+  var c = $.grep(geodash.meta.controllers, function(x, i){
+    return x['name'] == 'controller_map_map';
+  })[0];
+  for(var i = 0; i < c.handlers.length; i++)
+  {
+    $scope.$on(c.handlers[i]['event'], $scope.processEvent);
+  }
   //////////////////////////////////////
   var listeners =
   {
@@ -245,30 +268,6 @@ geodash.controllers["controller_map_map"] = function(
           live["map"].fitBounds(live["featurelayers"]["popatrisk"].getBounds());
       }
   }
-  //////////////////////////////////////
-  // Sidebar Toggle
-  $scope.$on("toggleComponent", function(event, args) {
-    var component = args.component;
-    var position = args.position;
-    var classes = component+"-open "+component+"-"+position+"-open";
-    $(args.selector).toggleClass(classes);
-    setTimeout(function(){
-      live["map"].invalidateSize({
-        animate: true,
-        pan: false
-      });
-    },2000);
-  });
-  /*$("#geodash-map-sidebar-toggle-left").click(function (){
-    $(this).toggleClass("sidebar-open sidebar-left-open");
-    $("#sparc-sidebar-left, #geodash-map").toggleClass("sidebar-open sidebar-left-open");
-    setTimeout(function(){
-      live["map"].invalidateSize({
-        animate: true,
-        pan: false
-      });
-    },2000);
-  });*/
   //////////////////////////////////////
   $scope.$on("refreshMap", function(event, args) {
     // Forces Refresh

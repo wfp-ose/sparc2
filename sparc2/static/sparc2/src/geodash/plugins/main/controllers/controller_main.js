@@ -36,7 +36,8 @@ var buildPageURL = function($interpolate, map_config, state)
 };
 
 geodash.controllers["controller_main"] = function(
-  $interpolate, $scope, $element, $controller, $http, $q,
+  $interpolate, $scope, $element, $controller,
+  $http, $q,
   state, map_config, stateschema, live)
 {
     $scope.map_config = map_config;
@@ -48,218 +49,30 @@ geodash.controllers["controller_main"] = function(
       $scope.$broadcast("refreshMap", {'state': state});
     };
 
+    $scope.processEvent = function(event, args)
+    {
+      var c = $.grep(geodash.meta.controllers, function(x, i){
+        return x['name'] == 'controller_main';
+      })[0];
+
+      for(var i = 0; i < c.handlers.length; i++)
+      {
+        if(c.handlers[i]['event'] == event.name)
+        {
+          geodash.handlers[c.handlers[i]['handler']]($scope, $interpolate, $http, $q,  event, args);
+        }
+      }
+    };
+
     $.each(geodash.listeners, function(i, x){ $scope.$on(i, x); });
 
-    // Toggle Component
-    $scope.$on("requestToggleComponent", function(event, args) {
-        console.log('event', event);
-        console.log('args', args);
-        geodash.api.getScope("geodash-main").$broadcast("toggleComponent", args);
-    });
-
-    // Calendar, Country, Hazard, or Filter Changed
-    $scope.$on("stateChanged", function(event, args) {
-        console.log('event', event);
-        console.log('args', args);
-        //
-        var $scope = geodash.api.getScope("geodash-main");
-        $scope.$apply(function () {
-            $scope.state = $.extend($scope.state, args);
-            var url = buildPageURL($interpolate, map_config, $scope.state);
-            history.replaceState(state, "", url);
-            $scope.refreshMap($scope.state);
-        });
-    });
-
-    // Filter Changed
-    $scope.$on("filterChanged", function(event, args) {
-        console.log('event', event);
-        console.log('args', args);
-        //
-        var $scope = geodash.api.getScope("geodash-main");
-        $scope.$apply(function () {
-            $scope.state.filters[args["layer"]] = $.extend(
-              $scope.state.filters[args["layer"]],
-              args["filter"]);
-            var url = buildPageURL($interpolate, map_config, $scope.state);
-            history.replaceState(state, "", url);
-            $scope.refreshMap($scope.state);
-        });
-    });
-
-    // Style Changed
-    $scope.$on("selectStyle", function(event, args) {
-        console.log('event', event);
-        console.log('args', args);
-        //
-        var $scope = geodash.api.getScope("geodash-main");
-        $scope.$apply(function () {
-            $scope.state.styles[args["layer"]] = args["style"];
-            var url = buildPageURL($interpolate, map_config, $scope.state);
-            history.replaceState(state, "", url);
-            $scope.refreshMap($scope.state);
-        });
-    });
-
-    // Map Panned or Zoomed
-    $scope.$on("viewChanged", function(event, args) {
-        console.log('event', event);
-        console.log('args', args);
-        //
-        var $scope = geodash.api.getScope("geodash-main");
-        $scope.state.view = $.extend($scope.state.view, args);
-        var url = buildPageURL($interpolate, map_config, $scope.state);
-        if(url != undefined)
-        {
-          history.replaceState(state, "", url);
-        }
-    });
-
-    $scope.$on("layerLoaded", function(event, args) {
-        var $scope = geodash.api.getScope("geodash-main");
-        var type = args.type;
-        var layer = args.layer;
-        var visible = args.visible != undefined ? args.visible : true;
-        if(type == "featurelayer")
-        {
-          if(visible)
-          {
-            $scope.state.view.featurelayers.push(layer);
-          }
-        }
-        else if(type == "baselayer")
-        {
-          $scope.state.view.baselayer = layer;
-        }
-    });
-
-    $scope.$on("showLayer", function(event, args) {
-        console.log('event', event);
-        console.log('args', args);
-        var $scope = geodash.api.getScope("geodash-main");
-        var layer = args.layer;
-        if($.inArray(layer, $scope.state.view.featurelayers) == -1)
-        {
-          $scope.state.view.featurelayers.push(layer);
-          $scope.refreshMap($scope.state);
-        }
-    });
-    $scope.$on("hideLayer", function(event, args) {
-        console.log('event', event);
-        console.log('args', args);
-        var $scope = geodash.api.getScope("geodash-main");
-        var layer = args.layer;
-        var i = $.inArray(layer, $scope.state.view.featurelayers);
-        if(i != -1)
-        {
-          $scope.state.view.featurelayers.splice(i, 1);
-          $scope.refreshMap($scope.state);
-        }
-    });
-    $scope.$on("showLayers", function(event, args) {
-        console.log('event', event);
-        console.log('args', args);
-        var $scope = geodash.api.getScope("geodash-main");
-        var layers = args.layers;
-        for(var i = 0; i < layers.length; i++)
-        {
-          var layer = layers[i];
-          if($.inArray(layer, $scope.state.view.featurelayers) == -1)
-          {
-            $scope.state.view.featurelayers.push(layer);
-            $scope.refreshMap($scope.state);
-          }
-        }
-    });
-    $scope.$on("hideLayers", function(event, args) {
-        console.log('event', event);
-        console.log('args', args);
-        var $scope = geodash.api.getScope("geodash-main");
-        var layers = args.layers;
-        for(var i = 0; i < layers.length; i++)
-        {
-          var layer = args.layers[i];
-          var j = $.inArray(layer, $scope.state.view.featurelayers);
-          if(j != -1)
-          {
-            $scope.state.view.featurelayers.splice(j, 1);
-            $scope.refreshMap($scope.state);
-          }
-        }
-    });
-    $scope.$on("switchBaseLayer", function(event, args) {
-        console.log('event', event);
-        console.log('args', args);
-        var $scope = geodash.api.getScope("geodash-main");
-        $scope.state.view.baselayer = args.layer;
-        $scope.refreshMap($scope.state);
-    });
-
-    $scope.$on("zoomToLayer", function(event, args) {
-        var $scope = geodash.api.getScope("geodash-main");
-        var layer = args.layer;
-        var i = $.inArray(layer, $scope.state.view.featurelayers);
-        if(i != -1)
-        {
-          $scope.$broadcast("changeView", {'layer': layer});
-        }
-    });
-
-    $scope.$on("clickedOnMap", function(event, args) {
-        console.log('event', event);
-        console.log('args', args);
-        //
-        var $scope = geodash.api.getScope("geodash-main");
-        var z = $scope.state.view.z;
-        var visibleFeatureLayers = $scope.state.view.featurelayers;
-        console.log("visibleFeatureLayers", visibleFeatureLayers);
-        var featurelayers_by_featuretype = {};
-        var fields_by_featuretype = {};
-        var urls = [];
-        for(var i = 0; i < visibleFeatureLayers.length; i++)
-        {
-            var fl = geodash.api.getFeatureLayer(visibleFeatureLayers[i], {"scope": $scope});
-            if("wfs" in fl && fl.wfs != undefined)
-            {
-              var params = {
-                service: "wfs",
-                version: fl.wfs.version,
-                request: "GetFeature",
-                srsName: "EPSG:4326",
-              };
-
-              var targetLocation = new L.LatLng(args.lat, args.lon);
-              var bbox = geodash.tilemath.point_to_bbox(args.lon, args.lat, z, 4).join(",");
-              var typeNames = fl.wfs.layers || fl.wms.layers || [] ;
-              for(var j = 0; j < typeNames.length; j++)
-              {
-                typeName = typeNames[j];
-                var url = fl.wfs.url + "?" + $.param($.extend(params, {typeNames: typeName, bbox: bbox}));
-                urls.push(url);
-                fields_by_featuretype[typeName.toLowerCase()] = geodash.layers.aggregate_fields(fl);
-                featurelayers_by_featuretype[typeName.toLowerCase()] = fl;
-              }
-            }
-          }
-
-          $q.all(geodash.http.build_promises($http, urls)).then(function(responses){
-              var features = geodash.http.build_features(responses, fields_by_featuretype);
-              console.log("Features: ", features);
-              if(features.length > 0 )
-              {
-                var featureAndLocation = geodash.vecmath.getClosestFeatureAndLocation(features, targetLocation);
-                var fl = featurelayers_by_featuretype[featureAndLocation.feature.featuretype];
-                $scope.$broadcast("openPopup", {
-                  'featureLayer': fl,
-                  'feature': featureAndLocation.feature,
-                  'location': {
-                    'lon': featureAndLocation.location.lng,
-                    'lat': featureAndLocation.location.lat
-                  }
-                });
-              }
-          });
-    });
+    var c = $.grep(geodash.meta.controllers, function(x, i){
+      return x['name'] == 'controller_main';
+    })[0];
+    for(var i = 0; i < c.handlers.length; i++)
+    {
+      $scope.$on(c.handlers[i]['event'], $scope.processEvent);
+    }
 };
 
 

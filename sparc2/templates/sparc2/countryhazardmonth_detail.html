@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block sidebar_left %}
-{% if hazard != "drought" %}
+{% if include_sidebar_left %}
 <div
   id="sparc-sidebar-left"
   class="geodash-sidebar geodash-sidebar-left geodash-controller sidebar-open sidebar-left-open"
@@ -21,9 +21,12 @@
 {% include "geodash/_includes/map_legend.html" with legend_title="Legend - Click to Open" %}
 {% if hazard != "drought" %}
 {% include "geodash/_includes/map_filter.html" %}
+{% endif %}
+{% if include_sidebar_left %}
 <div
   id="geodash-map-sidebar-toggle-left"
   class="geodash-controller"
+  selector="#geodash-map-sidebar-toggle-left, #geodash-sidebar-left, #geodash-map"
   geodash-sidebar-toggle-left>
 </div>
 {% endif %}

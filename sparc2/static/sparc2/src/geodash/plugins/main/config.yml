@@ -1,5 +1,38 @@
 ---
 controllers:
-  - controller_main.js
+  - name: controller_main
+    path: controller_main.js
+    handlers:
+      - event: clickedOnMap
+        handler: clickedOnMap
+      - event: filterChanged
+        handler: filterChanged
+      - event: hideLayer
+        handler: hideLayer
+      - event: hideLayers
+        handler: hideLayers
+      - event: layerLoaded
+        handler: layerLoaded
+      - event: requestToggleComponent
+        handler: requestToggleComponent
+      - event: selectStyle
+        handler: selectStyle
+      - event: showLayer
+        handler: showLayer
+      - event: showLayers
+        handler: showLayers
+      - event: stateChanged
+        handler: stateChanged
+      - event: switchBaseLayer
+        handler: switchBaseLayer
+      - event: viewChanged
+        handler: viewChanged
+      - event: zoomToLayer
+        handler: zoomToLayer
 directives: []
 templates: []
+handlers:
+  - filterChanged.js
+  - selectStyle.js
+  - stateChanged.js
+  - viewChanged.js
