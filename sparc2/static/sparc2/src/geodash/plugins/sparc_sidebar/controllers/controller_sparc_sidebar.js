@@ -1,11 +1,16 @@
-geodash.controllers["controller_sparc_sidebar"] = function($scope, $element, $controller, state, map_config, live)
+geodash.controllers["controller_sparc_sidebar"] = function($scope, $element, $controller, $timeout, state, map_config, live)
 {
   angular.extend(this, $controller('GeoDashControllerBase', {$element: $element, $scope: $scope}));
   //
   $scope.html5data = sparc.html5data;
   $scope.charts = map_config.charts;
+  $scope.ui = map_config.sidebar.ui;
+  $scope.filters = geodash.api.getFeatureLayer("popatrisk")["filters"];
+  var maxValueFromSummary = geodash.initial_data.layers.popatrisk["data"]["summary"]["all"]["max"]["at_admin2_month"];
 
   $scope.updateVariables = function(){
+
+    /*
     var layerGroups = {
       "sidebar": $scope.map_config.legendlayers,
       "sparc": ["popatrisk", "context"],
@@ -15,12 +20,12 @@ geodash.controllers["controller_sparc_sidebar"] = function($scope, $element, $co
         "flood_events", "landslide_events",
         "flood_probability", "cyclone_probability",
         "imerg_1day", "imerg_3day", "imerg_7day"]
-    };
+    };*/
 
     if("baselayers" in $scope.map_config && $scope.map_config.baselayers != undefined)
     {
-      var baselayers = $.grep($scope.map_config.baselayers,function(x, i){ return $.inArray(x["id"], layerGroups["sidebar"]) != -1; });
-      baselayers.sort(function(a, b){ return $.inArray(a["id"], layerGroups["sidebar"]) - $.inArray(b["id"], layerGroups["sidebar"]); });
+      var baselayers = $.grep($scope.map_config.baselayers,function(x, i){ return $.inArray(x["id"], $scope.ui.layers) != -1; });
+      baselayers.sort(function(a, b){ return $.inArray(a["id"], $scope.ui.layers) - $.inArray(b["id"], $scope.ui.layers); });
       $scope.baselayers = baselayers;
     }
     else
@@ -30,28 +35,30 @@ geodash.controllers["controller_sparc_sidebar"] = function($scope, $element, $co
 
     if("featurelayers" in $scope.map_config && $scope.map_config.featurelayers != undefined)
     {
-      var featurelayers = $.grep($scope.map_config.featurelayers,function(x, i){ return $.inArray(x["id"], layerGroups["sidebar"]) != -1; });
-      featurelayers.sort(function(a, b){ return $.inArray(a["id"], layerGroups["sidebar"]) - $.inArray(b["id"], layerGroups["sidebar"]); });
+      var featurelayers = $.grep($scope.map_config.featurelayers,function(x, i){ return $.inArray(x["id"], $scope.ui.layers) != -1; });
+      featurelayers.sort(function(a, b){ return $.inArray(a["id"], $scope.ui.layers) - $.inArray(b["id"], $scope.ui.layers); });
       $scope.featurelayers = featurelayers;
 
       var visiblefeaturelayers = $.grep($scope.map_config.featurelayers,function(x, i){
-        return $.inArray(x["id"], layerGroups["sidebar"]) != -1 &&
+        return $.inArray(x["id"], $scope.ui.layers) != -1 &&
           $.inArray(x["id"], $scope.state.view.featurelayers) != -1;
       });
       visiblefeaturelayers.sort(function(a, b){ return $.inArray(a["id"], $scope.state.view.featurelayers) - $.inArray(b["id"], $scope.state.view.featurelayers); });
       $scope.visiblefeaturelayers = visiblefeaturelayers;
 
-      var sparclayers = $.grep($scope.map_config.featurelayers,function(x, i){ return $.inArray(x["id"], layerGroups["sparc"]) != -1; });
-      sparclayers.sort(function(a, b){ return $.inArray(a["id"], layerGroups["sparc"]) - $.inArray(b["id"], layerGroups["sparc"]); });
-      $scope.sparclayers = sparclayers;
-
-      var wfplayers = $.grep($scope.map_config.featurelayers,function(x, i){ return $.inArray(x["id"], layerGroups["wfp"]) != -1; });
-      wfplayers.sort(function(a, b){ return $.inArray(a["id"], layerGroups["wfp"]) - $.inArray(b["id"], layerGroups["wfp"]); });
-      $scope.wfplayers = wfplayers;
-
-      var otherlayers = $.grep($scope.map_config.featurelayers,function(x, i){ return $.inArray(x["id"], layerGroups["other"]) != -1; });
-      otherlayers.sort(function(a, b){ return $.inArray(a["id"], layerGroups["other"]) - $.inArray(b["id"], layerGroups["other"]); });
-      $scope.otherlayers = otherlayers;
+      $scope.groups = [];
+      for(var i = 0; i < $scope.ui.groups.length; i++)
+      {
+        var g = $scope.ui.groups[i];
+        var layers = $.grep($scope.map_config.featurelayers,function(x, i){ return $.inArray(x["id"], g.layers) != -1; });
+        layers.sort(function(a, b){ return $.inArray(a["id"], g.layers) - $.inArray(b["id"], g.layers); });
+        $scope.groups.push({
+          'id': g.id,
+          'label': g.label,
+          'class': g.class,
+          'layers': layers
+        });
+      }
     }
     else
     {
@@ -60,8 +67,8 @@ geodash.controllers["controller_sparc_sidebar"] = function($scope, $element, $co
 
   };
   $scope.updateVariables();
-  $scope.$watch('map_config.featurelayers', $scope.updateVariables);
-  $scope.$watch('map_config.legendlayers', $scope.updateVariables);
+  //$scope.$watch('map_config.featurelayers', $scope.updateVariables);
+  //$scope.$watch('map_config.legendlayers', $scope.updateVariables);
   $scope.$watch('state', $scope.updateVariables);
 
   $scope.$on("refreshMap", function(event, args) {
@@ -69,7 +76,9 @@ geodash.controllers["controller_sparc_sidebar"] = function($scope, $element, $co
     {
       $scope.state = args["state"];
       $scope.updateVariables();
-      $scope.$digest();
+      $timeout(function(){
+        $scope.$digest();
+      },0);
     }
   });
 

@@ -5,14 +5,14 @@ sparc.welcome = function(options)
   options = options || {};
   var scope = options['$scope'] || options['scope'] || angular.element("#geodash-main").scope();
   var intentData = {
-    "id": "sparc-modal-welcome",
+    "id": "geodash-modal-sparc-welcome",
     "modal": {
       "backdrop": "static",
       "keyboard": false
     },
     "dynamic": {},
     "static": {
-      "welcome": scope.map_config["welcome"]
+      "welcome": extract("welcome", scope.config || scope.map_config)
     }
   };
   geodash.api.intend("toggleModal", intentData, scope);
@@ -160,12 +160,9 @@ sparc.calculate_population_at_risk = function(hazard, feature, state, filters)
     for(var i = 0; i < feature.attributes.addinfo.length; i++)
     {
       var a = feature.attributes.addinfo[i];
-      if(a["month"] == month_short3)
+      if(a["prob_class_max"] >= prob_class_max)
       {
-        if(a["prob_class_max"] >= prob_class_max)
-        {
-          value += a["popatrisk"];
-        }
+        value += a[month_short3];
       }
     }
   }

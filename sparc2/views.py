@@ -23,8 +23,49 @@ from sparc2.enumerations import URL_EMDAT_BY_HAZARD, SPARC_HAZARDS_CONFIG
 from sparc2.models import SPARCCountry
 from sparc2.utils import get_month_number, get_json_admin0, get_geojson_cyclone, get_geojson_drought, get_geojson_flood, get_geojson_landslide, get_geojson_context, get_summary_cyclone, get_summary_drought, get_summary_flood, get_summary_landslide, get_summary_context, get_events_cyclone, get_events_flood, get_events_landslide, get_geojson_vam
 
-def home(request, template="home.html"):
-    raise NotImplementedError
+def home(request, template="sparc2/home.html"):
+    now = datetime.datetime.now()
+    current_month = now.month
+
+    map_config_yml = get_template("sparc2/maps/home.yml").render({})
+    map_config = yaml.load(map_config_yml)
+
+    ##############
+    initial_state = {
+        "page": "home",
+        "view": {
+            "lat": map_config["view"]["latitude"],
+            "lon": map_config["view"]["longitude"],
+            "z": map_config["view"]["zoom"],
+            "baselayer": None,
+            "featurelayers": []
+        },
+        "filters": {},
+        "styles": {}
+    }
+    state_schema = {
+        "view": {
+          "lat": "float",
+          "lon": "float",
+          "z": "integer"
+        },
+        "filters": {},
+        "styles": {}
+    }
+
+    ctx = {
+        "map_config": map_config,
+        "map_config_json": json.dumps(map_config),
+        "state": initial_state,
+        "state_json": json.dumps(initial_state),
+        "state_schema": state_schema,
+        "state_schema_json": json.dumps(state_schema),
+        "init_function": "init_explore",
+        "geodash_main_id": "geodash-main",
+        "include_sidebar_left": False
+    }
+
+    return render_to_response(template, RequestContext(request, ctx))
 
 def explore(request):
     now = datetime.datetime.now()
@@ -167,7 +208,7 @@ def countryhazardmonth_detail(request, iso3=None, hazard=None, month=None):
     elif hazard == "landslide":
         summary = get_summary_landslide(table_popatrisk="landslide.admin2_popatrisk", iso_alpha3=iso3)
     #############
-    maxValue = summary["all"]["max"]["at_admin2_month"] if hazard != "drought" else 0
+    maxValue = summary["all"]["max"]["at_admin2_month"]
     map_config_yml = get_template("sparc2/maps/countryhazardmonth_detail.yml").render({
         "iso_alpha3": iso3,
         "hazard_title": hazard_title,
@@ -176,7 +217,7 @@ def countryhazardmonth_detail(request, iso3=None, hazard=None, month=None):
         "maxValue": maxValue
     })
     map_config = yaml.load(map_config_yml)
-    popatrisk_range = [0.0, summary["all"]["max"]["at_admin2_month"]] if hazard != "drought" else [0, 0]
+    popatrisk_range = [0.0, summary["all"]["max"]["at_admin2_month"]]
     ##############
     initial_state = {
         "page": "countryhazardmonth_detail",
@@ -235,7 +276,7 @@ def countryhazardmonth_detail(request, iso3=None, hazard=None, month=None):
         state_schema["filters"]["popatrisk"]["prob_class_max"] = "float"
         state_schema["filters"]["popatrisk"]["category"] = "string"
     elif hazard == "drought":
-        initial_state["filters"]["popatrisk"]["prob_class_max"] = 0.04
+        initial_state["filters"]["popatrisk"]["prob_class_max"] = 0.1
         state_schema["filters"]["popatrisk"]["prob_class_max"] = "float"
     elif hazard == "flood":
         initial_state["filters"]["popatrisk"]["rp"] = 200
@@ -328,8 +369,7 @@ class countryhazard_data_local_popatrisk(geodash_data_view):
         if hazard == u'cyclone':
             data = get_geojson_cyclone(request, iso_alpha3=iso3)
         elif hazard == u'drought':
-            #data = get_geojson_drought(request, iso_alpha3=iso3)
-            data = {}
+            data = get_geojson_drought(request, iso_alpha3=iso3)
         elif hazard == u'flood':
             data = get_geojson_flood(request, iso_alpha3=iso3)
         elif hazard == u'landslide':
@@ -349,8 +389,7 @@ class countryhazard_data_local_summary(geodash_data_view):
         if hazard == "cyclone":
             data = get_summary_cyclone(table_popatrisk="cyclone.admin2_popatrisk", iso_alpha3=iso3)
         elif hazard == "drought":
-            #data = get_summary_drought(table_popatrisk="drought.admin2_popatrisk", iso_alpha3=iso3)
-            data = {}
+            data = get_summary_drought(table_popatrisk="drought.admin2_popatrisk", iso_alpha3=iso3)
         elif hazard == "flood":
             data = get_summary_flood(table_popatrisk="flood.admin2_popatrisk", iso_alpha3=iso3)
         elif hazard == "landslide":

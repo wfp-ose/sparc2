@@ -1,0 +1,125 @@
+<div
+  id="geodash-modal-sparc-welcome"
+  class="geodash-controller geodash-controller-modal geodash-modal modal fade geodash-sparc-welcome"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="myModalLabel">
+  <div class="modal-dialog" data-backdrop="static" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="myModalLabel">{{ welcome.title }}</h4>
+      </div>
+      <div class="modal-body">
+        <div>
+          <div geodash-tabs></div>
+          <div class="tab-content">
+            <div
+              id="modal-sparc-welcome-intro"
+              class="tab-pane fade in active"
+              role="tabpanel"
+              style="padding: 10px;">
+              <span
+                class="welcome-body"
+                ng-bind-html="welcome.intro | md2html | default:'No body given.'"></span>
+              <hr>
+              <h3 class="welcome-body">Get Started: Select a county &amp; hazard!</h3>
+              <div class="input-group select2-bootstrap-prepend select2-bootstrap-append">
+                <input
+                  id="country-input-backend"
+                  name="country-input-backend"
+                  type="text"
+                  class="form-control"
+                  style="display:none;"
+                  ng-model="country">
+                <span class="input-group-addon" id="country-addon">Country</span>
+                <input
+                  id="country-input"
+                  name="country-input"
+                  type="text"
+                  class="typeahead form-control"
+                  style="height: auto;"
+                  placeholder="Country (e.g., Haiti or Philippines)"
+                  aria-describedby="country-addon"
+                  data-placeholder="Country (e.g., Haiti, Nepal, or Philippines)"
+                  data-initial-data="countries_select2"
+                  data-backend="country-input-backend"
+                  data-template-empty="<div class=&quot;alert alert-danger empty-message&quot;>Unable to find country</div>">
+                  <div
+                    class="input-group-addon btn btn-primary btn-show-options"
+                    data-toggle="tooltip"
+                    data-placement="bottom"
+                    title="Show Options"
+                    ng-click="showOptions($event, '#country-input')">
+                    <i class="fa fa-chevron-down"></i>
+                  </div>
+                  <div
+                    class="input-group-addon btn btn-danger btn-clear"
+                    data-clear="#country-input"
+                    data-toggle="tooltip"
+                    data-placement="bottom"
+                    title="Clear Selection">
+                    <i class="fa fa-times"></i>
+                  </div>
+              </div>
+              <br>
+              <div class="input-group select2-bootstrap-prepend select2-bootstrap-append">
+                <input
+                  id="hazard-input-backend"
+                  name="hazard-input-backend"
+                  type="text"
+                  class="form-control"
+                  style="display:none;"
+                  ng-model="hazard">
+                <span class="input-group-addon" id="hazard-addon">Hazard</span>
+                <input
+                  id="hazard-input"
+                  name="hazard-input"
+                  type="text"
+                  class="typeahead form-control"
+                  style="height: auto;"
+                  placeholder="Hazard (e.g., Flood, Cyclone, Drought, or Landslide)"
+                  aria-describedby="hazard-addon"
+                  data-placeholder="Hazard (e.g., Flood, Cyclone, Drought, or Landslide)"
+                  data-initial-data="hazards_select2"
+                  data-backend="hazard-input-backend"
+                  data-template-empty="<div class=&quot;empty-message&quot;>Unable to find hazard</div>">
+                  <div
+                    class="input-group-addon btn btn-primary btn-show-options"
+                    data-toggle="tooltip"
+                    data-placement="bottom"
+                    title="Show Options"
+                    ng-click="showOptions($event, '#hazard-input')">
+                    <i class="fa fa-chevron-down"></i>
+                  </div>
+                  <div
+                    class="input-group-addon btn btn-danger btn-clear"
+                    data-clear="#hazard-input"
+                    data-toggle="tooltip"
+                    data-placement="bottom"
+                    title="Clear Selection">
+                    <i class="fa fa-times"></i>
+                  </div>
+              </div>
+              <hr>
+              <ul class="nav nav-justified welcome-go">
+                <li>
+                  <a
+                    ng-disabled="country == undefined || hazard == undefined || country == '' || hazard == ''"
+                    ng-class="country == undefined || hazard == undefined || country == '' || hazard == '' ? 'btn btn-default' : 'btn btn-primary' "
+                    ng-href="{{ country == undefined || hazard == undefined || country == '' || hazard == '' ? '#' : '/country/'+country+'/hazard/'+hazard +'/month/1' }}">Go!</a>
+                </li>
+              </ul>
+            </div>
+            <div
+              id="modal-sparc-welcome-about"
+              class="tab-pane fade"
+              role="tabpanel"
+              style="padding: 10px;">
+              <span ng-bind-html="welcome.about | md2html | default:'No body given.'"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

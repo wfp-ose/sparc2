@@ -228,13 +228,76 @@ def get_summary_cyclone(table_popatrisk=None, iso_alpha3=None):
 
 def get_geojson_drought(request, iso_alpha3=None):
     collection = None
+
+    prob_classes = [
+      { "min": 0.01, "max": .05, "label": "0.01-0.05" },
+      { "min": .06, "max": .10, "label": "0.06-0.10" },
+      { "min": .11, "max": .19, "label": "0.11-0.19" },
+      { "min": .2, "max": 1.0, "label": "0.20-1.0" }
+    ]
+
     with GeoDashDatabaseConnection() as geodash_conn:
         # Admin 2 Districts
         collection = data_local_country_admin().get(cursor=geodash_conn.cursor, iso_alpha3=iso_alpha3, level=2)
         # Vam Data
         vam_by_admin1 = get_vam_by_admin1(request, iso_alpha3=iso_alpha3)
+        # Context Data
+        context_by_admin2 = get_context_by_admin2(geodash_conn=geodash_conn, iso_alpha3=iso_alpha3)
         # Population at Risk Data
 
+        popatrisk_by_admin2_probclass_month = {}
+        for prob_class in prob_classes:
+            rows_popatrisk = geodash_conn.exec_query_multiple(
+                get_template("sparc2/sql/_drought_data_by_admin2_for_probclass.sql").render({
+                    'admin2_popatrisk': 'drought.admin2_popatrisk',
+                    'prob_min': prob_class["min"],
+                    'prob_max': prob_class["max"],
+                    'iso_alpha3': iso_alpha3}))
+            for r in rows_popatrisk:
+                admin2_code, month, value = r
+                if admin2_code not in popatrisk_by_admin2_probclass_month:
+                    popatrisk_by_admin2_probclass_month[admin2_code] = {}
+                if prob_class["label"] not in popatrisk_by_admin2_probclass_month[admin2_code]:
+                    popatrisk_by_admin2_probclass_month[admin2_code][prob_class["label"]] = {}
+                popatrisk_by_admin2_probclass_month[admin2_code][prob_class["label"]][month] = value
+
+        for feature in collection["features"]:
+            admin1_code = str(feature["properties"]["admin1_code"])
+            admin2_code = str(feature["properties"]["admin2_code"])
+            if admin2_code in context_by_admin2:
+                feature["properties"]["ldi"] = context_by_admin2[admin2_code]["ldi"]
+                feature["properties"]["delta_negative"] = context_by_admin2[admin2_code]["delta_negative"]
+                feature["properties"]["erosion_propensity"] = context_by_admin2[admin2_code]["erosion_propensity"]
+
+            feature["properties"].update({
+                "FCS": 0,
+                "FCS_border": 0,
+                "FCS_acceptable": 0,
+                "CSI_no": 0,
+                "CSI_low": 0,
+                "CSI_med": 0,
+                "CSI_high": 0
+            })
+            if admin1_code in vam_by_admin1:
+                feature["properties"].update(vam_by_admin1[admin1_code])
+            feature["properties"]["addinfo"] = [];
+            for prob_class in prob_classes:
+                includeX = False
+                x = {
+                    "prob_class": prob_class["label"],
+                    "prob_class_min": prob_class["min"],
+                    "prob_class_max": prob_class["max"]
+                }
+                for month in MONTHS_SHORT3:
+                    if admin2_code in popatrisk_by_admin2_probclass_month:
+                        if prob_class["label"] in popatrisk_by_admin2_probclass_month[admin2_code]:
+                          x[month] = popatrisk_by_admin2_probclass_month[admin2_code][prob_class["label"]].get(month, 0)
+                          includeX = True
+                if includeX:
+                    feature["properties"]["addinfo"].append(x);
+
+
+    '''
         for feature in collection["features"]:
             feature["properties"]["addinfo"] = []
 
@@ -256,6 +319,7 @@ def get_geojson_drought(request, iso_alpha3=None):
                 if value:
                     feature["properties"]["addinfo"].append(value)
 
+    '''
     return collection
 
 
@@ -266,6 +330,75 @@ def get_summary_drought(table_popatrisk=None, iso_alpha3=None):
     if (not table_popatrisk) or (not iso_alpha3):
         raise Exception("Missing table_popatrisk or iso3 for get_summary_drought.")
 
+    summary = None
+
+    prob_classes = [
+      { "min": 0.01, "max": .05, "label": "0.01-0.05" },
+      { "min": .06, "max": .10, "label": "0.06-0.10" },
+      { "min": .11, "max": .19, "label": "0.11-0.19" },
+      { "min": .2, "max": 1.0, "label": "0.20-1.0" }
+    ]
+
+    values_all = []
+    values_float = []
+    natural = []
+    natural_adjusted = []
+    values_by_prob_class = {}
+    values_by_prob_class_by_month = {}
+    with GeoDashDatabaseConnection() as geodash_conn:
+        for prob_class in prob_classes:
+            values = geodash_conn.exec_query_single_aslist(
+                get_template("sparc2/sql/_drought_data_all_at_admin2_for_probclass.sql").render({
+                    'admin2_popatrisk': table_popatrisk,
+                    'prob_min': prob_class["min"],
+                    'prob_max': prob_class["max"],
+                    'iso_alpha3': iso_alpha3}))
+            values_by_prob_class[prob_class['label']] = values
+
+        for prob_class in prob_classes:
+            values_all = values_all + values_by_prob_class[prob_class['label']]
+
+        values_float = [float(x) for x in values_all]
+        num_breakpoints = 5
+        natural = calc_breaks_natural(values_float, num_breakpoints)
+        natural_adjusted = natural
+
+        for prob_class in prob_classes:
+            rows = geodash_conn.exec_query_multiple(
+                get_template("sparc2/sql/_drought_data_all_at_admin2_by_month_for_probclass.sql").render({
+                    'admin2_popatrisk': table_popatrisk,
+                    'prob_min': prob_class["min"],
+                    'prob_max': prob_class["max"],
+                    'iso_alpha3': iso_alpha3}))
+            if prob_class["label"] not in values_by_prob_class_by_month:
+                values_by_prob_class_by_month[prob_class["label"]] = {}
+            for r in rows:
+                month, value = r
+                values_by_prob_class_by_month[prob_class["label"]][month] = value
+
+    summary = {
+        'all': {
+            "max": {
+              'at_country_month': None,
+              'at_admin2_month': max(values_float)
+            },
+            'breakpoints': {
+                'natural': natural,
+                'natural_adjusted': [0] + natural_adjusted
+            }
+        },
+        "prob_class": {},
+        "admin2": {}
+    }
+
+    for prob_class in prob_classes:
+        if prob_class["label"] not in summary["prob_class"]:
+            summary["prob_class"][prob_class["label"]] = {
+                "by_month": []
+            }
+        summary["prob_class"][prob_class["label"]]["by_month"] = [values_by_prob_class_by_month[prob_class["label"]].get(x, 0) for x in MONTHS_SHORT3]
+
+    '''
     connection = psycopg2.connect(settings.GEODASH_DB_CONN_STR)
     cursor = connection.cursor()
 
@@ -344,7 +477,7 @@ def get_summary_drought(table_popatrisk=None, iso_alpha3=None):
             keys = [admin2_code, "prob_max", str(int(prob_max*100.0)), 'by_month']
             value = valuesByMonthToList(values_by_month)
             summary["admin2"] = insertIntoObject(summary["admin2"], keys, value)
-
+    '''
     return summary
 
 

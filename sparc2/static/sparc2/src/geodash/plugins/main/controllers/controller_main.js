@@ -78,6 +78,9 @@ geodash.controllers["controller_main"] = function(
 
 var init_sparc_controller_main = function(that, app)
 {
+  app.controller("GeoDashControllerBase", geodash.controllers.GeoDashControllerBase);
+  app.controller("GeoDashControllerModal", geodash.controllers.GeoDashControllerModal);
+
   geodash.init_controller(that, app, geodash.controllers.controller_main);
 
   var selector_controller_base = [

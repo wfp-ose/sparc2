@@ -9,7 +9,7 @@ FROM
             row_to_json((
                 SELECT X FROM (SELECT G1B.iso_alpha3, G1B.admin0_code, G1B.admin0_name, G1B.admin1_code, G1B.admin1_name, G2.admin2_code, G2.admin2_name) as X
             )) As properties,
-            ST_AsGeoJSON(ST_Simplify(G2.mpoly, {{ tolerance }}))::json as geometry
+            ST_AsGeoJSON(ST_SimplifyPreserveTopology(G2.mpoly, {{ tolerance }}))::json as geometry
         FROM gauldjango_gauladmin2 as G2
         LEFT JOIN
         (

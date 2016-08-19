@@ -1,0 +1,75 @@
+{% extends "sparc2/maps/base.yml" %}
+
+{% block title %}
+title: SPARC
+{% endblock %}
+
+{% block view %}{{ block.super }}{% endblock %}
+
+{% block baselayers %}{{ block.super }}{% endblock %}
+
+{% block featurelayers %}{% verbatim %}
+featurelayers:
+  - id: wld_poi_facilities_wfp
+    type: WMS
+    title: "Global WFP Facilities"
+    description: "WFP Facilities worldwide, Country Office, Sub-Office, Field Office, Area Office, Humanitarian Response Depot."
+    visible: true
+    source:
+      name: "WFP"
+      attribution: "WFP GeoNode"
+    wms:
+      version: "1.1.1"
+      layers: ["geonode:wld_poi_facilities_wfp"]
+      styles: []
+      format: 'image/png'
+      transparent: true
+      buffer: 256
+      url: "http://geonode.wfp.org/geoserver/geonode/wms"
+      cql_filter: "(facility IN ('Country Office') AND status = 'Open')"
+    wfs:
+      version: "1.0.0"  # Needs to 1.0.0 or returns bad results for some reason.
+      url: "http://geonode.wfp.org/cors/geoserver/wfs"
+      geometry: shape
+    kml:
+      url: "http://geonode.wfp.org/cors/geoserver/wms/kml"
+    cartography:
+      - id: default
+        legend:
+          symbol:
+            type: "graphic"
+            width: 16
+            height: 16
+            preview: false
+    legend:
+      label: "Global WFP Facilities"
+{% endverbatim %}{% endblock %}
+
+{% block legendlayers %}
+legendlayers:
+  - wld_poi_facilities_wfp
+  - osm_humanitarian
+  - osm
+{% endblock %}
+
+{% block renderlayers %}
+renderlayers:
+  - wld_poi_facilities_wfp
+  - osm
+  - osm_humanitarian
+{% endblock %}
+
+{% block charts %}
+charts: []
+{% endblock %}
+
+{% block controls %}
+controls:
+  attribution: true
+  breadcrumbs: false
+  calendar: false
+  filters: false
+  legend: true
+  sidebar: false
+  zoom: true
+{% endblock %}

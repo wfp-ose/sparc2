@@ -53,10 +53,16 @@ download:
 
 {% block pages %}{% verbatim %}
 pages:
-  explore: "/explore"
-  country_detail: "/country/{{ iso3 }}"
-  countryhazard_detail: "/country/{{ iso3 }}/hazard/{{ hazard }}"
-  countryhazardmonth_detail: "/country/{{ iso3 }}/hazard/{{ hazard }}/month/{{ month }}"
+  - id: "home"
+    url: "/"
+  - id: "explore"
+    url: "/explore"
+  - id: country_detail
+    url: "/country/{{ iso3 }}"
+  - id: countryhazard_detail
+    url: "/country/{{ iso3 }}/hazard/{{ hazard }}"
+  - id: countryhazardmonth_detail
+    url: "/country/{{ iso3 }}/hazard/{{ hazard }}/month/{{ month }}"
 {% endverbatim %}{% endblock %}
 
 {% block baselayers %}

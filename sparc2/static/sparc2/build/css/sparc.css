@@ -411,9 +411,6 @@
 .geodash-map-overlays .geodash-map-grid.on table td {
   border: 2px solid blue;
 }
-.geodash-map-overlays .geodash-map-grid.on table td:hover {
-  background: rgba(0, 0, 128, 0.25);
-}
 .geodash-map-overlays .geodash-map-overlay {
   position: absolute;
   z-index: 9999;
@@ -421,7 +418,10 @@
   padding: 10px;
   box-sizing: padding-box;
 }
-.geodash-map-overlays .geodash-map-overlay:hover {
+.geodash-map-overlays.editable .geodash-map-grid.on table td:hover {
+  background: rgba(0, 0, 128, 0.25);
+}
+.geodash-map-overlays.editable .geodash-map-overlay:hover {
   border: 4px solid blue;
   border-radius: 4px;
   cursor: pointer;

@@ -21,7 +21,7 @@ urlpatterns = [
     # Web Pages
     url(
         r'^$',
-        views.explore,
+        views.home,
         name='home'),
     url(
         r'^explore$',

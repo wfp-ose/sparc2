@@ -28,7 +28,7 @@ class data_local_country_admin(data_local_country):
         results = None
         if level == 2:
             q = get_template("sparc2/sql/_admin2_polygons.sql").render({
-                'tolerance': '.005',
+                'tolerance': '.002',
                 'iso_alpha3': iso_alpha3})
             cursor.execute(q)
             res = cursor.fetchone()

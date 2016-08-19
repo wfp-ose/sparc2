@@ -43,8 +43,8 @@ featurelayers:
         colors:
           ramp:
             - '#aaaaaa'
-            - '#fcbba1'
             - '#fde79c'
+            - '#fcbba1'
             - '#fc8d59'
             - '#d7301f'
             - '#8162c6'
@@ -280,7 +280,7 @@ featurelayers:
           range: true  # See https://jqueryui.com/slider/#range
           label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
           values: [1, 9]
-          min: 1
+          min: 0
           max: 9
           step: 1
           output: ldi_range
@@ -494,7 +494,7 @@ featurelayers:
           range: true  # See https://jqueryui.com/slider/#range
           label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
           values: [1, 9]
-          min: 1
+          min: 0
           max: 9
           step: 1
           output: ldi_range
@@ -712,7 +712,7 @@ featurelayers:
           range: true  # See https://jqueryui.com/slider/#range
           label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
           values: [1, 9]
-          min: 1
+          min: 0
           max: 9
           step: 1
           output: ldi_range
@@ -910,7 +910,7 @@ featurelayers:
           range: true  # See https://jqueryui.com/slider/#range
           label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
           values: [1, 9]
-          min: 1
+          min: 0
           max: 9
           step: 1
           output: ldi_range
@@ -1612,7 +1612,7 @@ featurelayers:
             right: "More Frequent"
         description: "For a given admin 2 district, the frequency of landslide events."
         colors:
-          ramp: ['#fee5d9', '#fcbba1', '#fde79c', '#fc8d59', '#d7301f','#8162c6','#290051']
+          ramp: ['#fee5d9', '#fde79c', '#fcbba1', '#fc8d59', '#d7301f','#8162c6','#290051']
         styles:
           default:
             static:
@@ -1638,7 +1638,7 @@ featurelayers:
     type: WMS
     title: "Drought Frequency (January)"
     description: "Drought Frequency (January)"
-    visible: true
+    visible: false
     source:
       name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
       attribution: "WFP/OSEP/AEW&GIS"
@@ -1661,114 +1661,6 @@ featurelayers:
             preview: false
     legend:
       label: "Drought Frequency (January)"
-  - id: wlddsi_fot02d3
-    type: WMS
-    title: "Drought Frequency (February)"
-    description: "Drought Frequency (February)"
-    visible: false
-    source:
-      name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
-      attribution: "WFP/OSEP/AEW&GIS"
-    wms:
-      version: "1.1.1"
-      layers: ["wlddsi_fot02d3"]
-      styles:
-      format: 'image/png'
-      transparent: true
-      url: "http://staging.geonode.wfp.org/geoserver/geonode/wms"
-    cartography:
-      - id: default
-        type: graphic
-        description: "Drought Frequency (February)"
-        legend:
-          symbol:
-            type: "graphic"
-            width: 16
-            height: 8
-            preview: false
-    legend:
-      label: "Drought Frequency (February)"
-  - id: wlddsi_fot03d3
-    type: WMS
-    title: "Drought Frequency (March)"
-    description: "Drought Frequency (March)"
-    visible: false
-    source:
-      name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
-      attribution: "WFP/OSEP/AEW&GIS"
-    wms:
-      version: "1.1.1"
-      layers: ["wlddsi_fot03d3"]
-      styles:
-      format: 'image/png'
-      transparent: true
-      url: "http://staging.geonode.wfp.org/geoserver/geonode/wms"
-    cartography:
-      - id: default
-        type: graphic
-        description: "Drought Frequency (March)"
-        legend:
-          symbol:
-            type: "graphic"
-            width: 16
-            height: 8
-            preview: false
-    legend:
-      label: "Drought Frequency (March)"
-  - id: wlddsi_fot04d3
-    type: WMS
-    title: "Drought Frequency (April)"
-    description: "Drought Frequency (April)"
-    visible: false
-    source:
-      name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
-      attribution: "WFP/OSEP/AEW&GIS"
-    wms:
-      version: "1.1.1"
-      layers: ["wlddsi_fot04d3"]
-      styles:
-      format: 'image/png'
-      transparent: true
-      url: "http://staging.geonode.wfp.org/geoserver/geonode/wms"
-    cartography:
-      - id: default
-        type: graphic
-        description: "Drought Frequency (April)"
-        legend:
-          symbol:
-            type: "graphic"
-            width: 16
-            height: 8
-            preview: false
-    legend:
-      label: "Drought Frequency (April)"
-  - id: wlddsi_fot05d3
-    type: WMS
-    title: "Drought Frequency (May)"
-    description: "Drought Frequency (May)"
-    visible: false
-    source:
-      name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
-      attribution: "WFP/OSEP/AEW&GIS"
-    wms:
-      version: "1.1.1"
-      layers: ["wlddsi_fot05d3"]
-      styles:
-      format: 'image/png'
-      transparent: true
-      url: "http://staging.geonode.wfp.org/geoserver/geonode/wms"
-    cartography:
-      - id: default
-        type: graphic
-        description: "Drought Frequency (May)"
-        legend:
-          symbol:
-            type: "graphic"
-            width: 16
-            height: 8
-            preview: false
-    legend:
-      label: "Drought Frequency (May)"
   {% endverbatim %}{% elif hazard == "flood" %}{% verbatim %}
   - id: flood_probability
     type: WMS
@@ -1824,7 +1716,7 @@ featurelayers:
             right: "More Frequent"
         description: "For a given admin 2 district, the frequency of flood events."
         colors:
-          ramp: ['#fee5d9', '#fcbba1', '#fde79c', '#fc8d59', '#d7301f','#8162c6','#290051']
+          ramp: ['#fee5d9', '#fde79c', '#fcbba1', '#fc8d59', '#d7301f','#8162c6','#290051']
         styles:
           default:
             static:
@@ -1872,7 +1764,7 @@ featurelayers:
             right: "More Frequent"
         description: "For a given admin 2 district, the frequency of landslide events."
         colors:
-          ramp: ['#fee5d9', '#fcbba1', '#fde79c', '#fc8d59', '#d7301f','#8162c6','#290051']
+          ramp: ['#fee5d9', '#fde79c', '#fcbba1', '#fc8d59', '#d7301f','#8162c6','#290051']
         styles:
           default:
             static:
@@ -1905,20 +1797,10 @@ legendlayers:
   - cyclone_probability
   - cyclone_events
   {% endverbatim %}{% elif hazard == "drought" %}{% verbatim %}
+  - popatrisk
   - context
   - landscan
   - wlddsi_fot01d3
-  - wlddsi_fot02d3
-  - wlddsi_fot03d3
-  - wlddsi_fot04d3
-  - wlddsi_fot05d3
-  - wlddsi_fot06d3
-  - wlddsi_fot07d3
-  - wlddsi_fot08d3
-  - wlddsi_fot09d3
-  - wlddsi_fot10d3
-  - wlddsi_fot11d3
-  - wlddsi_fot12d3
   {% endverbatim %}{% elif hazard == "flood" %}{% verbatim %}
   - popatrisk
   - context
@@ -1953,19 +1835,9 @@ renderlayers:
   - cyclone_probability
   - cyclone_events
   {% endverbatim %}{% elif hazard == "drought" %}{% verbatim %}
+  - popatrisk
   - context
   - wlddsi_fot01d3
-  - wlddsi_fot02d3
-  - wlddsi_fot03d3
-  - wlddsi_fot04d3
-  - wlddsi_fot05d3
-  - wlddsi_fot06d3
-  - wlddsi_fot07d3
-  - wlddsi_fot08d3
-  - wlddsi_fot09d3
-  - wlddsi_fot10d3
-  - wlddsi_fot11d3
-  - wlddsi_fot12d3
   {% endverbatim %}{% elif hazard == "flood" %}{% verbatim %}
   - popatrisk
   - context
@@ -2004,16 +1876,6 @@ charts:
     hazard: cyclone
     {% endverbatim %}{% elif hazard == "drought" %}{% verbatim %}
     hazard: drought
-    subtype: "bullet"
-    colors:
-      p6: "#4169E1"
-      p8: "#B0C4FF"
-      p25: "#B0C4DE"
-      p100: "#FFC4DE"
-    group_prefix: "p"
-    group_key: "prob_max"
-    group_modifier: 1
-    groups: [6, 8, 25]
     {% endverbatim %}{% elif hazard == "flood" %}{% verbatim %}
     hazard: flood
     subtype: "bullet"
@@ -2039,4 +1901,90 @@ controls:
   legend: true
   sidebar: true
   zoom: true
+{% endblock %}
+
+{% block sidebar %}
+sidebar:
+  ui:
+    mainClass: ""
+    tabs:
+      - target: sparc-sidebar-left-welcome
+        label: Welcome
+      - target: sparc-sidebar-left-charts
+        label: Charts
+      - target: sparc-sidebar-left-layers
+        label: Layers
+      - target: sparc-sidebar-left-filters
+        label: Filters
+    layers:
+      {% if hazard == "cyclone" %}{% verbatim %}
+      - popatrisk
+      - context
+      - landscan
+      - cyclone_probability
+      - cyclone_events
+      {% endverbatim %}{% elif hazard == "drought" %}{% verbatim %}
+      - popatrisk
+      - context
+      - landscan
+      - wlddsi_fot01d3
+      {% endverbatim %}{% elif hazard == "flood" %}{% verbatim %}
+      - popatrisk
+      - context
+      - landscan
+      - flood_events
+      - landslide_events
+      - flood_probability
+      {% endverbatim %}{% elif hazard == "landslide" %}{% verbatim %}
+      - popatrisk
+      - context
+      - landscan
+      - flood_events
+      - landslide_events
+      - flood_probability
+      {% endverbatim %}{% endif %}
+      - wld_poi_facilities_wfp
+      - wld_trs_supplyroutes_wfp
+      - imerg_1day
+      - imerg_3day
+      - imerg_7day
+      - osm_humanitarian
+      - osm
+    groups:
+      - id: natural_hazard
+        label: Natural Hazards
+        class: geodash-sidebar-layers-natural-hazards
+        layers:
+          - flood_probability
+          - cyclone_probability
+          - popatrisk
+          - flood_events
+          - landslide_events
+      - id: aggravating_factors
+        label: Aggravating factors
+        class: geodash-sidebar-layers-aggravating-factors
+        layers:
+          - context
+      - id: population_distribution
+        label: Population Distribution
+        class: geodash-sidebar-layers-populatio-distribution
+        layers:
+          - landscan
+      - id: wfp_operations
+        label: WFP Operations
+        class: geodash-sidebar-layers-wfpoperations
+        layers:
+          - wld_poi_facilities_wfp
+          - wld_trs_supplyroutes_wfp
+      - id: accumulated rainfall
+        label: Accumulated Rainfall
+        class: geodash-sidebar-wfplayers
+        layers:
+          - imerg_1day
+          - imerg_3day
+          - imerg_7day
+      - id: forecast_precipitation
+        label: Forecast Precipitation
+        class: geodash-sidebar-forecase
+        layers: []
 {% endblock %}

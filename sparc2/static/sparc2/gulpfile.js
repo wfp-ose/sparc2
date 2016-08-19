@@ -310,6 +310,7 @@ var configs = flatten_configs(load_config("./config.yml"));
 var geodash_meta_projects = [];
 var geodash_meta_plugins = [];
 var geodash_meta_controllers = [];
+var geodash_meta_modals = [];
 
 var compile_schemas = [];
 var compile_templates = [];
@@ -371,6 +372,18 @@ for(var i = 0; i < configs.length; i++)
         if(typeof c != "string")
         {
           geodash_meta_controllers.push({'name': c.name, 'handlers': c.handlers});
+        }
+      }
+    }
+
+    if(geodash_plugin["modals"] != undefined)
+    {
+      for(var k = 0; k < geodash_plugin.modals.length; k++)
+      {
+        var m = geodash_plugin.modals[k];
+        if(typeof m != "string")
+        {
+          geodash_meta_modals.push({'name': m.name, 'config': m.config, 'ui': m.ui});
         }
       }
     }
@@ -499,6 +512,7 @@ gulp.task('geodash:meta', ['clean'], function(cb){
   lines.push("geodash.meta.projects = "+JSON.stringify(geodash_meta_projects)+";");
   lines.push("geodash.meta.plugins = "+JSON.stringify(geodash_meta_plugins)+";");
   lines.push("geodash.meta.controllers = "+JSON.stringify(geodash_meta_controllers)+";");
+  lines.push("geodash.meta.modals = "+JSON.stringify(geodash_meta_modals)+";");
   var contents = lines.join("\n");
   geodash.log(['Contents of GeoDash meta.js', contents]);
   if (!fs.existsSync('./build')){ fs.mkdirSync('./build'); }

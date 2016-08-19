@@ -27,18 +27,24 @@ var buildGroupsAndColumnsForCountry = function(chartConfig, popatrisk_config)
   }
   else if(chartConfig.hazard == "drought")
   {
-    for(var i = 0; i < chartConfig.groups.length; i++)
-    {
-      var group_prefix = chartConfig.group_prefix;
-      var group_key = chartConfig.group_key;
-      var group_modifier = chartConfig.group_modifier;
-      var g = chartConfig.groups[i];
-      var data = popatrisk_config["data"]["summary"][group_key][""+(g * group_modifier)]["by_month"];
+    $.each(popatrisk_config["data"]["summary"]["prob_class"], function(prob_class, value){
+      var data = value["by_month"];
       //
-      columns.push([group_prefix+g].concat(data));
-      groups[0].push(group_prefix+g);
-    }
-    columns.reverse();
+      columns.push([prob_class].concat(data));
+      groups[0].push(prob_class);
+    });
+
+    groups[0].sort(function(a, b){
+      return parseFloat(b.split("-")[0]) - parseFloat(a.split("-")[0]);
+    });
+
+    columns.sort(function(a, b){
+      return parseFloat(a[0].split("-")[0]) - parseFloat(b[0].split("-")[0]);
+    });
+
+    order = function(data1, data2) {
+      return parseFloat(data2.id.split("-")[0]) - parseFloat(data1.id.split("-")[0]);
+    };
   }
   else if(chartConfig.hazard == "flood")
   {
@@ -72,6 +78,27 @@ var buildGroupsAndColumnsForAdmin2 = function(chartConfig, popatrisk_config, adm
   var order = undefined;
 
   if(chartConfig.hazard == "cyclone")
+  {
+    $.each(popatrisk_config["data"]["summary"]["admin2"][admin2_code]["prob_class"], function(prob_class, value){
+      var data = value["by_month"];
+      //
+      columns.push([prob_class].concat(data));
+      groups[0].push(prob_class);
+    });
+
+    groups[0].sort(function(a, b){
+      return parseFloat(b.split("-")[0]) - parseFloat(a.split("-")[0]);
+    });
+
+    columns.sort(function(a, b){
+      return parseFloat(a[0].split("-")[0]) - parseFloat(b[0].split("-")[0]);
+    });
+
+    order = function(data1, data2) {
+      return parseFloat(data2.id.split("-")[0]) - parseFloat(data1.id.split("-")[0]);
+    };
+  }
+  else if(chartConfig.hazard == "drought")
   {
     $.each(popatrisk_config["data"]["summary"]["admin2"][admin2_code]["prob_class"], function(prob_class, value){
       var data = value["by_month"];
