@@ -100372,7 +100372,15 @@ sparc.calculate_population_at_risk = function(hazard, feature, state, filters)
   }
   else if(hazard == "landslide")
   {
-    value = feature.attributes["values_by_month"][month_short3];
+    var prob_class_max = state["filters"]["popatrisk"]["prob_class_max"];
+    for(var i = 0; i < feature.attributes.addinfo.length; i++)
+    {
+      var a = feature.attributes.addinfo[i];
+      if(a["prob_class_max"] >= prob_class_max)
+      {
+        value += a[month_short3];
+      }
+    }
   }
 
   if(filters != undefined)
@@ -100450,10 +100458,26 @@ var buildGroupsAndColumnsForCountry = function(chartConfig, popatrisk_config)
   }
   else if(chartConfig.hazard == "landslide")
   {
-    var data = popatrisk_config["data"]["summary"]["all"]["by_month"];
-    var g = "Population at Risk";
-    columns.push([g].concat(data));
-    groups[0].push(g);
+    var landslideClasses = ["low", "medium", "high", "very_high"];
+
+    $.each(popatrisk_config["data"]["summary"]["prob_class"], function(prob_class, value){
+      var data = value["by_month"];
+      //
+      columns.push([prob_class].concat(data));
+      groups[0].push(prob_class);
+    });
+
+    groups[0].sort(function(a, b){
+      return landslideClasses.indexOf(b) - landslideClasses.indexOf(a);
+    });
+
+    columns.sort(function(a, b){
+      return landslideClasses.indexOf(a[0]) - landslideClasses.indexOf(b[0]);
+    });
+
+    order = function(data1, data2) {
+      return landslideClasses.indexOf(data2.id) - landslideClasses.indexOf(data1.id);
+    };
   }
 
   return {'groups': groups, 'columns': columns, 'order': order};
@@ -100520,10 +100544,26 @@ var buildGroupsAndColumnsForAdmin2 = function(chartConfig, popatrisk_config, adm
   }
   else if(chartConfig.hazard == "landslide")
   {
-    var data = popatrisk_config["data"]["summary"]["admin2"][""+admin2_code]["by_month"];
-    var g = "Risk";
-    columns.push([g].concat(data));
-    groups[0].push(g);
+    $.each(popatrisk_config["data"]["summary"]["admin2"][admin2_code]["prob_class"], function(prob_class, value){
+      var data = value["by_month"];
+      //
+      columns.push([prob_class].concat(data));
+      groups[0].push(prob_class);
+    });
+
+    var landslideClasses = ["low", "medium", "high", "very_high"];
+
+    groups[0].sort(function(a, b){
+      return landslideClasses.indexOf(b) - landslideClasses.indexOf(a);
+    });
+
+    columns.sort(function(a, b){
+      return landslideClasses.indexOf(a[0]) - landslideClasses.indexOf(b[0]);
+    });
+
+    order = function(data1, data2) {
+      return landslideClasses.indexOf(data2.id) - landslideClasses.indexOf(data1.id);
+    };
   }
   return {'groups': groups, 'columns': columns, 'order': order};
 };
@@ -101694,7 +101734,7 @@ geodash.filters["choose"] = function()
     if(Array.isArray(arg))
     {
       var arr = arg;
-      return value + arr[value % arr.length];
+      return arr[value % arr.length];
     }
     else
     {
@@ -102870,7 +102910,7 @@ geodash.directives["sparcSidebar"] = function(){
     {
       setTimeout(function(){
 
-        $('[data-toggle="tooltip"]', $element).tooltip(); 
+        $('[data-toggle="tooltip"]', $element).tooltip();
 
         var jqe = $($element);
         if($scope.charts != undefined)
@@ -102878,7 +102918,7 @@ geodash.directives["sparcSidebar"] = function(){
           for(var i = 0; i < $scope.charts.length; i++)
           {
             var options = {};
-            if($scope.charts[i].hazard == "drought")
+            /*if($scope.charts[i].hazard == "drought")
             {
               options["bullet_width"] = function(d, i)
               {
@@ -102895,7 +102935,7 @@ geodash.directives["sparcSidebar"] = function(){
                   return 16;
                 }
               };
-            }
+            }*/
             buildHazardChart($scope.charts[i], geodash.initial_data.layers.popatrisk, options);
           }
         }
@@ -102922,7 +102962,7 @@ geodash.directives["sparcSidebarFeatureLayer"] = function(){
           for(var i = 0; i < $scope.charts.length; i++)
           {
             var options = {};
-            if($scope.charts[i].hazard == "drought")
+            /*if($scope.charts[i].hazard == "drought")
             {
               options["bullet_width"] = function(d, i)
               {
@@ -102939,7 +102979,7 @@ geodash.directives["sparcSidebarFeatureLayer"] = function(){
                   return 16;
                 }
               };
-            }
+            }*/
             buildHazardChart($scope.charts[i], geodash.initial_data.layers.popatrisk, options);
           }
         }

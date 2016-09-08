@@ -173,7 +173,15 @@ sparc.calculate_population_at_risk = function(hazard, feature, state, filters)
   }
   else if(hazard == "landslide")
   {
-    value = feature.attributes["values_by_month"][month_short3];
+    var prob_class_max = state["filters"]["popatrisk"]["prob_class_max"];
+    for(var i = 0; i < feature.attributes.addinfo.length; i++)
+    {
+      var a = feature.attributes.addinfo[i];
+      if(a["prob_class_max"] >= prob_class_max)
+      {
+        value += a[month_short3];
+      }
+    }
   }
 
   if(filters != undefined)

@@ -12,7 +12,7 @@ geodash.directives["sparcSidebar"] = function(){
     {
       setTimeout(function(){
 
-        $('[data-toggle="tooltip"]', $element).tooltip(); 
+        $('[data-toggle="tooltip"]', $element).tooltip();
 
         var jqe = $($element);
         if($scope.charts != undefined)
@@ -20,7 +20,7 @@ geodash.directives["sparcSidebar"] = function(){
           for(var i = 0; i < $scope.charts.length; i++)
           {
             var options = {};
-            if($scope.charts[i].hazard == "drought")
+            /*if($scope.charts[i].hazard == "drought")
             {
               options["bullet_width"] = function(d, i)
               {
@@ -37,7 +37,7 @@ geodash.directives["sparcSidebar"] = function(){
                   return 16;
                 }
               };
-            }
+            }*/
             buildHazardChart($scope.charts[i], geodash.initial_data.layers.popatrisk, options);
           }
         }

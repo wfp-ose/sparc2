@@ -15,7 +15,7 @@ geodash.directives["sparcSidebarFeatureLayer"] = function(){
           for(var i = 0; i < $scope.charts.length; i++)
           {
             var options = {};
-            if($scope.charts[i].hazard == "drought")
+            /*if($scope.charts[i].hazard == "drought")
             {
               options["bullet_width"] = function(d, i)
               {
@@ -32,7 +32,7 @@ geodash.directives["sparcSidebarFeatureLayer"] = function(){
                   return 16;
                 }
               };
-            }
+            }*/
             buildHazardChart($scope.charts[i], geodash.initial_data.layers.popatrisk, options);
           }
         }

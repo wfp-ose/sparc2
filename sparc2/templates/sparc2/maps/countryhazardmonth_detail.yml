@@ -280,7 +280,7 @@ featurelayers:
           range: true  # See https://jqueryui.com/slider/#range
           label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
           values: [1, 9]
-          min: 0
+          min: 1
           max: 9
           step: 1
           output: ldi_range
@@ -494,7 +494,7 @@ featurelayers:
           range: true  # See https://jqueryui.com/slider/#range
           label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
           values: [1, 9]
-          min: 0
+          min: 1
           max: 9
           step: 1
           output: ldi_range
@@ -712,7 +712,7 @@ featurelayers:
           range: true  # See https://jqueryui.com/slider/#range
           label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
           values: [1, 9]
-          min: 0
+          min: 1
           max: 9
           step: 1
           output: ldi_range
@@ -849,6 +849,22 @@ featurelayers:
           max: {% endverbatim %}{{ maxValue }}{% verbatim %}  # Overridden by max value from summary data
           step: 1
           output: popatrisk_range
+      - label: "Hazard Class"
+        description:  "Hazard Class ...."
+        line_height: 36px
+        height: 50px
+        type: slider
+        slider:
+          id: sparc-probabilities-slider
+          type: continuous
+          width: 100px
+          range: max
+          label: "{{ value | add: -1 | choose : ['Low', 'Medium', 'High', 'Very High']  }} - Very High"
+          value: 1
+          min: 1
+          max: 4
+          step: 1
+          output: prob_class_max
       - label: FCS
         description: "Filter by VAM Food Consumption Score (FCS).\n\n\nReference: [Food Consumption Analysis](http://documents.wfp.org/stellent/groups/public/documents/manual_guide_proced/wfp197216.pdf)"
         height: 34px
@@ -910,7 +926,7 @@ featurelayers:
           range: true  # See https://jqueryui.com/slider/#range
           label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
           values: [1, 9]
-          min: 0
+          min: 1
           max: 9
           step: 1
           output: ldi_range

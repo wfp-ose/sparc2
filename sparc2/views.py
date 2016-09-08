@@ -21,7 +21,11 @@ from geodash.views import geodash_data_view
 from geodash.cache import provision_memcached_client
 from sparc2.enumerations import URL_EMDAT_BY_HAZARD, SPARC_HAZARDS_CONFIG
 from sparc2.models import SPARCCountry
-from sparc2.utils import get_month_number, get_json_admin0, get_geojson_cyclone, get_geojson_drought, get_geojson_flood, get_geojson_landslide, get_geojson_context, get_summary_cyclone, get_summary_drought, get_summary_flood, get_summary_landslide, get_summary_context, get_events_cyclone, get_events_flood, get_events_landslide, get_geojson_vam
+from sparc2.utils import get_month_number, get_json_admin0, get_geojson_cyclone, get_geojson_drought, get_geojson_flood, get_geojson_landslide, get_geojson_context, get_summary_context, get_events_cyclone, get_events_flood, get_events_landslide, get_geojson_vam
+from sparc2.stats.cyclone import get_summary_cyclone
+from sparc2.stats.drought import get_summary_drought
+from sparc2.stats.flood import get_summary_flood
+from sparc2.stats.landslide import get_summary_landslide
 
 def home(request, template="sparc2/home.html"):
     now = datetime.datetime.now()
@@ -281,6 +285,9 @@ def countryhazardmonth_detail(request, iso3=None, hazard=None, month=None):
     elif hazard == "flood":
         initial_state["filters"]["popatrisk"]["rp"] = 200
         state_schema["filters"]["popatrisk"]["rp"] = "integer"
+    elif hazard == "landslide":
+        initial_state["filters"]["popatrisk"]["prob_class_max"] = 1
+        state_schema["filters"]["popatrisk"]["prob_class_max"] = "integer"
     #############
 
 
