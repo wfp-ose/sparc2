@@ -1,56 +1,72 @@
 geodash.init_countryhazardmonth = function(appName)
 {
-  var popatrisk = $.grep(geodash.map_config.featurelayers, function(x, i){ return x.id == "popatrisk"; })[0];
+  console.log("Running geodash.init_countryhazardmonth");
 
-  var url_popatrisk_summary = popatrisk["sparc"]["summary"]
-    .replace("{iso3}", geodash.initial_state["iso3"])
-    .replace("{hazard}", geodash.initial_state["hazard"]);
+  var url_popatrisk_summary = geodash.api.getEndpoint("sparc2_popatrisk_summary")
+    .replace("{{ iso3 }}", geodash.initial_state.iso3)
+    .replace("{{ hazard }}", geodash.initial_state.hazard);
 
-  var url_popatrisk_geojson = popatrisk["geojson"]["url"]
-    .replace("{iso3}", geodash.initial_state["iso3"])
-    .replace("{hazard}", geodash.initial_state["hazard"]);
+  var url_context_summary = geodash.api.getEndpoint("sparc2_context_summary")
+    .replace("{{ iso3 }}", geodash.initial_state.iso3);
 
-  var context = $.grep(geodash.map_config.featurelayers, function(x, i){ return x.id == "context"; })[0];
+  var url_vam_geojson = geodash.api.getEndpoint("sparc2_vam_geojson")
+    .replace("{{ iso3 }}", geodash.initial_state.iso3);
 
-  var url_context_summary = context["sparc"]["summary"]
-    .replace("{iso3}", geodash.initial_state["iso3"]);
-
-  var url_context_geojson = context["geojson"]["url"]
-    .replace("{iso3}", geodash.initial_state["iso3"]);
-
-  var vam = $.grep(geodash.map_config.featurelayers, function(x, i){ return x.id == "vam"; })[0];
-
-  var url_vam_geojson = vam["geojson"]["url"]
-    .replace("{iso3}", geodash.initial_state["iso3"]);
+/*
+$.ajax({
+  url: url_popatrisk_summary,
+  mimeType: "application/octet-stream",
+  beforeSend: function(xhr){
+    xhr.overrideMimeType('text\/plain; charset=x-user-defined');  // This is
+  }
+})
+*/
 
   $.when(
     $.ajax({dataType: "json", url: url_popatrisk_summary}),
-    $.ajax({dataType: "json", url: url_popatrisk_geojson}),
     $.ajax({dataType: "json", url: url_context_summary}),
-    $.ajax({dataType: "json", url: url_context_geojson}),
     $.ajax({dataType: "json", url: url_vam_geojson})
   ).done(function(
     response_popatrisk_summary,
-    response_popatrisk_geojson,
     response_context_summary,
-    response_context_geojson,
     response_vam_geojson
     ){
-    geodash.initial_data["layers"]["popatrisk"]["data"]["summary"] = response_popatrisk_summary[0];
-    geodash.initial_data["layers"]["popatrisk"]["data"]["geojson"] = response_popatrisk_geojson[0];
+    var response_popatrisk_summary_content_type = response_popatrisk_summary[2].getResponseHeader("Content-Type");
+    if(response_popatrisk_summary_content_type == "application/json")
+    {
+      geodash.initial_data["layers"]["popatrisk"]["data"]["summary"] = response_popatrisk_summary[0];
+    }
+    else
+    {
+      geodash.initial_data["layers"]["popatrisk"]["data"]["summary"]  = sparc2.transport.decode.summary(response_popatrisk_summary[0]);
+    }
+
     geodash.initial_data["layers"]["context"]["data"]["summary"] = response_context_summary[0];
-    geodash.initial_data["layers"]["context"]["data"]["geojson"] = response_context_geojson[0];
-    geodash.initial_data["layers"]["vam"]["data"]["geojson"] = response_vam_geojson[0];
 
+    // Load VAM Data
+   geodash.initial_data.layers.vam.data.geojson = response_vam_geojson[0];
+   geodash.initial_data["data"]["vam"] = {
+     "admin1": {}
+   };
+   var features = extract("layers.vam.data.geojson.features", geodash.initial_data, []);
+   for(var i = 0; i < features.length; i++)
+   {
+     var admin1_code = extract("properties.admin1_code", features[i]);
+     var admin1_vam = extract("properties.vam", features[i]);
+     if(angular.isDefined(admin1_code) && angular.isDefined(admin1_vam))
+     {
+       geodash.initial_data.data.vam.admin1[""+admin1_code] = admin1_vam;
+     }
+   }
+
+    // Load Breakpoints
     geodash.breakpoints = {};
-
     if("all" in geodash.initial_data["layers"]["popatrisk"]["data"]["summary"])
     {
       $.each(geodash.initial_data["layers"]["popatrisk"]["data"]["summary"]["all"]["breakpoints"], function(k, v){
         geodash.breakpoints["popatrisk_"+k] = v;
       });
     }
-
     if("all" in geodash.initial_data["layers"]["context"]["data"]["summary"])
     {
       $.each(geodash.initial_data["layers"]["context"]["data"]["summary"]["all"]["breakpoints"], function(k, v){
@@ -66,22 +82,12 @@ geodash.init_countryhazardmonth_main_app = function(appName)
 {
   geodash.app = app = angular.module(appName, ['ngRoute','ngSanitize', 'ngCookies']);
 
-  geodash.init.templates(app);
-  geodash.init.filters(app);
-  geodash.init.directives(app);
+  var initFn = ['templates', 'filters', 'directives', 'factory'];
+  for(var i = 0; i < initFn.length; i++)
+  {
+    geodash.init[initFn[i]](app);
+  }
 
-  app.factory('state', function(){return $.extend({}, geodash.initial_state);});
-  app.factory('stateschema', function(){return $.extend({}, geodash.state_schema);});
-  app.factory('map_config', function(){return $.extend({}, geodash.map_config);});
-  app.factory('live', function(){
-    return {
-      "map": undefined,
-      "baselayers": {},
-      "featurelayers": {
-        "popatrisk":undefined
-      }
-    };
-  });
   // Initialize UI interaction for intents.
   // Listen's for events bubbling up to body element, so can initialize before children.
   geodash.init.listeners();
@@ -98,7 +104,7 @@ geodash.init_countryhazardmonth_main_app = function(appName)
   and is not good.  So you NEED!!! to get to it first!!!!!!
   */
 
-  geodash.init_controller_base(app);
+  geodash.init.controller_base(app);
 
   var mainController = $('#geodash-main');
   init_sparc_controller_main(mainController, app);

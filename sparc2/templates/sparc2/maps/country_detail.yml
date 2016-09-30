@@ -19,9 +19,7 @@ featurelayers:
       name: "WFP/VAM"
       attribution: "WFP/VAM"
     geojson:
-      url: "/data/vam/country/{iso3}.json"
-    sparc:
-      summary: "/data/vam/country/{iso3}/summary.json"
+      local: "layers.vam.data.geojson"
   - id: context
     type: geojson
     title: "Aggravating Factors"
@@ -31,12 +29,7 @@ featurelayers:
       name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
       attribution: "WFP/OSEP/AEW&GIS"
     geojson:
-      url: "/data/local/country/{iso3}/context.json"
-    sparc:
-      summary: "/data/local/country/{iso3}/context/summary.json"
-    routes:
-      geojson: "/data/local/country/:iso3/context*.json"
-      summary: "/data/local/country/:iso3/context/summary.json"
+      url: "/data/local/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/context.json"
     cartography:
       - id: "delta_mean"
         title: "Mean Change"

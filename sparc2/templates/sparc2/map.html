@@ -6,18 +6,21 @@
 
 {% block head_fonts %}
 <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700,400italic' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="{{ STATIC_URL }}wfp/assets/fonts/lato/lato.css">
+<link rel="stylesheet" href="{{ STATIC_URL }}wfp/assets/fonts/aleo/aleo.css">
 {% endblock %}
 
 {% block head_bootstrap_css %}
 <link href="{{ STATIC_URL }}sparc2/build/bootstrap/bootstrap.css" rel="stylesheet"/>
+<link rel="stylesheet" href="{{ STATIC_URL }}wfp/css/bootstrap-theme.css">
 {% endblock %}
 
 {% block head_main_css %}
-<link href='{{ STATIC_URL }}sparc2/build/css/sparc.css?v={{ SPARC_STATIC_VERSION }}' rel='stylesheet' />
+<link href='{{ STATIC_URL }}sparc2/build/css/sparc2.css?v={{ SPARC_STATIC_VERSION }}' rel='stylesheet' />
 {% endblock %}
 
 {% block head_monolith_css %}
-<link href='{{ STATIC_URL }}sparc2/build/css/sparc.full.css?v={{ SPARC_STATIC_VERSION }}' rel='stylesheet' />
+<link href='{{ STATIC_URL }}sparc2/build/css/sparc2.full.css?v={{ SPARC_STATIC_VERSION }}' rel='stylesheet' />
 {% endblock %}
 
 {% block polyfill %}
@@ -41,9 +44,9 @@
 
 {% block head_monolith_js %}
 {% if GEODASH_STATIC_DEBUG.monolith %}
-<script src="{{ STATIC_URL }}sparc2/build/js/sparc.full.js?v={{ SPARC_STATIC_VERSION }}"></script>
+<script src="{{ STATIC_URL }}sparc2/build/js/sparc2.full.js?v={{ SPARC_STATIC_VERSION }}"></script>
 {% else %}
-<script src="{{ STATIC_URL }}sparc2/build/js/sparc.full.min.js?v={{ SPARC_STATIC_VERSION }}"></script>
+<script src="{{ STATIC_URL }}sparc2/build/js/sparc2.full.min.js?v={{ SPARC_STATIC_VERSION }}"></script>
 {% endif %}
 {% endblock %}
 
@@ -54,6 +57,7 @@
 
 {% block map_config %}
 <script>
+  geodash.mapping_library = "{{ GEODASH_MAPPING_LIBRARY }}";
   geodash.map_config = {{ map_config_json|safe }};
 </script>
 {% endblock %}
@@ -65,12 +69,8 @@
       "data": {
         "countries_select2": {{ SPARC_COUNTRIES_SELECT2|safe }},
         "countries_select2_by_rb": {{ SPARC_COUNTRIES_SELECT2_BY_RB|safe }},
-        "hazards_select2": {{ SPARC_HAZARDS_SELECT2|safe }}
-      },
-      "pages": {
-          "countryhazardmonth_detail": {
-            "url": "/country/{iso3}/hazard/{hazard}/month/{month}"
-          }
+        "hazards_select2": {{ SPARC_HAZARDS_SELECT2|safe }},
+        "endpoints": {{ endpoints_json | safe }}
       },
       "layers": {
         "popatrisk": {
@@ -174,12 +174,11 @@
 </script>
 {% endblock %}
 
-{% block header %}{% include "sparc2/_includes/header.html" with navbar_title="SPARC - Spatial Risk Calendar" %}{% endblock %}
+{% block header %}{% endblock %}
 
 {% block sidebar_left %}{% endblock %}
 
 {% block map_controllers %}
-{% include "sparc2/_includes/map_breadcrumb.html" %}
 {% include "geodash/_includes/map_legend.html" with legend_title="Legend - Click to Open" %}
 {% endblock %}
 

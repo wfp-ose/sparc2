@@ -1,7 +1,9 @@
+
 import datetime
 import psycopg2
 import requests
 
+from decimal import *
 from jenks import jenks
 
 from django.conf import settings
@@ -18,6 +20,7 @@ from geodash.enumerations import MONTHS_SHORT3
 from geodash.data import GeoDashDatabaseConnection, calc_breaks_natural, insertIntoObject, valuesByMonthToList, rowsToDict
 from sparc2.data import data_local_country_admin, data_local_country_hazard_all, data_local_country_context_all
 from sparc2.enumerations import URL_VAM
+
 
 def get_month_number(month):
     month_num = -1
@@ -333,26 +336,36 @@ def get_geojson_landslide(request, iso_alpha3=None):
 def get_events_cyclone(iso3=None):
     connection = psycopg2.connect(settings.GEODASH_DB_CONN_STR)
     cursor = connection.cursor()
-    q = get_template("sparc2/sql/_cyclone_events.sql").render(context=Context({'iso3': iso3}))
+    sql = "sparc2/sql/_cyclone_events_all.sql" if iso3 == "all" else "sparc2/sql/_cyclone_events.sql"
+    q = get_template(sql).render(context=Context({'iso3': iso3}))
     cursor.execute(q)
-    results = cursor.fetchone()
-    return results
+    r = cursor.fetchone()
+    data = json.loads(r[0]) if (type(r[0]) is not dict) else r[0]
+    return data
 
 def get_events_flood(iso3=None):
     connection = psycopg2.connect(settings.GEODASH_DB_CONN_STR)
     cursor = connection.cursor()
-    q = get_template("sparc2/sql/_flood_events_by_admin2.sql").render(context=Context({'iso3': iso3}))
+    sql = "sparc2/sql/_flood_events_all_at_admin2.sql" if iso3 == "all" else "sparc2/sql/_flood_events_by_admin2.sql"
+    q = get_template(sql).render(context=Context({'iso3': iso3}))
+    print "SQL Command to run", q
     cursor.execute(q)
-    results = cursor.fetchone()
-    return results
+    #results = cursor.fetchone()
+    #return results
+    r = cursor.fetchone()
+    data = json.loads(r[0]) if (type(r[0]) is not dict) else r[0]
+    return data
 
 def get_events_landslide(iso3=None):
     connection = psycopg2.connect(settings.GEODASH_DB_CONN_STR)
     cursor = connection.cursor()
     q = get_template("sparc2/sql/_landslide_events.sql").render(context=Context({'iso3': iso3}))
     cursor.execute(q)
-    results = cursor.fetchone()
-    return results
+    #results = cursor.fetchone()
+    #return results
+    r = cursor.fetchone()
+    data = json.loads(r[0]) if (type(r[0]) is not dict) else r[0]
+    return data
 
 
 def get_geojson_context(request, iso_alpha3=None):
@@ -364,11 +377,12 @@ def get_geojson_context(request, iso_alpha3=None):
                 'admin2_context': 'context.admin2_context',
                 'iso_alpha3': iso_alpha3}))
 
-        for feature in collection["features"]:
-            for row_context in rows_context:
-                json_context = json.loads(row_context[0]) if (type(row_context[0]) is not dict) else row_context[0]
-                if int(json_context["admin2_code"]) == feature["properties"]["admin2_code"]:
-                    feature["properties"].update(json_context)
+        if "features" in collection:
+            for feature in collection["features"]:
+                for row_context in rows_context:
+                    json_context = json.loads(row_context[0]) if (type(row_context[0]) is not dict) else row_context[0]
+                    if int(json_context["admin2_code"]) == feature["properties"]["admin2_code"]:
+                        feature["properties"].update(json_context)
 
     return collection
 

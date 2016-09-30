@@ -16,13 +16,17 @@ bootstrap:
   variables: "./src/less/bootstrap/variables.less"
   dest: "./build/bootstrap"
 plugins:
-  - breadcrumbs
-  - calendar
-  - filter
-  - map_map
-  - sparc_sidebar
+  - sparc2
+  - https://github.com/wfp-ose/sparc2-plugin-calendar.git
+  #- file:///home/vagrant/sparc2-plugin-calendar.git
+  - https://github.com/geodashio/geodash-plugin-map-map.git
+  #- file:///home/vagrant/geodash-plugin-map-map.git
+  #- map_map
+  - https://github.com/wfp-ose/sparc2-plugin-sidebar.git
+  #- file:///home/vagrant/sparc2-plugin-sidebar.git
   - main
-  - sparc_welcome
+  - https://github.com/wfp-ose/sparc2-plugin-welcome.git
+  #- file:///home/vagrant/sparc2-plugin-welcome.git
 dependencies:
   production:
     javascript:
@@ -56,6 +60,9 @@ resources:
    path: ./build/bootstrap/bootstrap.css
  - name: polyfill.min.js
    path: ./build/js/polyfill.min.js
+ - name: sparc2-core.js
+   path: /home/vagrant/sparc2-core.js.git/dist/sparc2-core.js
+   minified: /home/vagrant/sparc2-core.js.git/dist/sparc2-core.min.js
 build:
   main.css:
     name: main.css
@@ -66,7 +73,7 @@ build:
         name: sparc.less
       - type: variable
         name: compile_less # GeoDash will concat array variables
-    outfile: sparc.css
+    outfile: sparc2.css
     dest: ./build/css
     paths: ./src/geodash/global
   monolith.css:
@@ -86,7 +93,7 @@ build:
     src:
       - type: variable
         name: compile_js # GeoDash will concat array variables
-    outfile: sparc.js
+    outfile: sparc2.js
     dest: ./build/js/
   monkeypatch.js:
     name: monkeypatch.js
@@ -109,13 +116,13 @@ build:
       - type: resource
         project: geodash
         name: yaml.js
+#      - type: resource
+#        project: geodash
+#        version: "4.0.1"
+#        name: select2.full.js
       - type: resource
         project: geodash
-        version: "4.0.1"
-        name: select2.full.js
-      - type: resource
-        project: geodash
-        version: custom
+        version: geodash
         name: typeahead.js
       - type: resource
         project: geodash
@@ -139,27 +146,43 @@ build:
         name: c3.js
       - type: resource
         project: geodash
-        version: "1.0.0-b1"
-        name: leaflet-src.js
-      - type: resource
-        project: geodash
-        name: leaflet.utfgrid-src.js
-      - type: resource
-        project: geodash
-        names:
-          - wfp-simpleheat.js
-          - wfp-heatcanvas.js
-          - wfp-heatlayer.js
-      - type: resource
-        project: geodash
-        name: leaflet.label-src.js
+        version: "3.17.1"
+        name: ol3.js
+#      - type: resource
+#        project: geodash
+#        version: "1.0.0-b1"
+#        name: leaflet-src.js
+#      - type: resource
+#        project: geodash
+#        name: leaflet.utfgrid-src.js
+#      - type: resource
+#        project: geodash
+#        names:
+#          - wfp-simpleheat.js
+#          - wfp-heatcanvas.js
+#          - wfp-heatlayer.js
+#      - type: resource
+#        project: geodash
+#        name: leaflet.label-src.js
+#      - type: resource
+#        project: geodash
+#        version: custom
+#        name: leaflet.TileLayer.WMTS.js
       - type: resource
         project: geodash
         version: "1.3.0"
         name: showdown.js
       - type: build
         name: monkeypatch.js
+      - type: resource
+        project: geodash
+        version: "0.0.1"
+        name: geodash.js
+      - type: resource
+        project: sparc2
+        version: "0.0.1"
+        name: sparc2-core.js
       - type: build
         name: main.js
-    outfile: sparc.full.js
+    outfile: sparc2.full.js
     dest: ./build/js/

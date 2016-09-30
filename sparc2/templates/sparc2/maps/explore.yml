@@ -24,7 +24,7 @@ featurelayers:
       styles: ["landscan_2013"]
       format: 'image/png'
       transparent: true
-      url: "http://staging.geonode.wfp.org/geoserver/geonode/wms"
+      url: "http://staging.geonode.wfp.org/cors/geoserver/wms"
     cartography:
       - id: default
         legend:
@@ -125,7 +125,7 @@ featurelayers:
       format: 'image/png'
       transparent: true
       buffer: 256
-      url: "http://geonode.wfp.org/geoserver/geonode/wms"
+      url: "http://geonode.wfp.org/cors/geoserver/wms"
     wfs:
       version: "1.0.0"  # Needs to 1.0.0 or returns bad results for some reason.
       url: "http://geonode.wfp.org/cors/geoserver/wfs"
@@ -210,22 +210,29 @@ featurelayers:
               type: link
               label: "OpenStreetMap"
               url: "https://www.openstreetmap.org/#map=15/{{ feature.geometry.lat }}/{{ feature.geometry.lng }}"
+  - id: cyclone_events_all
+    enabled: true
+    type: geojson
+    title: "Cyclone Events (Heatmap)"
+    description: "This layer contains a heatmap of cyclone events."
+    visible: false
+    source:
+      name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
+      attribution: "WFP/OSEP/AEW&GIS"
+    geojson:
+      url: "/data/local/country/all/hazard/cyclone/events.json"
+    heatmap:
+      radius: 8
+      blur: 10
+      weight: count
 {% endverbatim %}{% endblock %}
 
-{% block legendlayers %}
-legendlayers:
-  - landscan
-  - wld_poi_facilities_wfp
-  - imerg_1day
-  - imerg_3day
-  - imerg_7day
-  - osm_humanitarian
-  - osm
-{% endblock %}
+{% block legendlayers %}{% endblock %}
 
 {% block renderlayers %}
 renderlayers:
   - wld_poi_facilities_wfp
+  - cyclone_events_all
   - landscan
   - imerg_1day
   - imerg_3day

@@ -1,0 +1,8 @@
+---
+sparc2_vam_geojson: '/api/data/country/{{ iso3 }}/dataset/vam.json'
+sparc2_context_geojson: '/api/data/country/{{ iso3 }}/dataset/context.json'
+sparc2_context_summary: '/api/data/country/{{ iso3 }}/dataset/context_summary.json'
+sparc2_popatrisk_geojson: '/api/data/country/{{ iso3 }}/hazard/{{ hazard }}/dataset/popatrisk.json'
+sparc2_popatrisk_summary: '/api/data/country/{{ iso3 }}/hazard/{{ hazard }}/dataset/summary.json'
+sparc2_countries_json: /api/countries.json
+sparc2_hazards_json: /api/hazards.json

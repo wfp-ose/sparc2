@@ -31,8 +31,3 @@ controllers:
         handler: zoomToLayer
 directives: []
 templates: []
-handlers:
-  - filterChanged.js
-  - selectStyle.js
-  - stateChanged.js
-  - viewChanged.js

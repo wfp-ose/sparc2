@@ -120,4 +120,11 @@ def get_summary_flood(table_popatrisk=None, iso_alpha3=None):
             value = [float(x) for x in values.split(",")]
             summary["admin2"] = insertIntoObject(summary["admin2"], keys, value)
 
+    summary['header'] = {
+        'all_breakpoints_natural': len(summary["all"]["breakpoints"]["natural"]),
+        'all_breakpoints_natural_adjusted': len(summary["all"]["breakpoints"]["natural_adjusted"]),
+        'admin2': len(summary["admin2"].keys()),
+        'returnPeriods': returnPeriods
+    }
+
     return summary

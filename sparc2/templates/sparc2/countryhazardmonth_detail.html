@@ -17,9 +17,8 @@
 {% endblock %}
 
 {% block map_controllers %}
-{% include "sparc2/_includes/map_breadcrumb.html" %}
 {% include "geodash/_includes/map_legend.html" with legend_title="Legend - Click to Open" %}
-{% include "geodash/_includes/map_filter.html" %}
+{% include "geodash/_includes/map_overlays.html" %}
 {% if include_sidebar_left %}
 <div
   id="geodash-map-sidebar-toggle-left"
@@ -28,8 +27,15 @@
   geodash-sidebar-toggle-left>
 </div>
 {% endif %}
-{% include "sparc2/_includes/map_calendar.html" %}
+<nav
+  class="geodash-controller"
+  geodash-controller="sparc-map-calendar"
+  ng-controller="sparc-map-calendar"
+  sparc-calendar>
+</nav>
 {% endblock %}
+
+{% block modals %}{{ block.super }}{% endblock %}
 
 {% block extra_content %}
 {% endblock %}

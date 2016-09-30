@@ -41,7 +41,7 @@ geodash.controllers["controller_main"] = function(
   state, map_config, stateschema, live)
 {
     $scope.map_config = map_config;
-    $scope.state = geodash.init_state(state, stateschema);
+    $scope.state = geodash.init.state(state, stateschema);
     $scope.live = live;
 
     $scope.refreshMap = function(state){
@@ -81,34 +81,35 @@ var init_sparc_controller_main = function(that, app)
   app.controller("GeoDashControllerBase", geodash.controllers.GeoDashControllerBase);
   app.controller("GeoDashControllerModal", geodash.controllers.GeoDashControllerModal);
 
-  geodash.init_controller(that, app, geodash.controllers.controller_main);
+  geodash.init.controller(that, app, geodash.controllers.controller_main);
 
   var selector_controller_base = [
     ".geodash-controller.geodash-about",
     ".geodash-controller.geodash-download",
     ".geodash-controller.geodash-dashboard-config",
+    ".geodash-controller.geodash-dashboard-security",
     "[geodash-controller='geodash-modal']",
     "[geodash-controller='geodash-base']"
   ].join(", ");
 
-  geodash.init_controllers(that, app, [{
+  geodash.init.controllers(that, app, [{
     "selector": selector_controller_base,
-    "controller": geodash.controllers.controller_base
+    "controller": geodash.controllers.GeoDashControllerBase
   }]);
 
-  /*geodash.init_controllers(that, app, [{
+  /*geodash.init.controllers(that, app, [{
     "selector": "[geodash-controller='sparc-sidebar-left']",
     "controller": geodash.controllers.controller_sidebar_sparc
   }]);*/
 
   $("[geodash-controller='geodash-map']", that).each(function(){
     // Init This
-    geodash.init_controller($(this), app, geodash.controllers.controller_base);
+    geodash.init.controller($(this), app, geodash.controllers.GeoDashControllerBase);
 
     // Init Children
-    geodash.init_controllers($(this), app, [
+    geodash.init.controllers($(this), app, [
       { "selector": "[geodash-controller='geodash-map-map']", "controller": geodash.controllers.controller_map_map },
-      { "selector": "[geodash-controller='sparc-map-calendar']", "controller": geodash.controllers.controller_calendar },
+      { "selector": "[geodash-controller='sparc-map-calendar']", "controller": geodash.controllers.SPARCControllerCalendar },
       { "selector": "[geodash-controller='sparc-map-breadcrumb']", "controller": geodash.controllers.controller_breadcrumb },
       { "selector": "[geodash-controller='geodash-map-filter']", "controller": geodash.controllers.controller_filter },
       { "selector": "[geodash-controller='geodash-map-legend']", "controller": geodash.controllers.controller_legend },

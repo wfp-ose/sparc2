@@ -118,4 +118,11 @@ def get_summary_landslide(table_popatrisk=None, iso_alpha3=None):
                 [admin2_code, "prob_class", prob_class, 'by_month'],
                 values_by_month)
 
+    summary['header'] = {
+        'all_breakpoints_natural': len(summary["all"]["breakpoints"]["natural"]),
+        'all_breakpoints_natural_adjusted': len(summary["all"]["breakpoints"]["natural_adjusted"]),
+        'admin2': len(summary["admin2"].keys()),
+        'prob_classes': prob_classes
+    }
+
     return summary

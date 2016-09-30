@@ -25,7 +25,7 @@ featurelayers:
       format: 'image/png'
       transparent: true
       buffer: 256
-      url: "http://geonode.wfp.org/geoserver/geonode/wms"
+      url: "http://geonode.wfp.org/cors/geoserver/wms"
       cql_filter: "(facility IN ('Country Office') AND status = 'Open')"
     wfs:
       version: "1.0.0"  # Needs to 1.0.0 or returns bad results for some reason.
@@ -43,18 +43,30 @@ featurelayers:
             preview: false
     legend:
       label: "Global WFP Facilities"
+  - id: flood_events_all
+    enabled: true
+    type: geojson
+    title: "Flood Events (Heatmap)"
+    description: "This layer contains a heatmap of flood events."
+    visible: true
+    source:
+      name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
+      attribution: "WFP/OSEP/AEW&GIS"
+    geojson:
+      url: "/api/data/country/all/hazard/flood/dataset/events.json"
+    heatmap:
+      radius: 4
+      blur: 10
+      weight: count
 {% endverbatim %}{% endblock %}
 
 {% block legendlayers %}
-legendlayers:
-  - wld_poi_facilities_wfp
-  - osm_humanitarian
-  - osm
 {% endblock %}
 
 {% block renderlayers %}
 renderlayers:
   - wld_poi_facilities_wfp
+  - flood_events_all
   - osm
   - osm_humanitarian
 {% endblock %}

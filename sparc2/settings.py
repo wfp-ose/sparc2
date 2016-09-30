@@ -166,12 +166,22 @@ LEAFLET_CONFIG = {
 # SPARC_HAZARDS is used for configuring what hazards are enabled.
 # Additional configuration is in enumerations.py
 SPARC_HAZARDS = ["cyclone", "drought", "flood", "landslide"]
-
+SPARC_COLOR_RAMP = ['#fee5d9', '#fde79c', '#fcbba1', '#fc8d59', '#d7301f','#8162c6','#290051'];
 #######################################
+#-----------------------------
+# Mapping Library
+GEODASH_MAPPING_LIBRARY = "ol3"
+#-----------------------------
+# Database
 GEODASH_DB_CONN_STR = "dbname='sparc2' user='sparc2' host='localhost' password='sparc2'"
 GEODASH_CACHE_DATA = True
 GEODASH_MEMCACHED_HOST = 'localhost'
 GEODASH_MEMCACHED_PORT = 11212  # So doesn't interfer with root/built-in memcached
+#-----------------------------
+# Performance & Caching
+GEODASH_CLIP_DECIMAL_PLACES = 4
+GEODASH_REGEX_CLIP_COORDS_PATTERN = '(?P<prefix>"coordinates"\\:\\s*\\[)(?P<x>\\d+([.]\\d{0,'+str(GEODASH_CLIP_DECIMAL_PLACES)+'})?)(.*?)(,\s*?)(?P<y>\\d+([.]\\d{0,'+str(GEODASH_CLIP_DECIMAL_PLACES)+'})?)(.*?)(?P<suffix>\\])'
+GEODASH_REGEX_CLIP_COORDS_REPL = '\\g<prefix>\\g<x>,\\g<y>\\g<suffix>'
 #-----------------------------
 # DNS Prefetch
 GEODASH_DNS_PREFETCH = [

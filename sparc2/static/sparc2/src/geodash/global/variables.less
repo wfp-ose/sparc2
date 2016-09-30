@@ -10,11 +10,12 @@
 @screen-md-max: (@screen-lg-min - 1);
 
 @wfp-blue: #0088FF;
+
+@wfp-color-primary: #0374e6;
+
 @sparc-font-family-primary: 'Open Sans', sans-serif;
 
 @geodash-header-height: 61px;
-@sparc-calendar-height: 42px;
-@sparc-calendar-transition: 1s;
 
 @geodash-leaflet-position-top: 60px;
 @geodash-leaflet-position-bottom: 4px;
@@ -76,8 +77,21 @@
 @geodash-sidebar-left-width: @geodash-sidebar-width;
 @geodash-sidebar-right-width: @geodash-sidebar-width;
 @geodash-sidebar-transition: 1.6s;
+@geodash-map-sidebar-toggle-background: @wfp-blue;
+@geodash-map-sidebar-toggle-color: white;
 @geodash-map-sidebar-toggle-z-index: @geodash-map-control-z-index;
 @geodash-sidebar-background: #337ab7;
+
+@geodash-sidebar-header-background: @wfp-blue;
+@geodash-sidebar-header-font-family: @sparc-font-family-primary;
+@geodash-sidebar-header-color: white;
+
+@geodash-sidebar-border-background: @wfp-blue;
+@geodash-sidebar-border-width: 8px;
+@geodash-sidebar-border-radius: 0px;
+
+@geodash-sidebar-selection-background: @wfp-blue;
+@geodash-sidebar-selction-color: white;
 
 @geodash-sidebar-item-height: 28px;
 
@@ -89,3 +103,11 @@
 @geodash-sidebar-item-symbol-width: 28px;
 @geodash-sidebar-item-symbol-height: 100%;
 @geodash-sidebar-item-symbol-max-height: @geodash-sidebar-item-height;
+
+
+/* Calendar */
+@geodash-calendar-height: 42px;
+@geodash-calendar-transition: 1s;
+@geodash-calendar-button-hover-color: #fff;
+@geodash-calendar-button-hover-background-color: @wfp-color-primary;
+@geodash-calendar-button-hover-border: 1px solid rgba(0,0,0,.15);

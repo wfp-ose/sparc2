@@ -9,7 +9,38 @@ legend:
   title: "Legend - Click to Open"
 {% endblock %}
 
-{% block view %}{{ block.super }}{% endblock %}
+{% block view %}
+view:
+  lat: 0
+  lon: 0
+  zoom: 3
+  minZoom: 0
+  maxZoom: 18
+  baselayer: "osm"
+  featurelayers:
+    - popatrisk
+{% endblock %}
+
+{% block overlays %}
+overlays:
+  - id: submit_issue
+    type: text
+    position:
+        top: 8px
+        right: 8px
+    padding: 4px
+    background_old: 'linear-gradient(to right, rgb(0, 129, 195) 0%,rgb(78, 164, 218) 62%,rgba(85,167,220,0.7) 68%,rgba(125,185,232,0.6) 100%)'
+    background: "#0374e6"
+    text:
+        content: 'Submit an Issue'
+        font:
+            style: normal
+            family: lato
+            size: 1em
+    link:
+      url: "https://docs.google.com/forms/d/e/1FAIpQLSfgmXj6lVIfaZcWxkxGX-4DGqv6Twq1RSvGB0PR5UhxryEkXA/viewform"
+      target: "_blank"
+{% endblock %}
 
 {% block baselayers %}{{ block.super }}{% endblock %}
 
@@ -19,64 +50,42 @@ featurelayers:
     type: geojson
     title: "Population at Risk"
     description: "Population at Risk"
-    visible: true
     source:
       name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
       attribution: "WFP/OSEP/AEW&GIS"
     geojson:
-      url: "/data/local/country/{iso3}/hazard/{hazard}/popatrisk.json"
-    sparc:
-      summary: "/data/local/country/{iso3}/hazard/{hazard}/summary.json"
-    routes:
-      geojson: "/data/local/country/:iso3/hazard/:hazard/popatrisk*.json"
-      summary: "/data/local/country/:iso3/hazard/:hazard/summary.json"
-    cartography:
-      - id: "default"
-        type: graduated
-        label:
-          value: "{{ feature.attributes.admin2_name }}, {{ feature.attributes.admin1_name }}"
-        ramp:
-          label:
-            left: "Small\nPopulation\nat Risk"
-            right: "Large\nPopulation\nat Risk"
-        description: "For a given hazard, month, and admin 2 district, the population at risk."
-        colors:
-          ramp:
-            - '#aaaaaa'
-            - '#fde79c'
-            - '#fcbba1'
-            - '#fc8d59'
-            - '#d7301f'
-            - '#8162c6'
-            - '#290051'
-        styles:
-          label: ""
-          default:
-            static:
-              weight: 1
-              color: "#000000"
-              opacity: 0.8
-              fillOpacity: 0.62
-            {% endverbatim %}
-            dynamic:
-              func: "style_{{ hazard }}"
-              options:
-                breakpoints: "popatrisk_natural_adjusted"
-                filters:
-                  - "vam_filter_fcs"
-                  - "vam_filter_csi"
-            {% verbatim %}
-          hover:
-            static:
-              weight: 5
-              color: "#0000FF"
-              opacity: 0.8
-              fillOpacity: 0.5
-        legend:
-          symbol:
-            type: "graduated"
-            width: 34
-            height: 12
+      url: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/{% endverbatim %}{{ hazard }}{% verbatim %}/dataset/popatrisk.json"
+    carto:
+      styles:
+        - id: default
+          title: Default Style
+          description: Default Style
+          symbolizers:
+            - id: default
+              title: Default Symbolizer
+              description: "For a given hazard, month, and admin 2 district, the population at risk."
+              static:
+                properties:
+                  fillColor: "#000000"
+                  fillOpacity: 0.6
+                  strokeWidth: 0.2
+                  strokeColor: "#000000"
+              dynamic:
+                func: {% endverbatim %}"{{ hazard }}"{% verbatim %}
+                options:
+                  colors:
+                    ramp:
+                      - '#aaaaaa'
+                      - '#fde79c'
+                      - '#fcbba1'
+                      - '#fc8d59'
+                      - '#d7301f'
+                      - '#8162c6'
+                      - '#290051'
+                  breakpoints: "popatrisk_natural_adjusted"
+                  filters:
+                    - "vam_filter_fcs"
+                    - "vam_filter_csi"
     legend:
       label: "Population at Risk"
   {% endverbatim %}{% if hazard == "cyclone" %}{% verbatim %}
@@ -89,7 +98,7 @@ featurelayers:
           tab:
             label: "Overview"
           fields:
-            - value: "{{ feature.attributes.popatrisk | formatInteger : 'delimited' : ' ' }}"
+            - value: "{{ popatrisk('cyclone', feature, state, filters) | formatInteger : 'delimited' : ' ' }}"
               label: "Population at Risk for {{ state.month | formatMonth: 'long' }}"
           charts:
             - id: "sparc-popup-chart-popatrisk"
@@ -119,52 +128,39 @@ featurelayers:
           tab:
             label: "FCS"
           fields:
-            - value: "{{ feature.attributes.vam_fcs_month | formatMonth:'long' }} {{ feature.attributes.vam_fcs_year }}"
+            - value: "{{ vam(feature.attributes.admin1_code,'fcs.month') | formatMonth : 'long' }} {{ vam(feature.attributes.admin1_code,'fcs.year') }}"
               label: VAM FCS Date
-              when: defined
-            - attribute: vam_fcs_source
+            - value: "{{ vam(feature.attributes.admin1_code,'fcs.source') }}"
               label: VAM FCS Source
-              when: defined
-            - attribute: vam_fcs_poor
-              value: "{{ feature.attributes.vam_fcs_poor | formatFloat: 2 }}"
+            - value: "{{ vam(feature.attributes.admin1_code,'fcs.poor') | formatFloat: 2 }}"
               label: VAM FCS Poor
-              when: defined
-            - attribute: vam_fcs_borderline
-              value: "{{ feature.attributes.vam_fcs_borderline | formatFloat: 2 }}"
+            - value: "{{ vam(feature.attributes.admin1_code,'fcs.borderline') | formatFloat: 2 }}"
               label: VAM FCS Borderline
-              when: defined
-            - attribute: vam_fcs_acceptable
-              value: "{{ feature.attributes.vam_fcs_acceptable | formatFloat: 2 }}"
+            - value: "{{ vam(feature.attributes.admin1_code,'fcs.acceptable') | formatFloat: 2 }}"
               label: VAM FCS Acceptable
-              when: defined
         - id: "popup_vam_csi"
           tab:
             label: "CSI"
           fields:
-            - value: "{{ feature.attributes.vam_csi_month | formatMonth:'long' }} {{ feature.attributes.vam_csi_year }}"
+            - value: "{{ vam(feature.attributes.admin1_code,'csi.month') | formatMonth : 'long' }} {{ vam(feature.attributes.admin1_code,'csi.year') }}"
               label: VAM CSI Date
-              when: defined
-            - attribute: vam_csi_source
+            - value: "{{ vam(feature.attributes.admin1_code,'csi.source') }}"
               label: VAM CSI Source
-              when: defined
-            - value: "{{ feature.attributes.vam_csi_no | formatFloat: 2 }}"
+            - value: "{{ vam(feature.attributes.admin1_code,'csi.no') | formatFloat: 2 }}"
               label: VAM CSI No
-              when: defined
-            - value: "{{ feature.attributes.vam_csi_low | formatFloat: 2 }}"
+            - value: "{{ vam(feature.attributes.admin1_code,'csi.low') | formatFloat: 2 }}"
               label: VAM CSI Low
-              when: defined
-            - value: "{{ feature.attributes.vam_csi_medium | formatFloat: 2 }}"
+            - value: "{{ vam(feature.attributes.admin1_code,'csi.medium') | formatFloat: 2 }}"
               label: VAM CSI Medium
-              when: defined
-            - value: "{{ feature.attributes.vam_csi_high | formatFloat: 2 }}"
+            - value: "{{ vam(feature.attributes.admin1_code,'csi.high') | formatFloat: 2 }}"
               label: VAM CSI high
-              when: defined
         - id: "popup_links"
           tab:
             label: "Links"
           fields: []
     filters:
-      - label: "Pop at Risk"
+      - layer: popatrisk
+        label: "Pop at Risk"
         description:  "The population at risk at the admin-2 level."
         line_height: 36px
         height: 50px
@@ -180,7 +176,8 @@ featurelayers:
           max: summary  # Overridden by max value from summary data
           step: 1
           output: popatrisk_range
-      - label: Category
+      - layer: popatrisk
+        label: Category
         description: "The Saffir-Simpson Hurricane Wind Scale is a 1 to 5 rating based on a hurricane's sustained wind speed. This scale estimates potential property damage. Hurricanes reaching Category 3 and higher are considered major hurricanes because of their potential for significant loss of life and damage. Category 1 and 2 storms are still dangerous, however, and require preventative measures. In the western North Pacific, the term \"super typhoon\" is used for tropical cyclones with sustained winds exceeding 150 mph."
         height: 34px
         type: radio
@@ -203,7 +200,8 @@ featurelayers:
               value: "cat4_5"
               label: "4-5"
               description: "Only category 4 and 5 for cyclones, typhoons, and hurricanes."
-      - label: "Probability"
+      - layer: popatrisk
+        label: "Probability"
         description:  "The probability by admin2-month that a cyclone will hit."
         line_height: 36px
         height: 50px
@@ -219,7 +217,8 @@ featurelayers:
           max: 1.0
           step: 0.1
           output: prob_class_max
-      - label: FCS
+      - layer: popatrisk
+        label: FCS
         description: "Filter by VAM Food Consumption Score (FCS).\n\nReference: [http://documents.wfp.org/stellent/groups/public/documents/manual_guide_proced/wfp197216.pdf](http://documents.wfp.org/stellent/groups/public/documents/manual_guide_proced/wfp197216.pdf)"
         height: 34px
         type: checkbox
@@ -241,7 +240,8 @@ featurelayers:
               label: "Acceptable"
               description: "Food Consumption Score (FCS) greater than 35.  This means households that score above 35 are estimated having acceptable food consumption.  The value 35 comes from an expected daily consumption of staple and vegetables complemented by a frequent (4 day/week) consumption of oil and pulses (staple*weight + vegetables*weight + oil*weight + pulses*weight = 7*2+7*1+4*0.5+4*3=35)."
               checked: true
-      - label: CSI
+      - layer: popatrisk
+        label: CSI
         description: "Filter by VAM Coping Strategy Index (CSI).\n\nReference: [The Coping Strategies Index](http://documents.wfp.org/stellent/groups/public/documents/manual_guide_proced/wfp211058.pdf)"
         height: 34px
         type: checkbox
@@ -268,7 +268,8 @@ featurelayers:
               label: "High"
               description: "High on the Coping Strategy Index"
               checked: true
-      - label: LDI
+      - layer: popatrisk
+        label: LDI
         description:  "Filter by the Land Degradation Index (LDI).  LDI combines negative land cover change and erosion propensity variables.\nHigh LDI levels indicate high land deterioration on a qualitative scale (undimensionless)."
         line_height: 36px
         height: 50px
@@ -284,7 +285,8 @@ featurelayers:
           max: 9
           step: 1
           output: ldi_range
-      - label: "Negative Landcover Change"
+      - layer: popatrisk
+        label: "Negative Landcover Change"
         description: "Negative Landcover Change"
         line_height: 36px
         height: 50px
@@ -299,8 +301,9 @@ featurelayers:
           min: 0
           max: 100
           step: 1
-          output: landcover_delta_negative_range`
-      - label: Erosion Propensity
+          output: landcover_delta_negative_range
+      - layer: popatrisk
+        label: Erosion Propensity
         description:  "Filter by the erosion propensity, which indicates percentage of surface area under erosion process (> 5 Tons/ha per year).\nThe erosion propensity is calculated using the RUSLE equation (Rain incidence, Slope length, Lithology, Land cover)."
         line_height: 36px
         height: 50px
@@ -326,7 +329,7 @@ featurelayers:
           tab:
             label: "Overview"
           fields:
-            - value: "{{ feature.attributes.popatrisk | formatInteger : 'delimited' : ' ' }}"
+            - value: "{{ popatrisk('drought', feature, state, filters) | formatInteger : 'delimited' : ' ' }}"
               label: "Population at Risk for {{ state.month | formatMonth: 'long' }}"
           charts:
             - id: "sparc-popup-chart-popatrisk"
@@ -340,6 +343,11 @@ featurelayers:
                     text: 'Pop at Risk'
                     position: 'outer-middle'
               hazard: drought
+              colors:
+                0.01-0.05: "#c6dbef"
+                0.06-0.10: "#6baed6"
+                0.11-0.19: "#2171b5"
+                0.20-1.0: "#08306b"
         - id: "popup_location"
           tab:
             label: "Location"
@@ -356,52 +364,39 @@ featurelayers:
           tab:
             label: "FCS"
           fields:
-            - value: "{{ feature.attributes.vam_fcs_month | formatMonth:'long' }} {{ feature.attributes.vam_fcs_year }}"
+            - value: "{{ vam(feature.attributes.admin1_code,'fcs.month') | formatMonth : 'long' }} {{ vam(feature.attributes.admin1_code,'fcs.year') }}"
               label: VAM FCS Date
-              when: defined
-            - attribute: vam_fcs_source
+            - value: "{{ vam(feature.attributes.admin1_code,'fcs.source') }}"
               label: VAM FCS Source
-              when: defined
-            - attribute: vam_fcs_poor
-              value: "{{ feature.attributes.vam_fcs_poor | formatFloat: 2 }}"
+            - value: "{{ vam(feature.attributes.admin1_code,'fcs.poor') | formatFloat: 2 }}"
               label: VAM FCS Poor
-              when: defined
-            - attribute: vam_fcs_borderline
-              value: "{{ feature.attributes.vam_fcs_borderline | formatFloat: 2 }}"
+            - value: "{{ vam(feature.attributes.admin1_code,'fcs.borderline') | formatFloat: 2 }}"
               label: VAM FCS Borderline
-              when: defined
-            - attribute: vam_fcs_acceptable
-              value: "{{ feature.attributes.vam_fcs_acceptable | formatFloat: 2 }}"
+            - value: "{{ vam(feature.attributes.admin1_code,'fcs.acceptable') | formatFloat: 2 }}"
               label: VAM FCS Acceptable
-              when: defined
         - id: "popup_vam_csi"
           tab:
             label: "CSI"
           fields:
-            - value: "{{ feature.attributes.vam_csi_month | formatMonth:'long' }} {{ feature.attributes.vam_csi_year }}"
+            - value: "{{ vam(feature.attributes.admin1_code,'csi.month') | formatMonth : 'long' }} {{ vam(feature.attributes.admin1_code,'csi.year') }}"
               label: VAM CSI Date
-              when: defined
-            - attribute: vam_csi_source
+            - value: "{{ vam(feature.attributes.admin1_code,'csi.source') }}"
               label: VAM CSI Source
-              when: defined
-            - value: "{{ feature.attributes.vam_csi_no | formatFloat: 2 }}"
+            - value: "{{ vam(feature.attributes.admin1_code,'csi.no') | formatFloat: 2 }}"
               label: VAM CSI No
-              when: defined
-            - value: "{{ feature.attributes.vam_csi_low | formatFloat: 2 }}"
+            - value: "{{ vam(feature.attributes.admin1_code,'csi.low') | formatFloat: 2 }}"
               label: VAM CSI Low
-              when: defined
-            - value: "{{ feature.attributes.vam_csi_medium | formatFloat: 2 }}"
+            - value: "{{ vam(feature.attributes.admin1_code,'csi.medium') | formatFloat: 2 }}"
               label: VAM CSI Medium
-              when: defined
-            - value: "{{ feature.attributes.vam_csi_high | formatFloat: 2 }}"
+            - value: "{{ vam(feature.attributes.admin1_code,'csi.high') | formatFloat: 2 }}"
               label: VAM CSI high
-              when: defined
         - id: "popup_links"
           tab:
             label: "Links"
           fields: []
     filters:
-      - label: "Pop at Risk"
+      - layer: popatrisk
+        label: "Pop at Risk"
         description:  "The population at risk at the admin-2 level."
         line_height: 36px
         height: 50px
@@ -417,7 +412,8 @@ featurelayers:
           max: summary  # Overridden by max value from summary data
           step: 1
           output: popatrisk_range
-      - label: "Probability"
+      - layer: popatrisk
+        label: "Probability"
         description:  "The probability by admin2-month that a drought will occur."
         line_height: 36px
         height: 50px
@@ -433,7 +429,8 @@ featurelayers:
           max: 1.0
           step: 0.1
           output: prob_class_max
-      - label: FCS
+      - layer: popatrisk
+        label: FCS
         description: "Filter by VAM Food Consumption Score (FCS).\n\nReference: [http://documents.wfp.org/stellent/groups/public/documents/manual_guide_proced/wfp197216.pdf](http://documents.wfp.org/stellent/groups/public/documents/manual_guide_proced/wfp197216.pdf)"
         height: 34px
         type: checkbox
@@ -455,7 +452,8 @@ featurelayers:
               label: "Acceptable"
               description: "Food Consumption Score (FCS) greater than 35.  This means households that score above 35 are estimated having acceptable food consumption.  The value 35 comes from an expected daily consumption of staple and vegetables complemented by a frequent (4 day/week) consumption of oil and pulses (staple*weight + vegetables*weight + oil*weight + pulses*weight = 7*2+7*1+4*0.5+4*3=35)."
               checked: true
-      - label: CSI
+      - layer: popatrisk
+        label: CSI
         description: "Filter by VAM Coping Strategy Index (CSI).\n\nReference: [The Coping Strategies Index](http://documents.wfp.org/stellent/groups/public/documents/manual_guide_proced/wfp211058.pdf)"
         height: 34px
         type: checkbox
@@ -482,7 +480,8 @@ featurelayers:
               label: "High"
               description: "High on the Coping Strategy Index"
               checked: true
-      - label: LDI
+      - layer: popatrisk
+        label: LDI
         description:  "Filter by the Land Degradation Index (LDI).  LDI combines negative land cover change and erosion propensity variables.\nHigh LDI levels indicate high land deterioration on a qualitative scale (undimensionless)."
         line_height: 36px
         height: 50px
@@ -498,7 +497,8 @@ featurelayers:
           max: 9
           step: 1
           output: ldi_range
-      - label: "Negative Landcover Change"
+      - layer: popatrisk
+        label: "Negative Landcover Change"
         description: "Negative Landcover Change"
         line_height: 36px
         height: 50px
@@ -513,8 +513,9 @@ featurelayers:
           min: 0
           max: 100
           step: 1
-          output: landcover_delta_negative_range`
-      - label: Erosion Propensity
+          output: landcover_delta_negative_range
+      - layer: popatrisk
+        label: Erosion Propensity
         description:  "Filter by the erosion propensity, which indicates percentage of surface area under erosion process (> 5 Tons/ha per year).\nThe erosion propensity is calculated using the RUSLE equation (Rain incidence, Slope length, Lithology, Land cover)."
         line_height: 36px
         height: 50px
@@ -540,7 +541,7 @@ featurelayers:
           tab:
             label: "Overview"
           fields:
-            - value: "{{ feature.attributes.popatrisk | formatInteger : 'delimited' : ' ' }}"
+            - value: "{{ popatrisk('flood', feature, state, filters) | formatInteger : 'delimited' : ' ' }}"
               label: "Population at Risk for {{ state.month | formatMonth: 'long' }}"
           charts:
             - id: "sparc-popup-chart-popatrisk"
@@ -576,52 +577,39 @@ featurelayers:
           tab:
             label: "FCS"
           fields:
-            - value: "{{ feature.attributes.vam_fcs_month | formatMonth:'long' }} {{ feature.attributes.vam_fcs_year }}"
+            - value: "{{ vam(feature.attributes.admin1_code,'fcs.month') | formatMonth : 'long' }} {{ vam(feature.attributes.admin1_code,'fcs.year') }}"
               label: VAM FCS Date
-              when: defined
-            - attribute: vam_fcs_source
+            - value: "{{ vam(feature.attributes.admin1_code,'fcs.source') }}"
               label: VAM FCS Source
-              when: defined
-            - attribute: vam_fcs_poor
-              value: "{{ feature.attributes.vam_fcs_poor | formatFloat: 2 }}"
+            - value: "{{ vam(feature.attributes.admin1_code,'fcs.poor') | formatFloat: 2 }}"
               label: VAM FCS Poor
-              when: defined
-            - attribute: vam_fcs_borderline
-              value: "{{ feature.attributes.vam_fcs_borderline | formatFloat: 2 }}"
+            - value: "{{ vam(feature.attributes.admin1_code,'fcs.borderline') | formatFloat: 2 }}"
               label: VAM FCS Borderline
-              when: defined
-            - attribute: vam_fcs_acceptable
-              value: "{{ feature.attributes.vam_fcs_acceptable | formatFloat: 2 }}"
+            - value: "{{ vam(feature.attributes.admin1_code,'fcs.acceptable') | formatFloat: 2 }}"
               label: VAM FCS Acceptable
-              when: defined
         - id: "popup_vam_csi"
           tab:
             label: "CSI"
           fields:
-            - value: "{{ feature.attributes.vam_csi_month | formatMonth:'long' }} {{ feature.attributes.vam_csi_year }}"
+            - value: "{{ vam(feature.attributes.admin1_code,'csi.month') | formatMonth : 'long' }} {{ vam(feature.attributes.admin1_code,'csi.year') }}"
               label: VAM CSI Date
-              when: defined
-            - attribute: vam_csi_source
+            - value: "{{ vam(feature.attributes.admin1_code,'csi.source') }}"
               label: VAM CSI Source
-              when: defined
-            - value: "{{ feature.attributes.vam_csi_no | formatFloat: 2 }}"
+            - value: "{{ vam(feature.attributes.admin1_code,'csi.no') | formatFloat: 2 }}"
               label: VAM CSI No
-              when: defined
-            - value: "{{ feature.attributes.vam_csi_low | formatFloat: 2 }}"
+            - value: "{{ vam(feature.attributes.admin1_code,'csi.low') | formatFloat: 2 }}"
               label: VAM CSI Low
-              when: defined
-            - value: "{{ feature.attributes.vam_csi_medium | formatFloat: 2 }}"
+            - value: "{{ vam(feature.attributes.admin1_code,'csi.medium') | formatFloat: 2 }}"
               label: VAM CSI Medium
-              when: defined
-            - value: "{{ feature.attributes.vam_csi_high | formatFloat: 2 }}"
+            - value: "{{ vam(feature.attributes.admin1_code,'csi.high') | formatFloat: 2 }}"
               label: VAM CSI high
-              when: defined
         - id: "popup_links"
           tab:
             label: "Links"
           fields: []
     filters:
-      - label: "Pop at Risk"
+      - layer: popatrisk
+        label: "Pop at Risk"
         description:  "The population at risk at the admin-2 level."
         line_height: 36px
         height: 50px
@@ -637,7 +625,8 @@ featurelayers:
           max: {% endverbatim %}{{ maxValue }}{% verbatim %}  # Overridden by max value from summary data
           step: 1
           output: popatrisk_range
-      - label: "Return Period"
+      - layer: popatrisk
+        label: "Return Period"
         description:  "Probability is based on the concept of \"return period\".  A return period is an estimate of the likelihood of an event, such as a flood, to occur. The theoretical return period is the inverse of the probability that the event will be exceeded in any one year (or more accurately the inverse of the expected number of occurrences in a year). In this case, a 100 year flood has a 0.01 or 1% chance of being exceeded in any one year."
         line_height: 36px
         height: 50px
@@ -651,7 +640,8 @@ featurelayers:
           label: "&lt;= {{ value }} RP"
           options: [25, 50, 100, 200, 500, 1000]
           output: rp
-      - label: FCS
+      - layer: popatrisk
+        label: FCS
         description: "Filter by VAM Food Consumption Score (FCS).\n\n\nReference: [Food Consumption Analysis](http://documents.wfp.org/stellent/groups/public/documents/manual_guide_proced/wfp197216.pdf)"
         height: 34px
         type: checkbox
@@ -673,7 +663,8 @@ featurelayers:
               label: "Acceptable"
               description: "Food Consumption Score (FCS) greater than 35.  This means households that score above 35 are estimated having acceptable food consumption.  The value 35 comes from an expected daily consumption of staple and vegetables complemented by a frequent (4 day/week) consumption of oil and pulses (staple*weight + vegetables*weight + oil*weight + pulses*weight = 7*2+7*1+4*0.5+4*3=35)."
               checked: true
-      - label: CSI
+      - layer: popatrisk
+        label: CSI
         description: "Filter by VAM Coping Strategy Index (CSI).\n\nReference: [The Coping Strategies Index](http://documents.wfp.org/stellent/groups/public/documents/manual_guide_proced/wfp211058.pdf)"
         height: 34px
         type: checkbox
@@ -700,7 +691,8 @@ featurelayers:
               label: "High"
               description: "High on the Coping Strategy Index"
               checked: true
-      - label: LDI
+      - layer: popatrisk
+        label: LDI
         description:  "Filter by the Land Degradation Index (LDI).  LDI combines negative land cover change and erosion propensity variables.\n\nHigh LDI levels indicate high land deterioration on a qualitative scale (undimensionless)."
         line_height: 36px
         height: 50px
@@ -716,7 +708,8 @@ featurelayers:
           max: 9
           step: 1
           output: ldi_range
-      - label: "Negative Landcover Change"
+      - layer: popatrisk
+        label: "Negative Landcover Change"
         description: "Negative Landcover Change"
         line_height: 36px
         height: 50px
@@ -732,7 +725,8 @@ featurelayers:
           max: 100
           step: 1
           output: landcover_delta_negative_range
-      - label: Erosion Propensity
+      - layer: popatrisk
+        label: Erosion Propensity
         description:  "Filter by the erosion propensity, which indicates percentage of surface area under erosion process (> 5 Tons/ha per year).\n\nThe erosion propensity is calculated using the RUSLE equation (Rain incidence, Slope length, Lithology, Land cover)."
         line_height: 36px
         height: 50px
@@ -758,7 +752,7 @@ featurelayers:
           tab:
             label: "Overview"
           fields:
-            - value: "{{ feature.attributes.popatrisk | formatInteger : 'delimited' : ' ' }}"
+            - value: "{{ popatrisk('landslide', feature, state, filters) | formatInteger : 'delimited' : ' ' }}"
               label: "Population at Risk for {{ state.month | formatMonth: 'long' }}"
           charts:
             - id: "sparc-popup-chart-popatrisk"
@@ -788,52 +782,39 @@ featurelayers:
           tab:
             label: "FCS"
           fields:
-            - value: "{{ feature.attributes.vam_fcs_month | formatMonth:'long' }} {{ feature.attributes.vam_fcs_year }}"
+            - value: "{{ vam(feature.attributes.admin1_code,'fcs.month') | formatMonth : 'long' }} {{ vam(feature.attributes.admin1_code,'fcs.year') }}"
               label: VAM FCS Date
-              when: defined
-            - attribute: vam_fcs_source
+            - value: "{{ vam(feature.attributes.admin1_code,'fcs.source') }}"
               label: VAM FCS Source
-              when: defined
-            - attribute: vam_fcs_poor
-              value: "{{ feature.attributes.vam_fcs_poor | formatFloat: 2 }}"
+            - value: "{{ vam(feature.attributes.admin1_code,'fcs.poor') | formatFloat: 2 }}"
               label: VAM FCS Poor
-              when: defined
-            - attribute: vam_fcs_borderline
-              value: "{{ feature.attributes.vam_fcs_borderline | formatFloat: 2 }}"
+            - value: "{{ vam(feature.attributes.admin1_code,'fcs.borderline') | formatFloat: 2 }}"
               label: VAM FCS Borderline
-              when: defined
-            - attribute: vam_fcs_acceptable
-              value: "{{ feature.attributes.vam_fcs_acceptable | formatFloat: 2 }}"
+            - value: "{{ vam(feature.attributes.admin1_code,'fcs.acceptable') | formatFloat: 2 }}"
               label: VAM FCS Acceptable
-              when: defined
         - id: "popup_vam_csi"
           tab:
             label: "CSI"
           fields:
-            - value: "{{ feature.attributes.vam_csi_month | formatMonth:'long' }} {{ feature.attributes.vam_csi_year }}"
+            - value: "{{ vam(feature.attributes.admin1_code,'csi.month') | formatMonth : 'long' }} {{ vam(feature.attributes.admin1_code,'csi.year') }}"
               label: VAM CSI Date
-              when: defined
-            - attribute: vam_csi_source
+            - value: "{{ vam(feature.attributes.admin1_code,'csi.source') }}"
               label: VAM CSI Source
-              when: defined
-            - value: "{{ feature.attributes.vam_csi_no | formatFloat: 2 }}"
+            - value: "{{ vam(feature.attributes.admin1_code,'csi.no') | formatFloat: 2 }}"
               label: VAM CSI No
-              when: defined
-            - value: "{{ feature.attributes.vam_csi_low | formatFloat: 2 }}"
+            - value: "{{ vam(feature.attributes.admin1_code,'csi.low') | formatFloat: 2 }}"
               label: VAM CSI Low
-              when: defined
-            - value: "{{ feature.attributes.vam_csi_medium | formatFloat: 2 }}"
+            - value: "{{ vam(feature.attributes.admin1_code,'csi.medium') | formatFloat: 2 }}"
               label: VAM CSI Medium
-              when: defined
-            - value: "{{ feature.attributes.vam_csi_high | formatFloat: 2 }}"
+            - value: "{{ vam(feature.attributes.admin1_code,'csi.high') | formatFloat: 2 }}"
               label: VAM CSI high
-              when: defined
         - id: "popup_links"
           tab:
             label: "Links"
           fields: []
     filters:
-      - label: "Pop at Risk"
+      - layer: popatrisk
+        label: "Pop at Risk"
         description:  "The population at risk at the admin-2 level."
         line_height: 36px
         height: 50px
@@ -849,7 +830,8 @@ featurelayers:
           max: {% endverbatim %}{{ maxValue }}{% verbatim %}  # Overridden by max value from summary data
           step: 1
           output: popatrisk_range
-      - label: "Hazard Class"
+      - layer: popatrisk
+        label: "Hazard Class"
         description:  "Hazard Class ...."
         line_height: 36px
         height: 50px
@@ -865,7 +847,8 @@ featurelayers:
           max: 4
           step: 1
           output: prob_class_max
-      - label: FCS
+      - layer: popatrisk
+        label: FCS
         description: "Filter by VAM Food Consumption Score (FCS).\n\n\nReference: [Food Consumption Analysis](http://documents.wfp.org/stellent/groups/public/documents/manual_guide_proced/wfp197216.pdf)"
         height: 34px
         type: checkbox
@@ -887,7 +870,8 @@ featurelayers:
               label: "Acceptable"
               description: "Food Consumption Score (FCS) greater than 35.  This means households that score above 35 are estimated having acceptable food consumption.  The value 35 comes from an expected daily consumption of staple and vegetables complemented by a frequent (4 day/week) consumption of oil and pulses (staple*weight + vegetables*weight + oil*weight + pulses*weight = 7*2+7*1+4*0.5+4*3=35)."
               checked: true
-      - label: CSI
+      - layer: popatrisk
+        label: CSI
         description: "Filter by VAM Coping Strategy Index (CSI).\n\nReference: [The Coping Strategies Index](http://documents.wfp.org/stellent/groups/public/documents/manual_guide_proced/wfp211058.pdf)"
         height: 34px
         type: checkbox
@@ -914,7 +898,8 @@ featurelayers:
               label: "High"
               description: "High on the Coping Strategy Index"
               checked: true
-      - label: LDI
+      - layer: popatrisk
+        label: LDI
         description:  "Filter by the Land Degradation Index (LDI).  LDI combines negative land cover change and erosion propensity variables.\n\nHigh LDI levels indicate high land deterioration on a qualitative scale (undimensionless)."
         line_height: 36px
         height: 50px
@@ -930,7 +915,8 @@ featurelayers:
           max: 9
           step: 1
           output: ldi_range
-      - label: "Negative Landcover Change"
+      - layer: popatrisk
+        label: "Negative Landcover Change"
         description: "Negative Landcover Change"
         line_height: 36px
         height: 50px
@@ -946,7 +932,8 @@ featurelayers:
           max: 100
           step: 1
           output: landcover_delta_negative_range
-      - label: Erosion Propensity
+      - layer: popatrisk
+        label: Erosion Propensity
         description:  "Filter by the erosion propensity, which indicates percentage of surface area under erosion process (> 5 Tons/ha per year).\n\nThe erosion propensity is calculated using the RUSLE equation (Rain incidence, Slope length, Lithology, Land cover)."
         line_height: 36px
         height: 50px
@@ -967,29 +954,53 @@ featurelayers:
     type: geojson
     title: "VAM"
     description: "VAM"
-    visible: false
     source:
       name: "WFP/VAM"
       attribution: "WFP/VAM"
     geojson:
-      url: "/data/vam/country/{iso3}.json"
-    sparc:
-      summary: "/data/vam/country/{iso3}/summary.json"
+      local: "layers.vam.data.geojson"
   - id: context
     type: geojson
     title: "Aggravating Factors"
     description: "Aggravating Factors"
-    visible: false
     source:
       name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
       attribution: "WFP/OSEP/AEW&GIS"
     geojson:
-      url: "/data/local/country/{iso3}/context.json"
-    sparc:
-      summary: "/data/local/country/{iso3}/context/summary.json"
-    routes:
-      geojson: "/data/local/country/:iso3/context*.json"
-      summary: "/data/local/country/:iso3/context/summary.json"
+      url: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.json"
+    carto:
+      styles:
+        - id: delta_mean
+          title: "Mean Change"
+          type: "graduated"
+          description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.  Mean change highlights the balance between positive and negative changes information.  Positive values indicate areas with majority positive land cover change.  Negative values indicate areas with majority negative land cover change."
+          symbolizers:
+            - id: default
+              title: Default Symbolizer
+              static:
+                properties:
+                  weight: 1
+                  fillColor: "#000000"
+                  fillOpacity: 0.6
+                  strokeWidth: 0.2
+                  strokeColor: "#000000"
+              dynamic:
+                func: context
+                options:
+                  mask: "mask"
+                  colors:
+                    ramp:
+                      - 'rgb(181, 0, 22)'
+                      - 'rgb(251, 112, 80)'
+                      - 'rgb(222, 197, 192)'
+                      - 'rgb(227, 252, 216)'
+                      - 'rgb(122, 199, 123)'
+                      - 'rgb(0, 68, 27)'
+                    outside: "#aaaaaa"
+                  breakpoints: "context_natural_adjusted"
+                  filters:
+                    - "vam_filter_fcs"
+                    - "vam_filter_csi"
     cartography:
       - id: "delta_mean"
         title: "Mean Change"
@@ -1279,11 +1290,59 @@ featurelayers:
           tab:
             label: "Links"
           fields: []
+    filters:
+      - layer: context
+        label: LDI
+        description:  "Filter by the Land Degradation Index (LDI).  LDI combines negative land cover change and erosion propensity variables.\nHigh LDI levels indicate high land deterioration on a qualitative scale (undimensionless)."
+        line_height: 36px
+        height: 50px
+        type: slider
+        slider:
+          type: continuous
+          width: 100px
+          range: true  # See https://jqueryui.com/slider/#range
+          label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
+          values: [1, 9]
+          min: 1
+          max: 9
+          step: 1
+          output: ldi_range
+      - layer: context
+        label: "Negative Landcover Change"
+        description: "Negative Landcover Change"
+        line_height: 36px
+        height: 50px
+        type: slider
+        slider:
+          type: continuous
+          width: 100px
+          range: true  # See https://jqueryui.com/slider/#range
+          label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
+          values: [0, 100]
+          min: 0
+          max: 100
+          step: 1
+          output: landcover_delta_negative_range
+      - layer: context
+        label: Erosion Propensity
+        description:  "Filter by the erosion propensity, which indicates percentage of surface area under erosion process (> 5 Tons/ha per year).\nThe erosion propensity is calculated using the RUSLE equation (Rain incidence, Slope length, Lithology, Land cover)."
+        line_height: 36px
+        height: 50px
+        type: slider
+        slider:
+          type: continuous
+          width: 100px
+          range: true  # See https://jqueryui.com/slider/#range
+          label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
+          values: [0, 100]
+          min: 0
+          max: 100
+          step: 1
+          output: erosion_propensity_range
   - id: landscan
     type: WMS
     title: "Landscan (2013)"
     description: "Landscan (2013)"
-    visible: false
     source:
       name: "ORNL"
       attribution: "ORNL"
@@ -1293,7 +1352,31 @@ featurelayers:
       styles: ["landscan_2013"]
       format: 'image/png'
       transparent: true
-      url: "http://staging.geonode.wfp.org/geoserver/geonode/wms"
+      url: "http://staging.geonode.wfp.org/cors/geoserver/wms"
+    cartography:
+      - id: default
+        legend:
+          symbol:
+            type: "graphic"
+            width: 16
+            height: 16
+            preview: false
+  - id: forecast
+    type: WMS
+    title: "Forecast"
+    description: ""
+    source:
+      name: "WFP"
+      attribution: "WFP GeoNode"
+      site: "WFP GeoNode"
+    wms:
+      version: "1.1.1"
+      layers: ["geonode:anm_global_0111_0909_19792015_reprojected"]
+      styles: []
+      format: 'image/png'
+      transparent: true
+      buffer: 256
+      url: "http://staging.geonode.wfp.org/cors/geoserver/wms"
     cartography:
       - id: default
         legend:
@@ -1303,12 +1386,11 @@ featurelayers:
             height: 16
             preview: false
     legend:
-      label: "Landscan"
+      label: "Forecast"
   - id: imerg_1day
     type: WMS
     title: "Rainfall Total: 1 day"
     description: "IMERG 1-Day"
-    visible: false
     source:
       name: "SERVIR"
       attribution: "SERVIR"
@@ -1333,7 +1415,6 @@ featurelayers:
     type: WMS
     title: "Rainfall Total: 3 days"
     description: "IMERG 3-Day"
-    visible: false
     source:
       name: "SERVIR"
       attribution: "SERVIR"
@@ -1358,7 +1439,6 @@ featurelayers:
     type: WMS
     title: "Rainfall Total: 7 days"
     description: "IMERG 7-Day"
-    visible: false
     source:
       name: "SERVIR"
       attribution: "SERVIR"
@@ -1383,7 +1463,6 @@ featurelayers:
     type: WMS
     title: "Global WFP Facilities"
     description: "WFP Facilities worldwide, Country Office, Sub-Office, Field Office, Area Office, Humanitarian Response Depot."
-    visible: false
     source:
       name: "WFP"
       attribution: "WFP GeoNode"
@@ -1394,7 +1473,8 @@ featurelayers:
       format: 'image/png'
       transparent: true
       buffer: 256
-      url: "http://geonode.wfp.org/geoserver/geonode/wms"
+      url: "http://geonode.wfp.org/cors/geoserver/wms"
+      cql_filter: "iso3 = {% endverbatim %}'{{ iso_alpha3|upper }}'{% verbatim %}"
     wfs:
       version: "1.0.0"  # Needs to 1.0.0 or returns bad results for some reason.
       url: "http://geonode.wfp.org/cors/geoserver/wfs"
@@ -1485,7 +1565,6 @@ featurelayers:
     type: WMS
     title: "Global Supply Routes"
     description: "Global supply routes for Transportation of Food and Non Food Items - Roads, Railways, Waterway, Airways.\n\nThis layer is built by linking origin/destination locations using the most direct route on main roads. In reality, the supply routes can divert from the ones displayed here depending on many local factors. The routes shown in this dataset are only indicative and have to be used as such."
-    visible: false
     source:
       name: "WFP"
       attribution: "WFP GeoNode"
@@ -1497,7 +1576,8 @@ featurelayers:
       format: 'image/png'
       transparent: true
       buffer: 256
-      url: "http://geonode.wfp.org/geoserver/geonode/wms"
+      url: "http://geonode.wfp.org/cors/geoserver/wms"
+      cql_filter: {% endverbatim %}"iso3 = '{{ iso_alpha3|upper }}' OR iso3_op = '{{ iso_alpha3|upper }}'"{% verbatim %}
     wfs:
       version: "1.0.0"  # Needs to 1.0.0 or returns bad results for some reason.
       url: "http://geonode.wfp.org/cors/geoserver/wfs"
@@ -1579,7 +1659,6 @@ featurelayers:
     type: WMS
     title: "Cyclone Probability"
     description: "Cyclone Probability"
-    visible: false
     source:
       name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
       attribution: "WFP/OSEP/AEW&GIS"
@@ -1607,54 +1686,20 @@ featurelayers:
     type: geojson
     title: "Cyclone Events (Heatmap)"
     description: "This layer contains a heatmap of cyclone events."
-    visible: false
     source:
       name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
       attribution: "WFP/OSEP/AEW&GIS"
+    geojson:
       url: "/data/local/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/cyclone/events.json"
-    transform: heatmap
     heatmap:
-      attribute:
       radius: 8
       blur: 10
-      max: 1.0
-      minOpacity: 0.7
-    cartography:
-      - id: "default"
-        type: graduated
-        ramp:
-          label:
-            left: "Less Frequent"
-            right: "More Frequent"
-        description: "For a given admin 2 district, the frequency of landslide events."
-        colors:
-          ramp: ['#fee5d9', '#fde79c', '#fcbba1', '#fc8d59', '#d7301f','#8162c6','#290051']
-        styles:
-          default:
-            static:
-              weight: 1
-              color: "#000000"
-              opacity: 0.8
-              fillOpacity: 0.4
-          hover:
-            static:
-              weight: 2
-              color: "#0000FF"
-              opacity: 0.8
-              fillOpacity: 0.3
-        legend:
-          symbol:
-            type: "graduated"
-            width: 34
-            height: 12
-    legend:
-      label: "Cyclone Events"
+      weight: count
   {% endverbatim %}{% elif hazard == "drought" %}{% verbatim %}
   - id: wlddsi_fot01d3
     type: WMS
     title: "Drought Frequency (January)"
     description: "Drought Frequency (January)"
-    visible: false
     source:
       name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
       attribution: "WFP/OSEP/AEW&GIS"
@@ -1664,7 +1709,7 @@ featurelayers:
       styles:
       format: 'image/png'
       transparent: true
-      url: "http://staging.geonode.wfp.org/geoserver/geonode/wms"
+      url: "http://staging.geonode.wfp.org/cors/geoserver/wms"
     cartography:
       - id: default
         type: graphic
@@ -1682,7 +1727,6 @@ featurelayers:
     type: WMS
     title: "Flood Probability"
     description: "Flood Probability"
-    visible: false
     source:
       name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
       attribution: "WFP/OSEP/AEW&GIS"
@@ -1692,7 +1736,7 @@ featurelayers:
       styles: ["RP25","RP50","RP100","RP200","RP500","RP1000"]
       format: 'image/png'
       transparent: true
-      url: "http://staging.geonode.wfp.org/geoserver/geonode/wms"
+      url: "http://staging.geonode.wfp.org/cors/geoserver/wms"
     cartography:
       - id: default
         type: graphic
@@ -1710,117 +1754,53 @@ featurelayers:
     type: geojson
     title: "Flood Events (Heatmap)"
     description: "This layer contains a heatmap of flood events."
-    visible: false
     source:
       name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
       attribution: "WFP/OSEP/AEW&GIS"
     geojson:
       url: "/data/local/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/flood/events.json"
-    transform: heatmap
     heatmap:
-      attribute: count
       radius: 15
       blur: 15
-      max: 1.0
-      minOpacity: 0.7
-    cartography:
-      - id: "default"
-        type: graduated
-        ramp:
-          label:
-            left: "Less Frequent"
-            right: "More Frequent"
-        description: "For a given admin 2 district, the frequency of flood events."
-        colors:
-          ramp: ['#fee5d9', '#fde79c', '#fcbba1', '#fc8d59', '#d7301f','#8162c6','#290051']
-        styles:
-          default:
-            static:
-              weight: 1
-              color: "#000000"
-              opacity: 0.8
-              fillOpacity: 0.4
-          hover:
-            static:
-              weight: 2
-              color: "#0000FF"
-              opacity: 0.8
-              fillOpacity: 0.3
-        legend:
-          symbol:
-            type: "graduated"
-            width: 34
-            height: 12
-    legend:
-      label: "Flood Events"
+      weight: count
   - id: landslide_events
     enabled: true
     type: geojson
     title: "Landslide Events (Heatmap)"
     description: "This layer contains a heatmap of landslide events."
-    visible: false
     source:
       name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
       attribution: "WFP/OSEP/AEW&GIS"
     geojson:
       url: "/data/local/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/landslide/events.json"
-    transform: heatmap
     heatmap:
-      attribute:
       radius: 6
       blur: 8
-      max: 1.0
-      minOpacity: 0.7
-    cartography:
-      - id: "default"
-        type: graduated
-        ramp:
-          label:
-            left: "Less Frequent"
-            right: "More Frequent"
-        description: "For a given admin 2 district, the frequency of landslide events."
-        colors:
-          ramp: ['#fee5d9', '#fde79c', '#fcbba1', '#fc8d59', '#d7301f','#8162c6','#290051']
-        styles:
-          default:
-            static:
-              weight: 1
-              color: "#000000"
-              opacity: 0.8
-              fillOpacity: 0.4
-          hover:
-            static:
-              weight: 2
-              color: "#0000FF"
-              opacity: 0.8
-              fillOpacity: 0.3
-        legend:
-          symbol:
-            type: "graduated"
-            width: 34
-            height: 12
-    legend:
-      label: "Landslide Events"
+      weight: count
     {% endverbatim %}{% endif %}
 {% endblock %}
 
 {% block legendlayers %}
 legendlayers:
+  - forecast
   {% if hazard == "cyclone" %}{% verbatim %}
   - popatrisk
   - context
   - landscan
+  - vam
   - cyclone_probability
   - cyclone_events
   {% endverbatim %}{% elif hazard == "drought" %}{% verbatim %}
   - popatrisk
   - context
   - landscan
+  - vam
   - wlddsi_fot01d3
   {% endverbatim %}{% elif hazard == "flood" %}{% verbatim %}
   - popatrisk
   - context
   - landscan
+  - vam
   - flood_events
   - landslide_events
   - flood_probability
@@ -1828,6 +1808,7 @@ legendlayers:
   - popatrisk
   - context
   - landscan
+  - vam
   - flood_events
   - landslide_events
   - flood_probability
@@ -1843,6 +1824,7 @@ legendlayers:
 
 {% block renderlayers %}
 renderlayers:
+  - forecast
   - wld_poi_facilities_wfp
   - wld_trs_supplyroutes_wfp
   {% if hazard == "cyclone" %}{% verbatim %}
@@ -1868,6 +1850,7 @@ renderlayers:
   - flood_probability
   {% endverbatim %}{% endif %}
   - landscan
+  - vam
   - imerg_1day
   - imerg_3day
   - imerg_7day
@@ -1875,38 +1858,7 @@ renderlayers:
   - osm_humanitarian
 {% endblock %}
 
-{% block charts %}
-charts:
-  - id: "popatrisk"
-    element: "sparc-chart-popatrisk"
-    title: "Population at Risk by Month for Country"
-    type: "bar"
-    axis:
-      x:
-        type: "months"
-      y:
-        label:
-          text: 'Population at Risk'
-          position: 'outer-middle'
-    {% if hazard == "cyclone" %}{% verbatim %}
-    hazard: cyclone
-    {% endverbatim %}{% elif hazard == "drought" %}{% verbatim %}
-    hazard: drought
-    {% endverbatim %}{% elif hazard == "flood" %}{% verbatim %}
-    hazard: flood
-    subtype: "bullet"
-    colors:
-      rp25: "#4169E1"
-      rp100: "#B0C4FF"
-      rp1000: "#B0C4DE"
-    group_prefix: "rp"
-    group_key: "rp"
-    group_modifier: 1
-    groups: [25, 100, 1000]
-    {% endverbatim %}{% elif hazard == "landslide" %}{% verbatim %}
-    hazard: landslide
-    {% endverbatim %}{% endif %}
-{% endblock %}
+{% block charts %}{% endblock %}
 
 {% block controls %}
 controls:
@@ -1932,22 +1884,31 @@ sidebar:
         label: Layers
       - target: sparc-sidebar-left-filters
         label: Filters
+    header:
+      logo:
+        src: /static/wfp/assets/logos/light/png/2x/en-emblem.png
+        alt: wfp_logo
+      title: SPARC
+      subtitle: Spatial Risk Calendar
     layers:
       {% if hazard == "cyclone" %}{% verbatim %}
       - popatrisk
       - context
       - landscan
+      - vam
       - cyclone_probability
       - cyclone_events
       {% endverbatim %}{% elif hazard == "drought" %}{% verbatim %}
       - popatrisk
       - context
       - landscan
+      - vam
       - wlddsi_fot01d3
       {% endverbatim %}{% elif hazard == "flood" %}{% verbatim %}
       - popatrisk
       - context
       - landscan
+      - vam
       - flood_events
       - landslide_events
       - flood_probability
@@ -1955,10 +1916,12 @@ sidebar:
       - popatrisk
       - context
       - landscan
+      - vam
       - flood_events
       - landslide_events
       - flood_probability
       {% endverbatim %}{% endif %}
+      - forecast
       - wld_poi_facilities_wfp
       - wld_trs_supplyroutes_wfp
       - imerg_1day
@@ -1974,6 +1937,7 @@ sidebar:
           - flood_probability
           - cyclone_probability
           - popatrisk
+          - cyclone_events
           - flood_events
           - landslide_events
       - id: aggravating_factors
@@ -1983,9 +1947,10 @@ sidebar:
           - context
       - id: population_distribution
         label: Population Distribution
-        class: geodash-sidebar-layers-populatio-distribution
+        class: geodash-sidebar-layers-population-distribution
         layers:
           - landscan
+          - vam
       - id: wfp_operations
         label: WFP Operations
         class: geodash-sidebar-layers-wfpoperations
@@ -2001,6 +1966,43 @@ sidebar:
           - imerg_7day
       - id: forecast_precipitation
         label: Forecast Precipitation
-        class: geodash-sidebar-forecase
-        layers: []
+        class: geodash-sidebar-forecast
+        layers:
+          - forecast
+    charts:
+      - id: "popatrisk"
+        element: "sparc-chart-popatrisk"
+        title: "Population at Risk by Month for {{ country_title }}"
+        type: "bar"
+        description: "The chart above displays the number of people living in `{{ hazard }}-prone areas`, who may potentially be exposed to `{{ hazard }}` per month. The different colours indicate the probability of those people being affected; the darker the shade, the more likely that they will be affected. You can choose to display only certain levels of probability by toggling the interactive legend under the chart: click on a probability class once to turn it off, click it again to turn it back on."
+        axis:
+          x:
+            type: "months"
+          y:
+            label:
+              text: 'Population at Risk'
+              position: 'outer-middle'
+        {% if hazard == "cyclone" %}{% verbatim %}
+        hazard: cyclone
+        {% endverbatim %}{% elif hazard == "drought" %}{% verbatim %}
+        hazard: drought
+        colors:
+          0.01-0.05: "#c6dbef"
+          0.06-0.10: "#6baed6"
+          0.11-0.19: "#2171b5"
+          0.20-1.0: "#08306b"
+        {% endverbatim %}{% elif hazard == "flood" %}{% verbatim %}
+        hazard: flood
+        subtype: "bullet"
+        colors:
+          rp25: "#4169E1"
+          rp100: "#B0C4FF"
+          rp1000: "#B0C4DE"
+        group_prefix: "rp"
+        group_key: "rp"
+        group_modifier: 1
+        groups: [25, 100, 1000]
+        {% endverbatim %}{% elif hazard == "landslide" %}{% verbatim %}
+        hazard: landslide
+        {% endverbatim %}{% endif %}
 {% endblock %}

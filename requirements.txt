@@ -25,4 +25,4 @@ unidecode
 git+https://github.com/wfp-ose/wfp-presence-django.git#egg=wfp-presence-django
 git+https://github.com/wfp-ose/gaul-django.git#egg=gaul-django
 git+https://github.com/wfp-ose/lsib-django.git#egg=lsib-django
-git+https://github.com/geodashio/geodash-framework-django.git#egg=geodash-framework-django
+git+https://github.com/wfp-ose/geodash-framework-django.git@sparc2#egg=geodash-framework-django

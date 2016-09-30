@@ -28,6 +28,7 @@
     "path": "*",
     "yamljs": "^0.2.7",
     "yargs": "*",
-    "expand-home-dir": "*"
+    "expand-home-dir": "*",
+    "mkdirp": "*"
   }
 }

@@ -54,3 +54,23 @@ TODO
 .. code-block:: bash
 
     pip install git+git://github.com/wfp-ose/sparc2.git@master
+
+
+
+Static Development
+-----------------------
+
+For static development, go to the sparc2/static/sparc2/ folder.
+
+If you haven't already upgraded NodeJS to the latest version, you can do it with the following.
+
+http://askubuntu.com/questions/426750/how-can-i-update-my-nodejs-to-the-latest-version
+
+.. code-block:: bash
+
+    sudo npm cache clean -f
+    sudo npm install -g n
+    sudo n stable
+
+    # Following is optional line.  Not usually required for gulp.
+    sudo ln -sf /usr/local/n/versions/node/<VERSION>/bin/node /usr/bin/node

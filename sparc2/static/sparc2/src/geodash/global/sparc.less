@@ -1,10 +1,10 @@
 @import "variables.less";
 
-.html {
+html {
     height: 100%;
 }
 
-.body {
+body {
     height: 100%;
 }
 
@@ -238,18 +238,24 @@
 @media (min-width: @screen-sm-min) and (max-width: @screen-sm-max){
   .geodash-main {
     position: relative;
-    height: ~"calc(100% - @{geodash-header-height})";
+    height: 100%; /*~"calc(100% - @{geodash-header-height})";*/
   }
 }
 @media (min-width: @screen-md-min) and (max-width: @screen-md-max){
   .geodash-main {
     position: relative;
-    height: ~"calc(100% - @{geodash-header-height})";
+    height: 100%; /*~"calc(100% - @{geodash-header-height})";*/
   }
 }
 @media (min-width: @screen-lg-min){
   .geodash-main {
     position: relative;
-    height: ~"calc(100% - @{geodash-header-height})";
+    height: 100%; /*~"calc(100% - @{geodash-header-height})";*/
+  }
+}
+
+.geodash-map-map {
+  .ol-control button {
+    background-color: @wfp-blue;
   }
 }

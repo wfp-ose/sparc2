@@ -98,4 +98,11 @@ def get_summary_cyclone(table_popatrisk=None, iso_alpha3=None):
                   summary["admin2"][admin2_code]["prob_class"][prob_class] = {}
                 summary["admin2"][admin2_code]["prob_class"][prob_class]['by_month'] = [float(x) for x in values.split(",")]
 
+    summary['header'] = {
+        'all_breakpoints_natural': len(summary["all"]["breakpoints"]["natural"]),
+        'all_breakpoints_natural_adjusted': len(summary["all"]["breakpoints"]["natural_adjusted"]),
+        'admin2': len(summary["admin2"].keys()),
+        'prob_classes': prob_classes
+    }
+
     return summary

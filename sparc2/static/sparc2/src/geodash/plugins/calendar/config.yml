@@ -1,9 +1,0 @@
----
-controllers:
-  - controller_calendar.js
-directives:
-  - geodashCalendar.js
-templates:
-  - calendar.tpl.html
-less:
-  - calendar.less
