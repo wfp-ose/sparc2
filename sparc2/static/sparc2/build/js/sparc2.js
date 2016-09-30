@@ -3121,7 +3121,7 @@ geodash.controllers["controller_map_map"] = function(
       geodash.api.intend("clickedOnMap", delta, $scope);
       if(geodash.mapping_library == "ol3")
       {
-        $("#popup").popover('destroy');
+        //$("#popup").popover('destroy');
       }
     },
     zoomend: function(e){
