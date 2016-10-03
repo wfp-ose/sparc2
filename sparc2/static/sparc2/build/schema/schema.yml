@@ -168,6 +168,48 @@ baselayers:
           field: source.type
           values:
             - gwc
+assets:
+  type: objectarray
+  label: Assets
+  placeholder: Assets
+  required: true
+  description: 'Known assets available.  Can be then referenced by name'
+  schema:
+    verbose_singular: Asset
+    verbose_plural: Assets
+    fields:
+      -
+        id: id
+        type: text
+        label: ID
+        placeholder: ID
+        required: true
+        description: 'The id of your asset.'
+      -
+        id: title
+        type: text
+        label: Title
+        placeholder: Title
+        required: true
+        description: 'The title of your asset.'
+      -
+        id: type
+        type: text
+        label: Type
+        placeholder: 'image, svg, font'
+        required: false
+        description: 'The type of the asset (image, svg, font).'
+        options:
+          - image
+          - svg
+          - font
+      -
+        id: url
+        type: text
+        label: URL
+        placeholder: url
+        required: true
+        description: 'The url of the asset.'
 featurelayers:
   type: objectarray
   label: 'Available Feature Layers'
@@ -860,26 +902,23 @@ overlays:
         required: true
         description: 'The height of your static overlayer (in pixels or percentage).'
       -
-        id: padding
-        type: text
-        label: Padding
-        placeholder: '0px 0px 0px 0px;'
+        id: css
+        type: object
+        label: CSS
+        placeholder: css
         required: false
-        description: 'The padding to apply to your static overlayer.'
-      -
-        id: background
-        type: text
-        label: Background
-        placeholder: transparent;
-        required: false
-        description: 'The background to apply to your static overlayer.'
-      -
-        id: opacity
-        type: text
-        label: Opacity
-        placeholder: transparent;
-        required: false
-        description: 'The opacity to apply to your static overlayer.'
+        description: 'Additional CSS for the overlay.'
+        schema:
+          verbose_singular: CSS
+          fields:
+            -
+              id: properties
+              type: objectarray
+              label: 'Intent Additional CSS Properties'
+              placeholder: properties
+              required: false
+              description: 'The additional css properties of the intent, such as margin, padding, border, etc.'
+              schema: {verbose_singular: Property, verbose_plural: Properties, fields: [{id: name, type: text, label: 'Property Name', placeholder: name, required: true, description: 'The name of the property.'}, {id: value, type: template, label: 'Property value', placeholder: value, required: true, description: 'The value of the property.'}]}
       -
         id: text
         type: object
@@ -946,6 +985,14 @@ overlays:
           verbose_singular: Image
           fields:
             -
+              id: asset
+              type: text
+              label: 'Image Asset ID'
+              placeholder: 'image asset ID'
+              required: false
+              description: 'The id of the image asset.'
+              search: {datasets: [Images]}
+            -
               id: url
               type: text
               label: 'Image Url'
@@ -977,3 +1024,29 @@ overlays:
               required: true
               description: 'The target of the link.'
               options: [_blank, _self, _parent, _top]
+      -
+        id: intent
+        type: object
+        label: Intent
+        placeholder: intent
+        required: false
+        description: 'Intent for the overlay.'
+        schema:
+          verbose_singular: Intent
+          fields:
+            -
+              id: name
+              type: text
+              label: 'Intent Name'
+              placeholder: name
+              required: true
+              description: 'The intent to emit.'
+              search: {local: {name: reflect, args: {locations: [handlers]}}}
+            -
+              id: properties
+              type: objectarray
+              label: 'Intent Properties'
+              placeholder: properties
+              required: false
+              description: 'The properties of the intent, such as layer id, location, etc.'
+              schema: {verbose_singular: Property, verbose_plural: Properties, fields: [{id: name, type: text, label: 'Property Name', placeholder: name, required: true, description: 'The name of the property.'}, {id: value, type: template, label: 'Property value', placeholder: value, required: true, description: 'The value of the property.'}]}

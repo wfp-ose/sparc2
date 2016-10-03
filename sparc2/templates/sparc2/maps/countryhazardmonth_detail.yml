@@ -28,9 +28,6 @@ overlays:
     position:
         top: 8px
         right: 8px
-    padding: 4px
-    background_old: 'linear-gradient(to right, rgb(0, 129, 195) 0%,rgb(78, 164, 218) 62%,rgba(85,167,220,0.7) 68%,rgba(125,185,232,0.6) 100%)'
-    background: "#0374e6"
     text:
         content: 'Submit an Issue'
         font:
@@ -40,6 +37,72 @@ overlays:
     link:
       url: "https://docs.google.com/forms/d/e/1FAIpQLSfgmXj6lVIfaZcWxkxGX-4DGqv6Twq1RSvGB0PR5UhxryEkXA/viewform"
       target: "_blank"
+    css:
+      properties:
+        - name: padding
+          value: 8px
+        - name: background
+          value: "rgba(0,0,0, 0.4)"
+        - name: border
+          value: "2px solid #0374e6"
+        - name: border-radius
+          value: 8px
+        - name: line-height
+          value: 20px
+  - id: wfp_logo
+    type: image
+    title: "WFP Logo"
+    position:
+      top: 60px
+      right: 8px
+      bottom: auto
+      left: auto
+    link:
+      target: _blank
+      url: "http://wfp.org"
+    image:
+      asset: wfp_logo
+    css:
+      properties:
+        - name: padding
+          value: 8px
+        - name: background
+          value: "rgba(0,0,0, 0.4)"
+        - name: border
+          value: "2px solid #0374e6"
+        - name: border-radius
+          value: 8px
+        - name: width
+          value: 140px
+  - id: reset_extent
+    type: text
+    title: "Reset Extent"
+    position:
+      top: 8px
+      right: 140px
+      bottom: auto
+      left: auto
+    text:
+      content: ""
+      font:
+        family: FontAwesome
+    intent:
+      name: zoomToLayer
+      properties:
+        - name: layer
+          value: popatrisk
+    css:
+      properties:
+        - name: padding
+          value: 8px
+        - name: background
+          value: "rgba(0,0,0, 0.4)"
+        - name: border
+          value: "2px solid #0374e6"
+        - name: border-radius
+          value: 8px
+        - name: line-height
+          value: 20px
 {% endblock %}
 
 {% block baselayers %}{{ block.super }}{% endblock %}

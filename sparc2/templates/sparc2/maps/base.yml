@@ -65,6 +65,15 @@ pages:
     url: "/country/{{ iso3 }}/hazard/{{ hazard }}/month/{{ month }}"
 {% endverbatim %}{% endblock %}
 
+{% block assets %}{% verbatim %}
+assets:
+  - id: "wfp_logo"
+    type: image
+    title: WFP logo
+    #url: "https://raw.githubusercontent.com/wfp/ui/master/dist/assets/logos/light/png/2x/en-emblem.png"
+    url: "/static/wfp/assets/logos/light/png/2x/en-emblem.png"
+{% endverbatim %}{% endblock %}
+
 {% block baselayers %}
 baselayer: osm
 baselayers:
