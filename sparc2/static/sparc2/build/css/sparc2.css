@@ -139,15 +139,16 @@ body {
 .geodash-main .geodash-sidebar {
   position: absolute;
   top: 0px;
-  width: 0px;
+  width: 460px;
+  margin-left: calc(-460px);
   height: 100%;
   transition: all 1.6s ease-in-out;
 }
 .geodash-main .geodash-sidebar.geodash-sidebar-left.sidebar-open {
-  width: 460px;
+  margin-left: 0px;
 }
 .geodash-main .geodash-sidebar.geodash-sidebar-right.sidebar-open {
-  width: 460px;
+  margin-right: 0px;
 }
 .geodash-main .geodash-sidebar.geodash-sidebar-left {
   left: 0px;

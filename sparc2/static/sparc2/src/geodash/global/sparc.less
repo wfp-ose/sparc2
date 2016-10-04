@@ -141,17 +141,18 @@ body {
   .geodash-sidebar {
     position: absolute;
     top: 0px;
-    width: 0px;
+    width: @geodash-sidebar-left-width;
+    margin-left: calc(0px - @geodash-sidebar-left-width);
     height: 100%;
     transition: all @geodash-sidebar-transition ease-in-out;
   }
 
   .geodash-sidebar.geodash-sidebar-left.sidebar-open {
-    width: @geodash-sidebar-left-width;
+    margin-left: 0px;
   }
 
   .geodash-sidebar.geodash-sidebar-right.sidebar-open {
-    width: @geodash-sidebar-right-width;
+    margin-right: 0px;
   }
 
   .geodash-sidebar.geodash-sidebar-left {

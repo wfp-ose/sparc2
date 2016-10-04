@@ -1920,13 +1920,13 @@ sidebar:
   ui:
     mainClass: ""
     tabs:
-      - target: sparc-sidebar-left-welcome
+      - target: geodash-sidebar-left-welcome
         label: Welcome
-      - target: sparc-sidebar-left-charts
+      - target: geodash-sidebar-left-charts
         label: Charts
-      - target: sparc-sidebar-left-layers
+      - target: geodash-sidebar-left-layers
         label: Layers
-      - target: sparc-sidebar-left-filters
+      - target: geodash-sidebar-left-filters
         label: Filters
     layers:
       {% if hazard == "cyclone" %}{% verbatim %}

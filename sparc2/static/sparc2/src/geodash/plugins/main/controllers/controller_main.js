@@ -97,11 +97,6 @@ var init_sparc_controller_main = function(that, app)
     "controller": geodash.controllers.GeoDashControllerBase
   }]);
 
-  /*geodash.init.controllers(that, app, [{
-    "selector": "[geodash-controller='sparc-sidebar-left']",
-    "controller": geodash.controllers.controller_sidebar_sparc
-  }]);*/
-
   $("[geodash-controller='geodash-map']", that).each(function(){
     // Init This
     geodash.init.controller($(this), app, geodash.controllers.GeoDashControllerBase);

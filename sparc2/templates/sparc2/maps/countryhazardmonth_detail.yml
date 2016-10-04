@@ -39,49 +39,15 @@ overlays:
       target: "_blank"
     css:
       properties:
-        - name: padding
-          value: 8px
-        - name: background
-          value: "rgba(0,0,0, 0.4)"
-        - name: border
-          value: "2px solid #0374e6"
-        - name: border-radius
-          value: 8px
-        - name: line-height
-          value: 20px
-  - id: wfp_logo
-    type: image
-    title: "WFP Logo"
-    position:
-      top: 60px
-      right: 8px
-      bottom: auto
-      left: auto
-    link:
-      target: _blank
-      url: "http://wfp.org"
-    image:
-      asset: wfp_logo
-    css:
-      properties:
-        - name: padding
-          value: 8px
-        - name: background
-          value: "rgba(0,0,0, 0.4)"
-        - name: border
-          value: "2px solid #0374e6"
-        - name: border-radius
-          value: 8px
-        - name: width
-          value: 140px
+        - { name: padding, value: 8px }
+        - { name: background, value: "rgba(0,0,0, 0.4)" }
+        - { name: border, value: "2px solid #0374e6" }
+        - { name: border-radius, value: 8px }
+        - { name: line-height, value: 20px }
   - id: reset_extent
     type: text
     title: "Reset Extent"
-    position:
-      top: 8px
-      right: 140px
-      bottom: auto
-      left: auto
+    position: {top: 8px, right: 140px, bottom: auto, left: auto }
     text:
       content: ""
       font:
@@ -93,16 +59,44 @@ overlays:
           value: popatrisk
     css:
       properties:
-        - name: padding
-          value: 8px
-        - name: background
-          value: "rgba(0,0,0, 0.4)"
-        - name: border
-          value: "2px solid #0374e6"
-        - name: border-radius
-          value: 8px
-        - name: line-height
-          value: 20px
+        - { name: padding, value: 8px }
+        - { name: background, value: "rgba(0,0,0, 0.4)" }
+        - { name: border, value: "2px solid #0374e6" }
+        - { name: border-radius, value: 8px }
+        - { name: line-height, value: 20px }
+  - id: layers_wfp
+    type: text
+    title: "WFP Operations"
+    position: {top: 8px, right: 180px, bottom: auto, left: auto }
+    text:
+      content: "WFP Operations"
+      font: { family: Lato }
+    intent:
+      name: showLayers
+      properties:
+        - { name: layers, value: [ wld_poi_facilities_wfp, wld_trs_supplyroutes_wfp] }
+    css:
+      properties:
+        - { name: padding, value: 8px }
+        - { name: background, value: "rgba(0,0,0, 0.4)" }
+        - { name: border, value: "2px solid #0374e6" }
+        - { name: border-radius, value: 8px }
+        - { name: line-height, value: 20px }
+  - id: wfp_logo
+    type: image
+    title: "WFP Logo"
+    position: { top: 60px, right: 8px, bottom: auto, left: auto }
+    link:
+      target: _blank
+      url: "http://wfp.org"
+    image: { asset: wfp_logo }
+    css:
+      properties:
+        - { name: padding, value: 8px }
+        - { name: background, value: "rgba(0,0,0, 0.4)" }
+        - { name: border, value: "2px solid #0374e6" }
+        - { name: border-radius, value: 8px }
+        - { name: width, value: 140px }
 {% endblock %}
 
 {% block baselayers %}{{ block.super }}{% endblock %}
@@ -1939,13 +1933,13 @@ sidebar:
   ui:
     mainClass: ""
     tabs:
-      - target: sparc-sidebar-left-welcome
+      - target: geodash-sidebar-left-welcome
         label: Welcome
-      - target: sparc-sidebar-left-charts
+      - target: geodash-sidebar-left-charts
         label: Charts
-      - target: sparc-sidebar-left-layers
+      - target: geodash-sidebar-left-layers
         label: Layers
-      - target: sparc-sidebar-left-filters
+      - target: geodash-sidebar-left-filters
         label: Filters
     header:
       logo:
