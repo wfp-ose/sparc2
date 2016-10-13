@@ -6,34 +6,13 @@
 {{ block.super }}
 {% endblock %}
 
-{% block sidebar_left %}
-{% if include_sidebar_left %}
-<div sparc-sidebar></div>
-{% endif %}
-{% endblock %}
-
-{% block map_controllers %}
-{% include "geodash/_includes/map_legend.html" with legend_title="Legend - Click to Open" %}
-{% include "geodash/_includes/map_overlays.html" %}
-{% if include_sidebar_left %}
-<div
-  id="geodash-map-sidebar-toggle-left"
-  class="geodash-controller"
-  selector="#geodash-map-sidebar-toggle-left, #geodash-sidebar-left, #geodash-map"
-  geodash-sidebar-toggle-left>
-</div>
-{% endif %}
-<nav
-  class="geodash-controller"
-  geodash-controller="sparc-map-calendar"
-  ng-controller="sparc-map-calendar"
-  sparc-calendar>
-</nav>
-{% endblock %}
-
-{% block modals %}{{ block.super }}{% endblock %}
-
 {% block extra_content %}
 {% endblock %}
 
 {% block footer %}{% include "sparc2/_includes/calendar.html" %}{% endblock %}
+
+{% block init %}
+<script type="text/javascript" language="Javascript">$(function(){
+  geodash.init.dashboard("main", $("#geodash-main"), sparc2.loaders);
+});</script>
+{% endblock %}

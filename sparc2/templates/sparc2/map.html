@@ -58,7 +58,6 @@
 {% block map_config %}
 <script>
   geodash.mapping_library = "{{ GEODASH_MAPPING_LIBRARY }}";
-  geodash.map_config = {{ map_config_json|safe }};
 </script>
 {% endblock %}
 
@@ -84,7 +83,7 @@
               //var state = angular.element(document.body).injector().get('state');
               var $scope = angular.element("#geodash-main").scope();
               var state = $scope.state;
-              var map_config = angular.element(document.body).injector().get('map_config');
+              var dashboard = angular.element(document.body).injector().get('dashboard');
               //
               var style = {};
               var popatrisk = geodash.api.getFeatureLayer("popatrisk", {"$scope": $scope});
@@ -94,7 +93,7 @@
                 $.extend(style, style_static);
                 var style_dynamic = extract(["cartography", 0, "styles", "default", "dynamic", "func"], popatrisk);
                 var options = extract(["cartography", 0, "styles", "default", "dynamic", "options"], popatrisk);
-                var delta = angular.isFunction(geodash[style_dynamic]) ? geodash[style_dynamic](f, state, map_config, options) : undefined;
+                var delta = angular.isFunction(geodash[style_dynamic]) ? geodash[style_dynamic](f, state, dashboard, options) : undefined;
                 if(delta != undefined)
                 {
                   $.extend(style, delta);
@@ -105,7 +104,7 @@
             "hover": function(f, layer){
               var $scope = angular.element("#geodash-main").scope();
               var state = $scope.state;
-              var map_config = angular.element(document.body).injector().get('map_config');
+              var dashboard = angular.element(document.body).injector().get('dashboard');
               //
               var style = {};
               var popatrisk = geodash.api.getFeatureLayer("popatrisk", {"$scope": $scope});
@@ -115,7 +114,7 @@
                 $.extend(style, style_static);
                 var style_dynamic = extract(["cartography", 0, "styles", "hover", "dynamic", "func"], popatrisk);
                 var options = extract(["cartography", 0, "styles", "hover", "dynamic", "options"], popatrisk);
-                var delta = angular.isFunction(geodash[style_dynamic]) ? geodash[style_dynamic](f, state, map_config, options) : undefined;
+                var delta = angular.isFunction(geodash[style_dynamic]) ? geodash[style_dynamic](f, state, dashboard, options) : undefined;
                 if(delta != undefined)
                 {
                   $.extend(style, delta);
@@ -136,7 +135,7 @@
               //var state = angular.element(document.body).injector().get('state');
               var $scope = angular.element("#geodash-main").scope();
               var state = $scope.state;
-              var map_config = angular.element(document.body).injector().get('map_config');
+              var dashboard = angular.element(document.body).injector().get('dashboard');
               //
               var style = {};
               var context = geodash.api.getFeatureLayer("context", {"$scope": $scope});
@@ -146,7 +145,7 @@
                 $.extend(style, style_static);
                 var style_dynamic = context["cartography"][0]["styles"]["default"]["dynamic"]["func"];
                 var options = context["cartography"][0]["styles"]["default"]["dynamic"]["options"];
-                var delta = angular.isFunction(geodash[style_dynamic]) ? geodash[style_dynamic](f, state, map_config, options) : undefined;
+                var delta = angular.isFunction(geodash[style_dynamic]) ? geodash[style_dynamic](f, state, dashboard, options) : undefined;
                 if(delta != undefined)
                 {
                   $.extend(style, delta);
@@ -169,7 +168,6 @@
 
 {% block initial_state %}
 <script>
-  geodash.initial_state = {{ state_json|safe }};
   geodash.state_schema = {{ state_schema_json|safe }};
 </script>
 {% endblock %}
@@ -177,9 +175,5 @@
 {% block header %}{% endblock %}
 
 {% block sidebar_left %}{% endblock %}
-
-{% block map_controllers %}
-{% include "geodash/_includes/map_legend.html" with legend_title="Legend - Click to Open" %}
-{% endblock %}
 
 {% block footer %}{% include "sparc2/_includes/footer.html" %}{% endblock %}

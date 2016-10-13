@@ -217,8 +217,8 @@ featurelayers:
     description: "This layer contains a heatmap of cyclone events."
     visible: false
     source:
-      name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
-      attribution: "WFP/OSEP/AEW&GIS"
+      name: "World Food Programme, Emergency Preparedness & Support Response Division, GIS (WFP/OSEP/GIS)"
+      attribution: "WFP/OSEP/GIS"
     geojson:
       url: "/data/local/country/all/hazard/cyclone/events.json"
     heatmap:

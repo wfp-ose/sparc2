@@ -56,6 +56,26 @@ urlpatterns = [
         name='api_hazards'),
 
     url(
+        r'^api/dashboard/home[.](?P<extension>[^.]+)$',
+        views.api_dashboard_home.as_view(),
+        name='api_dashboard_home'),
+
+    url(
+        r'^api/dashboard/country/(?P<iso3>[^/]+)/hazard/(?P<hazard>[^/]+)[.](?P<extension>[^.]+)$',
+        views.api_dashboard_countryhazard.as_view(),
+        name='api_dashboard_countryhazard'),
+
+    url(
+        r'^api/state/home[.](?P<extension>[^.]+)$',
+        views.api_state_home.as_view(),
+        name='api_state_home'),
+
+    url(
+        r'^api/state/country/(?P<iso3>[^/]+)/hazard/(?P<hazard>[^/]+)/month/(?P<month>[^/]+)[.](?P<extension>[^.]+)$',
+        views.api_state_countryhazardmonth.as_view(),
+        name='api_state_countryhazardmonth'),
+
+    url(
         r'^api/data/country/(?P<iso3>[^/]+)/dataset/(?P<dataset>[^/]+)[.](?P<extension>[^.]+)$',
         views.api_data_country.as_view(),
         name='api_data_country'),

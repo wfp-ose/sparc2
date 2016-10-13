@@ -50,8 +50,8 @@ featurelayers:
     description: "This layer contains a heatmap of flood events."
     visible: true
     source:
-      name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
-      attribution: "WFP/OSEP/AEW&GIS"
+      name: "World Food Programme, Emergency Preparedness & Support Response Division, GIS (WFP/OSEP/GIS)"
+      attribution: "WFP/OSEP/GIS"
     geojson:
       url: "/api/data/country/all/hazard/flood/dataset/events.json"
     heatmap:

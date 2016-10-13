@@ -6,7 +6,18 @@ title: SPARC - {{ country_title }} - {{ hazard_title }}
 
 {% block legend %}
 legend:
-  title: "Legend - Click to Open"
+  position: { top: auto, right: 8px, bottom: 80px, left: auto }
+  width: 360px
+  height: auto
+  grid: ["col-sm-4", "col-sm-8"]
+  css:
+    properties:
+      - { name: padding, value: 8px }
+      - { name: background, value: '#EEE' }
+      - { name: border, value: '2px solid #0374e6' }
+      - { name: border-radius, value: '8px' }
+      - { name: line-height, value: '20px' }
+      - { name: color, value: 'black' }
 {% endblock %}
 
 {% block view %}
@@ -23,35 +34,51 @@ view:
 
 {% block overlays %}
 overlays:
-  - id: submit_issue
+  - id: zoom_in
     type: text
-    position:
-        top: 8px
-        right: 8px
+    title: "Zoom In"
+    position: { top: 8px, left: 8px, bottom: auto, right: auto }
     text:
-        content: 'Submit an Issue'
-        font:
-            style: normal
-            family: lato
-            size: 1em
-    link:
-      url: "https://docs.google.com/forms/d/e/1FAIpQLSfgmXj6lVIfaZcWxkxGX-4DGqv6Twq1RSvGB0PR5UhxryEkXA/viewform"
-      target: "_blank"
+      content: ""
+      font:
+        family: FontAwesome
+        size: 1.5rem
+    intent:
+      name: zoomIn
     css:
       properties:
         - { name: padding, value: 8px }
         - { name: background, value: "rgba(0,0,0, 0.4)" }
         - { name: border, value: "2px solid #0374e6" }
-        - { name: border-radius, value: 8px }
-        - { name: line-height, value: 20px }
+        - { name: border-radius, value: "8px 8px 0px 0px" }
+        - { name: line-height, value: 1.5rem }
+  - id: zoom_out
+    type: text
+    title: "Zoom Out"
+    position: { top: calc(8px + 10px + 1.5rem + 10px), left: 8px, bottom: auto, right: auto }
+    text:
+      content: ""
+      font:
+        family: FontAwesome
+        size: 1.5rem
+    intent:
+      name: zoomOut
+    css:
+      properties:
+        - { name: padding, value: 8px }
+        - { name: background, value: "rgba(0,0,0, 0.4)" }
+        - { name: border, value: "2px solid #0374e6" }
+        - { name: border-radius, value: "0px 0px 8px 8px" }
+        - { name: line-height, value: 1.5rem }
   - id: reset_extent
     type: text
     title: "Reset Extent"
-    position: {top: 8px, right: 140px, bottom: auto, left: auto }
+    position: { top: calc(8px + 10px + 1.5rem + 10px + 8px + 10px + 1.5rem + 10px), left: 8px, bottom: auto, right: auto }
     text:
       content: ""
       font:
         family: FontAwesome
+        size: 1.5rem
     intent:
       name: zoomToLayer
       properties:
@@ -64,39 +91,43 @@ overlays:
         - { name: border, value: "2px solid #0374e6" }
         - { name: border-radius, value: 8px }
         - { name: line-height, value: 20px }
-  - id: layers_wfp
+  - id: print_map
     type: text
-    title: "WFP Operations"
-    position: {top: 8px, right: 180px, bottom: auto, left: auto }
+    title: "Print Map"
+    position: { top: calc(8px + 10px + 1.5rem + 10px + 8px + 10px + 1.5rem + 10px + 8px + 10px + 1.5rem + 10px), left: 8px, bottom: auto, right: auto }
     text:
-      content: "WFP Operations"
-      font: { family: Lato }
+      content: ""
+      font:
+        family: FontAwesome
+        size: 1.5rem
     intent:
-      name: showLayers
-      properties:
-        - { name: layers, value: [ wld_poi_facilities_wfp, wld_trs_supplyroutes_wfp] }
+      name: printMap
     css:
       properties:
         - { name: padding, value: 8px }
         - { name: background, value: "rgba(0,0,0, 0.4)" }
         - { name: border, value: "2px solid #0374e6" }
         - { name: border-radius, value: 8px }
-        - { name: line-height, value: 20px }
-  - id: wfp_logo
-    type: image
-    title: "WFP Logo"
-    position: { top: 60px, right: 8px, bottom: auto, left: auto }
+        - { name: line-height, value: 1.5rem }
+  - id: submit_issue
+    type: text
+    title: "Submit Issue"
+    position: { top: calc(8px + 10px + 1.5rem + 10px + 8px + 10px + 1.5rem + 10px + 8px + 10px + 1.5rem + 10px + 8px + 10px + 1.5rem + 10px), left: 8px, bottom: auto, right: auto }
+    text:
+      content: ""
+      font:
+        family: FontAwesome
+        size: 1.5rem
     link:
-      target: _blank
-      url: "http://wfp.org"
-    image: { asset: wfp_logo }
+      url: "https://docs.google.com/forms/d/e/1FAIpQLSfgmXj6lVIfaZcWxkxGX-4DGqv6Twq1RSvGB0PR5UhxryEkXA/viewform"
+      target: "_blank"
     css:
       properties:
         - { name: padding, value: 8px }
         - { name: background, value: "rgba(0,0,0, 0.4)" }
         - { name: border, value: "2px solid #0374e6" }
         - { name: border-radius, value: 8px }
-        - { name: width, value: 140px }
+        - { name: line-height, value: 1.5rem }
 {% endblock %}
 
 {% block baselayers %}{{ block.super }}{% endblock %}
@@ -108,19 +139,21 @@ featurelayers:
     title: "Population at Risk"
     description: "Population at Risk"
     source:
-      name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
-      attribution: "WFP/OSEP/AEW&GIS"
+      name: "World Food Programme, Emergency Preparedness & Support Response Division, GIS (WFP/OSEP/GIS)"
+      attribution: "WFP/OSEP/GIS"
     geojson:
       url: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/{% endverbatim %}{{ hazard }}{% verbatim %}/dataset/popatrisk.json"
     carto:
       styles:
         - id: default
           title: Default Style
-          description: Default Style
+          description: "For a given hazard, month, and admin 2 district, the population at risk."
+          legend: { type: graduated }
           symbolizers:
             - id: default
               title: Default Symbolizer
               description: "For a given hazard, month, and admin 2 district, the population at risk."
+              type: polygon
               static:
                 properties:
                   fillColor: "#000000"
@@ -1021,19 +1054,21 @@ featurelayers:
     title: "Aggravating Factors"
     description: "Aggravating Factors"
     source:
-      name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
-      attribution: "WFP/OSEP/AEW&GIS"
+      name: "World Food Programme, Emergency Preparedness & Support Response Division, GIS (WFP/OSEP/GIS)"
+      attribution: "WFP/OSEP/GIS"
     geojson:
       url: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.json"
     carto:
       styles:
         - id: delta_mean
           title: "Mean Change"
-          type: "graduated"
           description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.  Mean change highlights the balance between positive and negative changes information.  Positive values indicate areas with majority positive land cover change.  Negative values indicate areas with majority negative land cover change."
+          legend: { type: graduated }
           symbolizers:
             - id: default
               title: Default Symbolizer
+              description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.  Mean change highlights the balance between positive and negative changes information.  Positive values indicate areas with majority positive land cover change.  Negative values indicate areas with majority negative land cover change."
+              type: polygon
               static:
                 properties:
                   weight: 1
@@ -1717,8 +1752,8 @@ featurelayers:
     title: "Cyclone Probability"
     description: "Cyclone Probability"
     source:
-      name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
-      attribution: "WFP/OSEP/AEW&GIS"
+      name: "World Food Programme, Emergency Preparedness & Support Response Division, GIS (WFP/OSEP/GIS)"
+      attribution: "WFP/OSEP/GIS"
     wms:
       version: "1.1.1"
       layers: {% endverbatim %}["geonode:cat1_5_sep_cls2","geonode:cat1_5_sep_cls2","geonode:cat1_5_sep_cls2","geonode:cat1_5_sep_cls2","geonode:cat1_5_sep_cls2","geonode:cat1_5_sep_cls2","geonode:cat1_5_sep_cls2"]{% verbatim %}
@@ -1744,8 +1779,8 @@ featurelayers:
     title: "Cyclone Events (Heatmap)"
     description: "This layer contains a heatmap of cyclone events."
     source:
-      name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
-      attribution: "WFP/OSEP/AEW&GIS"
+      name: "World Food Programme, Emergency Preparedness & Support Response Division, GIS (WFP/OSEP/GIS)"
+      attribution: "WFP/OSEP/GIS"
     geojson:
       url: "/data/local/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/cyclone/events.json"
     heatmap:
@@ -1758,8 +1793,8 @@ featurelayers:
     title: "Drought Frequency (January)"
     description: "Drought Frequency (January)"
     source:
-      name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
-      attribution: "WFP/OSEP/AEW&GIS"
+      name: "World Food Programme, Emergency Preparedness & Support Response Division, GIS (WFP/OSEP/GIS)"
+      attribution: "WFP/OSEP/GIS"
     wms:
       version: "1.1.1"
       layers: ["wlddsi_fot01d3"]
@@ -1785,8 +1820,8 @@ featurelayers:
     title: "Flood Probability"
     description: "Flood Probability"
     source:
-      name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
-      attribution: "WFP/OSEP/AEW&GIS"
+      name: "World Food Programme, Emergency Preparedness & Support Response Division, GIS (WFP/OSEP/GIS)"
+      attribution: "WFP/OSEP/GIS"
     wms:
       version: "1.1.1"
       layers: ["sparc_flood_probability","sparc_flood_probability","sparc_flood_probability","sparc_flood_probability","sparc_flood_probability","sparc_flood_probability"]
@@ -1812,8 +1847,8 @@ featurelayers:
     title: "Flood Events (Heatmap)"
     description: "This layer contains a heatmap of flood events."
     source:
-      name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
-      attribution: "WFP/OSEP/AEW&GIS"
+      name: "World Food Programme, Emergency Preparedness & Support Response Division, GIS (WFP/OSEP/GIS)"
+      attribution: "WFP/OSEP/GIS"
     geojson:
       url: "/data/local/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/flood/events.json"
     heatmap:
@@ -1826,8 +1861,8 @@ featurelayers:
     title: "Landslide Events (Heatmap)"
     description: "This layer contains a heatmap of landslide events."
     source:
-      name: "World Food Programme, Emergency Preparedness & Support Response Division, Analysis and Early Warning & GIS (WFP/OSEP/AEW&GIS)"
-      attribution: "WFP/OSEP/AEW&GIS"
+      name: "World Food Programme, Emergency Preparedness & Support Response Division, GIS (WFP/OSEP/GIS)"
+      attribution: "WFP/OSEP/GIS"
     geojson:
       url: "/data/local/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/landslide/events.json"
     heatmap:
@@ -1919,13 +1954,13 @@ renderlayers:
 
 {% block controls %}
 controls:
-  attribution: true
+  attribution: false
   breadcrumbs: true
   calendar: true
   filters: true
   legend: true
   sidebar: true
-  zoom: true
+  zoom: false
 {% endblock %}
 
 {% block sidebar %}

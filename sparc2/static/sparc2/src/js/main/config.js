@@ -18,6 +18,7 @@ geodash.config = {
     'context': {
       'e': extract,
       'extract': extract,
+      'extractFloat': extractFloat,
       'popatrisk': sparc2.calc.popatrisk,
       'filters': [
         'vam_filter_fcs',

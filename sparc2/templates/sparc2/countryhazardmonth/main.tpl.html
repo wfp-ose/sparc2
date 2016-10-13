@@ -1,0 +1,23 @@
+<div class="row geodash-row geodash-main geodash-controller">
+  <div data-geodash-controllers="SPARCControllerSidebar" sparc-sidebar class="sidebar-open sidebar-left-open"></div>
+  <div
+    id="geodash-map"
+    class="row geodash-row geodash-map geodash-controller sidebar-open sidebar-left-open"
+    geodash-base>
+    <div data-geodash-controllers="GeoDashControllerOverlays" geodash-map-overlays></div>
+    <div data-geodash-controllers="GeoDashControllerLegend" geodash-map-legend></div>
+    <nav data-geodash-controllers="SPARCControllerCalendar" sparc-calendar></nav>
+    <div
+      id="geodash-map-sidebar-toggle-left"
+      class="geodash-controller sidebar-open sidebar-left-open"
+      selector="#geodash-map-sidebar-toggle-left, #geodash-sidebar-left, #geodash-map"
+      geodash-sidebar-toggle-left>
+    </div>
+    <div data-geodash-controllers="GeoDashControllerMapMap" geodash-map-map></div>
+    <div id="geodash-popups" style="display:none;">
+      <div id="popup"></div>
+    </div>
+  </div>
+  <div id="geodash-modals">
+  </div>
+</div>

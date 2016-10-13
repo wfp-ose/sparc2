@@ -257,129 +257,28 @@ body {
 /* Sidebar */
 /* Calendar */
 .geodash-map-legend {
-  /* Layout */
   position: absolute;
-  background: #337ab7;
-  bottom: 70px;
-  right: 4px;
-  width: 358px;
   z-index: 9999;
-}
-.geodash-map-legend .geodash-map-legend-label {
-  width: 100%;
-}
-.geodash-map-legend .geodash-map-legend-label a {
-  width: 100%;
-}
-.geodash-map-legend .geodash-map-legend-container {
-  background: #337ab7;
-  padding: 4px;
-}
-.geodash-map-legend .geodash-map-legend-container hr {
-  margin-top: 10px;
-  margin-bottom: 10px;
-}
-.geodash-map-legend .geodash-map-legend-container .geodash-map-legend-item {
-  display: block;
-  width: 100%;
-}
-.geodash-map-legend .geodash-map-legend-container .geodash-map-legend-item .geodash-map-legend-item-left {
-  position: relative;
-  display: inline-block;
-  height: 20px;
-  vertical-align: top;
-}
-.geodash-map-legend .geodash-map-legend-container .geodash-map-legend-item .geodash-map-legend-item-right {
-  position: relative;
-  padding-left: 4px;
   box-sizing: border-box;
-  display: inline-block;
-  border-left: 1px solid white;
-  width: calc(100% - 71px);
-  vertical-align: top;
 }
-.geodash-map-legend .geodash-map-legend-container .geodash-map-legend-item .geodash-map-legend-item-icon {
-  display: inline-block;
-  width: 20px;
-  height: 100%;
-  vertical-align: text-bottom;
-  font-size: 16px;
-}
-.geodash-map-legend .geodash-map-legend-container .geodash-map-legend-item .geodash-map-legend-item-icon a {
-  color: white;
-  cursor: pointer;
-}
-.geodash-map-legend .geodash-map-legend-container .geodash-map-legend-item .geodash-map-legend-item-icon a:hover {
-  color: black;
-}
-.geodash-map-legend .geodash-map-legend-container .geodash-map-legend-item .geodash-map-legend-item-icon.fade {
-  opacity: 0.4;
-}
-.geodash-map-legend .geodash-map-legend-container .geodash-map-legend-item .geodash-toggle .geodash-on,
-.geodash-map-legend .geodash-map-legend-container .geodash-map-legend-item .geodash-radio.geodash-on .geodash-on {
-  display: inline-block;
-}
-.geodash-map-legend .geodash-map-legend-container .geodash-map-legend-item .geodash-toggle .geodash-off,
-.geodash-map-legend .geodash-map-legend-container .geodash-map-legend-item .geodash-radio.geodash-on .geodash-off {
-  display: none;
-}
-.geodash-map-legend .geodash-map-legend-container .geodash-map-legend-item .geodash-toggle.geodash-off .geodash-on,
-.geodash-map-legend .geodash-map-legend-container .geodash-map-legend-item .geodash-radio .geodash-on {
-  display: none;
-}
-.geodash-map-legend .geodash-map-legend-container .geodash-map-legend-item .geodash-toggle.geodash-off .geodash-off,
-.geodash-map-legend .geodash-map-legend-container .geodash-map-legend-item .geodash-radio .geodash-off {
-  display: inline-block;
-}
-.geodash-map-legend .geodash-map-legend-container .geodash-map-legend-item .geodash-map-legend-item-symbol {
-  display: inline-block;
-  width: 40px;
-  height: 100%;
-  max-height: 20px;
-  text-align: center;
-  vertical-align: text-bottom;
-}
-.geodash-map-legend .geodash-map-legend-container .geodash-map-legend-item .geodash-map-legend-item-symbol a {
-  cursor: pointer;
-}
-.geodash-map-legend .geodash-map-legend-container .geodash-map-legend-item .geodash-map-legend-item-symbol i.fa {
-  color: black;
-}
-.geodash-map-legend .geodash-map-legend-container .geodash-map-legend-item .geodash-map-legend-item-symbol i.fa:hover {
-  color: blue;
-}
-.geodash-map-legend .geodash-map-legend-container .geodash-map-legend-item .geodash-map-legend-item-label {
-  display: inline-block;
-  width: calc(100% - 101px);
-  height: 100%;
-  vertical-align: top;
-}
-.geodash-map-legend .geodash-map-legend-container .geodash-map-legend-item .geodash-map-legend-item-label span {
-  color: white;
-  vertical-align: middle;
-  width: 100%;
-  height: 100%;
-  font-family: 'Open Sans', sans-serif;
-  font-weight: 400;
-  font-size: 14px;
-}
-.geodash-map-legend .geodash-map-legend-container .geodash-map-legend-item.fade {
-  opacity: 0.3;
-}
-.geodash-layer-more .modal-content,
-.geodash-layer-legend .modal-content {
-  font-family: 'Open Sans', sans-serif;
-}
-.geodash-layer-more .modal-content .modal-header .modal-title,
-.geodash-layer-legend .modal-content .modal-header .modal-title {
-  font-size: 18px;
+.geodash-map-legend h5,
+.geodash-map-legend .h5 {
+  font-size: 1.2rem;
   font-weight: 700;
-  letter-spacing: 0.6;
+  line-height: 1.2rem;
 }
-.geodash-layer-more .modal-content .modal-body,
-.geodash-layer-legend .modal-content .modal-body {
+.geodash-map-legend h6,
+.geodash-map-legend .h6 {
+  font-size: 0.8rem;
   font-weight: 400;
-  font-size: 14px;
+  color: #444;
+  line-height: 0.8rem;
+}
+.geodash-map-legend .tooltip {
+  max-width: none;
+}
+.geodash-map-legend .tooltip .tooltip-inner {
+  max-width: none;
 }
 
 /* Widely Used Variables */
@@ -563,6 +462,8 @@ body {
 }
 .geodash-sidebar {
   box-sizing: border-box;
+  /*h5 { font-size: 1.33rem; }
+  h6 { font-size: 1.125rem; }*/
 }
 .geodash-sidebar h1 {
   font-size: 2.25rem;
@@ -577,10 +478,10 @@ body {
   font-size: 1.5rem;
 }
 .geodash-sidebar h5 {
-  font-size: 1.33rem;
+  font-size: 1.1rem;
 }
 .geodash-sidebar h6 {
-  font-size: 1.125rem;
+  font-size: 1rem;
 }
 .geodash-sidebar .footnote {
   font-size: 0.8rem;

@@ -247,13 +247,6 @@ featurelayers:
         required: true
         description: 'The description of your base layer.'
       -
-        id: legend.label
-        type: text
-        label: 'Legend Label'
-        placeholder: 'legend label'
-        required: false
-        description: 'The label to use in the legend for this layer.'
-      -
         id: auth
         type: text
         label: Authentication
@@ -488,7 +481,7 @@ featurelayers:
               placeholder: styles
               required: false
               description: styles
-              schema: {verbose_singular: Style, verbose_plural: Style, fields: [{id: id, type: text, label: 'Style ID', placeholder: id, required: true, description: 'The id of the style.'}, {id: title, type: text, label: 'Style Title', placeholder: title, required: true, description: 'The title of the style.'}, {id: description, type: text, label: 'Style Description', placeholder: description, required: true, description: 'The description of the style.'}, {id: symbolizers, type: objectarray, label: Symbolizers, placeholder: symbolizers, required: false, description: symbolizers, schema: {verbose_singular: Symbolizer, verbose_plural: Symbolizers, fields: [{id: id, type: text, label: 'Symbolizer ID', placeholder: id, required: true, description: 'The id of the symbolizer.'}, {id: title, type: text, label: 'Symbolizer Title', placeholder: title, required: true, description: 'The title of the symbolizer.'}, {id: type, type: text, label: 'Symbolizer Type', placeholder: title, required: true, description: 'The type of the symbolizer.', options: [point, line, polygon]}, {id: static, type: object, label: 'Symbolizer Static', placeholder: 'Symbolizer Static', required: false, description: 'Symbolizer Static', schema: {verbose_singular: Static, fields: [{id: properties, type: objectarray, label: 'Symbolizer Static Properties', placeholder: properties, required: false, description: properties, schema: {verbose_singular: Property, verbose_plural: Properties, fields: [{id: name, type: text, label: 'Property Name', placeholder: name, required: true, description: 'The name of the property.', options: [radius, fillColor, fillOpacity, strokeWidth, strokeColor, strokeOpacity]}, {id: value, type: text, label: 'Property value', placeholder: value, required: true, description: 'The value of the property.'}]}}]}}, {id: dynamic, type: object, label: 'Symbolizer Dynamic', placeholder: 'Symbolizer Dynamic', required: false, description: 'Symbolizer Dynamic', schema: {verbose_singular: Dynamic, fields: [{id: func, type: template, label: 'Symbolizer Dynamic Function Name', placeholder: 'function name', required: false, description: 'Symbolizer Dynamic Function Name', search: {local: {name: reflect, args: {locations: [dynamicStyleFn]}}}}]}}]}}]}
+              schema: {verbose_singular: Style, verbose_plural: Style, fields: [{id: id, type: text, label: 'Style ID', placeholder: id, required: true, description: 'The id of the style.'}, {id: title, type: text, label: 'Style Title', placeholder: title, required: true, description: 'The title of the style.'}, {id: description, type: text, label: 'Style Description', placeholder: description, required: true, description: 'The description of the style.'}, {id: legend, type: object, label: Legend, placeholder: legend, required: false, description: Legend, schema: {verbose_singular: Legend, fields: [{id: type, type: text, label: 'Legend type', placeholder: type, required: false, description: type, options: [default, graduated]}]}}, {id: symbolizers, type: objectarray, label: Symbolizers, placeholder: symbolizers, required: false, description: symbolizers, schema: {verbose_singular: Symbolizer, verbose_plural: Symbolizers, fields: [{id: id, type: text, label: 'Symbolizer ID', placeholder: id, required: true, description: 'The id of the symbolizer.'}, {id: title, type: text, label: 'Symbolizer Title', placeholder: title, required: true, description: 'The title of the symbolizer.'}, {id: type, type: text, label: 'Symbolizer Type', placeholder: title, required: true, description: 'The type of the symbolizer.', options: [point, line, polygon]}, {id: static, type: object, label: 'Symbolizer Static', placeholder: 'Symbolizer Static', required: false, description: 'Symbolizer Static', schema: {verbose_singular: Static, fields: [{id: properties, type: objectarray, label: 'Symbolizer Static Properties', placeholder: properties, required: false, description: properties, schema: {verbose_singular: Property, verbose_plural: Properties, fields: [{id: name, type: text, label: 'Property Name', placeholder: name, required: true, description: 'The name of the property.', options: [radius, fillColor, fillOpacity, strokeWidth, strokeColor, strokeOpacity]}, {id: value, type: text, label: 'Property value', placeholder: value, required: true, description: 'The value of the property.'}]}}]}}, {id: dynamic, type: object, label: 'Symbolizer Dynamic', placeholder: 'Symbolizer Dynamic', required: false, description: 'Symbolizer Dynamic', schema: {verbose_singular: Dynamic, fields: [{id: func, type: template, label: 'Symbolizer Dynamic Function Name', placeholder: 'function name', required: false, description: 'Symbolizer Dynamic Function Name', search: {local: {name: reflect, args: {locations: [dynamicStyleFn]}}}}]}}]}}]}
       -
         id: heatmap
         type: object
@@ -802,26 +795,91 @@ pages:
         required: true
         description: 'The url of your page.  Can use Angular interpolation and filters.'
 legend:
-  title:
-    type: markdown
-    label: Title
-    placeholder: 'Legend - Click to Open'
-    multiline: false
-    required: false
-    description: 'The text shown when the Legend is collapsed.'
-  background:
-    type: text
-    label: Title
-    placeholder: 'Legend - Click to Open'
-    required: false
-    description: 'The color of the legend.'
-legendlayers:
-  type: stringarray
-  label: Layers
-  placeholder: 'Legend Layers'
+  type: object
+  label: Legend
+  placeholder: Legend
   required: false
-  description: 'The layers in-order to show in the legend.'
-  source: layers
+  description: Legend
+  schema:
+    verbose_singular: Legend
+    fields:
+      -
+        id: position
+        type: object
+        label: Position
+        placeholder: position
+        required: false
+        description: 'Position of the legend.'
+        schema:
+          verbose_singular: Position
+          fields:
+            -
+              id: top
+              type: text
+              label: 'Position / Top'
+              placeholder: auto
+              required: true
+              description: 'The top position of the legend (in pixels or percentage).'
+            -
+              id: bottom
+              type: text
+              label: 'Position / Bottom'
+              placeholder: auto
+              required: true
+              description: 'The bottom position of the legend (in pixels or percentage).'
+            -
+              id: left
+              type: text
+              label: 'Position / Left'
+              placeholder: auto
+              required: true
+              description: 'The left position of the legend (in pixels or percentage).'
+            -
+              id: right
+              type: text
+              label: 'Position / Right'
+              placeholder: auto
+              required: true
+              description: 'The right position of the legend (in pixels or percentage).'
+      -
+        id: width
+        type: text
+        label: Width
+        placeholder: width
+        required: true
+        description: 'The width of the legend (in pixels or percentage).'
+      -
+        id: height
+        type: text
+        label: Height
+        placeholder: height
+        required: true
+        description: 'The height of the legend (in pixels or percentage).'
+      -
+        id: grid
+        type: stringarray
+        label: Grid
+        placeholder: grid
+        required: true
+        description: 'The classes of the grid.  First value is for the left.  Second is for the right.  You can use bootstrap classes.'
+      -
+        id: css
+        type: object
+        label: CSS
+        placeholder: css
+        required: false
+        description: 'Additional CSS for the legend.'
+        schema:
+          verbose_singular: CSS
+          fields:
+            -
+              id: properties
+              type: objectarray
+              label: 'Legend Additional CSS Properties'
+              placeholder: properties
+              required: false
+              description: 'The additional css properties of the legend, such as margin, padding, border, etc.'
+              schema: {verbose_singular: Property, verbose_plural: Properties, fields: [{id: name, type: text, label: 'Property Name', placeholder: name, required: true, description: 'The name of the property.'}, {id: value, type: template, label: 'Property value', placeholder: value, required: true, description: 'The value of the property.'}]}
 overlays:
   type: objectarray
   label: 'Static Overlays'

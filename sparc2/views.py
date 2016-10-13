@@ -147,6 +147,175 @@ class api_hazards(geodash_data_view):
 
         return data
 
+class api_dashboard_home(geodash_data_view):
+
+    def _build_key(self, request, *args, **kwargs):
+        return "dashboard/home".format(**kwargs)
+
+    def _build_data(self, request, *args, **kwargs):
+
+        data = yaml.load(get_template("sparc2/maps/home.yml").render({}))
+
+        return data
+
+
+class api_dashboard_countryhazard(geodash_data_view):
+
+    def _build_key(self, request, *args, **kwargs):
+        return "dashboard/country/{iso3}/hazard/{hazard}".format(**kwargs)
+
+    def _build_data(self, request, *args, **kwargs):
+
+        data = None
+
+        iso3 = kwargs.pop('iso3', None)
+        hazard = kwargs.pop('hazard', None)
+        month = kwargs.pop('month', None)
+
+        now = datetime.datetime.now()
+        current_month = now.month
+        country_title = WFPCountry.objects.filter(thesaurus__iso_alpha3=iso3).values_list('gaul__admin0_name', flat=True)[0]
+        hazard_title = [h for h in SPARC_HAZARDS_CONFIG if h["id"]==hazard][0]["title"]
+        month_num = get_month_number(month)
+        if month_num == -1:
+            month_num = current_month
+        month_title = MONTHS_SHORT3[month_num-1]
+        ##############
+        # This is inefficient, so would be better to rework
+        summary = None
+        if hazard == "cyclone":
+            summary = get_summary_cyclone(table_popatrisk="cyclone.admin2_popatrisk", iso_alpha3=iso3)
+        elif hazard == "drought":
+            summary = get_summary_drought(table_popatrisk="drought.admin2_popatrisk", iso_alpha3=iso3)
+        elif hazard == "flood":
+            summary = get_summary_flood(table_popatrisk="flood.admin2_popatrisk", iso_alpha3=iso3)
+        elif hazard == "landslide":
+            summary = get_summary_landslide(table_popatrisk="landslide.admin2_popatrisk", iso_alpha3=iso3)
+        #############
+        maxValue = summary["all"]["max"]["at_admin2_month"]
+        #############
+        data = yaml.load(get_template("sparc2/maps/countryhazardmonth_detail.yml").render({
+            "iso_alpha3": iso3,
+            "hazard_title": hazard_title,
+            "country_title": country_title,
+            "hazard": hazard,
+            "maxValue": maxValue
+        }))
+
+        return data
+
+
+class api_state_home(geodash_data_view):
+
+    def _build_key(self, request, *args, **kwargs):
+        return "state/home".format(**kwargs)
+
+    def _build_data(self, request, *args, **kwargs):
+
+        dashboard = yaml.load(get_template("sparc2/maps/home.yml").render({}))
+
+        data = {
+            "page": "home",
+            "view": {
+                "lat": dashboard["view"]["latitude"],
+                "lon": dashboard["view"]["longitude"],
+                "z": dashboard["view"]["zoom"],
+                "baselayer": "osm",
+                "featurelayers": ["wld_poi_facilities_wfp", "flood_events_all"]
+            },
+            "filters": {},
+            "styles": {}
+        }
+
+        return data
+
+
+class api_state_countryhazardmonth(geodash_data_view):
+
+    def _build_key(self, request, *args, **kwargs):
+        return "state/country/{iso3}/hazard/{hazard}/month/{month}".format(**kwargs)
+
+    def _build_data(self, request, *args, **kwargs):
+
+        data = None
+
+        iso3 = kwargs.pop('iso3', None)
+        hazard = kwargs.pop('hazard', None)
+        month = kwargs.pop('month', None)
+
+        now = datetime.datetime.now()
+        current_month = now.month
+        country_title = WFPCountry.objects.filter(thesaurus__iso_alpha3=iso3).values_list('gaul__admin0_name', flat=True)[0]
+        hazard_title = [h for h in SPARC_HAZARDS_CONFIG if h["id"]==hazard][0]["title"]
+        month_num = get_month_number(month)
+        if month_num == -1:
+            month_num = current_month
+        month_title = MONTHS_SHORT3[month_num-1]
+        ##############
+        # This is inefficient, so would be better to rework
+        summary = None
+        if hazard == "cyclone":
+            summary = get_summary_cyclone(table_popatrisk="cyclone.admin2_popatrisk", iso_alpha3=iso3)
+        elif hazard == "drought":
+            summary = get_summary_drought(table_popatrisk="drought.admin2_popatrisk", iso_alpha3=iso3)
+        elif hazard == "flood":
+            summary = get_summary_flood(table_popatrisk="flood.admin2_popatrisk", iso_alpha3=iso3)
+        elif hazard == "landslide":
+            summary = get_summary_landslide(table_popatrisk="landslide.admin2_popatrisk", iso_alpha3=iso3)
+        #############
+        maxValue = summary["all"]["max"]["at_admin2_month"]
+        #############
+        popatrisk_range = [0.0, summary["all"]["max"]["at_admin2_month"]]
+        #############
+        dashboard = yaml.load(get_template("sparc2/maps/countryhazardmonth_detail.yml").render({
+            "iso_alpha3": iso3,
+            "hazard_title": hazard_title,
+            "country_title": country_title,
+            "hazard": hazard,
+            "maxValue": maxValue
+        }))
+        #############
+        data = {
+            "page": "countryhazardmonth_detail",
+            "iso3": iso3,
+            "country_title": country_title,
+            "hazard": hazard,
+            "hazard_title": hazard_title,
+            "month": month_num,
+            "view": {
+                "lat": dashboard["view"].get("latitude", 0),
+                "lon": dashboard["view"].get("longitude", 0),
+                "z": dashboard["view"]["zoom"],
+                "baselayer": "osm",
+                "featurelayers": ["popatrisk"]
+            },
+            "filters": {
+                "popatrisk":
+                {
+                  "popatrisk_range": popatrisk_range,
+                  "ldi_range": [1, 9],
+                  "erosion_propensity_range": [0, 100],
+                  "landcover_delta_negative_range": [0, 100],
+                }
+            },
+            "styles": {
+                "popatrisk": "default",
+                "context": "delta_mean"
+            }
+        }
+
+        if hazard == "cyclone":
+            data["filters"]["popatrisk"]["prob_class_max"] = 0.1
+            data["filters"]["popatrisk"]["category"] = "cat1_5"
+        elif hazard == "drought":
+            data["filters"]["popatrisk"]["prob_class_max"] = 0.1
+        elif hazard == "flood":
+            data["filters"]["popatrisk"]["rp"] = 200
+        elif hazard == "landslide":
+            data["filters"]["popatrisk"]["prob_class_max"] = 1
+
+        return data
+
 
 class api_data_country(geodash_data_view):
 
@@ -224,23 +393,10 @@ def home(request, template="sparc2/home.html"):
     now = datetime.datetime.now()
     current_month = now.month
 
-    map_config_yml = get_template("sparc2/maps/home.yml").render({})
-    map_config = yaml.load(map_config_yml)
+    dashboard = yaml.load(get_template("sparc2/maps/home.yml").render({}))
     endpoints = yaml.load(file(ENDPOINTS_PATH, 'r'))
 
     ##############
-    initial_state = {
-        "page": "home",
-        "view": {
-            "lat": map_config["view"]["latitude"],
-            "lon": map_config["view"]["longitude"],
-            "z": map_config["view"]["zoom"],
-            "baselayer": "osm",
-            "featurelayers": ["wld_poi_facilities_wfp", "flood_events_all"]
-        },
-        "filters": {},
-        "styles": {}
-    }
     state_schema = {
         "view": {
           "lat": "float",
@@ -252,43 +408,36 @@ def home(request, template="sparc2/home.html"):
     }
 
     ctx = {
-        "map_config": map_config,
-        "map_config_json": json.dumps(map_config),
-        "state": initial_state,
-        "state_json": json.dumps(initial_state),
+        "dashboard_url": "/api/dashboard/home.json",
+        "state_url": "/api/state/home.json",
         "state_schema": state_schema,
-        "state_schema_json": json.dumps(state_schema),
-        "endpoints_json": json.dumps(endpoints),
-        "init_function": "init_explore",
+        "endpoints": endpoints,
         "geodash_main_id": "geodash-main",
-        "include_sidebar_left": False
+        "include_sidebar_left": False,
+        "modal_welcome": True
     }
+
+    ctx.update({
+      "endpoints_json": json.dumps(ctx["endpoints"]),
+      "state_schema_json": json.dumps(ctx["state_schema"])
+    })
+
+    ctx.update({
+      "server_templates": json.dumps({
+          "main.tpl.html": get_template("sparc2/home/main.tpl.html").render(ctx)
+      })
+    })
 
     return render_to_response(template, RequestContext(request, ctx))
 
-def explore(request):
+
+def explore(request, template="sparc2/home.html"):
     now = datetime.datetime.now()
     current_month = now.month
 
-    t = "sparc2/explore.html"
-
-    map_config_yml = get_template("sparc2/maps/explore.yml").render({})
-    map_config = yaml.load(map_config_yml)
+    dashboard = yaml.load(get_template("sparc2/maps/home.yml").render({}))
     endpoints = yaml.load(file(ENDPOINTS_PATH, 'r'))
 
-    ##############
-    initial_state = {
-        "page": "explore",
-        "view": {
-            "lat": map_config["view"]["latitude"],
-            "lon": map_config["view"]["longitude"],
-            "z": map_config["view"]["zoom"],
-            "baselayer": "osm",
-            "featurelayers": ["wld_poi_facilities_wfp", "flood_events_all"]
-        },
-        "filters": {},
-        "styles": {}
-    }
     state_schema = {
         "view": {
           "lat": "float",
@@ -300,19 +449,26 @@ def explore(request):
     }
 
     ctx = {
-        "map_config": map_config,
-        "map_config_json": json.dumps(map_config),
-        "state": initial_state,
-        "state_json": json.dumps(initial_state),
+        "dashboard_url": "/api/dashboard/home.json",
         "state_schema": state_schema,
-        "state_schema_json": json.dumps(state_schema),
-        "endpoints_json": json.dumps(endpoints),
-        "init_function": "init_explore",
+        "endpoints": endpoints,
         "geodash_main_id": "geodash-main",
-        "include_sidebar_left": False
+        "include_sidebar_left": False,
+        "modal_welcome": True
     }
 
-    return render_to_response(t, RequestContext(request, ctx))
+    ctx.update({
+      "endpoints_json": json.dumps(ctx["endpoints"]),
+      "state_schema_json": json.dumps(ctx["state_schema"])
+    })
+
+    ctx.update({
+      "server_templates": json.dumps({
+          "main.tpl.html": get_template("sparc2/home/main.tpl.html").render(ctx)
+      })
+    })
+
+    return render_to_response(template, RequestContext(request, ctx))
 
 
 def country_detail(request, iso3=None, hazard=None, month=None):
@@ -331,21 +487,6 @@ def country_detail(request, iso3=None, hazard=None, month=None):
     endpoints = yaml.load(file(ENDPOINTS_PATH, 'r'))
 
     ##############
-    initial_state = {
-        "page": "country_detail",
-        "iso3": iso3,
-        "view": {
-            "lat": map_config["view"]["latitude"],
-            "lon": map_config["view"]["longitude"],
-            "z": map_config["view"]["zoom"],
-            "baselayer": "osm",
-            "featurelayers": []
-        },
-        "filters": {},
-        "styles": {
-            "context": "delta_mean"
-        }
-    }
     state_schema = {
         "iso3": "string",
         "view": {
@@ -362,8 +503,6 @@ def country_detail(request, iso3=None, hazard=None, month=None):
     ctx = {
         "map_config": map_config,
         "map_config_json": json.dumps(map_config),
-        "state": initial_state,
-        "state_json": json.dumps(initial_state),
         "state_schema": state_schema,
         "state_schema_json": json.dumps(state_schema),
         "endpoints_json": json.dumps(endpoints),
@@ -382,6 +521,7 @@ def country_detail(request, iso3=None, hazard=None, month=None):
 def hazard_detail(request, iso3=None, template="hazard_detail.html"):
     raise NotImplementedError
 
+
 def countryhazardmonth_detail(request, iso3=None, hazard=None, month=None):
     now = datetime.datetime.now()
     #current_month = now.strftime("%B")
@@ -397,60 +537,8 @@ def countryhazardmonth_detail(request, iso3=None, hazard=None, month=None):
         month_num = current_month
     month_title = MONTHS_SHORT3[month_num-1]
 
-    print "hazard: ", hazard
-
-    ##############
-    # This is inefficient, since not hitting cache.  Need to rework
-    summary = None
-    if hazard == "cyclone":
-        summary = get_summary_cyclone(table_popatrisk="cyclone.admin2_popatrisk", iso_alpha3=iso3)
-    elif hazard == "drought":
-        summary = get_summary_drought(table_popatrisk="drought.admin2_popatrisk", iso_alpha3=iso3)
-    elif hazard == "flood":
-        summary = get_summary_flood(table_popatrisk="flood.admin2_popatrisk", iso_alpha3=iso3)
-    elif hazard == "landslide":
-        summary = get_summary_landslide(table_popatrisk="landslide.admin2_popatrisk", iso_alpha3=iso3)
-    #############
-    maxValue = summary["all"]["max"]["at_admin2_month"]
-    map_config_yml = get_template("sparc2/maps/countryhazardmonth_detail.yml").render({
-        "iso_alpha3": iso3,
-        "hazard_title": hazard_title,
-        "country_title": country_title,
-        "hazard": hazard,
-        "maxValue": maxValue
-    })
-    map_config = yaml.load(map_config_yml)
     endpoints = yaml.load(file(ENDPOINTS_PATH, 'r'))
-    popatrisk_range = [0.0, summary["all"]["max"]["at_admin2_month"]]
     ##############
-    initial_state = {
-        "page": "countryhazardmonth_detail",
-        "iso3": iso3,
-        "country_title": country_title,
-        "hazard": hazard,
-        "hazard_title": hazard_title,
-        "month": month_num,
-        "view": {
-            "lat": map_config["view"].get("latitude", 0),
-            "lon": map_config["view"].get("longitude", 0),
-            "z": map_config["view"]["zoom"],
-            "baselayer": "osm",
-            "featurelayers": ["popatrisk"]
-        },
-        "filters": {
-            "popatrisk":
-            {
-              "popatrisk_range": popatrisk_range,
-              "ldi_range": [1, 9],
-              "erosion_propensity_range": [0, 100],
-              "landcover_delta_negative_range": [0, 100],
-            }
-        },
-        "styles": {
-            "popatrisk": "default",
-            "context": "delta_mean"
-        }
-    }
     state_schema = {
         "iso3": "string",
         "hazard": "string",
@@ -479,35 +567,62 @@ def countryhazardmonth_detail(request, iso3=None, hazard=None, month=None):
         }
     }
     if hazard == "cyclone":
-        initial_state["filters"]["popatrisk"]["prob_class_max"] = 0.1
-        initial_state["filters"]["popatrisk"]["category"] = "cat1_5"
         state_schema["filters"]["popatrisk"]["prob_class_max"] = "float"
         state_schema["filters"]["popatrisk"]["category"] = "string"
     elif hazard == "drought":
-        initial_state["filters"]["popatrisk"]["prob_class_max"] = 0.1
         state_schema["filters"]["popatrisk"]["prob_class_max"] = "float"
     elif hazard == "flood":
-        initial_state["filters"]["popatrisk"]["rp"] = 200
         state_schema["filters"]["popatrisk"]["rp"] = "integer"
     elif hazard == "landslide":
-        initial_state["filters"]["popatrisk"]["prob_class_max"] = 1
         state_schema["filters"]["popatrisk"]["prob_class_max"] = "integer"
     #############
 
 
+    #ctx = {
+    #    "map_config": map_config,
+    #    "map_config_json": json.dumps(map_config),
+    #    "state": initial_state,
+    #    "state_json": json.dumps(initial_state),
+    #    "state_schema": state_schema,
+    #    "state_schema_json": json.dumps(state_schema),
+    #    "endpoints_json": json.dumps(endpoints),
+    #    "sidebar_left_open": True,
+    #    "init_function": "init_countryhazardmonth",
+    #    "geodash_main_id": "geodash-main",
+    #    "include_sidebar_left": True
+    #}
+
+    dashboard_resources = [
+      {
+        "loader": "popatrisk_summary",
+        "url": "/api/data/country/{iso3}/hazard/{hazard}/dataset/summary.json".format(iso3=iso3, hazard=hazard)
+      },
+      {
+        "loader": "context_summary",
+        "url": "/api/data/country/{iso3}/dataset/context_summary.json".format(iso3=iso3)
+      },
+      {
+        "loader": "vam_geojson",
+        "url": "/api/data/country/{iso3}/dataset/vam.json".format(iso3=iso3)
+      }
+    ];
+
     ctx = {
-        "map_config": map_config,
-        "map_config_json": json.dumps(map_config),
-        "state": initial_state,
-        "state_json": json.dumps(initial_state),
+        "dashboard_url": "/api/dashboard/country/{iso3}/hazard/{hazard}.json".format(iso3=iso3, hazard=hazard),
+        "state_url": "/api/state/country/{iso3}/hazard/{hazard}/month/{month}.json".format(iso3=iso3, hazard=hazard, month=month_num),
         "state_schema": state_schema,
-        "state_schema_json": json.dumps(state_schema),
-        "endpoints_json": json.dumps(endpoints),
-        "sidebar_left_open": True,
-        "init_function": "init_countryhazardmonth",
+        "endpoints": endpoints,
         "geodash_main_id": "geodash-main",
-        "include_sidebar_left": True
+        "include_sidebar_left": True,
+        "sidebar_left_open": True,
+        "modal_welcome": False
     }
+
+    ctx.update({
+      "endpoints_json": json.dumps(ctx["endpoints"]),
+      "state_schema_json": json.dumps(ctx["state_schema"]),
+      "dashboard_resources_json": json.dumps(dashboard_resources)
+    })
 
     ctx.update({
         "iso3": iso3,
@@ -515,14 +630,14 @@ def countryhazardmonth_detail(request, iso3=None, hazard=None, month=None):
         "month_num": month_num,
         "country_title": country_title,
         "hazard_title": hazard_title,
-        "month_title": month_title,
-        "maxValue": maxValue
+        "month_title": month_title
     })
 
-    #print "filters: ", map_config["featurelayers"]["popatrisk"]["filters"]
-
-    #if hazard:
-    #     ctx["data_filters"] = [h for h in SPARC_HAZARDS_CONFIG if h["id"]==hazard][0]["filters"]
+    ctx.update({
+      "server_templates": json.dumps({
+          "main.tpl.html": get_template("sparc2/countryhazardmonth/main.tpl.html").render(ctx)
+      })
+    })
 
     return render_to_response(t, RequestContext(request, ctx))
 

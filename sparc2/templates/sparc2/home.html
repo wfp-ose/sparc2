@@ -6,22 +6,6 @@
 
 {% block init %}{{ block.super }}{% endblock %}
 
-{% block sidebar_left %}{% endblock %}
-{% block sidebar_right %}{% endblock %}
-
-{% block map_controllers %}{% endblock %}
-
-{% block modals %}
-{{ block.super }}
-<div
-  class="geodash-controller geodash-controller-modal geodash-modal modal fade sparc-modal-welcome"
-  tabindex="-1"
-  role="dialog"
-  aria-labelledby="myModalLabel"
-  sparc-modal-welcome>
-</div>
-{% endblock %}
-
 {% block extra_content %}{% endblock %}
 
 {% block footer %}{% endblock %}
