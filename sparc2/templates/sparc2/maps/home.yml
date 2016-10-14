@@ -77,11 +77,11 @@ charts: []
 
 {% block controls %}
 controls:
-  attribution: true
+  attribution: false
   breadcrumbs: false
   calendar: false
   filters: false
   legend: true
   sidebar: false
-  zoom: true
+  zoom: false
 {% endblock %}

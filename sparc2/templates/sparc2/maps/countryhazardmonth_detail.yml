@@ -45,6 +45,7 @@ overlays:
         size: 1.5rem
     intent:
       name: zoomIn
+    tooltip: { placement: right, content: "Zoom In" }
     css:
       properties:
         - { name: padding, value: 8px }
@@ -63,6 +64,7 @@ overlays:
         size: 1.5rem
     intent:
       name: zoomOut
+    tooltip: { placement: right, content: "Zoom Out" }
     css:
       properties:
         - { name: padding, value: 8px }
@@ -75,15 +77,15 @@ overlays:
     title: "Reset Extent"
     position: { top: calc(8px + 10px + 1.5rem + 10px + 8px + 10px + 1.5rem + 10px), left: 8px, bottom: auto, right: auto }
     text:
-      content: ""
+      content: ""
       font:
         family: FontAwesome
         size: 1.5rem
     intent:
       name: zoomToLayer
       properties:
-        - name: layer
-          value: popatrisk
+        - { name: layer, value: popatrisk }
+    tooltip: { placement: right, content: "Reset Extent" }
     css:
       properties:
         - { name: padding, value: 8px }
@@ -91,10 +93,28 @@ overlays:
         - { name: border, value: "2px solid #0374e6" }
         - { name: border-radius, value: 8px }
         - { name: line-height, value: 20px }
+  - id: toggle_fullscreen
+    type: text
+    title: "Toggle Full Screen"
+    position: { top: calc(8px + 10px + 1.5rem + 10px + 8px + 10px + 1.5rem + 10px + 8px + 10px + 1.5rem + 10px), left: 8px, bottom: auto, right: auto }
+    text:
+      content: ""
+      font:
+        family: FontAwesome
+        size: 1.5rem
+    intent: { name: toggleFullScreen }
+    tooltip: { placement: right, content: "Toggle Full Screen" }
+    css:
+      properties:
+        - { name: padding, value: 8px }
+        - { name: background, value: "rgba(0,0,0, 0.4)" }
+        - { name: border, value: "2px solid #0374e6" }
+        - { name: border-radius, value: 8px }
+        - { name: line-height, value: 1.5rem }
   - id: print_map
     type: text
     title: "Print Map"
-    position: { top: calc(8px + 10px + 1.5rem + 10px + 8px + 10px + 1.5rem + 10px + 8px + 10px + 1.5rem + 10px), left: 8px, bottom: auto, right: auto }
+    position: { top: calc(8px + 10px + 1.5rem + 10px + 8px + 10px + 1.5rem + 10px + 8px + 10px + 1.5rem + 10px + 8px + 10px + 1.5rem + 10px), left: 8px, bottom: auto, right: auto }
     text:
       content: ""
       font:
@@ -102,6 +122,7 @@ overlays:
         size: 1.5rem
     intent:
       name: printMap
+    tooltip: { placement: right, content: "Print Map" }
     css:
       properties:
         - { name: padding, value: 8px }
@@ -112,7 +133,7 @@ overlays:
   - id: submit_issue
     type: text
     title: "Submit Issue"
-    position: { top: calc(8px + 10px + 1.5rem + 10px + 8px + 10px + 1.5rem + 10px + 8px + 10px + 1.5rem + 10px + 8px + 10px + 1.5rem + 10px), left: 8px, bottom: auto, right: auto }
+    position: { top: calc(8px + 10px + 1.5rem + 10px + 8px + 10px + 1.5rem + 10px + 8px + 10px + 1.5rem + 10px + 8px + 10px + 1.5rem + 10px + 8px + 10px + 1.5rem + 10px), left: 8px, bottom: auto, right: auto }
     text:
       content: ""
       font:
@@ -121,6 +142,7 @@ overlays:
     link:
       url: "https://docs.google.com/forms/d/e/1FAIpQLSfgmXj6lVIfaZcWxkxGX-4DGqv6Twq1RSvGB0PR5UhxryEkXA/viewform"
       target: "_blank"
+    tooltip: { placement: right, content: "Submit an Issue" }
     css:
       properties:
         - { name: padding, value: 8px }
