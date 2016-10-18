@@ -4,6 +4,7 @@ import yaml
 import sys
 import numpy
 import binascii
+import requests
 
 from django.conf import settings
 from django.views.generic import View
@@ -35,6 +36,8 @@ from sparc2.stats.flood import get_summary_flood
 from sparc2.stats.landslide import get_summary_landslide
 
 ENDPOINTS_PATH = "sparc2/static/sparc2/build/api/endpoints.yml"
+
+from geodash.utils import extract
 
 
 class api_countries(geodash_data_view):
@@ -68,8 +71,10 @@ class api_countries(geodash_data_view):
             if g is not None:
                 y['gaul'] = {
                     'admin0_code': g.admin0_code,
-                    'admin0_name': g.admin0_name
+                    'admin0_name': g.admin0_name,
                 }
+                if g.mpoly is not None:
+                    y['gaul']['extent'] = [x for x in g.mpoly.extent]
             countries.append(y)
 
 
@@ -275,6 +280,19 @@ class api_state_countryhazardmonth(geodash_data_view):
             "maxValue": maxValue
         }))
         #############
+        view = {
+            "baselayer": "osm",
+            "featurelayers": ["popatrisk"]
+        }
+        response = requests.get(settings.SITEURL+"api/countries.json?root=countries&iso.alpha3="+iso3)
+        extent = extract(["countries", 0, "gaul", "extent"], response.json(), None)
+        if extent is None:
+            view["lat"] = dashboard["view"].get("latitude", 0)
+            view["lon"] = dashboard["view"].get("longitude", 0)
+            view["z"] = dashboard["view"]["zoom"]
+        else:
+            view["extent"] = extent
+        #############
         data = {
             "page": "countryhazardmonth_detail",
             "iso3": iso3,
@@ -282,13 +300,7 @@ class api_state_countryhazardmonth(geodash_data_view):
             "hazard": hazard,
             "hazard_title": hazard_title,
             "month": month_num,
-            "view": {
-                "lat": dashboard["view"].get("latitude", 0),
-                "lon": dashboard["view"].get("longitude", 0),
-                "z": dashboard["view"]["zoom"],
-                "baselayer": "osm",
-                "featurelayers": ["popatrisk"]
-            },
+            "view": view,
             "filters": {
                 "popatrisk":
                 {

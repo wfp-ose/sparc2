@@ -1,0 +1,1 @@
+{% verbatim %}{ properties: [{ name: padding, value: 8px }, { name: background, value: "rgba(0,0,0, 0.4)" }, { name: border, value: "2px solid #0374e6" }, { name: border-radius, value: 8px }, { name: line-height, value: 1.2rem }] }{% endverbatim %}

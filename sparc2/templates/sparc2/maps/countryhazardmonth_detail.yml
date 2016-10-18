@@ -10,6 +10,7 @@ legend:
   width: 360px
   height: auto
   grid: ["col-sm-4", "col-sm-8"]
+  font: { family: FontAwesome, size: 1.2rem }
   css:
     properties:
       - { name: padding, value: 8px }
@@ -30,6 +31,8 @@ view:
   baselayer: "osm"
   featurelayers:
     - popatrisk
+  controls:
+    - legend
 {% endblock %}
 
 {% block overlays %}
@@ -40,116 +43,84 @@ overlays:
     position: { top: 8px, left: 8px, bottom: auto, right: auto }
     text:
       content: ""
-      font:
-        family: FontAwesome
-        size: 1.5rem
+      font: { family: FontAwesome, size: 1.2rem }
     intent:
       name: zoomIn
     tooltip: { placement: right, content: "Zoom In" }
-    css:
-      properties:
-        - { name: padding, value: 8px }
-        - { name: background, value: "rgba(0,0,0, 0.4)" }
-        - { name: border, value: "2px solid #0374e6" }
-        - { name: border-radius, value: "8px 8px 0px 0px" }
-        - { name: line-height, value: 1.5rem }
+    css: {% include "sparc2/_includes/dashboard/intent/css.yml" %}
   - id: zoom_out
     type: text
     title: "Zoom Out"
-    position: { top: calc(8px + 10px + 1.5rem + 10px), left: 8px, bottom: auto, right: auto }
+    position: { top: calc(8px + 10px + 1.2rem + 10px), left: 8px, bottom: auto, right: auto }
     text:
       content: ""
       font:
         family: FontAwesome
-        size: 1.5rem
+        size: 1.2rem
     intent:
       name: zoomOut
     tooltip: { placement: right, content: "Zoom Out" }
-    css:
-      properties:
-        - { name: padding, value: 8px }
-        - { name: background, value: "rgba(0,0,0, 0.4)" }
-        - { name: border, value: "2px solid #0374e6" }
-        - { name: border-radius, value: "0px 0px 8px 8px" }
-        - { name: line-height, value: 1.5rem }
+    css: {% include "sparc2/_includes/dashboard/intent/css.yml" %}
   - id: reset_extent
     type: text
     title: "Reset Extent"
-    position: { top: calc(8px + 10px + 1.5rem + 10px + 8px + 10px + 1.5rem + 10px), left: 8px, bottom: auto, right: auto }
+    position: { top: calc(8px + 10px + 1.2rem + 10px + 8px + 10px + 1.2rem + 10px), left: 8px, bottom: auto, right: auto }
     text:
       content: ""
-      font:
-        family: FontAwesome
-        size: 1.5rem
+      font: { family: FontAwesome, size: 1.2rem }
     intent:
       name: zoomToLayer
       properties:
         - { name: layer, value: popatrisk }
     tooltip: { placement: right, content: "Reset Extent" }
-    css:
-      properties:
-        - { name: padding, value: 8px }
-        - { name: background, value: "rgba(0,0,0, 0.4)" }
-        - { name: border, value: "2px solid #0374e6" }
-        - { name: border-radius, value: 8px }
-        - { name: line-height, value: 20px }
+    css: {% include "sparc2/_includes/dashboard/intent/css.yml" %}
   - id: toggle_fullscreen
     type: text
     title: "Toggle Full Screen"
-    position: { top: calc(8px + 10px + 1.5rem + 10px + 8px + 10px + 1.5rem + 10px + 8px + 10px + 1.5rem + 10px), left: 8px, bottom: auto, right: auto }
+    position: { top: 0.8rem, left: auto, bottom: auto, right: 0.8rem }
     text:
       content: ""
-      font:
-        family: FontAwesome
-        size: 1.5rem
+      font: { family: FontAwesome, size: 1.2rem }
     intent: { name: toggleFullScreen }
-    tooltip: { placement: right, content: "Toggle Full Screen" }
-    css:
-      properties:
-        - { name: padding, value: 8px }
-        - { name: background, value: "rgba(0,0,0, 0.4)" }
-        - { name: border, value: "2px solid #0374e6" }
-        - { name: border-radius, value: 8px }
-        - { name: line-height, value: 1.5rem }
+    tooltip: { placement: left, content: "Toggle Full Screen" }
+    css: {% include "sparc2/_includes/dashboard/intent/css.yml" %}
   - id: print_map
     type: text
     title: "Print Map"
-    position: { top: calc(8px + 10px + 1.5rem + 10px + 8px + 10px + 1.5rem + 10px + 8px + 10px + 1.5rem + 10px + 8px + 10px + 1.5rem + 10px), left: 8px, bottom: auto, right: auto }
+    position: { top: calc(0.8rem + 10px + 1.2rem + 10px + 0.8rem), left: auto, bottom: auto, right: 0.8rem }
     text:
       content: ""
-      font:
-        family: FontAwesome
-        size: 1.5rem
+      font: { family: FontAwesome, size: 1.2rem }
     intent:
       name: printMap
-    tooltip: { placement: right, content: "Print Map" }
-    css:
-      properties:
-        - { name: padding, value: 8px }
-        - { name: background, value: "rgba(0,0,0, 0.4)" }
-        - { name: border, value: "2px solid #0374e6" }
-        - { name: border-radius, value: 8px }
-        - { name: line-height, value: 1.5rem }
+    tooltip: { placement: left, content: "Print Map" }
+    css: {% include "sparc2/_includes/dashboard/intent/css.yml" %}
+  - id: toggle_legend
+    type: text
+    title: "Toggle Legend"
+    position: { top: calc(8px + 10px + 1.2rem + 10px + 8px + 10px + 1.2rem + 10px + 8px + 10px + 1.2rem + 10px + 8px), left: 8px, bottom: auto, right: auto }
+    text:
+      content: ""
+      font:
+        family: FontAwesome
+        size: 1.2rem
+    intent:
+      name: toggleControl
+      properties: [{ name: control, value: legend }]
+    tooltip: { placement: right, content: "Toggle Legend" }
+    css: {% include "sparc2/_includes/dashboard/intent/css.yml" %}
   - id: submit_issue
     type: text
     title: "Submit Issue"
-    position: { top: calc(8px + 10px + 1.5rem + 10px + 8px + 10px + 1.5rem + 10px + 8px + 10px + 1.5rem + 10px + 8px + 10px + 1.5rem + 10px + 8px + 10px + 1.5rem + 10px), left: 8px, bottom: auto, right: auto }
+    position: { top: calc(8px + 10px + 1.2rem + 10px + 8px + 10px + 1.2rem + 10px + 8px + 10px + 1.2rem + 10px + 8px + 10px + 1.2rem + 10px + 8px), left: 8px, bottom: auto, right: auto }
     text:
       content: ""
-      font:
-        family: FontAwesome
-        size: 1.5rem
+      font: { family: FontAwesome, size: 1.2rem }
     link:
       url: "https://docs.google.com/forms/d/e/1FAIpQLSfgmXj6lVIfaZcWxkxGX-4DGqv6Twq1RSvGB0PR5UhxryEkXA/viewform"
       target: "_blank"
     tooltip: { placement: right, content: "Submit an Issue" }
-    css:
-      properties:
-        - { name: padding, value: 8px }
-        - { name: background, value: "rgba(0,0,0, 0.4)" }
-        - { name: border, value: "2px solid #0374e6" }
-        - { name: border-radius, value: 8px }
-        - { name: line-height, value: 1.5rem }
+    css: {% include "sparc2/_includes/dashboard/intent/css.yml" %}
 {% endblock %}
 
 {% block baselayers %}{{ block.super }}{% endblock %}
@@ -160,9 +131,7 @@ featurelayers:
     type: geojson
     title: "Population at Risk"
     description: "Population at Risk"
-    source:
-      name: "World Food Programme, Emergency Preparedness & Support Response Division, GIS (WFP/OSEP/GIS)"
-      attribution: "WFP/OSEP/GIS"
+    source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
     geojson:
       url: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/{% endverbatim %}{{ hazard }}{% verbatim %}/dataset/popatrisk.json"
     carto:
@@ -176,6 +145,10 @@ featurelayers:
               title: Default Symbolizer
               description: "For a given hazard, month, and admin 2 district, the population at risk."
               type: polygon
+              metadata:
+                range:
+                  - { label: "| Low Population at Risk" }
+                  - { label: "High Population at Risk |" }
               static:
                 properties:
                   fillColor: "#000000"
@@ -1075,11 +1048,8 @@ featurelayers:
     type: geojson
     title: "Aggravating Factors"
     description: "Aggravating Factors"
-    source:
-      name: "World Food Programme, Emergency Preparedness & Support Response Division, GIS (WFP/OSEP/GIS)"
-      attribution: "WFP/OSEP/GIS"
-    geojson:
-      url: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.json"
+    source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
+    geojson: {% endverbatim %}{ url: "/api/data/country/{{ iso_alpha3|upper }}/dataset/context.json" }{% verbatim %}
     carto:
       styles:
         - id: delta_mean
@@ -1091,6 +1061,10 @@ featurelayers:
               title: Default Symbolizer
               description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.  Mean change highlights the balance between positive and negative changes information.  Positive values indicate areas with majority positive land cover change.  Negative values indicate areas with majority negative land cover change."
               type: polygon
+              metadata:
+                range:
+                  - { label: "| Negative Mean Change" }
+                  - { label: "Positive Mean Change |" }
               static:
                 properties:
                   weight: 1
@@ -1479,10 +1453,7 @@ featurelayers:
     type: WMS
     title: "Forecast"
     description: ""
-    source:
-      name: "WFP"
-      attribution: "WFP GeoNode"
-      site: "WFP GeoNode"
+    source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
     wms:
       version: "1.1.1"
       layers: ["geonode:anm_global_0111_0909_19792015_reprojected"]
@@ -1577,9 +1548,7 @@ featurelayers:
     type: WMS
     title: "Global WFP Facilities"
     description: "WFP Facilities worldwide, Country Office, Sub-Office, Field Office, Area Office, Humanitarian Response Depot."
-    source:
-      name: "WFP"
-      attribution: "WFP GeoNode"
+    source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
     wms:
       version: "1.1.1"
       layers: ["geonode:wld_poi_facilities_wfp"]
@@ -1589,10 +1558,7 @@ featurelayers:
       buffer: 256
       url: "http://geonode.wfp.org/cors/geoserver/wms"
       cql_filter: "iso3 = {% endverbatim %}'{{ iso_alpha3|upper }}'{% verbatim %}"
-    wfs:
-      version: "1.0.0"  # Needs to 1.0.0 or returns bad results for some reason.
-      url: "http://geonode.wfp.org/cors/geoserver/wfs"
-      geometry: shape
+    wfs: { version: "1.0.0", url: "http://geonode.wfp.org/cors/geoserver/wfs", geometry: shape }
     kml:
       url: "http://geonode.wfp.org/cors/geoserver/wms/kml"
     gwc:
@@ -1679,10 +1645,7 @@ featurelayers:
     type: WMS
     title: "Global Supply Routes"
     description: "Global supply routes for Transportation of Food and Non Food Items - Roads, Railways, Waterway, Airways.\n\nThis layer is built by linking origin/destination locations using the most direct route on main roads. In reality, the supply routes can divert from the ones displayed here depending on many local factors. The routes shown in this dataset are only indicative and have to be used as such."
-    source:
-      name: "WFP"
-      attribution: "WFP GeoNode"
-      site: "WFP GeoNode"
+    source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
     wms:
       version: "1.1.1"
       layers: ["geonode:wld_trs_supplyroutes_wfp"]
@@ -1692,10 +1655,7 @@ featurelayers:
       buffer: 256
       url: "http://geonode.wfp.org/cors/geoserver/wms"
       cql_filter: {% endverbatim %}"iso3 = '{{ iso_alpha3|upper }}' OR iso3_op = '{{ iso_alpha3|upper }}'"{% verbatim %}
-    wfs:
-      version: "1.0.0"  # Needs to 1.0.0 or returns bad results for some reason.
-      url: "http://geonode.wfp.org/cors/geoserver/wfs"
-      geometry: shape
+    wfs: { version: "1.0.0", url: "http://geonode.wfp.org/cors/geoserver/wfs", geometry: shape }
     kml:
       url: "http://geonode.wfp.org/cors/geoserver/wms/kml"
     gwc:
@@ -1773,9 +1733,7 @@ featurelayers:
     type: WMS
     title: "Cyclone Probability"
     description: "Cyclone Probability"
-    source:
-      name: "World Food Programme, Emergency Preparedness & Support Response Division, GIS (WFP/OSEP/GIS)"
-      attribution: "WFP/OSEP/GIS"
+    source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
     wms:
       version: "1.1.1"
       layers: {% endverbatim %}["geonode:cat1_5_sep_cls2","geonode:cat1_5_sep_cls2","geonode:cat1_5_sep_cls2","geonode:cat1_5_sep_cls2","geonode:cat1_5_sep_cls2","geonode:cat1_5_sep_cls2","geonode:cat1_5_sep_cls2"]{% verbatim %}
@@ -1800,9 +1758,7 @@ featurelayers:
     type: geojson
     title: "Cyclone Events (Heatmap)"
     description: "This layer contains a heatmap of cyclone events."
-    source:
-      name: "World Food Programme, Emergency Preparedness & Support Response Division, GIS (WFP/OSEP/GIS)"
-      attribution: "WFP/OSEP/GIS"
+    source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
     geojson:
       url: "/data/local/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/cyclone/events.json"
     heatmap:
@@ -1814,9 +1770,7 @@ featurelayers:
     type: WMS
     title: "Drought Frequency (January)"
     description: "Drought Frequency (January)"
-    source:
-      name: "World Food Programme, Emergency Preparedness & Support Response Division, GIS (WFP/OSEP/GIS)"
-      attribution: "WFP/OSEP/GIS"
+    source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
     wms:
       version: "1.1.1"
       layers: ["wlddsi_fot01d3"]
@@ -1841,9 +1795,7 @@ featurelayers:
     type: WMS
     title: "Flood Probability"
     description: "Flood Probability"
-    source:
-      name: "World Food Programme, Emergency Preparedness & Support Response Division, GIS (WFP/OSEP/GIS)"
-      attribution: "WFP/OSEP/GIS"
+    source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
     wms:
       version: "1.1.1"
       layers: ["sparc_flood_probability","sparc_flood_probability","sparc_flood_probability","sparc_flood_probability","sparc_flood_probability","sparc_flood_probability"]
@@ -1868,29 +1820,17 @@ featurelayers:
     type: geojson
     title: "Flood Events (Heatmap)"
     description: "This layer contains a heatmap of flood events."
-    source:
-      name: "World Food Programme, Emergency Preparedness & Support Response Division, GIS (WFP/OSEP/GIS)"
-      attribution: "WFP/OSEP/GIS"
-    geojson:
-      url: "/data/local/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/flood/events.json"
-    heatmap:
-      radius: 15
-      blur: 15
-      weight: count
+    source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
+    geojson: { url: "/data/local/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/flood/events.json" }
+    heatmap: { radius: 15, blur: 15, weight: count }
   - id: landslide_events
     enabled: true
     type: geojson
     title: "Landslide Events (Heatmap)"
     description: "This layer contains a heatmap of landslide events."
-    source:
-      name: "World Food Programme, Emergency Preparedness & Support Response Division, GIS (WFP/OSEP/GIS)"
-      attribution: "WFP/OSEP/GIS"
-    geojson:
-      url: "/data/local/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/landslide/events.json"
-    heatmap:
-      radius: 6
-      blur: 8
-      weight: count
+    source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
+    geojson: { url: "/data/local/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/landslide/events.json" }
+    heatmap: { radius: 6, blur: 8, weight: count }
     {% endverbatim %}{% endif %}
 {% endblock %}
 
@@ -2047,42 +1987,27 @@ sidebar:
       - id: natural_hazard
         label: Natural Hazards
         class: geodash-sidebar-layers-natural-hazards
-        layers:
-          - flood_probability
-          - cyclone_probability
-          - popatrisk
-          - cyclone_events
-          - flood_events
-          - landslide_events
+        layers: [flood_probability, cyclone_probability, popatrisk, cyclone_events, flood_events, landslide_events]
       - id: aggravating_factors
         label: Aggravating factors
         class: geodash-sidebar-layers-aggravating-factors
-        layers:
-          - context
+        layers: [context]
       - id: population_distribution
         label: Population Distribution
         class: geodash-sidebar-layers-population-distribution
-        layers:
-          - landscan
-          - vam
+        layers: [landscan, vam]
       - id: wfp_operations
         label: WFP Operations
         class: geodash-sidebar-layers-wfpoperations
-        layers:
-          - wld_poi_facilities_wfp
-          - wld_trs_supplyroutes_wfp
+        layers: [wld_poi_facilities_wfp, wld_trs_supplyroutes_wfp]
       - id: accumulated rainfall
         label: Accumulated Rainfall
         class: geodash-sidebar-wfplayers
-        layers:
-          - imerg_1day
-          - imerg_3day
-          - imerg_7day
+        layers: [imerg_1day, imerg_3day, imerg_7day]
       - id: forecast_precipitation
         label: Forecast Precipitation
         class: geodash-sidebar-forecast
-        layers:
-          - forecast
+        layers: [forecast]
     charts:
       - id: "popatrisk"
         element: "sparc-chart-popatrisk"
