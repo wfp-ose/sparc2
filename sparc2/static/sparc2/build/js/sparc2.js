@@ -1915,11 +1915,14 @@ geodash.directives["geodashSidebarToggleRight"] = function(){
 
 geodash.directives["sparcCalendar"] = function(){
   return {
+    controller: geodash.controllers.SPARCControllerCalendar,
     restrict: 'EA',
     replace: true,
-    scope: true,  // Inherit exact scope from parent controller
+    scope: {},  // Inherit exact scope from parent controller
     templateUrl: 'sparc_calendar.tpl.html',
-    link: function ($scope, element, attrs){
+    link: function ($scope, element, attrs, controllers)
+    {
+      setTimeout(function(){ geodash.ui.update(element); }, 0);
     }
   };
 };
@@ -3475,25 +3478,18 @@ geodash.controllers.GeoDashControllerOverlays = function($scope, $element, $cont
 
 };
 
-geodash.controllers["SPARCControllerCalendar"] = function(
-  $scope,
-  $element,
-  $controller,
-  $interpolate,
-  state,
-  map_config,
-  live)
+geodash.controllers["SPARCControllerCalendar"] = function($scope, $element, $controller, $interpolate)
 {
   angular.extend(this, $controller('GeoDashControllerBase', {$element: $element, $scope: $scope}));
 
-  $scope.state = state;
+  var mainScope = $element.parents(".geodash-dashboard:first").isolateScope();
+  $scope.dashboard = geodash.util.deepCopy(mainScope.dashboard);
+  $scope.state = geodash.util.deepCopy(mainScope.state);
   $scope.months = MONTHS_ALL;
 
-  $scope.$on("refreshMap", function(event, args){
-    if("state" in args)
-    {
-      $scope.state = args["state"];
-    }
+  $scope.$on("refreshMap", function(event, args)
+  {
+    $scope.state = geodash.util.deepCopy(args.state);
   });
 
   $scope.linkForMonth = function(month)

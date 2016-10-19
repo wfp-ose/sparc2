@@ -431,6 +431,7 @@ body {
 .geodash-map-map .popover {
   min-width: 220px;
   max-width: 550px;
+  z-index: 99999;
 }
 
 /* Widely Used Variables */
