@@ -1786,10 +1786,10 @@ navbars:
   - id: sparc-map-calendar
     placement: bottom
     page: "countryhazardmonthdetail"
-    intent:
-      name: stateChanged
-      properties:
-        - { name: month, value: "{{ tab.value }}" }
+    intents:
+      - name: stateChanged
+        properties:
+          - { name: month, value: "{{ tab.value }}" }
     switch: "state.month"  # if tab.value = extract(selected, $scope)
     tabs:
       - { title: Jan, value: 1 }
