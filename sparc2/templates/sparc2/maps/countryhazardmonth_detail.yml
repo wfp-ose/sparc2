@@ -29,10 +29,8 @@ view:
   minZoom: 0
   maxZoom: 18
   baselayer: "osm"
-  featurelayers:
-    - popatrisk
-  controls:
-    - legend
+  featurelayers: [ "popatrisk" ]
+  controls: [ "legend" ]
 {% endblock %}
 
 {% block overlays %}
@@ -69,9 +67,8 @@ overlays:
       content: ""
       font: { family: FontAwesome, size: 1.2rem }
     intent:
-      name: zoomToLayer
-      properties:
-        - { name: layer, value: popatrisk }
+      name: flyToExtent
+      properties: [{ name: extent, value: "initial" }]
     tooltip: { placement: right, content: "Reset Extent" }
     css: {% include "sparc2/_includes/dashboard/intent/css.yml" %}
   - id: toggle_fullscreen
@@ -132,8 +129,7 @@ featurelayers:
     title: "Population at Risk"
     description: "Population at Risk"
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
-    geojson:
-      url: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/{% endverbatim %}{{ hazard }}{% verbatim %}/dataset/popatrisk.json"
+    geojson: { url: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/{% endverbatim %}{{ hazard }}{% verbatim %}/dataset/popatrisk.json" }
     carto:
       styles:
         - id: default
@@ -168,11 +164,7 @@ featurelayers:
                       - '#8162c6'
                       - '#290051'
                   breakpoints: "popatrisk_natural_adjusted"
-                  filters:
-                    - "vam_filter_fcs"
-                    - "vam_filter_csi"
-    legend:
-      label: "Population at Risk"
+                  filters: ["vam_filter_fcs", "vam_filter_csi"]
   {% endverbatim %}{% if hazard == "cyclone" %}{% verbatim %}
     description: "The population at risk of cyclone for each month aggregated at the administrative level 2 district."
     popup:
@@ -1039,17 +1031,14 @@ featurelayers:
     type: geojson
     title: "VAM"
     description: "VAM"
-    source:
-      name: "WFP/VAM"
-      attribution: "WFP/VAM"
-    geojson:
-      local: "layers.vam.data.geojson"
-  - id: context
+    source: { name: "WFP/VAM", attribution: "WFP/VAM" }
+    geojson: { local: "layers.vam.data.geojson" }
+  - id: context_mean_change
     type: geojson
-    title: "Aggravating Factors"
-    description: "Aggravating Factors"
+    title: "Mean Change"
+    description: "Context Factors, Mean Change"
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
-    geojson: {% endverbatim %}{ url: "/api/data/country/{{ iso_alpha3|upper }}/dataset/context.json" }{% verbatim %}
+    geojson: { local: "layers.context.data.geojson", projection: "EPSG:4326" }
     carto:
       styles:
         - id: delta_mean
@@ -1062,9 +1051,7 @@ featurelayers:
               description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.  Mean change highlights the balance between positive and negative changes information.  Positive values indicate areas with majority positive land cover change.  Negative values indicate areas with majority negative land cover change."
               type: polygon
               metadata:
-                range:
-                  - { label: "| Negative Mean Change" }
-                  - { label: "Positive Mean Change |" }
+                range: [{ label: "| Negative Mean Change" }, { label: "Positive Mean Change |" }]
               static:
                 properties:
                   weight: 1
@@ -1075,6 +1062,8 @@ featurelayers:
               dynamic:
                 func: context
                 options:
+                  layer: context_mean_change
+                  attribute: "delta_mean"
                   mask: "mask"
                   colors:
                     ramp:
@@ -1086,347 +1075,251 @@ featurelayers:
                       - 'rgb(0, 68, 27)'
                     outside: "#aaaaaa"
                   breakpoints: "context_natural_adjusted"
-                  filters:
-                    - "vam_filter_fcs"
-                    - "vam_filter_csi"
-    cartography:
-      - id: "delta_mean"
-        title: "Mean Change"
-        type: "graduated"
-        mask: "mask"
-        attribute: "delta_mean"
-        label:
-          value: "{{ feature.attributes.admin2_name }}, {{ feature.attributes.admin1_name }}"
-        ramp:
-          label:
-            left: "Negative<br>Change"
-            right: "Positive<br>Change"
-        description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.  Mean change highlights the balance between positive and negative changes information.  Positive values indicate areas with majority positive land cover change.  Negative values indicate areas with majority negative land cover change."
-        breakpoints: "natural_adjusted"
-        colors:
-          ramp:
-            - 'rgb(181, 0, 22)'
-            - 'rgb(251, 112, 80)'
-            - 'rgb(222, 197, 192)'
-            - 'rgb(227, 252, 216)'
-            - 'rgb(122, 199, 123)'
-            - 'rgb(0, 68, 27)'
-          outside: "#aaaaaa"
-        styles:
-          default:
-            static:
-              weight: 1
-              color: "#000000"
-              opacity: 0.8
-              fillOpacity: 0.6
-            dynamic:
-              func: "style_context"
-              options:
-                breakpoints: "context_natural_adjusted"
-          hover:
-            static:
-              weight: 2
-              color: "#0000FF"
-              opacity: 0.8
-              fillOpacity: 0.3
-        legend:
-          symbol:
-            type: "graduated"
-            width: 34
-            height: 12
-      - id: delta_negative
-        title: "Negative Change"
-        type: "graduated"
-        mask: "mask"
-        attribute: "delta_negative"
-        ramp:
-          label:
-            left: "No<br>Change"
-            right: "Negative<br>Change"
-        description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.  Percentage of areas that experienced negative land cover change, ecological deterioration.  High percentage values indicate large areas under negative land cover changes."
-        breakpoints: "natural_negative"
-        colors:
-          ramp: ['rgb(222, 197, 192)', 'rgb(251, 112, 80)', 'rgb(181, 0, 22)']
-          outside: "#aaaaaa"
-        styles:
-          default:
-            static:
-              weight: 1
-              color: "#000000"
-              opacity: 0.8
-              fillOpacity: 0.7
-            dynamic:
-              func: "style_context"
-              options:
-                breakpoints: "context_natural_negative"
-          hover:
-            static:
-              weight: 2
-              color: "#0000FF"
-              opacity: 0.8
-              fillOpacity: 0.3
-        legend:
-          symbol:
-            type: "graduated"
-            width: 34
-            height: 12
-      - id: delta_positive
-        title: "Positive Change"
-        type: "graduated"
-        mask: "mask"
-        attribute: "delta_positive"
-        ramp:
-          label:
-            left: "No<br>Change"
-            right: "Positive<br>Change"
-        description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.  Percentage of surfaces that experienced positive land cover change, ecological improve.  High percentage values indicate large areas under positive land cover changes."
-        breakpoints: "natural_positive"
-        colors:
-          ramp: ['rgb(227, 252, 216)','rgb(122, 199, 123)','rgb(0, 68, 27)']
-          outside: "#aaaaaa"
-        styles:
-          default:
-            static:
-              weight: 1
-              color: "#000000"
-              opacity: 0.8
-              fillOpacity: 0.4
-            dynamic:
-              func: "style_context"
-              options:
-                breakpoints: "context_natural_positive"
-          hover:
-            static:
-              weight: 2
-              color: "#0000FF"
-              opacity: 0.8
-              fillOpacity: 0.3
-        legend:
-          symbol:
-            type: "graduated"
-            width: 34
-            height: 12
-      - id: "delta_crop"
-        title: "Crop Change"
-        type: "graduated"
-        mask: "mask"
-        attribute: "delta_crop"
-        ramp:
-          label:
-            left: "Negative<br>Change"
-            right: "Positive<br>Change"
-        description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.  Positive percentage indicates increase in Cropland surfaces.  Negative percentage indicates decrease in Cropland surfaces."
-        breakpoints: "natural_crop"
-        colors:
-          ramp:
-            - 'rgb(181, 0, 38)'
-            - 'rgb(253, 141, 60)'
-            - 'rgb(255, 255, 178)'
-            - 'rgb(227, 252, 216)'
-            - 'rgb(122, 199, 123)'
-            - 'rgb(0, 68, 27)'
-          outside: "#aaaaaa"
-        styles:
-          default:
-            static:
-              weight: 1
-              color: "#000000"
-              opacity: 0.8
-              fillOpacity: 0.4
-            dynamic:
-              func: "style_context"
-              options:
-                breakpoints: "context_natural_crop"
-          hover:
-            static:
-              weight: 2
-              color: "#0000FF"
-              opacity: 0.8
-              fillOpacity: 0.3
-        legend:
-          symbol:
-            type: "graduated"
-            width: 34
-            height: 12
-      - id: "delta_forest"
-        title: "Forest Change"
-        type: "graduated"
-        mask: "mask"
-        attribute: "delta_forest"
-        ramp:
-          label:
-            left: "Negative<br>Change"
-            right: "Positive<br>Change"
-        description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.  Positive values indicates increase in Forest surfaces.  Negative values indicates decrease in Forest surfaces."
-        breakpoints: "natural_forest"
-        colors:
-          ramp:
-            - 'rgb(181, 0, 38)'
-            - 'rgb(253, 141, 60)'
-            - 'rgb(255, 255, 178)'
-            - 'rgb(227, 252, 216)'
-            - 'rgb(122, 199, 123)'
-            - 'rgb(0, 68, 27)'
-          outside: "#aaaaaa"
-        styles:
-          default:
-            static:
-              weight: 1
-              color: "#000000"
-              opacity: 0.8
-              fillOpacity: 0.4
-            dynamic:
-              func: "style_context"
-              options:
-                breakpoints: "context_natural_forest"
-          hover:
-            static:
-              weight: 2
-              color: "#0000FF"
-              opacity: 0.8
-              fillOpacity: 0.3
-        legend:
-          symbol:
-            type: "graduated"
-            width: 34
-            height: 12
-      - id: "erosion_propensity"
-        title: "Erosion Propensity"
-        type: "graduated"
-        attribute: "erosion_propensity"
-        ramp:
-          label:
-            left: "Low"
-            right: "High"
-        description: "Erosion layer elaborated considering the RUSLE equation (Rain incidence, Slope length, Lithology, Land cover).  Erosion percentage indicates areas under erosion process (> 5 Tons/ha per year).  High values indicate large surfaces under erosion."
-        breakpoints: "natural_erosion_propensity"
-        colors:
-          ramp:
-            - '#aaaaaa'
-            - 'rgb(255, 255, 212)'
-            - 'rgb(254, 153, 41)'
-            - 'rgb(153, 52, 4)'
-        styles:
-          default:
-            static:
-              weight: 1
-              color: "#000000"
-              opacity: 0.8
-              fillOpacity: 0.4
-            dynamic:
-              func: "style_context"
-              options:
-                breakpoints: "context_natural_erosion_propensity"
-          hover:
-            static:
-              weight: 2
-              color: "#0000FF"
-              opacity: 0.8
-              fillOpacity: 0.3
-        legend:
-          symbol:
-            type: "graduated"
-            width: 34
-            height: 12
-    legend:
-      label: "Aggravating Factors"
-    popup:
-      title: "Aggravating Factors: {{ feature.attributes.admin2_name }}, {{ feature.attributes.admin1_name }}"
-      maxWidth: 550
-      panes:
-        - id: "popup_overview"
-          tab:
-            label: "Overview"
-          fields:
-            - value: "{{ feature.attributes.delta_mean | number : 2 }}"
-              label: Mean Change
-            - value: "{{ feature.attributes.ldi | number : 0 }}"
-              label: Land Degradation Index (LDI)
-        - id: "popup_landcover"
-          tab:
-            label: "Landcover"
-          fields:
-            - value: "{{ feature.attributes.delta_mean | number : 2 }}"
-              label: Mean Change
-            - value: "{{ feature.attributes.delta_negative | number : 2 }}"
-              label: Negative Change
-            - value: "{{ feature.attributes.delta_positive | number : 2 }}"
-              label: Positive Change
-            - value: "{{ feature.attributes.delta_forest | number : 2 }}"
-              label: Forest Change
-            - value: "{{ feature.attributes.delta_crop | number : 2 }}"
-              label: Crop Change
-        - id: "popup_erosion"
-          tab:
-            label: "Erosion"
-          fields:
-            - attribute: erosion_propensity
-              label: Erosion Propensity
-        - id: "popup_location"
-          tab:
-            label: "Location"
-          fields:
-            - attribute: iso_alpha3
-              label: ISO Alpha-3 Country Code
-            - value: "{{ feature.attributes.admin0_name }} ({{ feature.attributes.admin0_code }})"
-              label: Admin 0
-            - value: "{{ feature.attributes.admin1_name }} ({{ feature.attributes.admin1_code }})"
-              label: Admin 1
-            - value: "{{ feature.attributes.admin2_name }} ({{ feature.attributes.admin2_code }})"
-              label: Admin 2
-        - id: "popup_links"
-          tab:
-            label: "Links"
-          fields: []
-    filters:
-      - layer: context
-        label: LDI
-        description:  "Filter by the Land Degradation Index (LDI).  LDI combines negative land cover change and erosion propensity variables.\nHigh LDI levels indicate high land deterioration on a qualitative scale (undimensionless)."
-        line_height: 36px
-        height: 50px
-        type: slider
-        slider:
-          type: continuous
-          width: 100px
-          range: true  # See https://jqueryui.com/slider/#range
-          label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
-          values: [1, 9]
-          min: 1
-          max: 9
-          step: 1
-          output: ldi_range
-      - layer: context
-        label: "Negative Landcover Change"
-        description: "Negative Landcover Change"
-        line_height: 36px
-        height: 50px
-        type: slider
-        slider:
-          type: continuous
-          width: 100px
-          range: true  # See https://jqueryui.com/slider/#range
-          label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
-          values: [0, 100]
-          min: 0
-          max: 100
-          step: 1
-          output: landcover_delta_negative_range
-      - layer: context
-        label: Erosion Propensity
-        description:  "Filter by the erosion propensity, which indicates percentage of surface area under erosion process (> 5 Tons/ha per year).\nThe erosion propensity is calculated using the RUSLE equation (Rain incidence, Slope length, Lithology, Land cover)."
-        line_height: 36px
-        height: 50px
-        type: slider
-        slider:
-          type: continuous
-          width: 100px
-          range: true  # See https://jqueryui.com/slider/#range
-          label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
-          values: [0, 100]
-          min: 0
-          max: 100
-          step: 1
-          output: erosion_propensity_range
+                  filters: ["vam_filter_fcs", "vam_filter_csi"]
+  - id: context_positive_change
+    type: geojson
+    title: "Positive Change"
+    description: "Context Factors, Positive Change"
+    source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
+    geojson: { local: "layers.context.data.geojson", projection: "EPSG:4326" }
+    carto:
+      styles:
+        - id: delta_positive
+          title: "Positive Change"
+          description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.  Percentage of surfaces that experienced positive land cover change, ecological improve."
+          legend: { type: graduated }
+          symbolizers:
+            - id: default
+              title: Default Symbolizer
+              description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.  Percentage of surfaces that experienced positive land cover change, ecological improve."
+              type: polygon
+              metadata:
+                range: [{ label: "| Low Positive Change" }, { label: "High Positive Change |" }]
+              static:
+                properties:
+                  weight: 1
+                  fillColor: "#000000"
+                  fillOpacity: 0.6
+                  strokeWidth: 0.2
+                  strokeColor: "#000000"
+              dynamic:
+                func: context
+                options:
+                  layer: context_positive_change
+                  attribute: "delta_positive"
+                  mask: "mask"
+                  colors:
+                    ramp: ['rgb(227, 252, 216)','rgb(122, 199, 123)','rgb(0, 68, 27)']
+                    outside: "#aaaaaa"
+                  breakpoints: "context_natural_positive"
+                  filters: ["vam_filter_fcs", "vam_filter_csi"]
+  - id: context_negative_change
+    type: geojson
+    title: "Negative Change"
+    description: "Context Factors, Negative Change"
+    source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
+    geojson: { local: "layers.context.data.geojson", projection: "EPSG:4326" }
+    carto:
+      styles:
+        - id: delta_positive
+          title: "Negative Change"
+          description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.  Percentage of areas that experienced negative land cover change, ecological deterioration."
+          legend: { type: graduated }
+          symbolizers:
+            - id: default
+              title: Default Symbolizer
+              description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.  Percentage of areas that  experienced negative land cover change, ecological deterioration."
+              type: polygon
+              metadata:
+                range: [{ label: "| Low Negative Change" }, { label: "High Negative Change |" }]
+              static:
+                properties:
+                  weight: 1
+                  fillColor: "#000000"
+                  fillOpacity: 0.6
+                  strokeWidth: 0.2
+                  strokeColor: "#000000"
+              dynamic:
+                func: context
+                options:
+                  layer: context_negative_change
+                  attribute: "delta_negative"
+                  mask: "mask"
+                  colors:
+                    ramp: ['rgb(222, 197, 192)', 'rgb(251, 112, 80)', 'rgb(181, 0, 22)']
+                    outside: "#aaaaaa"
+                  breakpoints: "context_natural_negative"
+                  filters: ["vam_filter_fcs", "vam_filter_csi"]
+  - id: context_forest_change
+    type: geojson
+    title: "Forest Change"
+    description: "Context Factors, Forest Change"
+    source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
+    geojson: { local: "layers.context.data.geojson", projection: "EPSG:4326" }
+    carto:
+      styles:
+        - id: delta_forest
+          title: "Forest Change"
+          description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.  Positive percentage indicates increase in Forest surfaces.  Negative percentage indicates decrease in Forest surfaces."
+          legend: { type: graduated }
+          symbolizers:
+            - id: default
+              title: Default Symbolizer
+              description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.  Positive percentage indicates increase in Forest surfaces.  Negative percentage indicates decrease in Forest surfaces."
+              type: polygon
+              metadata:
+                range: [{ label: "| Low Forest Change" }, { label: "High Forest Change |" }]
+              static:
+                properties:
+                  weight: 1
+                  fillColor: "#000000"
+                  fillOpacity: 0.6
+                  strokeWidth: 0.2
+                  strokeColor: "#000000"
+              dynamic:
+                func: context
+                options:
+                  layer: context_forest_change
+                  attribute: "delta_forest"
+                  mask: "mask"
+                  colors:
+                    ramp:
+                      - 'rgb(181, 0, 38)'
+                      - 'rgb(253, 141, 60)'
+                      - 'rgb(255, 255, 178)'
+                      - 'rgb(227, 252, 216)'
+                      - 'rgb(122, 199, 123)'
+                      - 'rgb(0, 68, 27)'
+                    outside: "#aaaaaa"
+                  breakpoints: "context_natural_forest"
+                  filters: ["vam_filter_fcs", "vam_filter_csi"]
+  - id: context_crop_change
+    type: geojson
+    title: "Crop Change"
+    description: "Context Factors, Crop Change"
+    source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
+    geojson: { local: "layers.context.data.geojson", projection: "EPSG:4326" }
+    carto:
+      styles:
+        - id: delta_forest
+          title: "Crop Change"
+          description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.  Positive percentage indicates increase in Cropland surfaces.  Negative percentage indicates decrease in Cropland surfaces."
+          legend: { type: graduated }
+          symbolizers:
+            - id: default
+              title: Default Symbolizer
+              description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.  Positive percentage indicates increase in Cropland surfaces.  Negative percentage indicates decrease in Cropland surfaces."
+              type: polygon
+              metadata:
+                range: [{ label: "| Low Crop Change" }, { label: "High Crop Change |" }]
+              static:
+                properties:
+                  weight: 1
+                  fillColor: "#000000"
+                  fillOpacity: 0.6
+                  strokeWidth: 0.2
+                  strokeColor: "#000000"
+              dynamic:
+                func: context
+                options:
+                  layer: context_crop_change
+                  attribute: "delta_crop"
+                  mask: "mask"
+                  colors:
+                    ramp:
+                      - 'rgb(181, 0, 38)'
+                      - 'rgb(253, 141, 60)'
+                      - 'rgb(255, 255, 178)'
+                      - 'rgb(227, 252, 216)'
+                      - 'rgb(122, 199, 123)'
+                      - 'rgb(0, 68, 27)'
+                    outside: "#aaaaaa"
+                  breakpoints: "context_natural_crop"
+                  filters: ["vam_filter_fcs", "vam_filter_csi"]
+  - id: context_erosion
+    type: geojson
+    title: "Erosion Propensity"
+    description: "Context Factors, Erosion Propensity"
+    source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
+    geojson: { local: "layers.context.data.geojson", projection: "EPSG:4326" }
+    carto:
+      styles:
+        - id: erosion_propensity
+          title: "Erosion Propensity"
+          description: "Erosion layer elaborated considering the RUSLE equation (Rain incidence, Slope length, Lithology, Land cover).  Erosion percentage indicates areas under erosion process (> 5 Tons/ha per year)."
+          legend: { type: graduated }
+          symbolizers:
+            - id: default
+              title: Default Symbolizer
+              description: "Erosion layer elaborated considering the RUSLE equation (Rain incidence, Slope length, Lithology, Land cover).  Erosion percentage indicates areas under erosion process (> 5 Tons/ha per year)."
+              type: polygon
+              metadata:
+                range: [{ label: "| Low Erosion Propensity" }, { label: "High Erosion Propensity |" }]
+              static:
+                properties:
+                  weight: 1
+                  fillColor: "#000000"
+                  fillOpacity: 0.6
+                  strokeWidth: 0.2
+                  strokeColor: "#000000"
+              dynamic:
+                func: context
+                options:
+                  layer: context_erosion
+                  attribute: "erosion_propensity"
+                  colors:
+                    ramp:
+                      - '#aaaaaa'
+                      - 'rgb(255, 255, 212)'
+                      - 'rgb(254, 153, 41)'
+                      - 'rgb(153, 52, 4)'
+                  breakpoints: "context_natural_erosion_propensity"
+                  filters: ["vam_filter_fcs", "vam_filter_csi"]
+  - id: context_ldi
+    type: geojson
+    title: "LDI"
+    description: "Context Factors, LDI"
+    source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
+    geojson: { local: "layers.context.data.geojson", projection: "EPSG:4326" }
+    carto:
+      styles:
+        - id: ldi
+          title: "LDI"
+          description: Land Degradation Index combines the negative land cover change and erosion propensity information.  High LDI levels indicate high land deterioration on a qualitative scale (undimensionless).
+          legend: { type: graduated }
+          symbolizers:
+            - id: default
+              title: Default Symbolizer
+              description: Land Degradation Index combines the negative land cover change and erosion propensity information.  High LDI levels indicate high land deterioration on a qualitative scale (undimensionless).
+              type: polygon
+              metadata:
+                range: [{ label: "| Low LDI" }, { label: "High LDI |" }]
+              static:
+                properties:
+                  weight: 1
+                  fillColor: "#000000"
+                  fillOpacity: 0.6
+                  strokeWidth: 0.2
+                  strokeColor: "#000000"
+              dynamic:
+                func: ldi
+                options:
+                  layer: context_ldi
+                  attribute: "ldi"
+                  mask: "mask"
+                  colors:
+                    ramp:
+                      - 'rgb(143, 199, 142)'
+                      - 'rgb(196, 214, 178)'
+                      - 'rgb(254, 217, 157)'
+                      - 'rgb(253, 191, 111)'
+                      - 'rgb(240, 215, 47)'
+                      - 'rgb(253, 194, 58)'
+                      - 'rgb(240, 126, 47)'
+                      - 'rgb(240, 87, 36)'
+                      - 'rgb(227, 26, 28)'
+                    outside: "#aaaaaa"
+                  filters: ["vam_filter_fcs", "vam_filter_csi"]
   - id: landscan
     type: WMS
     title: "Landscan (2013)"
@@ -1470,8 +1363,6 @@ featurelayers:
             width: 16
             height: 16
             preview: false
-    legend:
-      label: "Forecast"
   - id: imerg_1day
     type: WMS
     title: "Rainfall Total: 1 day"
@@ -1494,8 +1385,6 @@ featurelayers:
             width: 16
             height: 16
             preview: false
-    legend:
-      label: "Rainfall Total: 1 day"
   - id: imerg_3day
     type: WMS
     title: "Rainfall Total: 3 days"
@@ -1518,8 +1407,6 @@ featurelayers:
             width: 16
             height: 16
             preview: false
-    legend:
-      label: "Rainfall Total: 3 days"
   - id: imerg_7day
     type: WMS
     title: "Rainfall Total: 7 days"
@@ -1542,8 +1429,6 @@ featurelayers:
             width: 16
             height: 16
             preview: false
-    legend:
-      label: "Rainfall Total: 7 days"
   - id: wld_poi_facilities_wfp
     type: WMS
     title: "Global WFP Facilities"
@@ -1571,8 +1456,6 @@ featurelayers:
             width: 16
             height: 16
             preview: false
-    legend:
-      label: "Global WFP Facilities"
     click: popup
     popup:
       title: "Global WFP Facilities: {{ feature.attributes.name }}"
@@ -1668,8 +1551,6 @@ featurelayers:
             width: 16
             height: 16
             preview: false
-    legend:
-      label: "Global Supply Routes"
     click: popup
     popup:
       title: "Global Supply Routes: {{ feature.attributes.name }}"
@@ -1751,16 +1632,13 @@ featurelayers:
             width: 16
             height: 8
             preview: false
-    legend:
-      label: "Cyclone Probability"
   - id: cyclone_events
     enabled: true
     type: geojson
     title: "Cyclone Events (Heatmap)"
     description: "This layer contains a heatmap of cyclone events."
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
-    geojson:
-      url: "/data/local/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/cyclone/events.json"
+    geojson: { url: "/data/local/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/cyclone/events.json" }
     heatmap:
       radius: 8
       blur: 10
@@ -1788,8 +1666,6 @@ featurelayers:
             width: 16
             height: 8
             preview: false
-    legend:
-      label: "Drought Frequency (January)"
   {% endverbatim %}{% elif hazard == "flood" %}{% verbatim %}
   - id: flood_probability
     type: WMS
@@ -1813,8 +1689,6 @@ featurelayers:
             width: 16
             height: 8
             preview: false
-    legend:
-      label: "Flood Probability"
   - id: flood_events
     enabled: true
     type: geojson
@@ -1834,48 +1708,6 @@ featurelayers:
     {% endverbatim %}{% endif %}
 {% endblock %}
 
-{% block legendlayers %}
-legendlayers:
-  - forecast
-  {% if hazard == "cyclone" %}{% verbatim %}
-  - popatrisk
-  - context
-  - landscan
-  - vam
-  - cyclone_probability
-  - cyclone_events
-  {% endverbatim %}{% elif hazard == "drought" %}{% verbatim %}
-  - popatrisk
-  - context
-  - landscan
-  - vam
-  - wlddsi_fot01d3
-  {% endverbatim %}{% elif hazard == "flood" %}{% verbatim %}
-  - popatrisk
-  - context
-  - landscan
-  - vam
-  - flood_events
-  - landslide_events
-  - flood_probability
-  {% endverbatim %}{% elif hazard == "landslide" %}{% verbatim %}
-  - popatrisk
-  - context
-  - landscan
-  - vam
-  - flood_events
-  - landslide_events
-  - flood_probability
-  {% endverbatim %}{% endif %}
-  - wld_poi_facilities_wfp
-  - wld_trs_supplyroutes_wfp
-  - imerg_1day
-  - imerg_3day
-  - imerg_7day
-  - osm_humanitarian
-  - osm
-{% endblock %}
-
 {% block renderlayers %}
 renderlayers:
   - forecast
@@ -1883,22 +1715,46 @@ renderlayers:
   - wld_trs_supplyroutes_wfp
   {% if hazard == "cyclone" %}{% verbatim %}
   - popatrisk
-  - context
+  - context_mean_change
+  - context_positive_change
+  - context_negative_change
+  - context_forest_change
+  - context_crop_change
+  - context_erosion
+  - context_ldi
   - cyclone_probability
   - cyclone_events
   {% endverbatim %}{% elif hazard == "drought" %}{% verbatim %}
   - popatrisk
-  - context
+  - context_mean_change
+  - context_positive_change
+  - context_negative_change
+  - context_forest_change
+  - context_crop_change
+  - context_erosion
+  - context_ldi
   - wlddsi_fot01d3
   {% endverbatim %}{% elif hazard == "flood" %}{% verbatim %}
   - popatrisk
-  - context
+  - context_mean_change
+  - context_positive_change
+  - context_negative_change
+  - context_forest_change
+  - context_crop_change
+  - context_erosion
+  - context_ldi
   - flood_events
   - landslide_events
   - flood_probability
   {% endverbatim %}{% elif hazard == "landslide" %}{% verbatim %}
   - popatrisk
-  - context
+  - context_mean_change
+  - context_positive_change
+  - context_negative_change
+  - context_forest_change
+  - context_crop_change
+  - context_erosion
+  - context_ldi
   - flood_events
   - landslide_events
   - flood_probability
@@ -1925,6 +1781,31 @@ controls:
   zoom: false
 {% endblock %}
 
+{% block navbars %}{% verbatim %}
+navbars:
+  - id: sparc-map-calendar
+    placement: bottom
+    page: "countryhazardmonthdetail"
+    intent:
+      name: stateChanged
+      properties:
+        - { name: month, value: "{{ tab.value }}" }
+    switch: "state.month"  # if tab.value = extract(selected, $scope)
+    tabs:
+      - { title: Jan, value: 1 }
+      - { title: Feb, value: 2 }
+      - { title: Mar, value: 3 }
+      - { title: Apr, value: 4 }
+      - { title: May, value: 5 }
+      - { title: Jun, value: 6 }
+      - { title: Jul, value: 7 }
+      - { title: Aug, value: 8 }
+      - { title: Sep, value: 9 }
+      - { title: Oct, value: 10 }
+      - { title: Nov, value: 11 }
+      - { title: Dec, value: 12 }
+{% endverbatim %}{% endblock %}
+
 {% block sidebar %}
 sidebar:
   ui:
@@ -1947,20 +1828,38 @@ sidebar:
     layers:
       {% if hazard == "cyclone" %}{% verbatim %}
       - popatrisk
-      - context
+      - context_mean_change
+      - context_positive_change
+      - context_negative_change
+      - context_forest_change
+      - context_crop_change
+      - context_erosion
+      - context_ldi
       - landscan
       - vam
       - cyclone_probability
       - cyclone_events
       {% endverbatim %}{% elif hazard == "drought" %}{% verbatim %}
       - popatrisk
-      - context
+      - context_mean_change
+      - context_positive_change
+      - context_negative_change
+      - context_forest_change
+      - context_crop_change
+      - context_erosion
+      - context_ldi
       - landscan
       - vam
       - wlddsi_fot01d3
       {% endverbatim %}{% elif hazard == "flood" %}{% verbatim %}
       - popatrisk
-      - context
+      - context_mean_change
+      - context_positive_change
+      - context_negative_change
+      - context_forest_change
+      - context_crop_change
+      - context_erosion
+      - context_ldi
       - landscan
       - vam
       - flood_events
@@ -1968,7 +1867,13 @@ sidebar:
       - flood_probability
       {% endverbatim %}{% elif hazard == "landslide" %}{% verbatim %}
       - popatrisk
-      - context
+      - context_mean_change
+      - context_positive_change
+      - context_negative_change
+      - context_forest_change
+      - context_crop_change
+      - context_erosion
+      - context_ldi
       - landscan
       - vam
       - flood_events
@@ -1988,10 +1893,17 @@ sidebar:
         label: Natural Hazards
         class: geodash-sidebar-layers-natural-hazards
         layers: [flood_probability, cyclone_probability, popatrisk, cyclone_events, flood_events, landslide_events]
-      - id: aggravating_factors
-        label: Aggravating factors
-        class: geodash-sidebar-layers-aggravating-factors
-        layers: [context]
+      - id: context_factors
+        label: Context Factors
+        class: geodash-sidebar-layers-context-factors
+        layers:
+          - context_mean_change
+          - context_positive_change
+          - context_negative_change
+          - context_forest_change
+          - context_crop_change
+          - context_erosion
+          - context_ldi
       - id: population_distribution
         label: Population Distribution
         class: geodash-sidebar-layers-population-distribution

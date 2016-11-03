@@ -78,32 +78,26 @@ assets:
 baselayer: osm
 baselayers:
   - id: "osm_humanitarian"
+    type: xyz
     title: OpenStreetMap / Humanitarian
     description: "OpenStreetMap Basemap, Humanitarian Style"
     source:
       name: "OpenStreetMap"
       attribution: "&copy; <a href=\"http://www.openstreetmap.org/copyright\">OpenStreetMap</a>"
-      tile:
-        url: "http://{a-c}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"
-    legend:
-      label: "OpenStreetMap / Humanitarian"
+    tile:
+      url: "http://{a-c}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"
   - id: "osm"
+    type: xyz
     title: "OpenStreetMap"
     description: "OpenStreetMap Basemap, Standard Style"
     source:
       name: "OpenStreetMap"
       attribution: "&copy; <a href=\"http://www.openstreetmap.org/copyright\">OpenStreetMap</a>"
-      tile:
-        url: "http://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-    legend:
-      label: "OpenStreetMap"
+    tile:
+      url: "http://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 {% endblock %}
 
-{% block legendlayers %}
-legendlayers:
-  - osm_humanitarian
-  - osm
-{% endblock %}
+{% block legendlayers %}{% endblock %}
 
 {% block renderlayers %}
 renderlayers:

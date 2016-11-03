@@ -17,8 +17,6 @@ bootstrap:
   dest: "./build/bootstrap"
 plugins:
   - sparc2
-  - { branch: master, url: https://github.com/wfp-ose/sparc2-plugin-calendar.git }
-  # file:///home/vagrant/sparc2-plugin-calendar.git
   - { branch: master, url: https://github.com/geodashio/geodash-plugin-map-map.git }
   #- file:///home/vagrant/geodash-plugin-map-map.git
   #- map_map
@@ -27,7 +25,7 @@ plugins:
   #- main
   - { branch: master, url: https://github.com/wfp-ose/sparc2-plugin-welcome.git }
   #- file:///home/vagrant/sparc2-plugin-welcome.git
-  - https://github.com/geodashio/geodash-plugin-main.git
+  - { branch: master, url: https://github.com/geodashio/geodash-plugin-main.git }
   #- file:///home/vagrant/sparc2-plugin-welcome.git
 dependencies:
   production:

@@ -328,6 +328,58 @@ class api_state_countryhazardmonth(geodash_data_view):
 
         return data
 
+class api_state_schema(geodash_data_view):
+
+    def _build_key(self, request, *args, **kwargs):
+        return "state/schema/hazard/{hazard}".format(**kwargs)
+
+    def _build_data(self, request, *args, **kwargs):
+
+        data = None
+
+        hazard = kwargs.pop('hazard', None)
+
+        data = {
+            "iso3": "string",
+            "hazard": "string",
+            "month": "integer",
+            "view": {
+              "lat": "float",
+              "lon": "float",
+              "z": "integer",
+              "baselayer": "string",
+              "featurelayers": "stringarray"
+            },
+            "filters": {
+                "popatrisk":
+                {
+                  "popatrisk_range": "integerarray",
+                  "ldi_range": "integerarray",
+                  "erosion_propensity_range": "integerarray",
+                  "landcover_delta_negative_range": "integerarray",
+                  "fcs": "stringarray",
+                  "csi": "stringarray"
+                }
+            },
+            "styles": {
+                "popatrisk": "string",
+                "context": "string"
+            }
+        }
+
+        if hazard == "cyclone":
+            data["filters"]["popatrisk"]["prob_class_max"] = "float"
+            data["filters"]["popatrisk"]["category"] = "string"
+        elif hazard == "drought":
+            data["filters"]["popatrisk"]["prob_class_max"] = "float"
+        elif hazard == "flood":
+            data["filters"]["popatrisk"]["rp"] = "integer"
+        elif hazard == "landslide":
+            data["filters"]["popatrisk"]["prob_class_max"] = "integer"
+
+
+        return data
+
 
 class api_data_country(geodash_data_view):
 
@@ -551,42 +603,7 @@ def countryhazardmonth_detail(request, iso3=None, hazard=None, month=None):
 
     endpoints = yaml.load(file(ENDPOINTS_PATH, 'r'))
     ##############
-    state_schema = {
-        "iso3": "string",
-        "hazard": "string",
-        "month": "integer",
-        "view": {
-          "lat": "float",
-          "lon": "float",
-          "z": "integer",
-          "baselayer": "string",
-          "featurelayers": "stringarray"
-        },
-        "filters": {
-            "popatrisk":
-            {
-              "popatrisk_range": "integerarray",
-              "ldi_range": "integerarray",
-              "erosion_propensity_range": "integerarray",
-              "landcover_delta_negative_range": "integerarray",
-              "fcs": "stringarray",
-              "csi": "stringarray"
-            }
-        },
-        "styles": {
-            "popatrisk": "string",
-            "context": "string"
-        }
-    }
-    if hazard == "cyclone":
-        state_schema["filters"]["popatrisk"]["prob_class_max"] = "float"
-        state_schema["filters"]["popatrisk"]["category"] = "string"
-    elif hazard == "drought":
-        state_schema["filters"]["popatrisk"]["prob_class_max"] = "float"
-    elif hazard == "flood":
-        state_schema["filters"]["popatrisk"]["rp"] = "integer"
-    elif hazard == "landslide":
-        state_schema["filters"]["popatrisk"]["prob_class_max"] = "integer"
+
     #############
 
 
@@ -605,24 +622,28 @@ def countryhazardmonth_detail(request, iso3=None, hazard=None, month=None):
     #}
 
     dashboard_resources = [
-      {
-        "loader": "popatrisk_summary",
-        "url": "/api/data/country/{iso3}/hazard/{hazard}/dataset/summary.json".format(iso3=iso3, hazard=hazard)
-      },
-      {
-        "loader": "context_summary",
-        "url": "/api/data/country/{iso3}/dataset/context_summary.json".format(iso3=iso3)
-      },
-      {
-        "loader": "vam_geojson",
-        "url": "/api/data/country/{iso3}/dataset/vam.json".format(iso3=iso3)
-      }
+        {
+            "loader": "popatrisk_summary",
+            "url": "/api/data/country/{iso3}/hazard/{hazard}/dataset/summary.json".format(iso3=iso3, hazard=hazard)
+        },
+        {
+            "loader": "context_summary",
+            "url": "/api/data/country/{iso3}/dataset/context_summary.json".format(iso3=iso3)
+        },
+        {
+            "loader": "context_geojson",
+            "url": "/api/data/country/{iso3}/dataset/context.json".format(iso3=iso3)
+        },
+        {
+            "loader": "vam_geojson",
+            "url": "/api/data/country/{iso3}/dataset/vam.json".format(iso3=iso3)
+        }
     ];
-
+    #geojson: {% endverbatim %}{ url: "/api/data/country/{{ iso_alpha3|upper }}/dataset/context.json" }{% verbatim %}
     ctx = {
         "dashboard_url": "/api/dashboard/country/{iso3}/hazard/{hazard}.json".format(iso3=iso3, hazard=hazard),
         "state_url": "/api/state/country/{iso3}/hazard/{hazard}/month/{month}.json".format(iso3=iso3, hazard=hazard, month=month_num),
-        "state_schema": state_schema,
+        "state_schema_url": "/api/state/schema/hazard/{hazard}.json".format(hazard=hazard),
         "endpoints": endpoints,
         "geodash_main_id": "geodash-main",
         "include_sidebar_left": True,
@@ -632,7 +653,6 @@ def countryhazardmonth_detail(request, iso3=None, hazard=None, month=None):
 
     ctx.update({
       "endpoints_json": json.dumps(ctx["endpoints"]),
-      "state_schema_json": json.dumps(ctx["state_schema"]),
       "dashboard_resources_json": json.dumps(dashboard_resources)
     })
 

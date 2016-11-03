@@ -11,13 +11,7 @@ slug:
   placeholder: Slug
   required: true
   description: 'The url for the dasboard such as http://geodash.io/dashboard/<slug>.'
-description:
-  type: markdown
-  label: Description
-  placeholder: Description
-  multiline: true
-  required: true
-  description: 'The generic description for the dashboard.  This is mostly used internally.  Use about or welcome for user descriptions.'
+description: Tooltip
 about:
   title:
     type: markdown
@@ -794,6 +788,38 @@ pages:
         placeholder: url
         required: true
         description: 'The url of your page.  Can use Angular interpolation and filters.'
+id: tooltip
+type: object
+label: Tooltip
+schema:
+  verbose_singular: Tooltip
+  fields:
+    -
+      id: content
+      type: template
+      label: 'Tooltip / Content'
+      placeholder: auto
+      required: true
+      description: 'The content of the tooltip.'
+    -
+      id: placement
+      type: text
+      label: 'Tooltip / Placement'
+      placeholder: auto
+      required: true
+      description: 'The placement of the tooltip.'
+      options:
+        - top
+        - left
+        - bottom
+        - right
+placeholder: tooltip
+required: false
+options:
+  - top
+  - left
+  - bottom
+  - right
 legend:
   type: object
   label: Legend
@@ -896,7 +922,7 @@ overlays:
         label: ID
         placeholder: ID
         required: true
-        description: 'The id of your static overlay.'
+        description: 'The id of your navbar.'
       -
         id: type
         type: text
@@ -907,44 +933,7 @@ overlays:
         options:
           - text
           - image
-      -
-        id: position
-        type: object
-        label: Position
-        placeholder: position
-        required: false
-        description: 'Position of the overlay.'
-        schema:
-          verbose_singular: Position
-          fields:
-            -
-              id: top
-              type: text
-              label: 'Position / Top'
-              placeholder: auto
-              required: true
-              description: 'The top position of your static overlayer (in pixels or percentage).'
-            -
-              id: bottom
-              type: text
-              label: 'Position / Bottom'
-              placeholder: auto
-              required: true
-              description: 'The bottom position of your static overlayer (in pixels or percentage).'
-            -
-              id: left
-              type: text
-              label: 'Position / Left'
-              placeholder: auto
-              required: true
-              description: 'The left position of your static overlayer (in pixels or percentage).'
-            -
-              id: right
-              type: text
-              label: 'Position / Right'
-              placeholder: auto
-              required: true
-              description: 'The right position of your static overlayer (in pixels or percentage).'
+      - position
       -
         id: width
         type: text
@@ -960,48 +949,10 @@ overlays:
         required: true
         description: 'The height of your static overlayer (in pixels or percentage).'
       -
-        id: css
-        type: object
-        label: CSS
-        placeholder: css
-        required: false
-        description: 'Additional CSS for the overlay.'
-        schema:
-          verbose_singular: CSS
-          fields:
-            -
-              id: properties
-              type: objectarray
-              label: 'Intent Additional CSS Properties'
-              placeholder: properties
-              required: false
-              description: 'The additional css properties of the intent, such as margin, padding, border, etc.'
-              schema: {verbose_singular: Property, verbose_plural: Properties, fields: [{id: name, type: text, label: 'Property Name', placeholder: name, required: true, description: 'The name of the property.'}, {id: value, type: template, label: 'Property value', placeholder: value, required: true, description: 'The value of the property.'}]}
-      -
-        id: tooltip
-        type: object
-        label: Tooltip
-        placeholder: tooltip
-        required: false
-        description: Tooltip
-        schema:
-          verbose_singular: Tooltip
-          fields:
-            -
-              id: content
-              type: template
-              label: 'Tooltip / Content'
-              placeholder: auto
-              required: true
-              description: 'The content of the tooltip.'
-            -
-              id: placement
-              type: text
-              label: 'Tooltip / Placement'
-              placeholder: auto
-              required: true
-              description: 'The placement of the tooltip.'
-              options: [top, left, bottom, right]
+        template: css
+        overrides:
+          description: 'Additional CSS for the overlay.'
+      - tooltip
       -
         id: text
         type: object
@@ -1014,7 +965,7 @@ overlays:
           values:
             - text
         schema:
-          verbose_singular: Position
+          verbose_singular: Text
           fields:
             -
               id: content
@@ -1108,28 +1059,70 @@ overlays:
               description: 'The target of the link.'
               options: [_blank, _self, _parent, _top]
       -
-        id: intent
-        type: object
-        label: Intent
-        placeholder: intent
-        required: false
-        description: 'Intent for the overlay.'
+        template: intent
+        overrides:
+          description: 'Intent for the overlay.'
+navbars:
+  type: objectarray
+  label: Navbars
+  placeholder: Navbars
+  required: true
+  description: Navbars
+  schema:
+    verbose_singular: Navbar
+    verbose_plural: Navbars
+    fields:
+      -
+        id: id
+        type: text
+        label: ID
+        placeholder: ID
+        required: true
+        description: 'The id of your static overlay.'
+      -
+        template: placement
+        overrides:
+          description: 'Placement for the navbar.'
+      -
+        id: page
+        type: text
+        label: Page
+        placeholder: page
+        required: true
+        description: 'The page (in geodash.pages array) for permalinking each tab.'
+      -
+        template: intents
+        overrides:
+          description: 'Intent for each tab.'
+      -
+        template: css
+        overrides:
+          description: 'Additional CSS for each navbar.'
+      -
+        id: tabs
+        type: objectarray
+        label: Tabs
+        placeholder: tabs
+        description: 'The tabs to show in the navbar'
         schema:
-          verbose_singular: Intent
+          verbose_singular: Tab
+          verbose_plural: Tabs
           fields:
             -
-              id: name
+              id: value
               type: text
-              label: 'Intent Name'
-              placeholder: name
-              required: true
-              description: 'The intent to emit.'
-              search: {local: {name: reflect, args: {locations: [handlers]}}}
+              label: 'Tab Value'
+              placeholder: value
+              description: 'The value of the tab.'
             -
-              id: properties
-              type: objectarray
-              label: 'Intent Properties'
-              placeholder: properties
-              required: false
-              description: 'The properties of the intent, such as layer id, location, etc.'
-              schema: {verbose_singular: Property, verbose_plural: Properties, fields: [{id: name, type: text, label: 'Property Name', placeholder: name, required: true, description: 'The name of the property.'}, {id: value, type: template, label: 'Property value', placeholder: value, required: true, description: 'The value of the property.'}]}
+              id: title
+              type: template
+              label: 'Tab Title'
+              placeholder: value
+              description: 'The title of the tab.'
+            -
+              template: tooltip
+              overrides: {description: 'Toolip for the navbar.'}
+            -
+              template: css
+              overrides: {description: 'Additional CSS for each tab.'}

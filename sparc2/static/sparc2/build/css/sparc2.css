@@ -15,7 +15,7 @@
 /* Legend */
 /* Filter */
 /* Sidebar */
-/* Calendar */
+/* Navbars */
 html {
   height: 100%;
 }
@@ -255,7 +255,54 @@ body {
 /* Legend */
 /* Filter */
 /* Sidebar */
-/* Calendar */
+/* Navbars */
+.geodash-placement-top {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  bottom: auto;
+  right: 0px;
+}
+.geodash-placement-left {
+  position: absolute;
+  top: 0px
+  left: 0px;
+  bottom: 0px;
+  right: auto;
+}
+.geodash-placement-bottom {
+  position: absolute;
+  top: auto;
+  left: 0px;
+  bottom: 0px;
+  right: 0px;
+}
+.geodash-placement-right {
+  position: absolute;
+  top: 0px
+  left: auto;
+  bottom: 0px;
+  right: 0px;
+}
+
+/* Widely Used Variables */
+/* Original 768px */
+/* Defaults for Tooltips */
+/* 7 x 9s */
+/* Defaults for Modals */
+/* 5 x 9s */
+/* 6 x 9s */
+/* Defaults for Popups */
+/* 5 x 9s */
+/* Defaults for Controls */
+/* 4 x 9s */
+/* Welcome */
+/* Breadcrumbs */
+/* Overlays */
+/* Legend */
+/* Filter */
+/* Sidebar */
+/* Navbars */
 .geodash-map-legend {
   position: absolute;
   z-index: 9999;
@@ -298,7 +345,7 @@ body {
 /* Legend */
 /* Filter */
 /* Sidebar */
-/* Calendar */
+/* Navbars */
 .geodash-map-overlays .geodash-map-grid {
   position: absolute;
   width: 100%;
@@ -353,43 +400,52 @@ body {
 /* Legend */
 /* Filter */
 /* Sidebar */
-/* Calendar */
-.sparc-map-calendar {
+/* Navbars */
+.geodash-map-navbars {
   position: absolute;
-  background: rgba(0, 0, 0, 0);
-  bottom: 0px;
+  top: 0px;
   left: 0px;
+  bottom: 0px;
   right: 0px;
+}
+.geodash-map-navbars .geodash-map-navbar {
+  background: rgba(0, 0, 0, 0);
   z-index: 9999;
   border-radius: 3px;
   border: 0;
 }
-.sparc-map-calendar li {
-  vertical-align: bottom;
+.geodash-map-navbars .geodash-map-navbar li {
+  display: table-cell;
+  width: 1%;
 }
-.sparc-map-calendar li a {
-  border-radius: 6px 6px 0px 0px;
+.geodash-map-navbars .geodash-map-navbar li a {
   transition: width 1s ease-in-out;
   transition: height 1s ease-in-out;
 }
-.sparc-map-calendar li a:hover {
+.geodash-map-navbars .geodash-map-navbar li a:hover {
   height: 60px;
   line-height: 38px;
 }
-.sparc-map-calendar li a.btn-default {
-  color: white;
+.geodash-map-navbars .geodash-map-navbar li a.btn-default {
+  color: #fff;
   background: rgba(0, 0, 0, 0.4);
 }
-.sparc-map-calendar li a.btn-primary:hover,
-.sparc-map-calendar li a.btn-primary:focus {
-  /* No need to override, since using WFP Bootstrap
-      color: @geodash-calendar-button-hover-color;
-      background-color: @geodash-calendar-button-hover-background-color;
-      border: @geodash-calendar-button-hover-border;*/
-}
-.sparc-map-calendar li a.selected {
+.geodash-map-navbars .geodash-map-navbar li a.selected {
   height: 60px;
   line-height: 38px;
+  background: #337ab7;
+}
+.geodash-map-navbars .geodash-map-navbar.geodash-placement-top li {
+  vertical-align: top;
+}
+.geodash-map-navbars .geodash-map-navbar.geodash-placement-top li a {
+  border-radius: 0px 0px 6px 6px;
+}
+.geodash-map-navbars .geodash-map-navbar.geodash-placement-bottom li {
+  vertical-align: bottom;
+}
+.geodash-map-navbars .geodash-map-navbar.geodash-placement-bottom li a {
+  border-radius: 6px 6px 0px 0px;
 }
 
 /* Widely Used Variables */
@@ -409,7 +465,7 @@ body {
 /* Legend */
 /* Filter */
 /* Sidebar */
-/* Calendar */
+/* Navbars */
 .geodash-popup-plain {
   word-wrap: break-word;
   text-align: center;
@@ -451,7 +507,7 @@ body {
 /* Legend */
 /* Filter */
 /* Sidebar */
-/* Calendar */
+/* Navbars */
 .geodash-sidebar,
 .c3-axis-y-label {
   /*font-family: Verdana;
@@ -693,7 +749,7 @@ body {
 /* Legend */
 /* Filter */
 /* Sidebar */
-/* Calendar */
+/* Navbars */
 .geodash-map-sidebar-toggle {
   /* Layout */
   position: absolute;
@@ -761,7 +817,7 @@ body {
 /* Legend */
 /* Filter */
 /* Sidebar */
-/* Calendar */
+/* Navbars */
 .geodash-filter {
   position: relative;
   width: 100%;
@@ -814,7 +870,7 @@ body {
 /* Legend */
 /* Filter */
 /* Sidebar */
-/* Calendar */
+/* Navbars */
 .geodash-sparc-welcome {
   box-sizing: border-box;
 }

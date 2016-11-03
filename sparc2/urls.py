@@ -76,6 +76,11 @@ urlpatterns = [
         name='api_state_countryhazardmonth'),
 
     url(
+        r'^api/state/schema/hazard/(?P<hazard>[^/]+)[.](?P<extension>[^.]+)$',
+        views.api_state_schema.as_view(),
+        name='api_state_schema'),
+
+    url(
         r'^api/data/country/(?P<iso3>[^/]+)/dataset/(?P<dataset>[^/]+)[.](?P<extension>[^.]+)$',
         views.api_data_country.as_view(),
         name='api_data_country'),
