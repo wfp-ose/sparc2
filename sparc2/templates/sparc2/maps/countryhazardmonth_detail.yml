@@ -172,8 +172,7 @@ featurelayers:
       maxWidth: 550
       panes:
         - id: "popup_overview"
-          tab:
-            label: "Overview"
+          tab: { label: "Overview" }
           fields:
             - value: "{{ popatrisk('cyclone', feature, state, filters) | formatInteger : 'delimited' : ' ' }}"
               label: "Population at Risk for {{ state.month | formatMonth: 'long' }}"
@@ -190,8 +189,7 @@ featurelayers:
                     position: 'outer-middle'
               hazard: cyclone
         - id: "popup_location"
-          tab:
-            label: "Location"
+          tab: { label: "Location" }
           fields:
             - attribute: iso_alpha3
               label: ISO Alpha-3 Country Code
@@ -202,8 +200,7 @@ featurelayers:
             - value: "{{ feature.attributes.admin2_name }} ({{ feature.attributes.admin2_code }})"
               label: Admin 2
         - id: "popup_vam_fcs"
-          tab:
-            label: "FCS"
+          tab: { label: "FCS" }
           fields:
             - value: "{{ vam(feature.attributes.admin1_code,'fcs.month') | formatMonth : 'long' }} {{ vam(feature.attributes.admin1_code,'fcs.year') }}"
               label: VAM FCS Date
@@ -216,8 +213,7 @@ featurelayers:
             - value: "{{ vam(feature.attributes.admin1_code,'fcs.acceptable') | formatFloat: 2 }}"
               label: VAM FCS Acceptable
         - id: "popup_vam_csi"
-          tab:
-            label: "CSI"
+          tab: { label: "CSI" }
           fields:
             - value: "{{ vam(feature.attributes.admin1_code,'csi.month') | formatMonth : 'long' }} {{ vam(feature.attributes.admin1_code,'csi.year') }}"
               label: VAM CSI Date
@@ -231,10 +227,23 @@ featurelayers:
               label: VAM CSI Medium
             - value: "{{ vam(feature.attributes.admin1_code,'csi.high') | formatFloat: 2 }}"
               label: VAM CSI high
-        - id: "popup_links"
-          tab:
-            label: "Links"
-          fields: []
+        - id: "popup_context"
+          tab: { label: "Context" }
+          fields:
+            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code,'ldi') }}"
+              label: LDI
+            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_mean') }}"
+              label: Mean Change
+            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_positive') }}"
+              label: Positive Change
+            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_negative') }}"
+              label: Negative Change
+            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_forest') }}"
+              label: Forest Change
+            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_crop') }}"
+              label: Crop Change
+            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'erosion_propensity') }}"
+              label: Erosion Propensity
     filters:
       - layer: popatrisk
         label: "Pop at Risk"
@@ -467,10 +476,23 @@ featurelayers:
               label: VAM CSI Medium
             - value: "{{ vam(feature.attributes.admin1_code,'csi.high') | formatFloat: 2 }}"
               label: VAM CSI high
-        - id: "popup_links"
-          tab:
-            label: "Links"
-          fields: []
+        - id: "popup_context"
+          tab: { label: "Context" }
+          fields:
+            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code,'ldi') }}"
+              label: LDI
+            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_mean') }}"
+              label: Mean Change
+            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_positive') }}"
+              label: Positive Change
+            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_negative') }}"
+              label: Negative Change
+            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_forest') }}"
+              label: Forest Change
+            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_crop') }}"
+              label: Crop Change
+            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'erosion_propensity') }}"
+              label: Erosion Propensity
     filters:
       - layer: popatrisk
         label: "Pop at Risk"
@@ -680,10 +702,23 @@ featurelayers:
               label: VAM CSI Medium
             - value: "{{ vam(feature.attributes.admin1_code,'csi.high') | formatFloat: 2 }}"
               label: VAM CSI high
-        - id: "popup_links"
-          tab:
-            label: "Links"
-          fields: []
+        - id: "popup_context"
+          tab: { label: "Context" }
+          fields:
+            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code,'ldi') }}"
+              label: LDI
+            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_mean') }}"
+              label: Mean Change
+            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_positive') }}"
+              label: Positive Change
+            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_negative') }}"
+              label: Negative Change
+            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_forest') }}"
+              label: Forest Change
+            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_crop') }}"
+              label: Crop Change
+            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'erosion_propensity') }}"
+              label: Erosion Propensity
     filters:
       - layer: popatrisk
         label: "Pop at Risk"
@@ -885,10 +920,23 @@ featurelayers:
               label: VAM CSI Medium
             - value: "{{ vam(feature.attributes.admin1_code,'csi.high') | formatFloat: 2 }}"
               label: VAM CSI high
-        - id: "popup_links"
-          tab:
-            label: "Links"
-          fields: []
+        - id: "popup_context"
+          tab: { label: "Context" }
+          fields:
+            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code,'ldi') }}"
+              label: LDI
+            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_mean') }}"
+              label: Mean Change
+            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_positive') }}"
+              label: Positive Change
+            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_negative') }}"
+              label: Negative Change
+            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_forest') }}"
+              label: Forest Change
+            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_crop') }}"
+              label: Crop Change
+            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'erosion_propensity') }}"
+              label: Erosion Propensity
     filters:
       - layer: popatrisk
         label: "Pop at Risk"
@@ -1076,6 +1124,22 @@ featurelayers:
                     outside: "#aaaaaa"
                   breakpoints: "context_natural_adjusted"
                   filters: ["vam_filter_fcs", "vam_filter_csi"]
+    popup:
+      title: "{{ layer.title }}: {{ feature.attributes.admin2_name }}, {{ feature.attributes.admin1_name }}"
+      maxWidth: 550
+      panes:
+        - id: "popup_overview"
+          tab: { label: "overview" }
+          fields:
+            - { label: Mean Change, value: "{{ feature.attributes.delta_mean }}" }
+            - attribute: iso_alpha3
+              label: ISO Alpha-3 Country Code
+            - value: "{{ feature.attributes.admin0_name }} ({{ feature.attributes.admin0_code }})"
+              label: Admin 0
+            - value: "{{ feature.attributes.admin1_name }} ({{ feature.attributes.admin1_code }})"
+              label: Admin 1
+            - value: "{{ feature.attributes.admin2_name }} ({{ feature.attributes.admin2_code }})"
+              label: Admin 2
   - id: context_positive_change
     type: geojson
     title: "Positive Change"
@@ -1113,6 +1177,22 @@ featurelayers:
                     outside: "#aaaaaa"
                   breakpoints: "context_natural_positive"
                   filters: ["vam_filter_fcs", "vam_filter_csi"]
+    popup:
+      title: "{{ layer.title }}: {{ feature.attributes.admin2_name }}, {{ feature.attributes.admin1_name }}"
+      maxWidth: 550
+      panes:
+        - id: "popup_overview"
+          tab: { label: "overview" }
+          fields:
+            - { label: "Positive Change", value: "{{ feature.attributes.delta_positive }}" }
+            - attribute: iso_alpha3
+              label: ISO Alpha-3 Country Code
+            - value: "{{ feature.attributes.admin0_name }} ({{ feature.attributes.admin0_code }})"
+              label: Admin 0
+            - value: "{{ feature.attributes.admin1_name }} ({{ feature.attributes.admin1_code }})"
+              label: Admin 1
+            - value: "{{ feature.attributes.admin2_name }} ({{ feature.attributes.admin2_code }})"
+              label: Admin 2
   - id: context_negative_change
     type: geojson
     title: "Negative Change"
@@ -1150,6 +1230,22 @@ featurelayers:
                     outside: "#aaaaaa"
                   breakpoints: "context_natural_negative"
                   filters: ["vam_filter_fcs", "vam_filter_csi"]
+    popup:
+      title: "{{ layer.title }}: {{ feature.attributes.admin2_name }}, {{ feature.attributes.admin1_name }}"
+      maxWidth: 550
+      panes:
+        - id: "popup_overview"
+          tab: { label: "overview" }
+          fields:
+            - { label: "Negative Change", value: "{{ feature.attributes.delta_negative}}" }
+            - attribute: iso_alpha3
+              label: ISO Alpha-3 Country Code
+            - value: "{{ feature.attributes.admin0_name }} ({{ feature.attributes.admin0_code }})"
+              label: Admin 0
+            - value: "{{ feature.attributes.admin1_name }} ({{ feature.attributes.admin1_code }})"
+              label: Admin 1
+            - value: "{{ feature.attributes.admin2_name }} ({{ feature.attributes.admin2_code }})"
+              label: Admin 2
   - id: context_forest_change
     type: geojson
     title: "Forest Change"
@@ -1193,6 +1289,22 @@ featurelayers:
                     outside: "#aaaaaa"
                   breakpoints: "context_natural_forest"
                   filters: ["vam_filter_fcs", "vam_filter_csi"]
+    popup:
+      title: "{{ layer.title }}: {{ feature.attributes.admin2_name }}, {{ feature.attributes.admin1_name }}"
+      maxWidth: 550
+      panes:
+        - id: "popup_overview"
+          tab: { label: "overview" }
+          fields:
+            - { label: "Forest Change", value: "{{ feature.attributes.delta_forest }}" }
+            - attribute: iso_alpha3
+              label: ISO Alpha-3 Country Code
+            - value: "{{ feature.attributes.admin0_name }} ({{ feature.attributes.admin0_code }})"
+              label: Admin 0
+            - value: "{{ feature.attributes.admin1_name }} ({{ feature.attributes.admin1_code }})"
+              label: Admin 1
+            - value: "{{ feature.attributes.admin2_name }} ({{ feature.attributes.admin2_code }})"
+              label: Admin 2
   - id: context_crop_change
     type: geojson
     title: "Crop Change"
@@ -1236,6 +1348,22 @@ featurelayers:
                     outside: "#aaaaaa"
                   breakpoints: "context_natural_crop"
                   filters: ["vam_filter_fcs", "vam_filter_csi"]
+    popup:
+      title: "{{ layer.title }}: {{ feature.attributes.admin2_name }}, {{ feature.attributes.admin1_name }}"
+      maxWidth: 550
+      panes:
+        - id: "popup_overview"
+          tab: { label: "overview" }
+          fields:
+            - { label: "Crop Change", value: "{{ feature.attributes.delta_crop }}" }
+            - attribute: iso_alpha3
+              label: ISO Alpha-3 Country Code
+            - value: "{{ feature.attributes.admin0_name }} ({{ feature.attributes.admin0_code }})"
+              label: Admin 0
+            - value: "{{ feature.attributes.admin1_name }} ({{ feature.attributes.admin1_code }})"
+              label: Admin 1
+            - value: "{{ feature.attributes.admin2_name }} ({{ feature.attributes.admin2_code }})"
+              label: Admin 2
   - id: context_erosion
     type: geojson
     title: "Erosion Propensity"
@@ -1275,6 +1403,22 @@ featurelayers:
                       - 'rgb(153, 52, 4)'
                   breakpoints: "context_natural_erosion_propensity"
                   filters: ["vam_filter_fcs", "vam_filter_csi"]
+    popup:
+      title: "{{ layer.title }}: {{ feature.attributes.admin2_name }}, {{ feature.attributes.admin1_name }}"
+      maxWidth: 550
+      panes:
+        - id: "popup_overview"
+          tab: { label: "overview" }
+          fields:
+            - { label: "Erosion Propensity", value: "{{ feature.attributes.erosion_propensity }}" }
+            - attribute: iso_alpha3
+              label: ISO Alpha-3 Country Code
+            - value: "{{ feature.attributes.admin0_name }} ({{ feature.attributes.admin0_code }})"
+              label: Admin 0
+            - value: "{{ feature.attributes.admin1_name }} ({{ feature.attributes.admin1_code }})"
+              label: Admin 1
+            - value: "{{ feature.attributes.admin2_name }} ({{ feature.attributes.admin2_code }})"
+              label: Admin 2
   - id: context_ldi
     type: geojson
     title: "LDI"
@@ -1320,6 +1464,22 @@ featurelayers:
                       - 'rgb(227, 26, 28)'
                     outside: "#aaaaaa"
                   filters: ["vam_filter_fcs", "vam_filter_csi"]
+    popup:
+      title: "{{ layer.title }}: {{ feature.attributes.admin2_name }}, {{ feature.attributes.admin1_name }}"
+      maxWidth: 550
+      panes:
+        - id: "popup_overview"
+          tab: { label: "overview" }
+          fields:
+            - { label: "LDI", value: "{{ feature.attributes.ldi }}" }
+            - attribute: iso_alpha3
+              label: ISO Alpha-3 Country Code
+            - value: "{{ feature.attributes.admin0_name }} ({{ feature.attributes.admin0_code }})"
+              label: Admin 0
+            - value: "{{ feature.attributes.admin1_name }} ({{ feature.attributes.admin1_code }})"
+              label: Admin 1
+            - value: "{{ feature.attributes.admin2_name }} ({{ feature.attributes.admin2_code }})"
+              label: Admin 2
   - id: landscan
     type: WMS
     title: "Landscan (2013)"

@@ -24,8 +24,21 @@ geodash.config = {
         'vam_filter_fcs',
         'vam_filter_csi'
       ],
-      "vam": function(admin1_code, x) {
+      "vam": function(admin1_code, x)
+      {
         return extract('data.vam.admin1.'+admin1_code+'.'+x, geodash.initial_data, '');
+      },
+      "context": function(admin1_code, admin2_code, x)
+      {
+        if(angular.isDefined(admin1_code) && angular.isDefined(admin2_code) && angular.isDefined(x))
+        {
+          var keyChain = ['data', 'context', 'admin1', admin1_code, 'admin2', admin2_code, x];
+          return extract(keyChain, geodash.initial_data, "");
+        }
+        else
+        {
+          return "";
+        }
       }
     },
     'listeners': {
