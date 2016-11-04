@@ -42,8 +42,23 @@ from geodash.utils import extract
 
 class api_countries(geodash_data_view):
 
+    def _build_root(self, request, *args, **kwargs):
+        return request.GET.get('root', None) or "countries"
+
     def _build_key(self, request, *args, **kwargs):
         return "data/local/countries/{extension}".format(**kwargs)
+
+    def _build_columns(self, request, *args, **kwargs):
+        return [
+          { "label": "iso_alpha2", "path": "iso.alpha2" },
+          { "label": "iso_alpha3", "path": "iso.alpha3" },
+          { "label": "iso_num ", "path": "iso.num" },
+          { "label": "dos_short", "path": "dos.short" },
+          { "label": "dos_long", "path": "dos.long" },
+          { "label": "gaul_admin0_code", "path": "gaul.admin0_code" },
+          { "label": "gaul_admin0_name", "path": "gaul.admin0_name" },
+          { "label": "gaul_extent", "path": "gaul.extent" }
+        ]
 
     def _build_data(self, request, *args, **kwargs):
         extension = kwargs.pop('extension', None)
@@ -132,8 +147,17 @@ class api_countries(geodash_data_view):
 
 class api_hazards(geodash_data_view):
 
+    def _build_root(self, request, *args, **kwargs):
+        return request.GET.get('root', None) or "hazards"
+
     def _build_key(self, request, *args, **kwargs):
         return "data/local/hazards/{extension}".format(**kwargs)
+
+    def _build_columns(self, request, *args, **kwargs):
+        return [
+          { "label": "id", "path": "id" },
+          { "label": "title", "path": "title" }
+        ]
 
     def _build_data(self, request, *args, **kwargs):
         hazards = []
@@ -383,8 +407,42 @@ class api_state_schema(geodash_data_view):
 
 class api_data_country(geodash_data_view):
 
+    def _build_root(self, request, *args, **kwargs):
+
+        iso3 = kwargs.pop('iso3', None)
+        dataset = kwargs.pop('dataset', None)
+
+        if dataset == "context":
+            return request.GET.get('root', None) or "features"
+        else:
+            return None
+
     def _build_key(self, request, *args, **kwargs):
         return "data/local/country/{iso3}/dataset/{dataset}".format(**kwargs)
+
+    def _build_columns(self, request, *args, **kwargs):
+        iso3 = kwargs.pop('iso3', None)
+        dataset = kwargs.pop('dataset', None)
+
+        if dataset == "context":
+            return [
+                { "label": "iso_alpha3", "path": "properties.iso_alpha3" },
+                { "label": "gaul_admin0_code", "path": "properties.admin0_code" },
+                { "label": "gaul_admin0_name", "path": "properties.admin0_name" },
+                { "label": "gaul_admin1_code", "path": "properties.admin1_code" },
+                { "label": "gaul_admin1_name", "path": "properties.admin1_name" },
+                { "label": "gaul_admin2_code", "path": "properties.admin2_code" },
+                { "label": "gaul_admin2_name", "path": "properties.admin2_name" },
+                { "label": "context_ldi", "path": "properties.ldi" },
+                { "label": "context_delta_mean", "path": "properties.delta_mean" },
+                { "label": "context_delta_negative", "path": "properties.delta_negative" },
+                { "label": "context_delta_positive", "path": "properties.delta_positive" },
+                { "label": "context_delta_forest", "path": "properties.delta_forest" },
+                { "label": "context_delta_crop", "path": "properties.delta_crop" },
+                { "label": "context_erosion_propensity", "path": "properties.erosion_propensity" }
+            ]
+        else:
+            return None
 
     def _build_data(self, request, *args, **kwargs):
 
@@ -408,8 +466,29 @@ class api_data_country(geodash_data_view):
 
 class api_data_countryhazard(geodash_data_view):
 
+    def _build_root(self, request, *args, **kwargs):
+        return request.GET.get('root', None) or "features"
+
     def _build_key(self, request, *args, **kwargs):
         return "data/local/country/{iso3}/hazard/{hazard}/dataset/{dataset}".format(**kwargs)
+
+    def _build_columns(self, request, *args, **kwargs):
+        return [
+            { "label": "iso_alpha3", "path": "properties.iso_alpha3" },
+            { "label": "gaul_admin0_code", "path": "properties.admin0_code" },
+            { "label": "gaul_admin0_name", "path": "properties.admin0_name" },
+            { "label": "gaul_admin1_code", "path": "properties.admin1_code" },
+            { "label": "gaul_admin1_name", "path": "properties.admin1_name" },
+            { "label": "gaul_admin2_code", "path": "properties.admin2_code" },
+            { "label": "gaul_admin2_name", "path": "properties.admin2_name" },
+            { "label": "context_ldi", "path": "properties.ldi" },
+            { "label": "context_delta_mean", "path": "properties.delta_mean" },
+            { "label": "context_delta_negative", "path": "properties.delta_negative" },
+            { "label": "context_delta_positive", "path": "properties.delta_positive" },
+            { "label": "context_delta_forest", "path": "properties.delta_forest" },
+            { "label": "context_delta_crop", "path": "properties.delta_crop" },
+            { "label": "context_erosion_propensity", "path": "properties.erosion_propensity" }
+        ]
 
     def _build_data(self, request, *args, **kwargs):
 
