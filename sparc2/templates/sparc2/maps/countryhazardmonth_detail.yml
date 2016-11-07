@@ -1075,16 +1075,94 @@ featurelayers:
           step: 1
           output: erosion_propensity_range
   {% endverbatim %}{% endif %}{% verbatim %}
-  - id: vam
+  - id: vam_fcs
     type: geojson
-    title: "VAM"
-    description: "VAM"
+    title: "Food Consumption Score"
+    description: "VAM, Food Consumption Score"
     source: { name: "WFP/VAM", attribution: "WFP/VAM" }
     geojson: { local: "layers.vam.data.geojson" }
+    carto:
+      styles:
+        - id: default
+          title: "Default"
+          description: "VAM, Food Consumption Score"
+          legend: { type: graduated }
+          symbolizers:
+            - id: default
+              title: Default Symbolizer
+              description: "VAM, Food Consumption Score"
+              type: polygon
+              static:
+                properties:
+                  weight: 1
+                  fillColor: "#000000"
+                  fillOpacity: 0.4
+                  strokeWidth: 1
+                  strokeColor: "#000000"
+    popup:
+      title: "VAM FCS: {{ feature.attributes.admin1_name }}"
+      maxWidth: 550
+      panes:
+        - id: "popup_vam_fcs"
+          tab: { label: "FCS" }
+          fields:
+            - value: "{{ vam(feature.attributes.admin1_code,'fcs.month') | formatMonth : 'long' }} {{ vam(feature.attributes.admin1_code,'fcs.year') }}"
+              label: VAM FCS Date
+            - value: "{{ vam(feature.attributes.admin1_code,'fcs.source') }}"
+              label: VAM FCS Source
+            - value: "{{ vam(feature.attributes.admin1_code,'fcs.poor') | formatFloat: 2 }}"
+              label: VAM FCS Poor
+            - value: "{{ vam(feature.attributes.admin1_code,'fcs.borderline') | formatFloat: 2 }}"
+              label: VAM FCS Borderline
+            - value: "{{ vam(feature.attributes.admin1_code,'fcs.acceptable') | formatFloat: 2 }}"
+              label: VAM FCS Acceptable
+  - id: vam_csi
+    type: geojson
+    title: "Coping Strategies Index"
+    description: "VAM, Coping Strategies Index"
+    source: { name: "WFP/VAM", attribution: "WFP/VAM" }
+    geojson: { local: "layers.vam.data.geojson" }
+    carto:
+      styles:
+        - id: default
+          title: "Default"
+          description: "VAM, Coping Strategies Index"
+          legend: { type: graduated }
+          symbolizers:
+            - id: default
+              title: Default Symbolizer
+              description: "VAM, Coping Strategies Index"
+              type: polygon
+              static:
+                properties:
+                  weight: 1
+                  fillColor: "#000000"
+                  fillOpacity: 0.4
+                  strokeWidth: 1
+                  strokeColor: "#000000"
+    popup:
+      title: "VAM CSI: {{ feature.attributes.admin1_name }}"
+      maxWidth: 550
+      panes:
+        - id: "popup_vam_csi"
+          tab: { label: "CSI" }
+          fields:
+            - value: "{{ vam(feature.attributes.admin1_code,'csi.month') | formatMonth : 'long' }} {{ vam(feature.attributes.admin1_code,'csi.year') }}"
+              label: VAM CSI Date
+            - value: "{{ vam(feature.attributes.admin1_code,'csi.source') }}"
+              label: VAM CSI Source
+            - value: "{{ vam(feature.attributes.admin1_code,'csi.no') | formatFloat: 2 }}"
+              label: VAM CSI No
+            - value: "{{ vam(feature.attributes.admin1_code,'csi.low') | formatFloat: 2 }}"
+              label: VAM CSI Low
+            - value: "{{ vam(feature.attributes.admin1_code,'csi.medium') | formatFloat: 2 }}"
+              label: VAM CSI Medium
+            - value: "{{ vam(feature.attributes.admin1_code,'csi.high') | formatFloat: 2 }}"
+              label: VAM CSI high
   - id: context_mean_change
     type: geojson
-    title: "Mean Change"
-    description: "Context Factors, Mean Change"
+    title: "Overall Land Cover Change"
+    description: "Context Factors, Overall Land Cover Change"
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
     geojson: { local: "layers.context.data.geojson", projection: "EPSG:4326" }
     carto:
@@ -1142,8 +1220,8 @@ featurelayers:
               label: Admin 2
   - id: context_positive_change
     type: geojson
-    title: "Positive Change"
-    description: "Context Factors, Positive Change"
+    title: "Vegetation Gain"
+    description: "Context Factors, Vegetation Gain"
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
     geojson: { local: "layers.context.data.geojson", projection: "EPSG:4326" }
     carto:
@@ -1195,8 +1273,8 @@ featurelayers:
               label: Admin 2
   - id: context_negative_change
     type: geojson
-    title: "Negative Change"
-    description: "Context Factors, Negative Change"
+    title: "Vegetation Loss"
+    description: "Context Factors, Vegetation Loss"
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
     geojson: { local: "layers.context.data.geojson", projection: "EPSG:4326" }
     carto:
@@ -1421,8 +1499,8 @@ featurelayers:
               label: Admin 2
   - id: context_ldi
     type: geojson
-    title: "LDI"
-    description: "Context Factors, LDI"
+    title: "Land Degradation Index"
+    description: "Context Factors, Land Degradation Index"
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
     geojson: { local: "layers.context.data.geojson", projection: "EPSG:4326" }
     carto:
@@ -1996,7 +2074,8 @@ sidebar:
       - context_erosion
       - context_ldi
       - landscan
-      - vam
+      - vam_fcs
+      - vam_csi
       - cyclone_probability
       - cyclone_events
       {% endverbatim %}{% elif hazard == "drought" %}{% verbatim %}
@@ -2009,7 +2088,8 @@ sidebar:
       - context_erosion
       - context_ldi
       - landscan
-      - vam
+      - vam_fcs
+      - vam_csi
       - wlddsi_fot01d3
       {% endverbatim %}{% elif hazard == "flood" %}{% verbatim %}
       - popatrisk
@@ -2021,7 +2101,8 @@ sidebar:
       - context_erosion
       - context_ldi
       - landscan
-      - vam
+      - vam_fcs
+      - vam_csi
       - flood_events
       - landslide_events
       - flood_probability
@@ -2035,7 +2116,8 @@ sidebar:
       - context_erosion
       - context_ldi
       - landscan
-      - vam
+      - vam_fcs
+      - vam_csi
       - flood_events
       - landslide_events
       - flood_probability
@@ -2054,7 +2136,7 @@ sidebar:
         class: geodash-sidebar-layers-natural-hazards
         layers: [flood_probability, cyclone_probability, popatrisk, cyclone_events, flood_events, landslide_events]
       - id: context_factors
-        label: Context Factors
+        label: Land Degradation
         class: geodash-sidebar-layers-context-factors
         layers:
           - context_mean_change
@@ -2064,10 +2146,16 @@ sidebar:
           - context_crop_change
           - context_erosion
           - context_ldi
+      - id: vulnerability_factors
+        label: Vulnerability Factors
+        class: geodash-sidebar-layers-vulnerability-factors
+        layers:
+          - vam_fcs
+          - vam_csi
       - id: population_distribution
         label: Population Distribution
         class: geodash-sidebar-layers-population-distribution
-        layers: [landscan, vam]
+        layers: [landscan]
       - id: wfp_operations
         label: WFP Operations
         class: geodash-sidebar-layers-wfpoperations
