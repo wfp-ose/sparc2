@@ -130,6 +130,17 @@ featurelayers:
     description: "Population at Risk"
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
     geojson: { url: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/{% endverbatim %}{{ hazard }}{% verbatim %}/dataset/popatrisk.json" }
+    download:
+      links:
+        - type: json
+          title: GeoJSON
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/{% endverbatim %}{{ hazard }}{% verbatim %}/dataset/popatrisk.json"
+        - type: yaml
+          title: YAML
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/{% endverbatim %}{{ hazard }}{% verbatim %}/dataset/popatrisk.yml"
+        - type: csv
+          title: CSV
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/{% endverbatim %}{{ hazard }}{% verbatim %}/dataset/popatrisk.csv"
     carto:
       styles:
         - id: default
@@ -246,29 +257,29 @@ featurelayers:
               label: Erosion Propensity
     filters:
       - layer: popatrisk
-        label: "Pop at Risk"
+        output: popatrisk_range
+        title: "Pop at Risk"
         description:  "The population at risk at the admin-2 level."
-        line_height: 36px
-        height: 50px
-        type: slider
-        slider:
-          id: sparc-popatrisk-slider
-          type: continuous
-          width: 100px
-          range: true  # See https://jqueryui.com/slider/#range
-          label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
-          values: [0, {% endverbatim %}{{ maxValue }}{% verbatim %}]
-          min: 0
-          max: summary  # Overridden by max value from summary data
-          step: 1
-          output: popatrisk_range
+        ui:
+          height: 50px
+          type: slider
+          slider:
+            id: sparc-popatrisk-slider
+            type: continuous
+            width: 100px
+            range: true  # See https://jqueryui.com/slider/#range
+            label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
+            values: [0, {% endverbatim %}{{ maxValue }}{% verbatim %}]
+            min: 0
+            max: summary  # Overridden by max value from summary data
+            step: 1
       - layer: popatrisk
-        label: Category
+        title: Category
+        output: category
         description: "The Saffir-Simpson Hurricane Wind Scale is a 1 to 5 rating based on a hurricane's sustained wind speed. This scale estimates potential property damage. Hurricanes reaching Category 3 and higher are considered major hurricanes because of their potential for significant loss of life and damage. Category 1 and 2 storms are still dangerous, however, and require preventative measures. In the western North Pacific, the term \"super typhoon\" is used for tropical cyclones with sustained winds exceeding 150 mph."
         height: 34px
         type: radio
         radio:
-          output: category
           options:
             - id: "sparc-cat1_5"
               name: "cat"
@@ -287,29 +298,29 @@ featurelayers:
               label: "4-5"
               description: "Only category 4 and 5 for cyclones, typhoons, and hurricanes."
       - layer: popatrisk
-        label: "Probability"
+        output: prob_class_max
+        title: "Probability"
         description:  "The probability by admin2-month that a cyclone will hit."
-        line_height: 36px
-        height: 50px
-        type: slider
-        slider:
-          id: sparc-probabilities-slider
-          type: continuous
-          width: 120px
-          range: max
-          label: "{{ value }} - 1.0"
-          value: 0.1
-          min: 0
-          max: 1.0
-          step: 0.1
-          output: prob_class_max
+        ui:
+          height: 50px
+          type: slider
+          slider:
+            id: sparc-probabilities-slider
+            type: continuous
+            width: 120px
+            range: max
+            label: "{{ value }} - 1.0"
+            value: 0.1
+            min: 0
+            max: 1.0
+            step: 0.1
       - layer: popatrisk
-        label: FCS
+        output: fcs
+        title: FCS
         description: "Filter by VAM Food Consumption Score (FCS).\n\nReference: [http://documents.wfp.org/stellent/groups/public/documents/manual_guide_proced/wfp197216.pdf](http://documents.wfp.org/stellent/groups/public/documents/manual_guide_proced/wfp197216.pdf)"
         height: 34px
         type: checkbox
         checkbox:
-          output: fcs
           options:
             - id: "sparc-poor"
               value: "poor"
@@ -327,12 +338,12 @@ featurelayers:
               description: "Food Consumption Score (FCS) greater than 35.  This means households that score above 35 are estimated having acceptable food consumption.  The value 35 comes from an expected daily consumption of staple and vegetables complemented by a frequent (4 day/week) consumption of oil and pulses (staple*weight + vegetables*weight + oil*weight + pulses*weight = 7*2+7*1+4*0.5+4*3=35)."
               checked: true
       - layer: popatrisk
-        label: CSI
+        output: csi
+        title: CSI
         description: "Filter by VAM Coping Strategy Index (CSI).\n\nReference: [The Coping Strategies Index](http://documents.wfp.org/stellent/groups/public/documents/manual_guide_proced/wfp211058.pdf)"
         height: 34px
         type: checkbox
         checkbox:
-          output: csi
           options:
             - id: "sparc-no"
               value: "no"
@@ -355,56 +366,60 @@ featurelayers:
               description: "High on the Coping Strategy Index"
               checked: true
       - layer: popatrisk
-        label: LDI
+        output: ldi_range
+        title: LDI
         description:  "Filter by the Land Degradation Index (LDI).  LDI combines negative land cover change and erosion propensity variables.\nHigh LDI levels indicate high land deterioration on a qualitative scale (undimensionless)."
-        line_height: 36px
-        height: 50px
-        type: slider
-        slider:
-          id: sparc-ldi-slider
-          type: continuous
-          width: 100px
-          range: true  # See https://jqueryui.com/slider/#range
-          label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
-          values: [1, 9]
-          min: 1
-          max: 9
-          step: 1
-          output: ldi_range
+        ui:
+          height: 50px
+          type: slider
+          slider:
+            id: sparc-ldi-slider
+            type: continuous
+            width: 100px
+            range: true  # See https://jqueryui.com/slider/#range
+            label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
+            values: [1, 9]
+            min: 1
+            max: 9
+            step: 1
       - layer: popatrisk
-        label: "Negative Landcover Change"
+        output: landcover_delta_negative_range
+        modifier: 1.0
+        title: "Negative Landcover Change"
         description: "Negative Landcover Change"
-        line_height: 36px
-        height: 50px
-        type: slider
-        slider:
-          id: sparc-landcover-delta-negative-slider
-          type: continuous
-          width: 100px
-          range: true  # See https://jqueryui.com/slider/#range
-          label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
-          values: [0, 100]
-          min: 0
-          max: 100
-          step: 1
-          output: landcover_delta_negative_range
+        api: { type: grep, path: "properties.delta_negative", operand: between }
+        ui:
+          height: 50px
+          type: slider
+          slider:
+            id: sparc-landcover-delta-negative-slider
+            type: continuous
+            width: 100px
+            range: true  # See https://jqueryui.com/slider/#range
+            label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
+            values: [0, 100]
+            min: 0
+            max: 100
+            step: 1
       - layer: popatrisk
-        label: Erosion Propensity
+        output: erosion_propensity_range
+        modifier: 1.0
+        title: Erosion Propensity
         description:  "Filter by the erosion propensity, which indicates percentage of surface area under erosion process (> 5 Tons/ha per year).\nThe erosion propensity is calculated using the RUSLE equation (Rain incidence, Slope length, Lithology, Land cover)."
-        line_height: 36px
-        height: 50px
-        type: slider
-        slider:
-          id: sparc-erosion-propensity-slider
-          type: continuous
-          width: 100px
-          range: true  # See https://jqueryui.com/slider/#range
-          label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
-          values: [0, 100]
-          min: 0
-          max: 100
-          step: 1
-          output: erosion_propensity_range
+        api: { type: grep, path: "properties.erosion_propensity", operand: between }
+        ui:
+          height: 50px
+          type: slider
+          slider:
+            id: sparc-erosion-propensity-slider
+            type: continuous
+            width: 100px
+            range: true  # See https://jqueryui.com/slider/#range
+            label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
+            values: [0, 100]
+            min: 0
+            max: 100
+            step: 1
   {% endverbatim %}{% elif hazard == "drought" %}{% verbatim %}
     description: "The population at risk of drought for each month aggregated at the administrative level 2 district."
     popup:
@@ -495,141 +510,148 @@ featurelayers:
               label: Erosion Propensity
     filters:
       - layer: popatrisk
-        label: "Pop at Risk"
+        output: popatrisk_range
+        title: "Pop at Risk"
         description:  "The population at risk at the admin-2 level."
-        line_height: 36px
-        height: 50px
-        type: slider
-        slider:
-          id: sparc-popatrisk-slider
-          type: continuous
-          width: 100px
-          range: true  # See https://jqueryui.com/slider/#range
-          label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
-          values: [0, {% endverbatim %}{{ maxValue }}{% verbatim %}]
-          min: 0
-          max: summary  # Overridden by max value from summary data
-          step: 1
-          output: popatrisk_range
+        ui:
+          height: 50px
+          type: slider
+          slider:
+            id: sparc-popatrisk-slider
+            type: continuous
+            width: 100px
+            range: true  # See https://jqueryui.com/slider/#range
+            label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
+            values: [0, {% endverbatim %}{{ maxValue }}{% verbatim %}]
+            min: 0
+            max: summary  # Overridden by max value from summary data
+            step: 1
       - layer: popatrisk
-        label: "Probability"
+        output: prob_class_max
+        title: "Probability"
         description:  "The probability by admin2-month that a drought will occur."
-        line_height: 36px
-        height: 50px
-        type: slider
-        slider:
-          id: sparc-probabilities-slider
-          type: continuous
-          width: 120px
-          range: max
-          label: "&gt; {{ value }}"
-          value: 0.1
-          min: 0
-          max: 1.0
-          step: 0.1
-          output: prob_class_max
+        ui:
+          height: 50px
+          type: slider
+          slider:
+            id: sparc-probabilities-slider
+            type: continuous
+            width: 120px
+            range: max
+            label: "&gt; {{ value }}"
+            value: 0.1
+            min: 0
+            max: 1.0
+            step: 0.1
       - layer: popatrisk
-        label: FCS
+        output: fcs
+        title: FCS
         description: "Filter by VAM Food Consumption Score (FCS).\n\nReference: [http://documents.wfp.org/stellent/groups/public/documents/manual_guide_proced/wfp197216.pdf](http://documents.wfp.org/stellent/groups/public/documents/manual_guide_proced/wfp197216.pdf)"
-        height: 34px
-        type: checkbox
-        checkbox:
-          output: fcs
-          options:
-            - id: "sparc-poor"
-              value: "poor"
-              label: "Poor"
-              description: "Food Consumption Score (FCS) from 0 to 21.  This means a household is expected NOT to eat at least staple and vegetables on a daily base and therefore considered to have poor food consumption.  The value 21 comes from an expected daily consumption of staple (frequency * weight, 7 * 2 = 14) and vegetables (7 * 1 = 7)."
-              checked: true
-            - id: "sparc-borderline"
-              value: "borderline"
-              label: "Borderline"
-              description: "Food Consumption Score (FCS) from 21.5 to 35.  This means households are assessed having borderline food consumption.  The value 35 comes from an expected daily consumption of staple and vegetables complemented by a frequent (4 day/week) consumption of oil and pulses (staple*weight + vegetables*weight + oil*weight + pulses*weight = 7*2+7*1+4*0.5+4*3=35)."
-              checked: true
-            - id: "sparc-acceptable"
-              value: "acceptable"
-              label: "Acceptable"
-              description: "Food Consumption Score (FCS) greater than 35.  This means households that score above 35 are estimated having acceptable food consumption.  The value 35 comes from an expected daily consumption of staple and vegetables complemented by a frequent (4 day/week) consumption of oil and pulses (staple*weight + vegetables*weight + oil*weight + pulses*weight = 7*2+7*1+4*0.5+4*3=35)."
-              checked: true
+        ui:
+          height: 34px
+          type: checkbox
+          checkbox:
+            options:
+              - id: "sparc-poor"
+                value: "poor"
+                label: "Poor"
+                description: "Food Consumption Score (FCS) from 0 to 21.  This means a household is expected NOT to eat at least staple and vegetables on a daily base and therefore considered to have poor food consumption.  The value 21 comes from an expected daily consumption of staple (frequency * weight, 7 * 2 = 14) and vegetables (7 * 1 = 7)."
+                checked: true
+              - id: "sparc-borderline"
+                value: "borderline"
+                label: "Borderline"
+                description: "Food Consumption Score (FCS) from 21.5 to 35.  This means households are assessed having borderline food consumption.  The value 35 comes from an expected daily consumption of staple and vegetables complemented by a frequent (4 day/week) consumption of oil and pulses (staple*weight + vegetables*weight + oil*weight + pulses*weight = 7*2+7*1+4*0.5+4*3=35)."
+                checked: true
+              - id: "sparc-acceptable"
+                value: "acceptable"
+                label: "Acceptable"
+                description: "Food Consumption Score (FCS) greater than 35.  This means households that score above 35 are estimated having acceptable food consumption.  The value 35 comes from an expected daily consumption of staple and vegetables complemented by a frequent (4 day/week) consumption of oil and pulses (staple*weight + vegetables*weight + oil*weight + pulses*weight = 7*2+7*1+4*0.5+4*3=35)."
+                checked: true
       - layer: popatrisk
-        label: CSI
+        output: csi
+        title: CSI
         description: "Filter by VAM Coping Strategy Index (CSI).\n\nReference: [The Coping Strategies Index](http://documents.wfp.org/stellent/groups/public/documents/manual_guide_proced/wfp211058.pdf)"
-        height: 34px
-        type: checkbox
-        checkbox:
-          output: csi
-          options:
-            - id: "sparc-no"
-              value: "no"
-              label: "No"
-              description: "No on the Coping Strategy Index"
-              checked: true
-            - id: "sparc-low"
-              value: "low"
-              label: "Low"
-              description: "Low on the Coping Strategy Index"
-              checked: true
-            - id: "sparc-medium"
-              value: "medium"
-              label: "Medium"
-              description: "Medium on the Coping Strategy Index"
-              checked: true
-            - id: "sparc-high"
-              value: "high"
-              label: "High"
-              description: "High on the Coping Strategy Index"
-              checked: true
+        ui:
+          height: 34px
+          type: checkbox
+          checkbox:
+            options:
+              - id: "sparc-no"
+                value: "no"
+                label: "No"
+                description: "No on the Coping Strategy Index"
+                checked: true
+              - id: "sparc-low"
+                value: "low"
+                label: "Low"
+                description: "Low on the Coping Strategy Index"
+                checked: true
+              - id: "sparc-medium"
+                value: "medium"
+                label: "Medium"
+                description: "Medium on the Coping Strategy Index"
+                checked: true
+              - id: "sparc-high"
+                value: "high"
+                label: "High"
+                description: "High on the Coping Strategy Index"
+                checked: true
       - layer: popatrisk
-        label: LDI
+        output: ldi_range
+        title: LDI
         description:  "Filter by the Land Degradation Index (LDI).  LDI combines negative land cover change and erosion propensity variables.\nHigh LDI levels indicate high land deterioration on a qualitative scale (undimensionless)."
-        line_height: 36px
-        height: 50px
-        type: slider
-        slider:
-          id: sparc-ldi-slider
-          type: continuous
-          width: 100px
-          range: true  # See https://jqueryui.com/slider/#range
-          label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
-          values: [1, 9]
-          min: 1
-          max: 9
-          step: 1
-          output: ldi_range
+        api: { type: grep, path: "properties.ldi", operand: between }
+        ui:
+          height: 50px
+          type: slider
+          slider:
+            id: sparc-ldi-slider
+            type: continuous
+            width: 100px
+            range: true  # See https://jqueryui.com/slider/#range
+            label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
+            values: [1, 9]
+            min: 1
+            max: 9
+            step: 1
       - layer: popatrisk
-        label: "Negative Landcover Change"
+        output: landcover_delta_negative_range
+        modifier: 1.0
+        title: "Negative Landcover Change"
         description: "Negative Landcover Change"
-        line_height: 36px
-        height: 50px
-        type: slider
-        slider:
-          id: sparc-landcover-delta-negative-slider
-          type: continuous
-          width: 100px
-          range: true  # See https://jqueryui.com/slider/#range
-          label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
-          values: [0, 100]
-          min: 0
-          max: 100
-          step: 1
-          output: landcover_delta_negative_range
+        api: { type: grep, path: "properties.delta_negative", operand: between }
+        ui:
+          height: 50px
+          type: slider
+          slider:
+            id: sparc-landcover-delta-negative-slider
+            type: continuous
+            width: 100px
+            range: true  # See https://jqueryui.com/slider/#range
+            label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
+            values: [0, 100]
+            min: 0
+            max: 100
+            step: 1
       - layer: popatrisk
-        label: Erosion Propensity
+        output: erosion_propensity_range
+        modifier: 1.0
+        title: Erosion Propensity
         description:  "Filter by the erosion propensity, which indicates percentage of surface area under erosion process (> 5 Tons/ha per year).\nThe erosion propensity is calculated using the RUSLE equation (Rain incidence, Slope length, Lithology, Land cover)."
-        line_height: 36px
-        height: 50px
-        type: slider
-        slider:
-          id: sparc-erosion-propensity-slider
-          type: continuous
-          width: 100px
-          range: true  # See https://jqueryui.com/slider/#range
-          label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
-          values: [0, 100]
-          min: 0
-          max: 100
-          step: 1
-          output: erosion_propensity_range
+        api: { type: grep, path: "properties.erosion_propensity", operand: between }
+        ui:
+          height: 50px
+          type: slider
+          slider:
+            id: sparc-erosion-propensity-slider
+            type: continuous
+            width: 100px
+            range: true  # See https://jqueryui.com/slider/#range
+            label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
+            values: [0, 100]
+            min: 0
+            max: 100
+            step: 1
   {% endverbatim %}{% elif hazard == "flood" %}{% verbatim %}
     description: "The population at risk of flood for each month aggregated at the administrative level 2 district."
     popup:
@@ -721,139 +743,145 @@ featurelayers:
               label: Erosion Propensity
     filters:
       - layer: popatrisk
-        label: "Pop at Risk"
+        output: popatrisk_range
+        title: "Pop at Risk"
         description:  "The population at risk at the admin-2 level."
-        line_height: 36px
-        height: 50px
-        type: slider
-        slider:
-          id: sparc-popatrisk-slider
-          type: continuous
-          width: 100px
-          range: true  # See https://jqueryui.com/slider/#range
-          label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
-          values: [0, {% endverbatim %}{{ maxValue }}{% verbatim %}]
-          min: 0
-          max: {% endverbatim %}{{ maxValue }}{% verbatim %}  # Overridden by max value from summary data
-          step: 1
-          output: popatrisk_range
+        ui:
+          height: 50px
+          type: slider
+          slider:
+            id: sparc-popatrisk-slider
+            type: continuous
+            width: 100px
+            range: true  # See https://jqueryui.com/slider/#range
+            label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
+            values: [0, {% endverbatim %}{{ maxValue }}{% verbatim %}]
+            min: 0
+            max: {% endverbatim %}{{ maxValue }}{% verbatim %}  # Overridden by max value from summary data
+            step: 1
       - layer: popatrisk
-        label: "Return Period"
+        output: rp
+        title: "Return Period"
         description:  "Probability is based on the concept of \"return period\".  A return period is an estimate of the likelihood of an event, such as a flood, to occur. The theoretical return period is the inverse of the probability that the event will be exceeded in any one year (or more accurately the inverse of the expected number of occurrences in a year). In this case, a 100 year flood has a 0.01 or 1% chance of being exceeded in any one year."
-        line_height: 36px
-        height: 50px
-        type: slider
-        slider:
-          id: sparc-probabilities-slider
-          type: ordinal
-          width: 100px
-          range: min
-          value: 50
-          label: "&lt;= {{ value }} RP"
-          options: [25, 50, 100, 200, 500, 1000]
-          output: rp
+        ui:
+          height: 50px
+          type: slider
+          slider:
+            id: sparc-probabilities-slider
+            type: ordinal
+            width: 100px
+            range: min
+            value: 50
+            label: "&lt;= {{ value }} RP"
+            options: [25, 50, 100, 200, 500, 1000]
       - layer: popatrisk
-        label: FCS
+        output: fcs
+        title: FCS
         description: "Filter by VAM Food Consumption Score (FCS).\n\n\nReference: [Food Consumption Analysis](http://documents.wfp.org/stellent/groups/public/documents/manual_guide_proced/wfp197216.pdf)"
-        height: 34px
-        type: checkbox
-        checkbox:
-          output: fcs
-          options:
-            - id: "sparc-poor"
-              value: "poor"
-              label: "Poor"
-              description: "Food Consumption Score (FCS) from 0 to 21.  This means a household is expected NOT to eat at least staple and vegetables on a daily base and therefore considered to have poor food consumption.  The value 21 comes from an expected daily consumption of staple (frequency * weight, 7 * 2 = 14) and vegetables (7 * 1 = 7)."
-              checked: true
-            - id: "sparc-borderline"
-              value: "borderline"
-              label: "Borderline"
-              description: "Food Consumption Score (FCS) from 21.5 to 35.  This means households are assessed having borderline food consumption.  The value 35 comes from an expected daily consumption of staple and vegetables complemented by a frequent (4 day/week) consumption of oil and pulses (staple*weight + vegetables*weight + oil*weight + pulses*weight = 7*2+7*1+4*0.5+4*3=35)."
-              checked: true
-            - id: "sparc-acceptable"
-              value: "acceptable"
-              label: "Acceptable"
-              description: "Food Consumption Score (FCS) greater than 35.  This means households that score above 35 are estimated having acceptable food consumption.  The value 35 comes from an expected daily consumption of staple and vegetables complemented by a frequent (4 day/week) consumption of oil and pulses (staple*weight + vegetables*weight + oil*weight + pulses*weight = 7*2+7*1+4*0.5+4*3=35)."
-              checked: true
+        ui:
+          height: 34px
+          type: checkbox
+          checkbox:
+            options:
+              - id: "sparc-poor"
+                value: "poor"
+                label: "Poor"
+                description: "Food Consumption Score (FCS) from 0 to 21.  This means a household is expected NOT to eat at least staple and vegetables on a daily base and therefore considered to have poor food consumption.  The value 21 comes from an expected daily consumption of staple (frequency * weight, 7 * 2 = 14) and vegetables (7 * 1 = 7)."
+                checked: true
+              - id: "sparc-borderline"
+                value: "borderline"
+                label: "Borderline"
+                description: "Food Consumption Score (FCS) from 21.5 to 35.  This means households are assessed having borderline food consumption.  The value 35 comes from an expected daily consumption of staple and vegetables complemented by a frequent (4 day/week) consumption of oil and pulses (staple*weight + vegetables*weight + oil*weight + pulses*weight = 7*2+7*1+4*0.5+4*3=35)."
+                checked: true
+              - id: "sparc-acceptable"
+                value: "acceptable"
+                label: "Acceptable"
+                description: "Food Consumption Score (FCS) greater than 35.  This means households that score above 35 are estimated having acceptable food consumption.  The value 35 comes from an expected daily consumption of staple and vegetables complemented by a frequent (4 day/week) consumption of oil and pulses (staple*weight + vegetables*weight + oil*weight + pulses*weight = 7*2+7*1+4*0.5+4*3=35)."
+                checked: true
       - layer: popatrisk
-        label: CSI
+        output: csi
+        title: CSI
         description: "Filter by VAM Coping Strategy Index (CSI).\n\nReference: [The Coping Strategies Index](http://documents.wfp.org/stellent/groups/public/documents/manual_guide_proced/wfp211058.pdf)"
-        height: 34px
-        type: checkbox
-        checkbox:
-          output: csi
-          options:
-            - id: "sparc-no"
-              value: "no"
-              label: "No"
-              description: "No on the Coping Strategy Index"
-              checked: true
-            - id: "sparc-low"
-              value: "low"
-              label: "Low"
-              description: "Low on the Coping Strategy Index"
-              checked: true
-            - id: "sparc-medium"
-              value: "medium"
-              label: "Medium"
-              description: "Medium on the Coping Strategy Index"
-              checked: true
-            - id: "sparc-high"
-              value: "high"
-              label: "High"
-              description: "High on the Coping Strategy Index"
-              checked: true
+        ui:
+          height: 34px
+          type: checkbox
+          checkbox:
+            options:
+              - id: "sparc-no"
+                value: "no"
+                label: "No"
+                description: "No on the Coping Strategy Index"
+                checked: true
+              - id: "sparc-low"
+                value: "low"
+                label: "Low"
+                description: "Low on the Coping Strategy Index"
+                checked: true
+              - id: "sparc-medium"
+                value: "medium"
+                label: "Medium"
+                description: "Medium on the Coping Strategy Index"
+                checked: true
+              - id: "sparc-high"
+                value: "high"
+                label: "High"
+                description: "High on the Coping Strategy Index"
+                checked: true
       - layer: popatrisk
-        label: LDI
+        output: ldi_range
+        title: LDI
         description:  "Filter by the Land Degradation Index (LDI).  LDI combines negative land cover change and erosion propensity variables.\n\nHigh LDI levels indicate high land deterioration on a qualitative scale (undimensionless)."
-        line_height: 36px
-        height: 50px
-        type: slider
-        slider:
-          id: sparc-ldi-slider
-          type: continuous
-          width: 100px
-          range: true  # See https://jqueryui.com/slider/#range
-          label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
-          values: [1, 9]
-          min: 1
-          max: 9
-          step: 1
-          output: ldi_range
+        ui:
+          height: 50px
+          type: slider
+          slider:
+            id: sparc-ldi-slider
+            type: continuous
+            width: 100px
+            range: true  # See https://jqueryui.com/slider/#range
+            label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
+            values: [1, 9]
+            min: 1
+            max: 9
+            step: 1
       - layer: popatrisk
-        label: "Negative Landcover Change"
+        output: landcover_delta_negative_range
+        modifier: 1.0
+        title: "Negative Landcover Change"
         description: "Negative Landcover Change"
-        line_height: 36px
-        height: 50px
-        type: slider
-        slider:
-          id: sparc-landcover-delta-negative-slider
-          type: continuous
-          width: 100px
-          range: true  # See https://jqueryui.com/slider/#range
-          label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
-          values: [0, 100]
-          min: 0
-          max: 100
-          step: 1
-          output: landcover_delta_negative_range
+        api: { type: grep, path: "properties.delta_negative", operand: between }
+        ui:
+          height: 50px
+          type: slider
+          slider:
+            id: sparc-landcover-delta-negative-slider
+            type: continuous
+            width: 100px
+            range: true  # See https://jqueryui.com/slider/#range
+            label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
+            values: [0, 100]
+            min: 0
+            max: 100
+            step: 1
       - layer: popatrisk
-        label: Erosion Propensity
+        output: erosion_propensity_range
+        modifier: 1.0
+        title: Erosion Propensity
         description:  "Filter by the erosion propensity, which indicates percentage of surface area under erosion process (> 5 Tons/ha per year).\n\nThe erosion propensity is calculated using the RUSLE equation (Rain incidence, Slope length, Lithology, Land cover)."
-        line_height: 36px
-        height: 50px
-        type: slider
-        slider:
-          id: sparc-erosion-propensity-slider
-          type: continuous
-          width: 100px
-          range: true  # See https://jqueryui.com/slider/#range
-          label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
-          values: [0, 100]
-          min: 0
-          max: 100
-          step: 1
-          output: erosion_propensity_range
+        api: { type: grep, path: "properties.erosion_propensity", operand: between }
+        ui:
+          height: 50px
+          type: slider
+          slider:
+            id: sparc-erosion-propensity-slider
+            type: continuous
+            width: 100px
+            range: true  # See https://jqueryui.com/slider/#range
+            label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
+            values: [0, 100]
+            min: 0
+            max: 100
+            step: 1
   {% endverbatim %}{% elif hazard == "landslide" %}{% verbatim %}
     description: "The population at risk of landslide for each month aggregated at the administrative level 2 district."
     popup:
@@ -939,46 +967,46 @@ featurelayers:
               label: Erosion Propensity
     filters:
       - layer: popatrisk
-        label: "Pop at Risk"
+        output: popatrisk_range
+        title: "Pop at Risk"
         description:  "The population at risk at the admin-2 level."
-        line_height: 36px
-        height: 50px
-        type: slider
-        slider:
-          id: sparc-popatrisk-slider
-          type: continuous
-          width: 100px
-          range: true  # See https://jqueryui.com/slider/#range
-          label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
-          values: [0, {% endverbatim %}{{ maxValue }}{% verbatim %}]
-          min: 0
-          max: {% endverbatim %}{{ maxValue }}{% verbatim %}  # Overridden by max value from summary data
-          step: 1
-          output: popatrisk_range
+        ui:
+          height: 50px
+          type: slider
+          slider:
+            id: sparc-popatrisk-slider
+            type: continuous
+            width: 100px
+            range: true  # See https://jqueryui.com/slider/#range
+            label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
+            values: [0, {% endverbatim %}{{ maxValue }}{% verbatim %}]
+            min: 0
+            max: {% endverbatim %}{{ maxValue }}{% verbatim %}  # Overridden by max value from summary data
+            step: 1
       - layer: popatrisk
-        label: "Hazard Class"
+        output: prob_class_max
+        title: "Hazard Class"
         description:  "Hazard Class ...."
-        line_height: 36px
-        height: 50px
-        type: slider
-        slider:
-          id: sparc-probabilities-slider
-          type: continuous
-          width: 100px
-          range: max
-          label: "{{ value | add: -1 | choose : ['Low', 'Medium', 'High', 'Very High']  }} - Very High"
-          value: 1
-          min: 1
-          max: 4
-          step: 1
-          output: prob_class_max
+        ui:
+          height: 50px
+          type: slider
+          slider:
+            id: sparc-probabilities-slider
+            type: continuous
+            width: 100px
+            range: max
+            label: "{{ value | add: -1 | choose : ['Low', 'Medium', 'High', 'Very High']  }} - Very High"
+            value: 1
+            min: 1
+            max: 4
+            step: 1
       - layer: popatrisk
-        label: FCS
+        output: fcs
+        title: FCS
         description: "Filter by VAM Food Consumption Score (FCS).\n\n\nReference: [Food Consumption Analysis](http://documents.wfp.org/stellent/groups/public/documents/manual_guide_proced/wfp197216.pdf)"
         height: 34px
         type: checkbox
         checkbox:
-          output: fcs
           options:
             - id: "sparc-poor"
               value: "poor"
@@ -996,12 +1024,12 @@ featurelayers:
               description: "Food Consumption Score (FCS) greater than 35.  This means households that score above 35 are estimated having acceptable food consumption.  The value 35 comes from an expected daily consumption of staple and vegetables complemented by a frequent (4 day/week) consumption of oil and pulses (staple*weight + vegetables*weight + oil*weight + pulses*weight = 7*2+7*1+4*0.5+4*3=35)."
               checked: true
       - layer: popatrisk
-        label: CSI
+        output: csi
+        title: CSI
         description: "Filter by VAM Coping Strategy Index (CSI).\n\nReference: [The Coping Strategies Index](http://documents.wfp.org/stellent/groups/public/documents/manual_guide_proced/wfp211058.pdf)"
         height: 34px
         type: checkbox
         checkbox:
-          output: csi
           options:
             - id: "sparc-no"
               value: "no"
@@ -1024,56 +1052,60 @@ featurelayers:
               description: "High on the Coping Strategy Index"
               checked: true
       - layer: popatrisk
-        label: LDI
+        output: ldi_range
+        title: LDI
         description:  "Filter by the Land Degradation Index (LDI).  LDI combines negative land cover change and erosion propensity variables.\n\nHigh LDI levels indicate high land deterioration on a qualitative scale (undimensionless)."
-        line_height: 36px
-        height: 50px
-        type: slider
-        slider:
-          id: sparc-ldi-slider
-          type: continuous
-          width: 100px
-          range: true  # See https://jqueryui.com/slider/#range
-          label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
-          values: [1, 9]
-          min: 1
-          max: 9
-          step: 1
-          output: ldi_range
+        ui:
+          height: 50px
+          type: slider
+          slider:
+            id: sparc-ldi-slider
+            type: continuous
+            width: 100px
+            range: true  # See https://jqueryui.com/slider/#range
+            label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
+            values: [1, 9]
+            min: 1
+            max: 9
+            step: 1
       - layer: popatrisk
-        label: "Negative Landcover Change"
+        output: landcover_delta_negative_range
+        modifier: 1.0
+        title: "Negative Landcover Change"
         description: "Negative Landcover Change"
-        line_height: 36px
-        height: 50px
-        type: slider
-        slider:
-          id: sparc-landcover-delta-negative-slider
-          type: continuous
-          width: 100px
-          range: true  # See https://jqueryui.com/slider/#range
-          label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
-          values: [0, 100]
-          min: 0
-          max: 100
-          step: 1
-          output: landcover_delta_negative_range
+        api: { type: grep, path: "properties.delta_negative", operand: between }
+        ui:
+          height: 50px
+          type: slider
+          slider:
+            id: sparc-landcover-delta-negative-slider
+            type: continuous
+            width: 100px
+            range: true  # See https://jqueryui.com/slider/#range
+            label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
+            values: [0, 100]
+            min: 0
+            max: 100
+            step: 1
       - layer: popatrisk
-        label: Erosion Propensity
+        output: erosion_propensity_range
+        modifier: 1.0
+        title: Erosion Propensity
         description:  "Filter by the erosion propensity, which indicates percentage of surface area under erosion process (> 5 Tons/ha per year).\n\nThe erosion propensity is calculated using the RUSLE equation (Rain incidence, Slope length, Lithology, Land cover)."
-        line_height: 36px
-        height: 50px
-        type: slider
-        slider:
-          id: sparc-erosion-propensity-slider
-          type: continuous
-          width: 100px
-          range: true  # See https://jqueryui.com/slider/#range
-          label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
-          values: [0, 100]
-          min: 0
-          max: 100
-          step: 1
-          output: erosion_propensity_range
+        api: { type: grep, path: "properties.erosion_propensity", operand: between }
+        ui:
+          height: 50px
+          type: slider
+          slider:
+            id: sparc-erosion-propensity-slider
+            type: continuous
+            width: 100px
+            range: true  # See https://jqueryui.com/slider/#range
+            label: "{{ values[0] | formatInteger:'delimited':' ' }} - {{ values[1] | formatInteger:'delimited':' ' }}"
+            values: [0, 100]
+            min: 0
+            max: 100
+            step: 1
   {% endverbatim %}{% endif %}{% verbatim %}
   - id: vam_fcs
     type: geojson
@@ -1165,6 +1197,17 @@ featurelayers:
     description: "Context Factors, Overall Land Cover Change"
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
     geojson: { local: "layers.context.data.geojson", projection: "EPSG:4326" }
+    download:
+      links:
+        - type: json
+          title: GeoJSON
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.json"
+        - type: yaml
+          title: YAML
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.yml"
+        - type: csv
+          title: CSV
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.csv"
     carto:
       styles:
         - id: delta_mean
@@ -1199,7 +1242,7 @@ featurelayers:
                       - 'rgb(227, 252, 216)'
                       - 'rgb(122, 199, 123)'
                       - 'rgb(0, 68, 27)'
-                    outside: "#aaaaaa"
+                    outside: "#333333"
                   breakpoints: "context_natural_adjusted"
                   filters: ["vam_filter_fcs", "vam_filter_csi"]
     popup:
@@ -1224,6 +1267,17 @@ featurelayers:
     description: "Context Factors, Vegetation Gain"
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
     geojson: { local: "layers.context.data.geojson", projection: "EPSG:4326" }
+    download:
+      links:
+        - type: json
+          title: GeoJSON
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.json"
+        - type: yaml
+          title: YAML
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.yml"
+        - type: csv
+          title: CSV
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.csv"
     carto:
       styles:
         - id: delta_positive
@@ -1252,7 +1306,7 @@ featurelayers:
                   mask: "mask"
                   colors:
                     ramp: ['rgb(227, 252, 216)','rgb(122, 199, 123)','rgb(0, 68, 27)']
-                    outside: "#aaaaaa"
+                    outside: "#333333"
                   breakpoints: "context_natural_positive"
                   filters: ["vam_filter_fcs", "vam_filter_csi"]
     popup:
@@ -1277,6 +1331,17 @@ featurelayers:
     description: "Context Factors, Vegetation Loss"
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
     geojson: { local: "layers.context.data.geojson", projection: "EPSG:4326" }
+    download:
+      links:
+        - type: json
+          title: GeoJSON
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.json"
+        - type: yaml
+          title: YAML
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.yml"
+        - type: csv
+          title: CSV
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.csv"
     carto:
       styles:
         - id: delta_positive
@@ -1305,7 +1370,7 @@ featurelayers:
                   mask: "mask"
                   colors:
                     ramp: ['rgb(222, 197, 192)', 'rgb(251, 112, 80)', 'rgb(181, 0, 22)']
-                    outside: "#aaaaaa"
+                    outside: "#333333"
                   breakpoints: "context_natural_negative"
                   filters: ["vam_filter_fcs", "vam_filter_csi"]
     popup:
@@ -1330,6 +1395,17 @@ featurelayers:
     description: "Context Factors, Forest Change"
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
     geojson: { local: "layers.context.data.geojson", projection: "EPSG:4326" }
+    download:
+      links:
+        - type: json
+          title: GeoJSON
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.json"
+        - type: yaml
+          title: YAML
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.yml"
+        - type: csv
+          title: CSV
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.csv"
     carto:
       styles:
         - id: delta_forest
@@ -1342,7 +1418,7 @@ featurelayers:
               description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.  Positive percentage indicates increase in Forest surfaces.  Negative percentage indicates decrease in Forest surfaces."
               type: polygon
               metadata:
-                range: [{ label: "| Low Forest Change" }, { label: "High Forest Change |" }]
+                range: [{ label: "| Negative Forest Change" }, { label: "Positive Forest Change |" }]
               static:
                 properties:
                   weight: 1
@@ -1364,7 +1440,7 @@ featurelayers:
                       - 'rgb(227, 252, 216)'
                       - 'rgb(122, 199, 123)'
                       - 'rgb(0, 68, 27)'
-                    outside: "#aaaaaa"
+                    outside: "#333333"
                   breakpoints: "context_natural_forest"
                   filters: ["vam_filter_fcs", "vam_filter_csi"]
     popup:
@@ -1385,14 +1461,25 @@ featurelayers:
               label: Admin 2
   - id: context_crop_change
     type: geojson
-    title: "Crop Change"
-    description: "Context Factors, Crop Change"
+    title: "Cropland Change"
+    description: "Context Factors, Cropland Change"
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
     geojson: { local: "layers.context.data.geojson", projection: "EPSG:4326" }
+    download:
+      links:
+        - type: json
+          title: GeoJSON
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.json"
+        - type: yaml
+          title: YAML
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.yml"
+        - type: csv
+          title: CSV
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.csv"
     carto:
       styles:
         - id: delta_forest
-          title: "Crop Change"
+          title: "Cropland Change"
           description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.  Positive percentage indicates increase in Cropland surfaces.  Negative percentage indicates decrease in Cropland surfaces."
           legend: { type: graduated }
           symbolizers:
@@ -1401,7 +1488,7 @@ featurelayers:
               description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.  Positive percentage indicates increase in Cropland surfaces.  Negative percentage indicates decrease in Cropland surfaces."
               type: polygon
               metadata:
-                range: [{ label: "| Low Crop Change" }, { label: "High Crop Change |" }]
+                range: [{ label: "| Negative Cropland Change" }, { label: "Positive Cropland Change |" }]
               static:
                 properties:
                   weight: 1
@@ -1423,7 +1510,7 @@ featurelayers:
                       - 'rgb(227, 252, 216)'
                       - 'rgb(122, 199, 123)'
                       - 'rgb(0, 68, 27)'
-                    outside: "#aaaaaa"
+                    outside: "#333333"
                   breakpoints: "context_natural_crop"
                   filters: ["vam_filter_fcs", "vam_filter_csi"]
     popup:
@@ -1448,6 +1535,17 @@ featurelayers:
     description: "Context Factors, Erosion Propensity"
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
     geojson: { local: "layers.context.data.geojson", projection: "EPSG:4326" }
+    download:
+      links:
+        - type: json
+          title: GeoJSON
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.json"
+        - type: yaml
+          title: YAML
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.yml"
+        - type: csv
+          title: CSV
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.csv"
     carto:
       styles:
         - id: erosion_propensity
@@ -1503,6 +1601,17 @@ featurelayers:
     description: "Context Factors, Land Degradation Index"
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
     geojson: { local: "layers.context.data.geojson", projection: "EPSG:4326" }
+    download:
+      links:
+        - type: json
+          title: GeoJSON
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.json"
+        - type: yaml
+          title: YAML
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.yml"
+        - type: csv
+          title: CSV
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.csv"
     carto:
       styles:
         - id: ldi
@@ -1540,7 +1649,7 @@ featurelayers:
                       - 'rgb(240, 126, 47)'
                       - 'rgb(240, 87, 36)'
                       - 'rgb(227, 26, 28)'
-                    outside: "#aaaaaa"
+                    outside: "#333333"
                   filters: ["vam_filter_fcs", "vam_filter_csi"]
     popup:
       title: "{{ layer.title }}: {{ feature.attributes.admin2_name }}, {{ feature.attributes.admin1_name }}"
@@ -1562,9 +1671,7 @@ featurelayers:
     type: WMS
     title: "Landscan (2013)"
     description: "Landscan (2013)"
-    source:
-      name: "ORNL"
-      attribution: "ORNL"
+    source: { name: "ORNL", attribution: "ORNL" }
     wms:
       version: "1.1.1"
       layers: ["geonode:sparc_landscan_2013"]
@@ -1572,14 +1679,6 @@ featurelayers:
       format: 'image/png'
       transparent: true
       url: "http://staging.geonode.wfp.org/cors/geoserver/wms"
-    cartography:
-      - id: default
-        legend:
-          symbol:
-            type: "graphic"
-            width: 16
-            height: 16
-            preview: false
   - id: forecast
     type: WMS
     title: "Forecast"
@@ -1686,14 +1785,17 @@ featurelayers:
       url: "http://geonode.wfp.org/cors/geoserver/wms/kml"
     gwc:
       tiles: "http://geonode.wfp.org/geoserver/gwc/service/tms/1.0.0/{typename}@EPSG:900913@png/{z}/{x}/{y}.png"
-    cartography:
-      - id: default
-        legend:
-          symbol:
-            type: "graphic"
-            width: 16
-            height: 16
-            preview: false
+    download:
+      links:
+        - type: json
+          title: GeoJSON
+          baseurl: "{{ layer.wfs.url }}?srsName=EPSG%3A4326&typename=geonode%3Awld_poi_facilities_wfp&outputFormat=json&version=1.0.0&service=WFS&request=GetFeature"
+        - type: csv
+          title: CSV
+          baseurl: "{{ layer.wfs.url }}?typename=geonode%3Awld_poi_facilities_wfp&outputFormat=csv&version=1.0.0&request=GetFeature&service=WFS"
+        - type: shapefile
+          title: Shapefile (Zipped)
+          baseurl: "{{ layer.wfs.url }}?format_options=charset%3AUTF-8&typename=geonode%3Awld_poi_facilities_wfp&outputFormat=SHAPE-ZIP&version=1.0.0&service=WFS&request=GetFeature"
     click: popup
     popup:
       title: "Global WFP Facilities: {{ feature.attributes.name }}"

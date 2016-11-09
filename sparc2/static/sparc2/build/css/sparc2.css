@@ -707,7 +707,6 @@ body {
 }
 .geodash-sidebar .geodash-sidebar-item .geodash-sidebar-item-label {
   display: inline-block;
-  width: calc(100% - 101px);
   height: 100%;
   vertical-align: top;
 }

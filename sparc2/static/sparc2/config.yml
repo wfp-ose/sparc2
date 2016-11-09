@@ -20,8 +20,8 @@ plugins:
   - { branch: master, url: https://github.com/geodashio/geodash-plugin-map-map.git }
   #- file:///home/vagrant/geodash-plugin-map-map.git
   #- map_map
-  - { branch: master, url: https://github.com/wfp-ose/sparc2-plugin-sidebar.git }
-  #- file:///home/vagrant/sparc2-plugin-sidebar.git
+  #- { branch: master, url: https://github.com/wfp-ose/sparc2-plugin-sidebar.git }
+  - file:///home/vagrant/sparc2-plugin-sidebar.git
   #- main
   - { branch: master, url: https://github.com/wfp-ose/sparc2-plugin-welcome.git }
   #- file:///home/vagrant/sparc2-plugin-welcome.git

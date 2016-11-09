@@ -48,11 +48,11 @@ class api_countries(geodash_data_view):
     def _build_key(self, request, *args, **kwargs):
         return "data/local/countries/{extension}".format(**kwargs)
 
-    def _build_columns(self, request, *args, **kwargs):
+    def _build_attributes(self, request, *args, **kwargs):
         return [
           { "label": "iso_alpha2", "path": "iso.alpha2" },
           { "label": "iso_alpha3", "path": "iso.alpha3" },
-          { "label": "iso_num ", "path": "iso.num" },
+          { "label": "iso_num ", "path": "iso.num", "type": "integer" },
           { "label": "dos_short", "path": "dos.short" },
           { "label": "dos_long", "path": "dos.long" },
           { "label": "gaul_admin0_code", "path": "gaul.admin0_code" },
@@ -153,7 +153,7 @@ class api_hazards(geodash_data_view):
     def _build_key(self, request, *args, **kwargs):
         return "data/local/hazards/{extension}".format(**kwargs)
 
-    def _build_columns(self, request, *args, **kwargs):
+    def _build_attributes(self, request, *args, **kwargs):
         return [
           { "label": "id", "path": "id" },
           { "label": "title", "path": "title" }
@@ -308,7 +308,7 @@ class api_state_countryhazardmonth(geodash_data_view):
             "baselayer": "osm",
             "featurelayers": ["popatrisk"]
         }
-        response = requests.get(settings.SITEURL+"api/countries.json?root=countries&iso.alpha3="+iso3)
+        response = requests.get(settings.SITEURL+"api/countries.json?grep=iso.alpha3%3D"+iso3)
         extent = extract(["countries", 0, "gaul", "extent"], response.json(), None)
         if extent is None:
             view["lat"] = dashboard["view"].get("latitude", 0)
@@ -420,12 +420,14 @@ class api_data_country(geodash_data_view):
     def _build_key(self, request, *args, **kwargs):
         return "data/local/country/{iso3}/dataset/{dataset}".format(**kwargs)
 
-    def _build_columns(self, request, *args, **kwargs):
+    def _build_attributes(self, request, *args, **kwargs):
         iso3 = kwargs.pop('iso3', None)
         dataset = kwargs.pop('dataset', None)
+        attributes_filter_include_string = request.GET.get('attributes') or request.GET.get('include') or request.GET.get('columns')
+        attributes_filter_exclude_string = request.GET.get('exclude') or request.GET.get('attributes_exclude') or request.GET.get('columns_exclude')
 
         if dataset == "context":
-            return [
+            attributes = [
                 { "label": "iso_alpha3", "path": "properties.iso_alpha3" },
                 { "label": "gaul_admin0_code", "path": "properties.admin0_code" },
                 { "label": "gaul_admin0_name", "path": "properties.admin0_name" },
@@ -433,14 +435,22 @@ class api_data_country(geodash_data_view):
                 { "label": "gaul_admin1_name", "path": "properties.admin1_name" },
                 { "label": "gaul_admin2_code", "path": "properties.admin2_code" },
                 { "label": "gaul_admin2_name", "path": "properties.admin2_name" },
-                { "label": "context_ldi", "path": "properties.ldi" },
-                { "label": "context_delta_mean", "path": "properties.delta_mean" },
-                { "label": "context_delta_negative", "path": "properties.delta_negative" },
-                { "label": "context_delta_positive", "path": "properties.delta_positive" },
-                { "label": "context_delta_forest", "path": "properties.delta_forest" },
-                { "label": "context_delta_crop", "path": "properties.delta_crop" },
-                { "label": "context_erosion_propensity", "path": "properties.erosion_propensity" }
+                { "label": "context_ldi", "path": "properties.ldi", "type": "integer" },
+                { "label": "context_delta_mean", "path": "properties.delta_mean", "type": "float" },
+                { "label": "context_delta_negative", "path": "properties.delta_negative", "type": "float" },
+                { "label": "context_delta_positive", "path": "properties.delta_positive", "type": "float" },
+                { "label": "context_delta_forest", "path": "properties.delta_forest", "type": "float" },
+                { "label": "context_delta_crop", "path": "properties.delta_crop", "type": "float" },
+                { "label": "context_erosion_propensity", "path": "properties.erosion_propensity", "type": "float" }
             ]
+            if attributes:
+                if isinstance(attributes_filter_include_string, basestring) and len(attributes_filter_include_string) > 0:
+                    attributes_filter_include_list = attributes_filter_include_string.split(",")
+                    attributes = [x for x in attributes if x['path'] in attributes_filter_include_list]
+                if isinstance(attributes_filter_exclude_string, basestring) and len(attributes_filter_exclude_string) > 0:
+                    attributes_filter_exclude_list = attributes_filter_exclude_string.split(",")
+                    attributes = [x for x in attributes if x['path'] not in attributes_filter_exclude_list]
+            return attributes
         else:
             return None
 
@@ -472,7 +482,7 @@ class api_data_countryhazard(geodash_data_view):
     def _build_key(self, request, *args, **kwargs):
         return "data/local/country/{iso3}/hazard/{hazard}/dataset/{dataset}".format(**kwargs)
 
-    def _build_columns(self, request, *args, **kwargs):
+    def _build_attributes(self, request, *args, **kwargs):
         return [
             { "label": "iso_alpha3", "path": "properties.iso_alpha3" },
             { "label": "gaul_admin0_code", "path": "properties.admin0_code" },
@@ -481,13 +491,13 @@ class api_data_countryhazard(geodash_data_view):
             { "label": "gaul_admin1_name", "path": "properties.admin1_name" },
             { "label": "gaul_admin2_code", "path": "properties.admin2_code" },
             { "label": "gaul_admin2_name", "path": "properties.admin2_name" },
-            { "label": "context_ldi", "path": "properties.ldi" },
-            { "label": "context_delta_mean", "path": "properties.delta_mean" },
-            { "label": "context_delta_negative", "path": "properties.delta_negative" },
-            { "label": "context_delta_positive", "path": "properties.delta_positive" },
-            { "label": "context_delta_forest", "path": "properties.delta_forest" },
-            { "label": "context_delta_crop", "path": "properties.delta_crop" },
-            { "label": "context_erosion_propensity", "path": "properties.erosion_propensity" }
+            { "label": "context_ldi", "path": "properties.ldi", "type": "integer" },
+            { "label": "context_delta_mean", "path": "properties.delta_mean", "type": "float" },
+            { "label": "context_delta_negative", "path": "properties.delta_negative", "type": "float" },
+            { "label": "context_delta_positive", "path": "properties.delta_positive", "type": "float" },
+            { "label": "context_delta_forest", "path": "properties.delta_forest", "type": "float" },
+            { "label": "context_delta_crop", "path": "properties.delta_crop", "type": "float" },
+            { "label": "context_erosion_propensity", "path": "properties.erosion_propensity", "type": "float" }
         ]
 
     def _build_data(self, request, *args, **kwargs):
