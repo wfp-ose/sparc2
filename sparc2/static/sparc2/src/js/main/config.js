@@ -12,6 +12,7 @@ geodash.config = {
   {
     'littleEndian': false
   },
+  'classifier': sparc2.classifier.default,
   'popup':
   {
     'height': '309px',

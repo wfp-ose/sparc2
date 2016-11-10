@@ -153,9 +153,7 @@ featurelayers:
               description: "For a given hazard, month, and admin 2 district, the population at risk."
               type: polygon
               metadata:
-                range:
-                  - { label: "| Low Population at Risk" }
-                  - { label: "High Population at Risk |" }
+                range: [{ label: "| Low Population at Risk" }, { label: "High Population at Risk |" }]
               static:
                 properties:
                   fillColor: "#000000"
@@ -244,15 +242,15 @@ featurelayers:
             - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code,'ldi') }}"
               label: LDI
             - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_mean') }}"
-              label: Mean Change
+              label: Mean Change (2001 - 2012)
             - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_positive') }}"
-              label: Positive Change
+              label: Positive Change (2001 - 2012)
             - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_negative') }}"
-              label: Negative Change
+              label: Negative Change (2001 - 2012)
             - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_forest') }}"
-              label: Forest Change
+              label: Forest Change (2001 - 2012)
             - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_crop') }}"
-              label: Crop Change
+              label: Crop Change (2001 - 2012)
             - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'erosion_propensity') }}"
               label: Erosion Propensity
     filters:
@@ -497,15 +495,15 @@ featurelayers:
             - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code,'ldi') }}"
               label: LDI
             - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_mean') }}"
-              label: Mean Change
+              label: Mean Change (2001 - 2012)
             - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_positive') }}"
-              label: Positive Change
+              label: Positive Change (2001 - 2012)
             - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_negative') }}"
-              label: Negative Change
+              label: Negative Change (2001 - 2012)
             - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_forest') }}"
-              label: Forest Change
+              label: Forest Change (2001 - 2012)
             - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_crop') }}"
-              label: Crop Change
+              label: Crop Change (2001 - 2012)
             - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'erosion_propensity') }}"
               label: Erosion Propensity
     filters:
@@ -730,15 +728,15 @@ featurelayers:
             - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code,'ldi') }}"
               label: LDI
             - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_mean') }}"
-              label: Mean Change
+              label: Mean Change (2001 - 2012)
             - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_positive') }}"
-              label: Positive Change
+              label: Positive Change (2001 - 2012)
             - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_negative') }}"
-              label: Negative Change
+              label: Negative Change (2001 - 2012)
             - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_forest') }}"
-              label: Forest Change
+              label: Forest Change (2001 - 2012)
             - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_crop') }}"
-              label: Crop Change
+              label: Crop Change (2001 - 2012)
             - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'erosion_propensity') }}"
               label: Erosion Propensity
     filters:
@@ -954,15 +952,15 @@ featurelayers:
             - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code,'ldi') }}"
               label: LDI
             - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_mean') }}"
-              label: Mean Change
+              label: Mean Change (2001 - 2012)
             - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_positive') }}"
-              label: Positive Change
+              label: Positive Change (2001 - 2012)
             - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_negative') }}"
-              label: Negative Change
+              label: Negative Change (2001 - 2012)
             - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_forest') }}"
-              label: Forest Change
+              label: Forest Change (2001 - 2012)
             - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_crop') }}"
-              label: Crop Change
+              label: Crop Change (2001 - 2012)
             - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'erosion_propensity') }}"
               label: Erosion Propensity
     filters:
@@ -1193,8 +1191,8 @@ featurelayers:
               label: VAM CSI high
   - id: context_mean_change
     type: geojson
-    title: "Overall Land Cover Change"
-    description: "Context Factors, Overall Land Cover Change"
+    title: "Overall Land Cover Change (2001 - 2012)"
+    description: "Context Factors, Overall Land Cover Change (2001 - 2012)"
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
     geojson: { local: "layers.context.data.geojson", projection: "EPSG:4326" }
     download:
@@ -1234,14 +1232,14 @@ featurelayers:
                   layer: context_mean_change
                   attribute: "delta_mean"
                   mask: "mask"
+                  classes:
+                    - { label: "High", color: 'rgb(181, 0, 22)' }
+                    - { label: "Medium", color: 'rgb(251, 112, 80)' }
+                    - { label: "Low", color: 'rgb(222, 197, 192)' }
+                    - { label: "Low", color: 'rgb(227, 252, 216)' }
+                    - { label: "Medium", color: 'rgb(122, 199, 123)' }
+                    - { label: "High", color: 'rgb(0, 68, 27)' }
                   colors:
-                    ramp:
-                      - 'rgb(181, 0, 22)'
-                      - 'rgb(251, 112, 80)'
-                      - 'rgb(222, 197, 192)'
-                      - 'rgb(227, 252, 216)'
-                      - 'rgb(122, 199, 123)'
-                      - 'rgb(0, 68, 27)'
                     outside: "#333333"
                   breakpoints: "context_natural_adjusted"
                   filters: ["vam_filter_fcs", "vam_filter_csi"]
@@ -1263,8 +1261,8 @@ featurelayers:
               label: Admin 2
   - id: context_positive_change
     type: geojson
-    title: "Vegetation Gain"
-    description: "Context Factors, Vegetation Gain"
+    title: "Vegetation Gain (2001 - 2012)"
+    description: "Context Factors, Vegetation Gain (2001 - 2012)"
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
     geojson: { local: "layers.context.data.geojson", projection: "EPSG:4326" }
     download:
@@ -1304,9 +1302,11 @@ featurelayers:
                   layer: context_positive_change
                   attribute: "delta_positive"
                   mask: "mask"
-                  colors:
-                    ramp: ['rgb(227, 252, 216)','rgb(122, 199, 123)','rgb(0, 68, 27)']
-                    outside: "#333333"
+                  classes:
+                    - { label: "Low", color: 'rgb(227, 252, 216)' }
+                    - { label: "Medium", color: 'rgb(122, 199, 123)' }
+                    - { label: "High", color: 'rgb(0, 68, 27)' }
+                  colors: { outside: "#333333" }
                   breakpoints: "context_natural_positive"
                   filters: ["vam_filter_fcs", "vam_filter_csi"]
     popup:
@@ -1327,8 +1327,8 @@ featurelayers:
               label: Admin 2
   - id: context_negative_change
     type: geojson
-    title: "Vegetation Loss"
-    description: "Context Factors, Vegetation Loss"
+    title: "Vegetation Loss (2001 - 2012)"
+    description: "Context Factors, Vegetation Loss (2001 - 2012)"
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
     geojson: { local: "layers.context.data.geojson", projection: "EPSG:4326" }
     download:
@@ -1368,9 +1368,11 @@ featurelayers:
                   layer: context_negative_change
                   attribute: "delta_negative"
                   mask: "mask"
-                  colors:
-                    ramp: ['rgb(222, 197, 192)', 'rgb(251, 112, 80)', 'rgb(181, 0, 22)']
-                    outside: "#333333"
+                  classes:
+                    - { label: "Low", color: 'rgb(222, 197, 192)' }
+                    - { label: "Medium", color: 'rgb(251, 112, 80)' }
+                    - { label: "High", color: 'rgb(181, 0, 22)' }
+                  colors: { outside: "#333333" }
                   breakpoints: "context_natural_negative"
                   filters: ["vam_filter_fcs", "vam_filter_csi"]
     popup:
@@ -1391,8 +1393,8 @@ featurelayers:
               label: Admin 2
   - id: context_forest_change
     type: geojson
-    title: "Forest Change"
-    description: "Context Factors, Forest Change"
+    title: "Forest Change (2001 - 2012)"
+    description: "Context Factors, Forest Change (2001 - 2012)"
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
     geojson: { local: "layers.context.data.geojson", projection: "EPSG:4326" }
     download:
@@ -1432,15 +1434,14 @@ featurelayers:
                   layer: context_forest_change
                   attribute: "delta_forest"
                   mask: "mask"
-                  colors:
-                    ramp:
-                      - 'rgb(181, 0, 38)'
-                      - 'rgb(253, 141, 60)'
-                      - 'rgb(255, 255, 178)'
-                      - 'rgb(227, 252, 216)'
-                      - 'rgb(122, 199, 123)'
-                      - 'rgb(0, 68, 27)'
-                    outside: "#333333"
+                  classes:
+                    - { label: "High", color: 'rgb(181, 0, 38)' }
+                    - { label: "Medium", color: 'rgb(253, 141, 60)' }
+                    - { label: "Low", color: 'rgb(255, 255, 178)' }
+                    - { label: "Low", color: 'rgb(227, 252, 216)' }
+                    - { label: "Medium", color: 'rgb(122, 199, 123)' }
+                    - { label: "High", color: 'rgb(0, 68, 27)' }
+                  colors: { outside: "#333333" }
                   breakpoints: "context_natural_forest"
                   filters: ["vam_filter_fcs", "vam_filter_csi"]
     popup:
@@ -1450,7 +1451,7 @@ featurelayers:
         - id: "popup_overview"
           tab: { label: "overview" }
           fields:
-            - { label: "Forest Change", value: "{{ feature.attributes.delta_forest }}" }
+            - { label: "Forest Change (2001 - 2012)", value: "{{ feature.attributes.delta_forest }}" }
             - attribute: iso_alpha3
               label: ISO Alpha-3 Country Code
             - value: "{{ feature.attributes.admin0_name }} ({{ feature.attributes.admin0_code }})"
@@ -1461,8 +1462,8 @@ featurelayers:
               label: Admin 2
   - id: context_crop_change
     type: geojson
-    title: "Cropland Change"
-    description: "Context Factors, Cropland Change"
+    title: "Cropland Change (2001 - 2012)"
+    description: "Context Factors, Cropland Change (2001 - 2012)"
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
     geojson: { local: "layers.context.data.geojson", projection: "EPSG:4326" }
     download:
@@ -1502,15 +1503,14 @@ featurelayers:
                   layer: context_crop_change
                   attribute: "delta_crop"
                   mask: "mask"
-                  colors:
-                    ramp:
-                      - 'rgb(181, 0, 38)'
-                      - 'rgb(253, 141, 60)'
-                      - 'rgb(255, 255, 178)'
-                      - 'rgb(227, 252, 216)'
-                      - 'rgb(122, 199, 123)'
-                      - 'rgb(0, 68, 27)'
-                    outside: "#333333"
+                  classes:
+                    - { label: "High", color: 'rgb(181, 0, 38)' }
+                    - { label: "Medium", color: 'rgb(253, 141, 60)' }
+                    - { label: "Low", color: 'rgb(255, 255, 178)' }
+                    - { label: "Low", color: 'rgb(227, 252, 216)' }
+                    - { label: "Medium", color: 'rgb(122, 199, 123)' }
+                    - { label: "High", color: 'rgb(0, 68, 27)' }
+                  colors: { outside: "#333333" }
                   breakpoints: "context_natural_crop"
                   filters: ["vam_filter_fcs", "vam_filter_csi"]
     popup:
@@ -1571,12 +1571,11 @@ featurelayers:
                 options:
                   layer: context_erosion
                   attribute: "erosion_propensity"
-                  colors:
-                    ramp:
-                      - '#aaaaaa'
-                      - 'rgb(255, 255, 212)'
-                      - 'rgb(254, 153, 41)'
-                      - 'rgb(153, 52, 4)'
+                  classes:
+                    - { label: "Zero", color: '#aaaaaa' }
+                    - { label: "Low", color: 'rgb(255, 255, 212)' }
+                    - { label: "Medium", color: 'rgb(254, 153, 41)' }
+                    - { label: "High", color: 'rgb(153, 52, 4)' }
                   breakpoints: "context_natural_erosion_propensity"
                   filters: ["vam_filter_fcs", "vam_filter_csi"]
     popup:
@@ -1638,18 +1637,17 @@ featurelayers:
                   layer: context_ldi
                   attribute: "ldi"
                   mask: "mask"
-                  colors:
-                    ramp:
-                      - 'rgb(143, 199, 142)'
-                      - 'rgb(196, 214, 178)'
-                      - 'rgb(254, 217, 157)'
-                      - 'rgb(253, 191, 111)'
-                      - 'rgb(240, 215, 47)'
-                      - 'rgb(253, 194, 58)'
-                      - 'rgb(240, 126, 47)'
-                      - 'rgb(240, 87, 36)'
-                      - 'rgb(227, 26, 28)'
-                    outside: "#333333"
+                  classes:
+                    - { label: "1", color: 'rgb(143, 199, 142)' }
+                    - { label: "2", color: 'rgb(196, 214, 178)' }
+                    - { label: "3", color: 'rgb(254, 217, 157)' }
+                    - { label: "4", color: 'rgb(253, 191, 111)' }
+                    - { label: "5", color: 'rgb(240, 215, 47)' }
+                    - { label: "6", color: 'rgb(253, 194, 58)' }
+                    - { label: "7", color: 'rgb(240, 126, 47)' }
+                    - { label: "8", color: 'rgb(240, 87, 36)' }
+                    - { label: "9", color: 'rgb(227, 26, 28)' }
+                  colors: { outside: "#333333" }
                   filters: ["vam_filter_fcs", "vam_filter_csi"]
     popup:
       title: "{{ layer.title }}: {{ feature.attributes.admin2_name }}, {{ feature.attributes.admin1_name }}"
@@ -2051,8 +2049,8 @@ featurelayers:
 {% block renderlayers %}
 renderlayers:
   - forecast
-  - wld_poi_facilities_wfp
-  - wld_trs_supplyroutes_wfp
+  #- wld_poi_facilities_wfp
+  #- wld_trs_supplyroutes_wfp
   {% if hazard == "cyclone" %}{% verbatim %}
   - popatrisk
   - context_mean_change
@@ -2151,14 +2149,10 @@ sidebar:
   ui:
     mainClass: ""
     tabs:
-      - target: geodash-sidebar-left-welcome
-        label: Welcome
-      - target: geodash-sidebar-left-charts
-        label: Charts
-      - target: geodash-sidebar-left-layers
-        label: Layers
-      - target: geodash-sidebar-left-filters
-        label: Filters
+      #- { label: Welcome, target: geodash-sidebar-left-welcome }
+      - { label: Charts, target: geodash-sidebar-left-charts }
+      - { label: Layers, target: geodash-sidebar-left-layers }
+      - { label: Filters, target: geodash-sidebar-left-filters }
     header:
       logo:
         src: /static/wfp/assets/logos/light/png/2x/en-emblem.png
@@ -2225,8 +2219,8 @@ sidebar:
       - flood_probability
       {% endverbatim %}{% endif %}
       - forecast
-      - wld_poi_facilities_wfp
-      - wld_trs_supplyroutes_wfp
+      #- wld_poi_facilities_wfp
+      #- wld_trs_supplyroutes_wfp
       - imerg_1day
       - imerg_3day
       - imerg_7day
@@ -2258,10 +2252,10 @@ sidebar:
         label: Population Distribution
         class: geodash-sidebar-layers-population-distribution
         layers: [landscan]
-      - id: wfp_operations
-        label: WFP Operations
-        class: geodash-sidebar-layers-wfpoperations
-        layers: [wld_poi_facilities_wfp, wld_trs_supplyroutes_wfp]
+      #- id: wfp_operations
+      #  label: WFP Operations
+      #  class: geodash-sidebar-layers-wfpoperations
+      #  layers: [wld_poi_facilities_wfp, wld_trs_supplyroutes_wfp]
       - id: accumulated rainfall
         label: Accumulated Rainfall
         class: geodash-sidebar-wfplayers
