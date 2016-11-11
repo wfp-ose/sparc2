@@ -40,7 +40,6 @@ def get_summary_flood(table_popatrisk=None, iso_alpha3=None):
         table=table_popatrisk)
 
     natural = calc_breaks_natural(values, num_breakpoints)
-    natural_adjusted = []
 
     summary = {
         'all': {
@@ -72,17 +71,33 @@ def get_summary_flood(table_popatrisk=None, iso_alpha3=None):
             values = []  # No values since not effected by that disaster, e.g., Afghanistan and cyclones
         values_by_rp[str(rp)] = [float(x) for x in values]
 
+    natural_adjusted = []
     values = values_by_rp["25"]
     breakpoints = calc_breaks_natural(values, num_breakpoints-2)
     natural_adjusted.extend(breakpoints)
+    #print "<= RP 25"
+    #print "Breakpoints", breakpoints
+    #print "Natural Adjusted", natural_adjusted
     #
     values = values + values_by_rp["50"] + values_by_rp["100"]
     breakpoints = calc_breaks_natural(values, num_breakpoints-1)
-    natural_adjusted.append(breakpoints[-2])
+    if breakpoints[-2] > natural_adjusted[-2]:
+        natural_adjusted.append(breakpoints[-2])
+    else:
+        natural_adjusted = breakpoints[:-1];
+    #print "<= RP 100"
+    #print "Breakpoints", breakpoints
+    #print "Natural Adjusted", natural_adjusted
     #
     values = values + values_by_rp["200"] + values_by_rp["500"] + values_by_rp["1000"]
     breakpoints = calc_breaks_natural(values, num_breakpoints)
-    natural_adjusted.append(breakpoints[-2])
+    if breakpoints[-2] > natural_adjusted[-2]:
+        natural_adjusted.append(breakpoints[-2])
+    else:
+        natural_adjusted = breakpoints[:-1];
+    #print "<= RP 1000"
+    #print "Breakpoints", breakpoints
+    #print "Natural Adjusted", natural_adjusted
     #
     summary["all"]["max"]["at_admin2_month"] = max(values)
     summary["all"]["breakpoints"]["natural_adjusted"] = [0] + natural_adjusted + [max(values)]

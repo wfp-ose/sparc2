@@ -7,7 +7,7 @@ title: SPARC - {{ country_title }} - {{ hazard_title }}
 {% block legend %}
 legend:
   position: { top: auto, right: 8px, bottom: 80px, left: auto }
-  width: 360px
+  width: 425px
   height: auto
   grid: ["col-sm-4", "col-sm-8"]
   font: { family: FontAwesome, size: 1.2rem }
@@ -130,6 +130,7 @@ featurelayers:
     description: "Population at Risk"
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
     geojson: { url: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/{% endverbatim %}{{ hazard }}{% verbatim %}/dataset/popatrisk.json" }
+    legend: { ui: { source: false } }
     download:
       links:
         - type: json
@@ -145,12 +146,12 @@ featurelayers:
       styles:
         - id: default
           title: Default Style
-          description: "For a given hazard, month, and admin 2 district, the population at risk."
+          description: "For a given hazard, month, and admin 2, the population at risk."
           legend: { type: graduated }
           symbolizers:
             - id: default
               title: Default Symbolizer
-              description: "For a given hazard, month, and admin 2 district, the population at risk."
+              description: "For a given hazard, month, and admin 2, the population at risk."
               type: polygon
               metadata:
                 range: [{ label: "| Low Population at Risk" }, { label: "High Population at Risk |" }]
@@ -1191,10 +1192,11 @@ featurelayers:
               label: VAM CSI high
   - id: context_mean_change
     type: geojson
-    title: "Overall Land Cover Change (2001 - 2012)"
-    description: "Context Factors, Overall Land Cover Change (2001 - 2012)"
+    title: "Land Cover Change (2001 - 2012)"
+    description: "Context Factors, Land Cover Change (2001 - 2012)"
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
     geojson: { local: "layers.context.data.geojson", projection: "EPSG:4326" }
+    legend: { ui: { source: false } }
     download:
       links:
         - type: json
@@ -1265,6 +1267,7 @@ featurelayers:
     description: "Context Factors, Vegetation Gain (2001 - 2012)"
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
     geojson: { local: "layers.context.data.geojson", projection: "EPSG:4326" }
+    legend: { ui: { source: false } }
     download:
       links:
         - type: json
@@ -1331,6 +1334,7 @@ featurelayers:
     description: "Context Factors, Vegetation Loss (2001 - 2012)"
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
     geojson: { local: "layers.context.data.geojson", projection: "EPSG:4326" }
+    legend: { ui: { source: false } }
     download:
       links:
         - type: json
@@ -1397,6 +1401,7 @@ featurelayers:
     description: "Context Factors, Forest Change (2001 - 2012)"
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
     geojson: { local: "layers.context.data.geojson", projection: "EPSG:4326" }
+    legend: { ui: { source: false } }
     download:
       links:
         - type: json
@@ -1466,6 +1471,7 @@ featurelayers:
     description: "Context Factors, Cropland Change (2001 - 2012)"
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
     geojson: { local: "layers.context.data.geojson", projection: "EPSG:4326" }
+    legend: { ui: { source: false } }
     download:
       links:
         - type: json
@@ -1535,6 +1541,7 @@ featurelayers:
     description: "Context Factors, Erosion Propensity"
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
     geojson: { local: "layers.context.data.geojson", projection: "EPSG:4326" }
+    legend: { ui: { source: false } }
     download:
       links:
         - type: json
@@ -1600,6 +1607,7 @@ featurelayers:
     description: "Context Factors, Land Degradation Index"
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
     geojson: { local: "layers.context.data.geojson", projection: "EPSG:4326" }
+    legend: { ui: { source: false } }
     download:
       links:
         - type: json
@@ -1670,6 +1678,7 @@ featurelayers:
     title: "Landscan (2013)"
     description: "Landscan (2013)"
     source: { name: "ORNL", attribution: "ORNL" }
+    legend: { ui: { source: false } }
     wms:
       version: "1.1.1"
       layers: ["geonode:sparc_landscan_2013"]
@@ -1682,6 +1691,7 @@ featurelayers:
     title: "Forecast"
     description: ""
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
+    legend: { ui: { source: false } }
     wms:
       version: "1.1.1"
       layers: ["geonode:anm_global_0111_0909_19792015_reprojected"]
@@ -1724,9 +1734,8 @@ featurelayers:
     type: WMS
     title: "Rainfall Total: 3 days"
     description: "IMERG 3-Day"
-    source:
-      name: "SERVIR"
-      attribution: "SERVIR"
+    source: { name: "SERVIR", attribution: "SERVIR" }
+    legend: { ui: { source: false } }
     wms:
       version: "1.1.1"
       layers: ["5"]
@@ -1746,9 +1755,8 @@ featurelayers:
     type: WMS
     title: "Rainfall Total: 7 days"
     description: "IMERG 7-Day"
-    source:
-      name: "SERVIR"
-      attribution: "SERVIR"
+    source: { name: "SERVIR", attribution: "SERVIR" }
+    legend: { ui: { source: false } }
     wms:
       version: "1.1.1"
       layers: ["8"]
@@ -1769,6 +1777,7 @@ featurelayers:
     title: "Global WFP Facilities"
     description: "WFP Facilities worldwide, Country Office, Sub-Office, Field Office, Area Office, Humanitarian Response Depot."
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
+    legend: { ui: { source: false } }
     wms:
       version: "1.1.1"
       layers: ["geonode:wld_poi_facilities_wfp"]
@@ -1867,6 +1876,7 @@ featurelayers:
     title: "Global Supply Routes"
     description: "Global supply routes for Transportation of Food and Non Food Items - Roads, Railways, Waterway, Airways.\n\nThis layer is built by linking origin/destination locations using the most direct route on main roads. In reality, the supply routes can divert from the ones displayed here depending on many local factors. The routes shown in this dataset are only indicative and have to be used as such."
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
+    legend: { ui: { source: false } }
     wms:
       version: "1.1.1"
       layers: ["geonode:wld_trs_supplyroutes_wfp"]
@@ -1953,6 +1963,7 @@ featurelayers:
     title: "Cyclone Probability"
     description: "Cyclone Probability"
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
+    legend: { ui: { source: false } }
     wms:
       version: "1.1.1"
       layers: {% endverbatim %}["geonode:cat1_5_sep_cls2","geonode:cat1_5_sep_cls2","geonode:cat1_5_sep_cls2","geonode:cat1_5_sep_cls2","geonode:cat1_5_sep_cls2","geonode:cat1_5_sep_cls2","geonode:cat1_5_sep_cls2"]{% verbatim %}
@@ -1977,6 +1988,7 @@ featurelayers:
     description: "This layer contains a heatmap of cyclone events."
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
     geojson: { url: "/data/local/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/cyclone/events.json" }
+    legend: { ui: { source: false } }
     heatmap:
       radius: 8
       blur: 10
@@ -1987,6 +1999,7 @@ featurelayers:
     title: "Drought Frequency (January)"
     description: "Drought Frequency (January)"
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
+    legend: { ui: { source: false } }
     wms:
       version: "1.1.1"
       layers: ["wlddsi_fot01d3"]
@@ -2010,6 +2023,7 @@ featurelayers:
     title: "Flood Probability"
     description: "Flood Probability"
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
+    legend: { ui: { source: false } }
     wms:
       version: "1.1.1"
       layers: ["sparc_flood_probability","sparc_flood_probability","sparc_flood_probability","sparc_flood_probability","sparc_flood_probability","sparc_flood_probability"]
@@ -2035,6 +2049,7 @@ featurelayers:
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
     geojson: { url: "/data/local/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/flood/events.json" }
     heatmap: { radius: 15, blur: 15, weight: count }
+    legend: { ui: { source: false } }
   - id: landslide_events
     enabled: true
     type: geojson
@@ -2043,6 +2058,7 @@ featurelayers:
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
     geojson: { url: "/data/local/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/landslide/events.json" }
     heatmap: { radius: 6, blur: 8, weight: count }
+    legend: { ui: { source: false } }
     {% endverbatim %}{% endif %}
 {% endblock %}
 
