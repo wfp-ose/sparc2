@@ -142,6 +142,9 @@ featurelayers:
         - type: csv
           title: CSV
           baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/{% endverbatim %}{{ hazard }}{% verbatim %}/dataset/popatrisk.csv"
+        - type: zipped_shapefile
+          title: "Zipped Shapefile"
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/{% endverbatim %}{{ hazard }}{% verbatim %}/dataset/popatrisk.zip"
     carto:
       styles:
         - id: default
@@ -367,7 +370,8 @@ featurelayers:
       - layer: popatrisk
         output: ldi_range
         title: LDI
-        description:  "Filter by the Land Degradation Index (LDI).  LDI combines negative land cover change and erosion propensity variables.\nHigh LDI levels indicate high land deterioration on a qualitative scale (undimensionless)."
+        description:  "Filter by the Land Degradation Index (LDI).  LDI combines negative land cover change and erosion propensity variables.\n\nHigh LDI levels indicate high land deterioration on a qualitative scale (undimensionless)."
+        api: { type: grep, path: "properties.ldi", operand: between }
         ui:
           height: 50px
           type: slider
@@ -598,7 +602,7 @@ featurelayers:
       - layer: popatrisk
         output: ldi_range
         title: LDI
-        description:  "Filter by the Land Degradation Index (LDI).  LDI combines negative land cover change and erosion propensity variables.\nHigh LDI levels indicate high land deterioration on a qualitative scale (undimensionless)."
+        description:  "Filter by the Land Degradation Index (LDI).  LDI combines negative land cover change and erosion propensity variables.\n\nHigh LDI levels indicate high land deterioration on a qualitative scale (undimensionless)."
         api: { type: grep, path: "properties.ldi", operand: between }
         ui:
           height: 50px
@@ -830,6 +834,7 @@ featurelayers:
         output: ldi_range
         title: LDI
         description:  "Filter by the Land Degradation Index (LDI).  LDI combines negative land cover change and erosion propensity variables.\n\nHigh LDI levels indicate high land deterioration on a qualitative scale (undimensionless)."
+        api: { type: grep, path: "properties.ldi", operand: between }
         ui:
           height: 50px
           type: slider
@@ -1054,6 +1059,7 @@ featurelayers:
         output: ldi_range
         title: LDI
         description:  "Filter by the Land Degradation Index (LDI).  LDI combines negative land cover change and erosion propensity variables.\n\nHigh LDI levels indicate high land deterioration on a qualitative scale (undimensionless)."
+        api: { type: grep, path: "properties.ldi", operand: between }
         ui:
           height: 50px
           type: slider
@@ -1112,6 +1118,20 @@ featurelayers:
     description: "VAM, Food Consumption Score"
     source: { name: "WFP/VAM", attribution: "WFP/VAM" }
     geojson: { local: "layers.vam.data.geojson" }
+    download:
+      links:
+        - type: json
+          title: GeoJSON
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/vam.json"
+        - type: yaml
+          title: YAML
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/vam.yml"
+        - type: csv
+          title: CSV
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/vam.csv"
+        - type: zipped_shapefile
+          title: "Zipped Shapefile"
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/vam.zip"
     carto:
       styles:
         - id: default
@@ -1153,6 +1173,20 @@ featurelayers:
     description: "VAM, Coping Strategies Index"
     source: { name: "WFP/VAM", attribution: "WFP/VAM" }
     geojson: { local: "layers.vam.data.geojson" }
+    download:
+      links:
+        - type: json
+          title: GeoJSON
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/vam.json"
+        - type: yaml
+          title: YAML
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/vam.yml"
+        - type: csv
+          title: CSV
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/vam.csv"
+        - type: zipped_shapefile
+          title: "Zipped Shapefile"
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/vam.zip"
     carto:
       styles:
         - id: default
@@ -1208,6 +1242,9 @@ featurelayers:
         - type: csv
           title: CSV
           baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.csv"
+        - type: zipped_shapefile
+          title: "Zipped Shapefile"
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.zip"
     carto:
       styles:
         - id: delta_mean
@@ -1279,6 +1316,9 @@ featurelayers:
         - type: csv
           title: CSV
           baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.csv"
+        - type: zipped_shapefile
+          title: "Zipped Shapefile"
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.zip"
     carto:
       styles:
         - id: delta_positive
@@ -1346,6 +1386,9 @@ featurelayers:
         - type: csv
           title: CSV
           baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.csv"
+        - type: zipped_shapefile
+          title: "Zipped Shapefile"
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.zip"
     carto:
       styles:
         - id: delta_positive
@@ -1413,6 +1456,9 @@ featurelayers:
         - type: csv
           title: CSV
           baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.csv"
+        - type: zipped_shapefile
+          title: "Zipped Shapefile"
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.zip"
     carto:
       styles:
         - id: delta_forest
@@ -1483,6 +1529,9 @@ featurelayers:
         - type: csv
           title: CSV
           baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.csv"
+        - type: zipped_shapefile
+          title: "Zipped Shapefile"
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.zip"
     carto:
       styles:
         - id: delta_forest
@@ -1553,6 +1602,9 @@ featurelayers:
         - type: csv
           title: CSV
           baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.csv"
+        - type: zipped_shapefile
+          title: "Zipped Shapefile"
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.zip"
     carto:
       styles:
         - id: erosion_propensity
@@ -1619,6 +1671,9 @@ featurelayers:
         - type: csv
           title: CSV
           baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.csv"
+        - type: zipped_shapefile
+          title: "Zipped Shapefile"
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.zip"
     carto:
       styles:
         - id: ldi
@@ -1987,12 +2042,26 @@ featurelayers:
     title: "Cyclone Events (Heatmap)"
     description: "This layer contains a heatmap of cyclone events."
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
-    geojson: { url: "/data/local/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/cyclone/events.json" }
+    geojson: { url: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/cyclone/dataset/events.json" }
     legend: { ui: { source: false } }
     heatmap:
       radius: 8
       blur: 10
       weight: count
+    download:
+      links:
+        - type: json
+          title: GeoJSON
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/cyclone/dataset/events.json"
+        - type: yaml
+          title: YAML
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/cyclone/dataset/events.yml"
+        - type: csv
+          title: CSV
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/cyclone/dataset/events.csv"
+        - type: zipped_shapefile
+          title: "Zipped Shapefile"
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/cyclone/dataset/events.zip"
   {% endverbatim %}{% elif hazard == "drought" %}{% verbatim %}
   - id: wlddsi_fot01d3
     type: WMS
@@ -2047,18 +2116,46 @@ featurelayers:
     title: "Flood Events (Heatmap)"
     description: "This layer contains a heatmap of flood events."
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
-    geojson: { url: "/data/local/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/flood/events.json" }
+    geojson: { url: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/flood/dataset/events.json" }
     heatmap: { radius: 15, blur: 15, weight: count }
     legend: { ui: { source: false } }
+    download:
+      links:
+        - type: json
+          title: GeoJSON
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/flood/dataset/events.json"
+        - type: yaml
+          title: YAML
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/flood/dataset/events.yml"
+        - type: csv
+          title: CSV
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/flood/dataset/events.csv"
+        - type: zipped_shapefile
+          title: "Zipped Shapefile"
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/flood/dataset/events.zip"
   - id: landslide_events
     enabled: true
     type: geojson
     title: "Landslide Events (Heatmap)"
     description: "This layer contains a heatmap of landslide events."
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
-    geojson: { url: "/data/local/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/landslide/events.json" }
+    geojson: { url: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/landslide/dataset/events.json" }
     heatmap: { radius: 6, blur: 8, weight: count }
     legend: { ui: { source: false } }
+    download:
+      links:
+        - type: json
+          title: GeoJSON
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/landslide/dataset/events.json"
+        - type: yaml
+          title: YAML
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/landslide/dataset/events.yml"
+        - type: csv
+          title: CSV
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/landslide/dataset/events.csv"
+        - type: zipped_shapefile
+          title: "Zipped Shapefile"
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/landslide/dataset/events.zip"
     {% endverbatim %}{% endif %}
 {% endblock %}
 

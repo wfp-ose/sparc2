@@ -5,6 +5,7 @@ import sys
 import numpy
 import binascii
 import requests
+import ogr
 
 from django.conf import settings
 from django.views.generic import View
@@ -428,20 +429,20 @@ class api_data_country(geodash_data_view):
 
         if dataset == "context":
             attributes = [
-                { "label": "iso_alpha3", "path": "properties.iso_alpha3" },
-                { "label": "gaul_admin0_code", "path": "properties.admin0_code" },
-                { "label": "gaul_admin0_name", "path": "properties.admin0_name" },
-                { "label": "gaul_admin1_code", "path": "properties.admin1_code" },
-                { "label": "gaul_admin1_name", "path": "properties.admin1_name" },
-                { "label": "gaul_admin2_code", "path": "properties.admin2_code" },
-                { "label": "gaul_admin2_name", "path": "properties.admin2_name" },
-                { "label": "context_ldi", "path": "properties.ldi", "type": "integer" },
-                { "label": "context_delta_mean", "path": "properties.delta_mean", "type": "float" },
-                { "label": "context_delta_negative", "path": "properties.delta_negative", "type": "float" },
-                { "label": "context_delta_positive", "path": "properties.delta_positive", "type": "float" },
-                { "label": "context_delta_forest", "path": "properties.delta_forest", "type": "float" },
-                { "label": "context_delta_crop", "path": "properties.delta_crop", "type": "float" },
-                { "label": "context_erosion_propensity", "path": "properties.erosion_propensity", "type": "float" }
+                { "label": "iso_alpha3", "label_shp": "iso_alpha3", "path": "properties.iso_alpha3" },
+                { "label": "gaul_admin0_code", "label_shp": "g_a0_code", "path": "properties.admin0_code" },
+                { "label": "gaul_admin0_name", "label_shp": "g_a0_name", "path": "properties.admin0_name" },
+                { "label": "gaul_admin1_code", "label_shp": "g_a1_code", "path": "properties.admin1_code" },
+                { "label": "gaul_admin1_name", "label_shp": "g_a1_name","path": "properties.admin1_name" },
+                { "label": "gaul_admin2_code", "label_shp": "g_a2_code", "path": "properties.admin2_code" },
+                { "label": "gaul_admin2_name", "label_shp": "g_a2_name", "path": "properties.admin2_name" },
+                { "label": "context_ldi", "label_shp": "ldi", "path": "properties.ldi", "type": "integer" },
+                { "label": "context_delta_mean", "label_shp": "delta_mean", "path": "properties.delta_mean", "type": "float" },
+                { "label": "context_delta_negative", "label_shp": "delta_neg", "path": "properties.delta_negative", "type": "float" },
+                { "label": "context_delta_positive", "label_shp": "delta_pos", "path": "properties.delta_positive", "type": "float" },
+                { "label": "context_delta_forest", "label_shp": "delta_for", "path": "properties.delta_forest", "type": "float" },
+                { "label": "context_delta_crop", "label_shp": "delta_crp", "path": "properties.delta_crop", "type": "float" },
+                { "label": "context_erosion_propensity", "label_shp": "erosion", "path": "properties.erosion_propensity", "type": "float" }
             ]
             if attributes:
                 if isinstance(attributes_filter_include_string, basestring) and len(attributes_filter_include_string) > 0:
@@ -453,6 +454,27 @@ class api_data_country(geodash_data_view):
             return attributes
         else:
             return None
+
+
+    def _build_geometry(self, request, *args, **kwargs):
+        iso3 = kwargs.pop('iso3', None)
+        dataset = kwargs.pop('dataset', None)
+
+        if dataset == "context" or dataset == "vam":
+            return "geometry"
+        else:
+            return None
+
+
+    def _build_geometry_type(self, request, *args, **kwargs):
+        iso3 = kwargs.pop('iso3', None)
+        dataset = kwargs.pop('dataset', None)
+
+        if dataset == "context" or dataset == "vam":
+            return ogr.wkbMultiPolygon
+        else:
+            return None
+
 
     def _build_data(self, request, *args, **kwargs):
 
@@ -483,22 +505,58 @@ class api_data_countryhazard(geodash_data_view):
         return "data/local/country/{iso3}/hazard/{hazard}/dataset/{dataset}".format(**kwargs)
 
     def _build_attributes(self, request, *args, **kwargs):
-        return [
-            { "label": "iso_alpha3", "path": "properties.iso_alpha3" },
-            { "label": "gaul_admin0_code", "path": "properties.admin0_code" },
-            { "label": "gaul_admin0_name", "path": "properties.admin0_name" },
-            { "label": "gaul_admin1_code", "path": "properties.admin1_code" },
-            { "label": "gaul_admin1_name", "path": "properties.admin1_name" },
-            { "label": "gaul_admin2_code", "path": "properties.admin2_code" },
-            { "label": "gaul_admin2_name", "path": "properties.admin2_name" },
-            { "label": "context_ldi", "path": "properties.ldi", "type": "integer" },
-            { "label": "context_delta_mean", "path": "properties.delta_mean", "type": "float" },
-            { "label": "context_delta_negative", "path": "properties.delta_negative", "type": "float" },
-            { "label": "context_delta_positive", "path": "properties.delta_positive", "type": "float" },
-            { "label": "context_delta_forest", "path": "properties.delta_forest", "type": "float" },
-            { "label": "context_delta_crop", "path": "properties.delta_crop", "type": "float" },
-            { "label": "context_erosion_propensity", "path": "properties.erosion_propensity", "type": "float" }
-        ]
+        iso3 = kwargs.pop('iso3', None)
+        dataset = kwargs.pop('dataset', None)
+
+        if dataset == "popatrisk" or dataset == u"popatrisk":
+            return [
+                { "label": "iso_alpha3", "label_shp": "iso_alpha3", "path": "properties.iso_alpha3" },
+                { "label": "gaul_admin0_code", "label_shp": "g_a0_code", "path": "properties.admin0_code" },
+                { "label": "gaul_admin0_name", "label_shp": "g_a0_name", "path": "properties.admin0_name" },
+                { "label": "gaul_admin1_code", "label_shp": "g_a1_code", "path": "properties.admin1_code" },
+                { "label": "gaul_admin1_name", "label_shp": "g_a1_name","path": "properties.admin1_name" },
+                { "label": "gaul_admin2_code", "label_shp": "g_a2_code", "path": "properties.admin2_code" },
+                { "label": "gaul_admin2_name", "label_shp": "g_a2_name", "path": "properties.admin2_name" },
+                { "label": "context_ldi", "label_shp": "ldi", "path": "properties.ldi", "type": "integer" },
+                { "label": "context_delta_mean", "label_shp": "delta_mean", "path": "properties.delta_mean", "type": "float" },
+                { "label": "context_delta_negative",  "label_shp": "delta_neg", "path": "properties.delta_negative", "type": "float" },
+                { "label": "context_delta_positive", "label_shp": "delta_pos", "path": "properties.delta_positive", "type": "float" },
+                { "label": "context_delta_forest",  "label_shp": "delta_for", "path": "properties.delta_forest", "type": "float" },
+                { "label": "context_delta_crop", "label_shp": "delta_crp",  "path": "properties.delta_crop", "type": "float" },
+                { "label": "context_erosion_propensity", "label_shp": "delta_ero", "path": "properties.erosion_propensity", "type": "float" }
+            ]
+        elif dataset == "events" or dataset == u"events":
+            return [
+                { "label": "count", "label_shp": "count", "path": "properties.count", "type": "integer"},
+                { "label": "adm2_name", "label_shp": "adm2_name", "path": "properties.adm2_name", "type": "string"}
+            ]
+        else:
+            return None
+
+
+    def _build_geometry(self, request, *args, **kwargs):
+        iso3 = kwargs.pop('iso3', None)
+        dataset = kwargs.pop('dataset', None)
+
+        if dataset == "popatrisk" or dataset == u"popatrisk":
+            return "geometry"
+        elif dataset == "events" or dataset == u"events":
+            return "geometry"
+        else:
+            return None
+
+
+    def _build_geometry_type(self, request, *args, **kwargs):
+        iso3 = kwargs.pop('iso3', None)
+        dataset = kwargs.pop('dataset', None)
+
+        if dataset == "popatrisk" or dataset == u"popatrisk":
+            return ogr.wkbMultiPolygon
+        elif dataset == "events" or dataset == u"events":
+            return ogr.wkbPoint
+        else:
+            return None
+
 
     def _build_data(self, request, *args, **kwargs):
 
@@ -777,7 +835,6 @@ class data_local_country_admin(geodash_data_view):
         return "data/local/country/{iso_alpha3}/admin/{level}/{extension}".format(**kwargs)
 
     def _build_data(self, request, *args, **kwargs):
-        print kwargs
         level = kwargs.pop('level', None)
         iso_alpha3 = kwargs.pop('iso_alpha3', None)
         data = None
@@ -792,7 +849,7 @@ class countryhazard_data_local_summary(geodash_data_view):
         return "data/local/country/{iso3}/hazard/{hazard}/summary/{extension}".format(**kwargs)
 
     def _build_data(self, request, *args, **kwargs):
-        print "Building data"
+
         hazard = kwargs.pop('hazard', None)
         iso3 = kwargs.pop('iso3', None)
         extension = kwargs.pop('extension', 'None')

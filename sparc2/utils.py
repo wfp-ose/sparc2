@@ -9,6 +9,7 @@ from jenks import jenks
 from django.conf import settings
 from django.template import Context
 from django.template.loader import get_template
+from django.core.urlresolvers import reverse
 
 try:
     import simplejson as json
@@ -18,6 +19,8 @@ except ImportError:
 from geodash.enumerations import MONTHS_SHORT3
 
 from geodash.data import GeoDashDatabaseConnection, calc_breaks_natural, insertIntoObject, valuesByMonthToList, rowsToDict
+from geodash.utils import extract
+
 from sparc2.data import data_local_country_admin, data_local_country_hazard_all, data_local_country_context_all
 from sparc2.enumerations import URL_VAM
 
@@ -55,18 +58,23 @@ def get_json_admin0(request, template="sparc2/sql/_admin0_data.sql"):
 
 def get_context_by_admin2(geodash_conn=None, iso_alpha3=None):
     context_by_admin2 = {}
-
-    rows_context = geodash_conn.exec_query_multiple(
-        get_template("sparc2/sql/_context_by_admin2.sql").render({
-            'admin2_context': 'context.admin2_context',
-            'iso_alpha3': iso_alpha3}))
-
-    for row in rows_context:
-        admin2_code, ldi, delta_negative, erosion_propensity = row
+    url = settings.SITEURL[:-1]+reverse("api_data_country", kwargs={
+        "iso3": iso_alpha3,
+        "dataset": "context",
+        "extension": "json"
+    })
+    response = requests.get(url)
+    features = extract(["features"], response.json(), None)
+    for feature in features:
+        admin2_code = extract(u"properties.admin2_code", feature, None)
         context_by_admin2[str(admin2_code)] = {
-            'ldi': ldi,
-            'delta_negative': delta_negative,
-            'erosion_propensity': erosion_propensity
+            'ldi': extract(u"properties.ldi", feature, None),
+            'delta_mean': extract(u"properties.delta_mean", feature, None),
+            'delta_positive': extract(u"properties.delta_positive", feature, None),
+            'delta_negative': extract(u"properties.delta_negative", feature, None),
+            'delta_crop': extract(u"properties.delta_crop", feature, None),
+            'delta_forest': extract(u"properties.delta_forest", feature, None),
+            'erosion_propensity': extract(u"properties.erosion_propensity", feature, None),
         }
     return context_by_admin2
 
@@ -251,7 +259,11 @@ def get_geojson_flood(request, iso_alpha3=None):
                 feature["properties"]["RP"+str(rp)] = values_by_admin2[admin2_code]
                 if admin2_code in context_by_admin2:
                     feature["properties"]["ldi"] = context_by_admin2[admin2_code]["ldi"]
+                    feature["properties"]["delta_mean"] = context_by_admin2[admin2_code]["delta_mean"]
+                    feature["properties"]["delta_positive"] = context_by_admin2[admin2_code]["delta_positive"]
                     feature["properties"]["delta_negative"] = context_by_admin2[admin2_code]["delta_negative"]
+                    feature["properties"]["delta_crop"] = context_by_admin2[admin2_code]["delta_crop"]
+                    feature["properties"]["delta_forest"] = context_by_admin2[admin2_code]["delta_forest"]
                     feature["properties"]["erosion_propensity"] = context_by_admin2[admin2_code]["erosion_propensity"]
                 if admin1_code in vam_by_admin1:
                     feature["properties"].update(vam_by_admin1[admin1_code])
