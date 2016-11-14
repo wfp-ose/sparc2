@@ -2283,9 +2283,14 @@ sidebar:
     charts:
       - id: "popatrisk"
         element: "sparc-chart-popatrisk"
-        title: "Population at Risk by Month for {{ country_title }}"
         type: "bar"
+        {% if hazard == "flood" %}
+        title: "Population at Risk of Floods by Month for {{ country_title }}"
+        description: "The chart above displays the number of people living in flood-prone areas, who may potentially be exposed to flood per month. The different colours indicate the probability expressed as or “return period” (rp) of those people being affected. The darker the shade, the more likely that they will be affected, as shown below.\n- **rp25**: 1 in 25 probability of occurrence in any given year (4% chance).\n- **rp100**: 1 in 100 probability of occurrence in any given year (1% chance)\n- **rp1000**: 1 in 1000 probability of occurrence in any given year (0.1% chance)\n\nThese recurrence intervals give the estimated time interval between events of a similar size or intensity, and the greater the magnitude of the flood event the less chance of occurrence and viceversa.  You can choose to display only certain levels of probability by toggling the interactive legend under the chart: click on a probability class once to turn it off, click it again to turn it back on."
+        {% else %}
+        title: "Population at Risk by Month for {{ country_title }}"
         description: "The chart above displays the number of people living in `{{ hazard }}-prone areas`, who may potentially be exposed to `{{ hazard }}` per month. The different colours indicate the probability of those people being affected; the darker the shade, the more likely that they will be affected. You can choose to display only certain levels of probability by toggling the interactive legend under the chart: click on a probability class once to turn it off, click it again to turn it back on."
+        {% endif %}
         axis:
           x:
             type: "months"

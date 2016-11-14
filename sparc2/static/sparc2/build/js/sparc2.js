@@ -339,6 +339,12 @@ geodash.filters["md2html"] = function()
       // Replace extra new lines before paragraph tags, which add their own margin by default
       html = html.replace(new RegExp("<br><br><p>", "gi"),'<p>');
 
+      // Replace extra new lines before unordered list tags, which add their own margin by default
+      html = html.replace(new RegExp("<br><br><ul>", "gi"),'<ul>');
+
+      // Replace extra new lines before unordered list tags, which add their own margin by default
+      html = html.replace(new RegExp("<br><br><li>", "gi"),'<li>');
+
       // If one enclosing paragraph element, then flatten it.
       var matches = html.match(new RegExp("^<p(.*?)>(.*?)</p>", "gi"));
       if(Array.isArray(matches) && matches.length == 1)  // If only 1 match
