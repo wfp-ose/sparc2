@@ -23,11 +23,12 @@ from wfppresencedjango.models import WFPCountry
 from lsibdjango.models import GeographicThesaurusEntry
 from gauldjango.models import GAULAdmin0
 
+from geodash.cache import provision_memcached_client
 from geodash.enumerations import MONTHS_SHORT3
+from geodash.transport import writeToByteArray
+from geodash.utils import extract, getRequestParameter, getRequestParameterAsInteger, getRequestParameterAsFloat, getRequestParameterAsList, getRequestParameters
 from geodash.views import geodash_data_view
 
-from geodash.cache import provision_memcached_client
-from geodash.transport import writeToByteArray
 from sparc2.enumerations import URL_EMDAT_BY_HAZARD, SPARC_HAZARDS_CONFIG
 from sparc2.models import SPARCCountry
 from sparc2.utils import get_month_number, get_json_admin0, get_geojson_cyclone, get_geojson_drought, get_geojson_flood, get_geojson_landslide, get_geojson_context, get_summary_context, get_events_cyclone, get_events_flood, get_events_landslide, get_geojson_vam
@@ -37,8 +38,6 @@ from sparc2.stats.flood import get_summary_flood
 from sparc2.stats.landslide import get_summary_landslide
 
 ENDPOINTS_PATH = "sparc2/static/sparc2/build/api/endpoints.yml"
-
-from geodash.utils import extract
 
 
 class api_countries(geodash_data_view):
@@ -506,10 +505,11 @@ class api_data_countryhazard(geodash_data_view):
 
     def _build_attributes(self, request, *args, **kwargs):
         iso3 = kwargs.pop('iso3', None)
+        hazard = kwargs.pop('hazard', None)
         dataset = kwargs.pop('dataset', None)
 
         if dataset == "popatrisk" or dataset == u"popatrisk":
-            return [
+            attributes = [
                 { "label": "iso_alpha3", "label_shp": "iso_alpha3", "path": "properties.iso_alpha3" },
                 { "label": "gaul_admin0_code", "label_shp": "g_a0_code", "path": "properties.admin0_code" },
                 { "label": "gaul_admin0_name", "label_shp": "g_a0_name", "path": "properties.admin0_name" },
@@ -523,8 +523,68 @@ class api_data_countryhazard(geodash_data_view):
                 { "label": "context_delta_positive", "label_shp": "delta_pos", "path": "properties.delta_positive", "type": "float" },
                 { "label": "context_delta_forest",  "label_shp": "delta_for", "path": "properties.delta_forest", "type": "float" },
                 { "label": "context_delta_crop", "label_shp": "delta_crp",  "path": "properties.delta_crop", "type": "float" },
-                { "label": "context_erosion_propensity", "label_shp": "delta_ero", "path": "properties.erosion_propensity", "type": "float" }
+                { "label": "context_erosion_propensity", "label_shp": "erosion",  "path": "properties.erosion_propensity", "type": "float" },
+                { "label": "vam_fcs_poor", "label_shp": "fcs_poor", "path": "properties.vam_fcs_poor", "type": "float" },
+                { "label": "vam_fcs_borderline", "label_shp": "fcs_border", "path": "properties.vam_fcs_borderline", "type": "float" },
+                { "label": "vam_fcs_acceptable", "label_shp": "fcs_accept", "path": "properties.vam_fcs_acceptable", "type": "float" },
+                { "label": "vam_csi_no", "label_shp": "csi_no", "path": "properties.vam_csi_no", "type": "float" },
+                { "label": "vam_csi_low", "label_shp": "csi_low", "path": "properties.vam_csi_low", "type": "float" },
+                { "label": "vam_csi_medium", "label_shp": "csi_medium", "path": "properties.vam_csi_medium", "type": "float" },
+                { "label": "vam_csi_high", "label_shp": "csi_high", "path": "properties.vam_csi_high", "type": "float" }
             ]
+
+            if hazard == "flood":
+                month = getRequestParameterAsInteger(request, "month", None)
+                rp = getRequestParameterAsInteger(request, "rp", None)
+                if month and rp:
+                    path = ".".join(["properties", "RP"+str(rp), MONTHS_SHORT3[month-1].lower()])
+                    attribute = {
+                        "label": "POPATRISK_"+MONTHS_SHORT3[month-1].upper()+"_RP"+str(rp),
+                        "label_shp": MONTHS_SHORT3[month-1].upper()+"_RP"+str(rp),
+                        "path": path,
+                        "type": "integer",
+                        "reduce": []
+                    }
+                    fcs = getRequestParameterAsList(request, "fcs", None)
+                    if fcs:
+                        attributes.append({ "label": "vam_fcs_filter", "label_shp": "fcs_filter", "value": ",".join(fcs), "type": "string" });
+                        attribute['reduce'].append({
+                            "operation": "profile",
+                            "paths": ["properties.vam_fcs_"+x for x in fcs],
+                            "denominator": 100
+                        })
+                    csi = getRequestParameterAsList(request, "csi", None)
+                    if csi:
+                        attributes.append({ "label": "vam_csi_filter", "label_shp": "csi_filter", "value": ",".join(csi), "type": "string" });
+                        attribute['reduce'].append({
+                            "operation": "profile",
+                            "paths": ["properties.vam_csi_"+x for x in csi],
+                            "denominator": 100
+                        })
+                    attributes.append(attribute)
+            elif hazard == "drought":
+                month = getRequestParameterAsInteger(request, "month", None)
+                prob_class_max = getRequestParameterAsFloat(request, "prob_class_max", None)
+                if month and prob_class_max:
+                    attribute = {
+                        "label": "POPATRISK_"+MONTHS_SHORT3[month-1].upper()+"_"+str(int(prob_class_max*100)),
+                        "label_shp": MONTHS_SHORT3[month-1].upper()+"_"+str(int(prob_class_max*100)),
+                        "path": "properties.addinfo",
+                        "type": "integer",
+                        "reduce": [{
+                            "attributes": [
+                                {'path': "prob_class_min", 'type': 'float'},
+                                {'path': unicode(MONTHS_SHORT3[month-1].lower()), 'type': 'integer'}
+                            ],
+                            "grep": ["prob_class_min>="+str(prob_class_max)],
+                            "path": unicode(MONTHS_SHORT3[month-1].lower()),
+                            "operation": "sum"
+                        }]
+                    }
+                    attributes.append(attribute)
+
+            return attributes
+
         elif dataset == "events" or dataset == u"events":
             return [
                 { "label": "count", "label_shp": "count", "path": "properties.count", "type": "integer"},
@@ -556,6 +616,50 @@ class api_data_countryhazard(geodash_data_view):
             return ogr.wkbPoint
         else:
             return None
+
+    def _build_grep_post_attributes(self, request, *args, **kwargs):
+        iso3 = kwargs.pop('iso3', None)
+        hazard = kwargs.pop('hazard', None)
+        dataset = kwargs.pop('dataset', None)
+        extension = kwargs.pop('extension', None)
+
+        attributes = []
+        popatrisk = getRequestParameterAsList(request, "popatrisk", None)
+        if popatrisk:
+            if hazard == "flood":
+                month = getRequestParameterAsInteger(request, "month", None)
+                rp = getRequestParameterAsInteger(request, "rp", None)
+                if month and rp:
+                    if extension == "zip":
+                        attributes.append({
+                            "path": "properties."+MONTHS_SHORT3[month-1].upper()+"_RP"+str(rp),
+                            "type": "integer"
+                        })
+                    else:
+                        attributes.append({
+                            "path": "properties.POPATRISK_"+MONTHS_SHORT3[month-1].upper()+"_RP"+str(rp),
+                            "type": "integer"
+                        })
+        return attributes
+
+    def _build_grep_post_filters(self, request, *args, **kwargs):
+        iso3 = kwargs.pop('iso3', None)
+        hazard = kwargs.pop('hazard', None)
+        dataset = kwargs.pop('dataset', None)
+        extension = kwargs.pop('extension', None)
+
+        grep_post = []
+        popatrisk = getRequestParameterAsList(request, "popatrisk", None)
+        if popatrisk:
+            if hazard == "flood":
+                month = getRequestParameterAsInteger(request, "month", None)
+                rp = getRequestParameterAsInteger(request, "rp", None)
+                if month and rp:
+                    if extension == "zip":
+                        grep_post.append("properties."+MONTHS_SHORT3[month-1].upper()+"_RP"+str(rp)+" between "+str(popatrisk[0])+" and "+str(popatrisk[1]))
+                    else:
+                        grep_post.append("properties.POPATRISK_"+MONTHS_SHORT3[month-1].upper()+"_RP"+str(rp)+" between "+str(popatrisk[0])+" and "+str(popatrisk[1]))
+        return grep_post
 
 
     def _build_data(self, request, *args, **kwargs):

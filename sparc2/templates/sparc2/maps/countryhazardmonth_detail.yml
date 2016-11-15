@@ -766,6 +766,7 @@ featurelayers:
         output: rp
         title: "Return Period"
         description:  "Probability is based on the concept of \"return period\".  A return period is an estimate of the likelihood of an event, such as a flood, to occur. The theoretical return period is the inverse of the probability that the event will be exceeded in any one year (or more accurately the inverse of the expected number of occurrences in a year). In this case, a 100 year flood has a 0.01 or 1% chance of being exceeded in any one year."
+        #api: { type: grep, path: "properties.rp", operand: "=" }
         ui:
           height: 50px
           type: slider
