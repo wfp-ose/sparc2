@@ -136,15 +136,19 @@ featurelayers:
         - type: json
           title: GeoJSON
           baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/{% endverbatim %}{{ hazard }}{% verbatim %}/dataset/popatrisk.json"
+          tooltip: { title: "API for systems integration.  Can use directly with QGIS." }
         - type: yaml
           title: YAML
           baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/{% endverbatim %}{{ hazard }}{% verbatim %}/dataset/popatrisk.yml"
+          tooltip: { title: "Useful for reading" }
         - type: csv
           title: CSV
           baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/{% endverbatim %}{{ hazard }}{% verbatim %}/dataset/popatrisk.csv"
+          tooltip: { title: "Can be used with Microsoft Excel" }
         - type: zipped_shapefile
           title: "Zipped Shapefile"
           baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/{% endverbatim %}{{ hazard }}{% verbatim %}/dataset/popatrisk.zip"
+          tooltip: { title: "Can be use with GIS systems" }
     carto:
       styles:
         - id: default

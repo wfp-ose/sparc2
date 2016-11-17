@@ -1,0 +1,8 @@
+---
+name: hazards
+description: tbd
+attributes:
+  - label: id
+    path: id
+  - label: title
+    path: title

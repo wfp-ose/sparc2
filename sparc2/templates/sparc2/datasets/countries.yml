@@ -1,0 +1,21 @@
+---
+name: Countries
+description: TBD
+attributes:
+  - label: iso_alpha2
+    path: iso.alpha2
+  - label: iso_alpha3
+    path: iso.alpha3
+  - label: iso_num
+    path: iso.num
+    type: integer
+  - label: dos_short
+    path: dos.short
+  - label: dos_long
+    path: dos.long
+  - label: gaul_admin0_code
+    path: gaul.admin0_code
+  - label: gaul_admin0_name
+    path: gaul.admin0_name
+  - label: gaul_extent
+    path: gaul.extent

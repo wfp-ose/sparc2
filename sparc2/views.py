@@ -48,17 +48,9 @@ class api_countries(geodash_data_view):
     def _build_key(self, request, *args, **kwargs):
         return "data/local/countries/{extension}".format(**kwargs)
 
-    def _build_attributes(self, request, *args, **kwargs):
-        return [
-          { "label": "iso_alpha2", "path": "iso.alpha2" },
-          { "label": "iso_alpha3", "path": "iso.alpha3" },
-          { "label": "iso_num ", "path": "iso.num", "type": "integer" },
-          { "label": "dos_short", "path": "dos.short" },
-          { "label": "dos_long", "path": "dos.long" },
-          { "label": "gaul_admin0_code", "path": "gaul.admin0_code" },
-          { "label": "gaul_admin0_name", "path": "gaul.admin0_name" },
-          { "label": "gaul_extent", "path": "gaul.extent" }
-        ]
+    def _build_dataset(self, request, *args, **kwargs):
+        ds = yaml.load(get_template("sparc2/datasets/countries.yml").render({}))
+        return ds
 
     def _build_data(self, request, *args, **kwargs):
         extension = kwargs.pop('extension', None)
@@ -153,11 +145,9 @@ class api_hazards(geodash_data_view):
     def _build_key(self, request, *args, **kwargs):
         return "data/local/hazards/{extension}".format(**kwargs)
 
-    def _build_attributes(self, request, *args, **kwargs):
-        return [
-          { "label": "id", "path": "id" },
-          { "label": "title", "path": "title" }
-        ]
+    def _build_dataset(self, request, *args, **kwargs):
+        ds = yaml.load(get_template("sparc2/datasets/hazards.yml").render({}))
+        return ds
 
     def _build_data(self, request, *args, **kwargs):
         hazards = []
@@ -420,37 +410,24 @@ class api_data_country(geodash_data_view):
     def _build_key(self, request, *args, **kwargs):
         return "data/local/country/{iso3}/dataset/{dataset}".format(**kwargs)
 
-    def _build_attributes(self, request, *args, **kwargs):
+    def _build_dataset(self, request, *args, **kwargs):
         iso3 = kwargs.pop('iso3', None)
         dataset = kwargs.pop('dataset', None)
         attributes_filter_include_string = request.GET.get('attributes') or request.GET.get('include') or request.GET.get('columns')
         attributes_filter_exclude_string = request.GET.get('exclude') or request.GET.get('attributes_exclude') or request.GET.get('columns_exclude')
 
         if dataset == "context":
-            attributes = [
-                { "label": "iso_alpha3", "label_shp": "iso_alpha3", "path": "properties.iso_alpha3" },
-                { "label": "gaul_admin0_code", "label_shp": "g_a0_code", "path": "properties.admin0_code" },
-                { "label": "gaul_admin0_name", "label_shp": "g_a0_name", "path": "properties.admin0_name" },
-                { "label": "gaul_admin1_code", "label_shp": "g_a1_code", "path": "properties.admin1_code" },
-                { "label": "gaul_admin1_name", "label_shp": "g_a1_name","path": "properties.admin1_name" },
-                { "label": "gaul_admin2_code", "label_shp": "g_a2_code", "path": "properties.admin2_code" },
-                { "label": "gaul_admin2_name", "label_shp": "g_a2_name", "path": "properties.admin2_name" },
-                { "label": "context_ldi", "label_shp": "ldi", "path": "properties.ldi", "type": "integer" },
-                { "label": "context_delta_mean", "label_shp": "delta_mean", "path": "properties.delta_mean", "type": "float" },
-                { "label": "context_delta_negative", "label_shp": "delta_neg", "path": "properties.delta_negative", "type": "float" },
-                { "label": "context_delta_positive", "label_shp": "delta_pos", "path": "properties.delta_positive", "type": "float" },
-                { "label": "context_delta_forest", "label_shp": "delta_for", "path": "properties.delta_forest", "type": "float" },
-                { "label": "context_delta_crop", "label_shp": "delta_crp", "path": "properties.delta_crop", "type": "float" },
-                { "label": "context_erosion_propensity", "label_shp": "erosion", "path": "properties.erosion_propensity", "type": "float" }
-            ]
-            if attributes:
+
+            ds = yaml.load(get_template("sparc2/datasets/context.yml").render({}))
+
+            if ds.get('attributes'):
                 if isinstance(attributes_filter_include_string, basestring) and len(attributes_filter_include_string) > 0:
                     attributes_filter_include_list = attributes_filter_include_string.split(",")
-                    attributes = [x for x in attributes if x['path'] in attributes_filter_include_list]
+                    ds['attributes'] = [x for x in ds['attributes'] if x.get('path') in attributes_filter_include_list]
                 if isinstance(attributes_filter_exclude_string, basestring) and len(attributes_filter_exclude_string) > 0:
                     attributes_filter_exclude_list = attributes_filter_exclude_string.split(",")
-                    attributes = [x for x in attributes if x['path'] not in attributes_filter_exclude_list]
-            return attributes
+                    ds['attributes'] = [x for x in ds['attributes'] if x.get('path') not in attributes_filter_exclude_list]
+            return ds
         else:
             return None
 
@@ -503,35 +480,16 @@ class api_data_countryhazard(geodash_data_view):
     def _build_key(self, request, *args, **kwargs):
         return "data/local/country/{iso3}/hazard/{hazard}/dataset/{dataset}".format(**kwargs)
 
-    def _build_attributes(self, request, *args, **kwargs):
+    def _build_dataset(self, request, *args, **kwargs):
         iso3 = kwargs.pop('iso3', None)
         hazard = kwargs.pop('hazard', None)
         dataset = kwargs.pop('dataset', None)
 
         if dataset == "popatrisk" or dataset == u"popatrisk":
-            attributes = [
-                { "label": "iso_alpha3", "label_shp": "iso_alpha3", "path": "properties.iso_alpha3" },
-                { "label": "gaul_admin0_code", "label_shp": "g_a0_code", "path": "properties.admin0_code" },
-                { "label": "gaul_admin0_name", "label_shp": "g_a0_name", "path": "properties.admin0_name" },
-                { "label": "gaul_admin1_code", "label_shp": "g_a1_code", "path": "properties.admin1_code" },
-                { "label": "gaul_admin1_name", "label_shp": "g_a1_name","path": "properties.admin1_name" },
-                { "label": "gaul_admin2_code", "label_shp": "g_a2_code", "path": "properties.admin2_code" },
-                { "label": "gaul_admin2_name", "label_shp": "g_a2_name", "path": "properties.admin2_name" },
-                { "label": "context_ldi", "label_shp": "ldi", "path": "properties.ldi", "type": "integer" },
-                { "label": "context_delta_mean", "label_shp": "delta_mean", "path": "properties.delta_mean", "type": "float" },
-                { "label": "context_delta_negative",  "label_shp": "delta_neg", "path": "properties.delta_negative", "type": "float" },
-                { "label": "context_delta_positive", "label_shp": "delta_pos", "path": "properties.delta_positive", "type": "float" },
-                { "label": "context_delta_forest",  "label_shp": "delta_for", "path": "properties.delta_forest", "type": "float" },
-                { "label": "context_delta_crop", "label_shp": "delta_crp",  "path": "properties.delta_crop", "type": "float" },
-                { "label": "context_erosion_propensity", "label_shp": "erosion",  "path": "properties.erosion_propensity", "type": "float" },
-                { "label": "vam_fcs_poor", "label_shp": "fcs_poor", "path": "properties.vam_fcs_poor", "type": "float" },
-                { "label": "vam_fcs_borderline", "label_shp": "fcs_border", "path": "properties.vam_fcs_borderline", "type": "float" },
-                { "label": "vam_fcs_acceptable", "label_shp": "fcs_accept", "path": "properties.vam_fcs_acceptable", "type": "float" },
-                { "label": "vam_csi_no", "label_shp": "csi_no", "path": "properties.vam_csi_no", "type": "float" },
-                { "label": "vam_csi_low", "label_shp": "csi_low", "path": "properties.vam_csi_low", "type": "float" },
-                { "label": "vam_csi_medium", "label_shp": "csi_medium", "path": "properties.vam_csi_medium", "type": "float" },
-                { "label": "vam_csi_high", "label_shp": "csi_high", "path": "properties.vam_csi_high", "type": "float" }
-            ]
+
+            ds = yaml.load(get_template("sparc2/datasets/"+str(dataset)+".yml").render({
+                "hazard": hazard
+            }))
 
             if hazard == "drought":
                 month = getRequestParameterAsInteger(request, "month", None)
@@ -554,7 +512,7 @@ class api_data_countryhazard(geodash_data_view):
                     }
                     fcs = getRequestParameterAsList(request, "fcs", None)
                     if fcs:
-                        attributes.append({ "label": "vam_fcs_filter", "label_shp": "fcs_filter", "value": ",".join(fcs), "type": "string" });
+                        ds['attributes'].append({ "label": "vam_fcs_filter", "label_shp": "fcs_filter", "value": ",".join(fcs), "type": "string" });
                         attribute['reduce'].append({
                             "operation": "profile",
                             "paths": ["properties.vam_fcs_"+x for x in fcs],
@@ -562,13 +520,13 @@ class api_data_countryhazard(geodash_data_view):
                         })
                     csi = getRequestParameterAsList(request, "csi", None)
                     if csi:
-                        attributes.append({ "label": "vam_csi_filter", "label_shp": "csi_filter", "value": ",".join(csi), "type": "string" });
+                        ds['attributes'].append({ "label": "vam_csi_filter", "label_shp": "csi_filter", "value": ",".join(csi), "type": "string" });
                         attribute['reduce'].append({
                             "operation": "profile",
                             "paths": ["properties.vam_csi_"+x for x in csi],
                             "denominator": 100
                         })
-                    attributes.append(attribute)
+                    ds['attributes'].append(attribute)
 
             elif hazard == "flood":
                 month = getRequestParameterAsInteger(request, "month", None)
@@ -584,7 +542,7 @@ class api_data_countryhazard(geodash_data_view):
                     }
                     fcs = getRequestParameterAsList(request, "fcs", None)
                     if fcs:
-                        attributes.append({ "label": "vam_fcs_filter", "label_shp": "fcs_filter", "value": ",".join(fcs), "type": "string" });
+                        ds['attributes'].append({ "label": "vam_fcs_filter", "label_shp": "fcs_filter", "value": ",".join(fcs), "type": "string" });
                         attribute['reduce'].append({
                             "operation": "profile",
                             "paths": ["properties.vam_fcs_"+x for x in fcs],
@@ -592,21 +550,21 @@ class api_data_countryhazard(geodash_data_view):
                         })
                     csi = getRequestParameterAsList(request, "csi", None)
                     if csi:
-                        attributes.append({ "label": "vam_csi_filter", "label_shp": "csi_filter", "value": ",".join(csi), "type": "string" });
+                        ds['attributes'].append({ "label": "vam_csi_filter", "label_shp": "csi_filter", "value": ",".join(csi), "type": "string" });
                         attribute['reduce'].append({
                             "operation": "profile",
                             "paths": ["properties.vam_csi_"+x for x in csi],
                             "denominator": 100
                         })
-                    attributes.append(attribute)
+                    ds['attributes'].append(attribute)
 
-            return attributes
+            return ds
 
         elif dataset == "events" or dataset == u"events":
-            return [
-                { "label": "count", "label_shp": "count", "path": "properties.count", "type": "integer"},
-                { "label": "adm2_name", "label_shp": "adm2_name", "path": "properties.adm2_name", "type": "string"}
-            ]
+            ds = yaml.load(get_template("sparc2/datasets/"+str(dataset)+".yml").render({
+                "hazard": hazard
+            }))
+            return ds
         else:
             return None
 

@@ -1,0 +1,11 @@
+---
+name: events
+attributes:
+  - label: count
+    label_shp: count
+    path: properties.count
+    type: integer
+  - label: adm2_name
+    label_shp: adm2_name
+    path: properties.adm2_name
+    type: string
