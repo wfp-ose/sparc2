@@ -1,0 +1,43 @@
+if ext_lc == "geodash":
+
+      sizes = {
+        'dos_short': 0,
+        'dos_long': 0,
+        'gaul_admin0_name': 0
+      }
+      for x in data["countries"]:
+          try:
+              y = len(x["dos"]["short"])
+              if y > sizes["dos_short"]:
+                  sizes["dos_short"] = y
+          except:
+              pass
+          try:
+              y = len(x["dos"]["long"])
+              if y > sizes["dos_long"]:
+                  sizes["dos_long"] = y
+          except:
+              pass
+          try:
+              y = len(x["gaul"]["admin0_name"])
+              if y > sizes["gaul_admin0_name"]:
+                  sizes["gaul_admin0_name"] = y
+          except:
+              pass
+      #####################
+      # Calculate Size of Byte Array
+      numberOfCountries = len(data["countries"])
+      bytes_header = 4 * 4 # Integers for number of countries, length of dos_short, length of dos_long, length of gaul_admin0_name
+      bytes_iso_alpha2 =  4 * 2
+      bytes_iso_alpha3 =  4 * 3
+      bytes_iso_num = 2
+      bytes_dos_short = 4 * sizes["dos_short"]
+      bytes_dos_long = 4 * sizes['dos_long']
+      bytes_gaul_admin0_code = 4 * 1
+      bytes_gaul_admin0_name = 4 * sizes["gaul_admin0_name"] * numberOfCountries
+      bytes_data = 4 * numberOfCountries * (bytes_iso_alpha2 + bytes_iso_alpha3 + bytes_iso_num + bytes_dos_short + bytes_dos_long + bytes_gaul_admin0_code + bytes_gaul_admin0_name)
+      numberOfBytes = bytes_header + bytes_data
+      #####################
+      # Allocate Byte Array
+      print "Number of Bytes: ", numberOfBytes
+      data = bytearray(numberOfBytes)

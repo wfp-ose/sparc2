@@ -129,26 +129,26 @@ featurelayers:
     title: "Population at Risk"
     description: "Population at Risk"
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
-    geojson: { url: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/{% endverbatim %}{{ hazard }}{% verbatim %}/dataset/popatrisk.json" }
+    geojson: { url: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/{% endverbatim %}{{ hazard }}{% verbatim %}/dataset/popatrisk/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_PopAtRisk_{% endverbatim %}{{ hazard | title }}{% verbatim %}.json" }
     legend: { ui: { source: false } }
     download:
       links:
         - type: json
           title: GeoJSON
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/{% endverbatim %}{{ hazard }}{% verbatim %}/dataset/popatrisk.json"
-          tooltip: { title: "API for systems integration.  Can use directly with QGIS." }
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/{% endverbatim %}{{ hazard }}{% verbatim %}/dataset/popatrisk/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_PopAtRisk_{% endverbatim %}{{ hazard | title }}{% verbatim %}.json"
+          tooltip: { title: "API for systems integration.  Can be used with QGIS." }
         - type: yaml
           title: YAML
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/{% endverbatim %}{{ hazard }}{% verbatim %}/dataset/popatrisk.yml"
-          tooltip: { title: "Useful for reading" }
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/{% endverbatim %}{{ hazard }}{% verbatim %}/dataset/popatrisk/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_PopAtRisk_{% endverbatim %}{{ hazard | title }}{% verbatim %}.yml"
+          tooltip: { title: "Useful for reading." }
         - type: csv
           title: CSV
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/{% endverbatim %}{{ hazard }}{% verbatim %}/dataset/popatrisk.csv"
-          tooltip: { title: "Can be used with Microsoft Excel" }
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/{% endverbatim %}{{ hazard }}{% verbatim %}/dataset/popatrisk/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_PopAtRisk_{% endverbatim %}{{ hazard | title }}{% verbatim %}.csv"
+          tooltip: { title: "Can be used with Microsoft Excel." }
         - type: zipped_shapefile
           title: "Zipped Shapefile"
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/{% endverbatim %}{{ hazard }}{% verbatim %}/dataset/popatrisk.zip"
-          tooltip: { title: "Can be use with GIS systems" }
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/{% endverbatim %}{{ hazard }}{% verbatim %}/dataset/popatrisk/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_PopAtRisk_{% endverbatim %}{{ hazard | title }}{% verbatim %}.zip"
+          tooltip: { title: "Can be use with GIS systems, e.g., GeoNode, ArcMap, and QGIS." }
     carto:
       styles:
         - id: default

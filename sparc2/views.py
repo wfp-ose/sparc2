@@ -8,6 +8,7 @@ import requests
 import ogr
 
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.views.generic import View
 from django.shortcuts import HttpResponse, render_to_response
 from django.template import RequestContext
@@ -24,7 +25,7 @@ from lsibdjango.models import GeographicThesaurusEntry
 from gauldjango.models import GAULAdmin0
 
 from geodash.cache import provision_memcached_client
-from geodash.enumerations import MONTHS_SHORT3
+from geodash.enumerations import MONTHS_SHORT3, GEOMETRY_TYPE_TO_OGR
 from geodash.transport import writeToByteArray
 from geodash.utils import extract, getRequestParameter, getRequestParameterAsInteger, getRequestParameterAsFloat, getRequestParameterAsList, getRequestParameters
 from geodash.views import geodash_data_view
@@ -40,131 +41,85 @@ from sparc2.stats.landslide import get_summary_landslide
 ENDPOINTS_PATH = "sparc2/static/sparc2/build/api/endpoints.yml"
 
 
-class api_countries(geodash_data_view):
+class api_data(geodash_data_view):
 
     def _build_root(self, request, *args, **kwargs):
-        return request.GET.get('root', None) or "countries"
+        return request.GET.get('root', None) or kwargs.get('dataset')
 
     def _build_key(self, request, *args, **kwargs):
-        return "data/local/countries/{extension}".format(**kwargs)
+        return "data/local/{dataset}/{extension}".format(**kwargs)
 
     def _build_dataset(self, request, *args, **kwargs):
-        ds = yaml.load(get_template("sparc2/datasets/countries.yml").render({}))
+        ds = None
+        dataset = kwargs.get("dataset")
+        url = reverse("api_metadata", kwargs={"dataset": dataset, "extension": "json"})
+        if url:
+            response = requests.get(settings.SITEURL[:-1]+url)
+            if response:
+                ds = response.json()
+
         return ds
 
     def _build_data(self, request, *args, **kwargs):
+
+        dataset = kwargs.pop('dataset', None)
         extension = kwargs.pop('extension', None)
         ext_lc = extension.lower()
 
-        countries = []
-        for x in GeographicThesaurusEntry.objects.all():
-            g = None
-            try:
-                g = GAULAdmin0.objects.get(admin0_code=x.gaul)
-            except:
+        data = {}
+
+        if dataset == "countries":
+            countries = []
+            for x in GeographicThesaurusEntry.objects.all():
                 g = None
+                try:
+                    g = GAULAdmin0.objects.get(admin0_code=x.gaul)
+                except:
+                    g = None
 
-            y = {
-                'iso': {
-                    'alpha2': x.iso_alpha2,
-                    'alpha3': x.iso_alpha3,
-                    'num': x.iso_num  # 2 bytes for 3 digits
-                },
-                'dos': {
-                    'short': x.dos_short,
-                    'long': x.dos_long
+                y = {
+                    'iso': {
+                        'alpha2': x.iso_alpha2,
+                        'alpha3': x.iso_alpha3,
+                        'num': x.iso_num  # 2 bytes for 3 digits
+                    },
+                    'dos': {
+                        'short': x.dos_short,
+                        'long': x.dos_long
+                    }
                 }
-            }
-            if g is not None:
-                y['gaul'] = {
-                    'admin0_code': g.admin0_code,
-                    'admin0_name': g.admin0_name,
-                }
-                if g.mpoly is not None:
-                    y['gaul']['extent'] = [x for x in g.mpoly.extent]
-            countries.append(y)
+                if g is not None:
+                    y['gaul'] = {
+                        'admin0_code': g.admin0_code,
+                        'admin0_name': g.admin0_name,
+                    }
+                    if g.mpoly is not None:
+                        y['gaul']['extent'] = [x for x in g.mpoly.extent]
+                countries.append(y)
+            data[dataset] = countries
 
-
-        data = {
-            'countries': countries
-        }
-
-        if ext_lc == "geodash":
-
-            sizes = {
-              'dos_short': 0,
-              'dos_long': 0,
-              'gaul_admin0_name': 0
-            }
-            for x in data["countries"]:
-                try:
-                    y = len(x["dos"]["short"])
-                    if y > sizes["dos_short"]:
-                        sizes["dos_short"] = y
-                except:
-                    pass
-                try:
-                    y = len(x["dos"]["long"])
-                    if y > sizes["dos_long"]:
-                        sizes["dos_long"] = y
-                except:
-                    pass
-                try:
-                    y = len(x["gaul"]["admin0_name"])
-                    if y > sizes["gaul_admin0_name"]:
-                        sizes["gaul_admin0_name"] = y
-                except:
-                    pass
-            #####################
-            # Calculate Size of Byte Array
-            numberOfCountries = len(data["countries"])
-            bytes_header = 4 * 4 # Integers for number of countries, length of dos_short, length of dos_long, length of gaul_admin0_name
-            bytes_iso_alpha2 =  4 * 2
-            bytes_iso_alpha3 =  4 * 3
-            bytes_iso_num = 2
-            bytes_dos_short = 4 * sizes["dos_short"]
-            bytes_dos_long = 4 * sizes['dos_long']
-            bytes_gaul_admin0_code = 4 * 1
-            bytes_gaul_admin0_name = 4 * sizes["gaul_admin0_name"] * numberOfCountries
-            bytes_data = 4 * numberOfCountries * (bytes_iso_alpha2 + bytes_iso_alpha3 + bytes_iso_num + bytes_dos_short + bytes_dos_long + bytes_gaul_admin0_code + bytes_gaul_admin0_name)
-            numberOfBytes = bytes_header + bytes_data
-            #####################
-            # Allocate Byte Array
-            print "Number of Bytes: ", numberOfBytes
-            data = bytearray(numberOfBytes)
-
+        elif dataset == "hazards":
+            hazards = []
+            for x in SPARC_HAZARDS_CONFIG:
+                if x['id'] in settings.SPARC_HAZARDS:
+                    y = {
+                        'id': x['id'],
+                        'title': x['title']
+                    }
+                    hazards.append(y)
+            data[dataset] = hazards
 
         return data
 
 
-class api_hazards(geodash_data_view):
-
-    def _build_root(self, request, *args, **kwargs):
-        return request.GET.get('root', None) or "hazards"
+class api_metadata(geodash_data_view):
 
     def _build_key(self, request, *args, **kwargs):
-        return "data/local/hazards/{extension}".format(**kwargs)
-
-    def _build_dataset(self, request, *args, **kwargs):
-        ds = yaml.load(get_template("sparc2/datasets/hazards.yml").render({}))
-        return ds
+        return "metadata/local/dataset/{dataset}".format(**kwargs)
 
     def _build_data(self, request, *args, **kwargs):
-        hazards = []
-
-        for x in SPARC_HAZARDS_CONFIG:
-            if x['id'] in settings.SPARC_HAZARDS:
-                y = {
-                    'id': x['id'],
-                    'title': x['title']
-                }
-                hazards.append(y)
-
-        data = {
-            'hazards': hazards
-        }
-
-        return data
+        ds = yaml.load(get_template("sparc2/datasets/{dataset}.yml".format(**kwargs)).render({}))
+        return ds
 
 class api_dashboard_home(geodash_data_view):
 
@@ -172,9 +127,7 @@ class api_dashboard_home(geodash_data_view):
         return "dashboard/home".format(**kwargs)
 
     def _build_data(self, request, *args, **kwargs):
-
         data = yaml.load(get_template("sparc2/maps/home.yml").render({}))
-
         return data
 
 
@@ -298,7 +251,7 @@ class api_state_countryhazardmonth(geodash_data_view):
             "baselayer": "osm",
             "featurelayers": ["popatrisk"]
         }
-        response = requests.get(settings.SITEURL+"api/countries.json?grep=iso.alpha3%3D"+iso3)
+        response = requests.get(settings.SITEURL+"api/data/countries.json?grep=iso.alpha3%3D"+iso3)
         extent = extract(["countries", 0, "gaul", "extent"], response.json(), None)
         if extent is None:
             view["lat"] = dashboard["view"].get("latitude", 0)
@@ -411,45 +364,67 @@ class api_data_country(geodash_data_view):
         return "data/local/country/{iso3}/dataset/{dataset}".format(**kwargs)
 
     def _build_dataset(self, request, *args, **kwargs):
-        iso3 = kwargs.pop('iso3', None)
-        dataset = kwargs.pop('dataset', None)
-        attributes_filter_include_string = request.GET.get('attributes') or request.GET.get('include') or request.GET.get('columns')
-        attributes_filter_exclude_string = request.GET.get('exclude') or request.GET.get('attributes_exclude') or request.GET.get('columns_exclude')
+        ds = None
 
-        if dataset == "context":
-
-            ds = yaml.load(get_template("sparc2/datasets/context.yml").render({}))
-
-            if ds.get('attributes'):
-                if isinstance(attributes_filter_include_string, basestring) and len(attributes_filter_include_string) > 0:
-                    attributes_filter_include_list = attributes_filter_include_string.split(",")
-                    ds['attributes'] = [x for x in ds['attributes'] if x.get('path') in attributes_filter_include_list]
-                if isinstance(attributes_filter_exclude_string, basestring) and len(attributes_filter_exclude_string) > 0:
-                    attributes_filter_exclude_list = attributes_filter_exclude_string.split(",")
-                    ds['attributes'] = [x for x in ds['attributes'] if x.get('path') not in attributes_filter_exclude_list]
-            return ds
-        else:
-            return None
-
-
-    def _build_geometry(self, request, *args, **kwargs):
         iso3 = kwargs.pop('iso3', None)
         dataset = kwargs.pop('dataset', None)
 
-        if dataset == "context" or dataset == "vam":
-            return "geometry"
-        else:
-            return None
+        url = reverse("api_metadata_country", kwargs={
+            "iso3": iso3,
+            "dataset": dataset,
+            "extension": "json"
+        })
+        if url:
+            response = requests.get(settings.SITEURL[:-1]+url)
+            if response:
+                ds = response.json()
+                if dataset == "context":
+                    attributes_filter_include_string = request.GET.get('attributes') or request.GET.get('include') or request.GET.get('columns')
+                    attributes_filter_exclude_string = request.GET.get('exclude') or request.GET.get('attributes_exclude') or request.GET.get('columns_exclude')
+                    if ds.get('attributes'):
+                        if isinstance(attributes_filter_include_string, basestring) and len(attributes_filter_include_string) > 0:
+                            attributes_filter_include_list = attributes_filter_include_string.split(",")
+                            ds['attributes'] = [x for x in ds['attributes'] if x.get('path') in attributes_filter_include_list]
+                        if isinstance(attributes_filter_exclude_string, basestring) and len(attributes_filter_exclude_string) > 0:
+                            attributes_filter_exclude_list = attributes_filter_exclude_string.split(",")
+                            ds['attributes'] = [x for x in ds['attributes'] if x.get('path') not in attributes_filter_exclude_list]
+        return ds
+
+
+    def _build_geometry_path(self, request, *args, **kwargs):
+        path = None
+
+        url = reverse("api_metadata_countryhazard", kwargs={
+            "iso3": kwargs.get('iso3', None),
+            "hazard": kwargs.get('hazard', None),
+            "dataset": kwargs.get('dataset', None),
+            "extension": "json"
+        })
+        if url:
+            response = requests.get(settings.SITEURL[:-1]+url)
+            if response:
+                ds = response.json()
+                path = extract("geometry.path", ds , None)
+
+        return path
 
 
     def _build_geometry_type(self, request, *args, **kwargs):
-        iso3 = kwargs.pop('iso3', None)
-        dataset = kwargs.pop('dataset', None)
+        geometryType = None
+        url = reverse("api_metadata_countryhazard", kwargs={
+            "iso3": kwargs.get('iso3', None),
+            "hazard": kwargs.get('hazard', None),
+            "dataset": kwargs.get('dataset', None),
+            "extension": "json"
+        })
+        if url:
+            response = requests.get(settings.SITEURL[:-1]+url)
+            if response:
+                ds = response.json()
+                if ds:
+                    geometryType = GEOMETRY_TYPE_TO_OGR.get(extract("geometry.type", ds , "").lower())
 
-        if dataset == "context" or dataset == "vam":
-            return ogr.wkbMultiPolygon
-        else:
-            return None
+        return geometryType
 
 
     def _build_data(self, request, *args, **kwargs):
@@ -472,6 +447,21 @@ class api_data_country(geodash_data_view):
         return data
 
 
+class api_metadata_country(geodash_data_view):
+
+    def _build_key(self, request, *args, **kwargs):
+        return "metadata/local/country/{iso3}/dataset/{dataset}".format(**kwargs)
+
+    def _build_data(self, request, *args, **kwargs):
+
+        dataset = kwargs.get('dataset', None)
+        extension = kwargs.get('extension', None)
+        ext_lc = extension.lower()
+
+        ds = yaml.load(get_template("sparc2/datasets/{dataset}.yml".format(**kwargs)).render({}))
+        return ds
+
+
 class api_data_countryhazard(geodash_data_view):
 
     def _build_root(self, request, *args, **kwargs):
@@ -481,116 +471,128 @@ class api_data_countryhazard(geodash_data_view):
         return "data/local/country/{iso3}/hazard/{hazard}/dataset/{dataset}".format(**kwargs)
 
     def _build_dataset(self, request, *args, **kwargs):
+        ds = None
+
         iso3 = kwargs.pop('iso3', None)
         hazard = kwargs.pop('hazard', None)
         dataset = kwargs.pop('dataset', None)
 
-        if dataset == "popatrisk" or dataset == u"popatrisk":
+        url = reverse("api_metadata_countryhazard", kwargs={
+            "iso3": iso3,
+            "hazard": hazard,
+            "dataset": dataset,
+            "extension": "json"
+        })
+        if url:
+            response = requests.get(settings.SITEURL[:-1]+url)
+            if response:
+                ds = response.json()
+                if dataset == "popatrisk" or dataset == u"popatrisk":
+                    if hazard == "drought":
+                        month = getRequestParameterAsInteger(request, "month", None)
+                        prob_class_max = getRequestParameterAsFloat(request, "prob_class_max", None)
+                        if month and prob_class_max:
+                            attribute = {
+                                "label": "POPATRISK_"+MONTHS_SHORT3[month-1].upper()+"_"+str(int(prob_class_max*100)),
+                                "label_shp": MONTHS_SHORT3[month-1].upper()+"_"+str(int(prob_class_max*100)),
+                                "path": "properties.addinfo",
+                                "type": "float",
+                                "reduce": [{
+                                    "attributes": [
+                                        {'path': "prob_class_min", 'type': 'float'},
+                                        {'path': unicode(MONTHS_SHORT3[month-1].lower()), 'type': 'integer'}
+                                    ],
+                                    "grep": ["prob_class_min>="+str(prob_class_max)],
+                                    "path": unicode(MONTHS_SHORT3[month-1].lower()),
+                                    "operation": "sum"
+                                }]
+                            }
+                            fcs = getRequestParameterAsList(request, "fcs", None)
+                            if fcs:
+                                ds['attributes'].append({ "label": "vam_fcs_filter", "label_shp": "fcs_filter", "value": ",".join(fcs), "type": "string" });
+                                attribute['reduce'].append({
+                                    "operation": "profile",
+                                    "paths": ["properties.vam_fcs_"+x for x in fcs],
+                                    "denominator": 100
+                                })
+                            csi = getRequestParameterAsList(request, "csi", None)
+                            if csi:
+                                ds['attributes'].append({ "label": "vam_csi_filter", "label_shp": "csi_filter", "value": ",".join(csi), "type": "string" });
+                                attribute['reduce'].append({
+                                    "operation": "profile",
+                                    "paths": ["properties.vam_csi_"+x for x in csi],
+                                    "denominator": 100
+                                })
+                            ds['attributes'].append(attribute)
 
-            ds = yaml.load(get_template("sparc2/datasets/"+str(dataset)+".yml").render({
-                "hazard": hazard
-            }))
+                    elif hazard == "flood":
+                        month = getRequestParameterAsInteger(request, "month", None)
+                        rp = getRequestParameterAsInteger(request, "rp", None)
+                        if month and rp:
+                            path = ".".join(["properties", "RP"+str(rp), MONTHS_SHORT3[month-1].lower()])
+                            attribute = {
+                                "label": "POPATRISK_"+MONTHS_SHORT3[month-1].upper()+"_RP"+str(rp),
+                                "label_shp": MONTHS_SHORT3[month-1].upper()+"_RP"+str(rp),
+                                "path": path,
+                                "type": "float",
+                                "reduce": []
+                            }
+                            fcs = getRequestParameterAsList(request, "fcs", None)
+                            if fcs:
+                                ds['attributes'].append({ "label": "vam_fcs_filter", "label_shp": "fcs_filter", "value": ",".join(fcs), "type": "string" });
+                                attribute['reduce'].append({
+                                    "operation": "profile",
+                                    "paths": ["properties.vam_fcs_"+x for x in fcs],
+                                    "denominator": 100
+                                })
+                            csi = getRequestParameterAsList(request, "csi", None)
+                            if csi:
+                                ds['attributes'].append({ "label": "vam_csi_filter", "label_shp": "csi_filter", "value": ",".join(csi), "type": "string" });
+                                attribute['reduce'].append({
+                                    "operation": "profile",
+                                    "paths": ["properties.vam_csi_"+x for x in csi],
+                                    "denominator": 100
+                                })
+                            ds['attributes'].append(attribute)
 
-            if hazard == "drought":
-                month = getRequestParameterAsInteger(request, "month", None)
-                prob_class_max = getRequestParameterAsFloat(request, "prob_class_max", None)
-                if month and prob_class_max:
-                    attribute = {
-                        "label": "POPATRISK_"+MONTHS_SHORT3[month-1].upper()+"_"+str(int(prob_class_max*100)),
-                        "label_shp": MONTHS_SHORT3[month-1].upper()+"_"+str(int(prob_class_max*100)),
-                        "path": "properties.addinfo",
-                        "type": "float",
-                        "reduce": [{
-                            "attributes": [
-                                {'path': "prob_class_min", 'type': 'float'},
-                                {'path': unicode(MONTHS_SHORT3[month-1].lower()), 'type': 'integer'}
-                            ],
-                            "grep": ["prob_class_min>="+str(prob_class_max)],
-                            "path": unicode(MONTHS_SHORT3[month-1].lower()),
-                            "operation": "sum"
-                        }]
-                    }
-                    fcs = getRequestParameterAsList(request, "fcs", None)
-                    if fcs:
-                        ds['attributes'].append({ "label": "vam_fcs_filter", "label_shp": "fcs_filter", "value": ",".join(fcs), "type": "string" });
-                        attribute['reduce'].append({
-                            "operation": "profile",
-                            "paths": ["properties.vam_fcs_"+x for x in fcs],
-                            "denominator": 100
-                        })
-                    csi = getRequestParameterAsList(request, "csi", None)
-                    if csi:
-                        ds['attributes'].append({ "label": "vam_csi_filter", "label_shp": "csi_filter", "value": ",".join(csi), "type": "string" });
-                        attribute['reduce'].append({
-                            "operation": "profile",
-                            "paths": ["properties.vam_csi_"+x for x in csi],
-                            "denominator": 100
-                        })
-                    ds['attributes'].append(attribute)
-
-            elif hazard == "flood":
-                month = getRequestParameterAsInteger(request, "month", None)
-                rp = getRequestParameterAsInteger(request, "rp", None)
-                if month and rp:
-                    path = ".".join(["properties", "RP"+str(rp), MONTHS_SHORT3[month-1].lower()])
-                    attribute = {
-                        "label": "POPATRISK_"+MONTHS_SHORT3[month-1].upper()+"_RP"+str(rp),
-                        "label_shp": MONTHS_SHORT3[month-1].upper()+"_RP"+str(rp),
-                        "path": path,
-                        "type": "float",
-                        "reduce": []
-                    }
-                    fcs = getRequestParameterAsList(request, "fcs", None)
-                    if fcs:
-                        ds['attributes'].append({ "label": "vam_fcs_filter", "label_shp": "fcs_filter", "value": ",".join(fcs), "type": "string" });
-                        attribute['reduce'].append({
-                            "operation": "profile",
-                            "paths": ["properties.vam_fcs_"+x for x in fcs],
-                            "denominator": 100
-                        })
-                    csi = getRequestParameterAsList(request, "csi", None)
-                    if csi:
-                        ds['attributes'].append({ "label": "vam_csi_filter", "label_shp": "csi_filter", "value": ",".join(csi), "type": "string" });
-                        attribute['reduce'].append({
-                            "operation": "profile",
-                            "paths": ["properties.vam_csi_"+x for x in csi],
-                            "denominator": 100
-                        })
-                    ds['attributes'].append(attribute)
-
-            return ds
-
-        elif dataset == "events" or dataset == u"events":
-            ds = yaml.load(get_template("sparc2/datasets/"+str(dataset)+".yml").render({
-                "hazard": hazard
-            }))
-            return ds
-        else:
-            return None
+        return ds
 
 
-    def _build_geometry(self, request, *args, **kwargs):
-        iso3 = kwargs.pop('iso3', None)
-        dataset = kwargs.pop('dataset', None)
+    def _build_geometry_path(self, request, *args, **kwargs):
+        path = None
 
-        if dataset == "popatrisk" or dataset == u"popatrisk":
-            return "geometry"
-        elif dataset == "events" or dataset == u"events":
-            return "geometry"
-        else:
-            return None
+        url = reverse("api_metadata_countryhazard", kwargs={
+            "iso3": kwargs.get('iso3', None),
+            "hazard": kwargs.get('hazard', None),
+            "dataset": kwargs.get('dataset', None),
+            "extension": "json"
+        })
+        if url:
+            response = requests.get(settings.SITEURL[:-1]+url)
+            if response:
+                ds = response.json()
+                path = extract("geometry.path", ds , None)
+
+        return path
 
 
     def _build_geometry_type(self, request, *args, **kwargs):
-        iso3 = kwargs.pop('iso3', None)
-        dataset = kwargs.pop('dataset', None)
+        geometryType = None
+        url = reverse("api_metadata_countryhazard", kwargs={
+            "iso3": kwargs.get('iso3', None),
+            "hazard": kwargs.get('hazard', None),
+            "dataset": kwargs.get('dataset', None),
+            "extension": "json"
+        })
+        if url:
+            response = requests.get(settings.SITEURL[:-1]+url)
+            if response:
+                ds = response.json()
+                if ds:
+                    geometryType = GEOMETRY_TYPE_TO_OGR.get(extract("geometry.type", ds , "").lower())
 
-        if dataset == "popatrisk" or dataset == u"popatrisk":
-            return ogr.wkbMultiPolygon
-        elif dataset == "events" or dataset == u"events":
-            return ogr.wkbPoint
-        else:
-            return None
+        return geometryType
+
 
     def _build_grep_post_attributes(self, request, *args, **kwargs):
         iso3 = kwargs.pop('iso3', None)
@@ -694,6 +696,21 @@ class api_data_countryhazard(geodash_data_view):
             elif hazard == "landslide":
                 data = get_summary_landslide(table_popatrisk="landslide.admin2_popatrisk", iso_alpha3=iso3)
         return data
+
+
+class api_metadata_countryhazard(geodash_data_view):
+
+    def _build_key(self, request, *args, **kwargs):
+        return "metadata/local/country/{iso3}/hazard/{hazard}/dataset/{dataset}".format(**kwargs)
+
+    def _build_data(self, request, *args, **kwargs):
+
+        dataset = kwargs.get('dataset', None)
+        extension = kwargs.get('extension', None)
+        ext_lc = extension.lower()
+
+        ds = yaml.load(get_template("sparc2/datasets/{dataset}.yml".format(**kwargs)).render({}))
+        return ds
 
 
 def api_cache_data_flush(request):
@@ -873,7 +890,13 @@ def countryhazardmonth_detail(request, iso3=None, hazard=None, month=None):
     dashboard_resources = [
         {
             "loader": "popatrisk_summary",
-            "url": "/api/data/country/{iso3}/hazard/{hazard}/dataset/summary.json".format(iso3=iso3, hazard=hazard)
+            "url": reverse("api_data_countryhazard", kwargs={
+                "iso3": iso3,
+                "hazard": hazard,
+                "dataset": "summary",
+                "title": iso3.upper()+"_NHR_PopAtRisk_"+hazard.title()+"_Summary",
+                "extension": "json"
+            })
         },
         {
             "loader": "context_summary",

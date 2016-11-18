@@ -9,3 +9,6 @@ attributes:
     label_shp: adm2_name
     path: properties.adm2_name
     type: string
+geometry:
+  type: point
+  path: geometry

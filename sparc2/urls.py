@@ -45,15 +45,6 @@ urlpatterns = [
         name='countryhazardmonth_detail'),
 
     # SPARC-specific APIS
-    url(
-        r'^api/countries[.](?P<extension>[^.]+)$',
-        views.api_countries.as_view(),
-        name='api_countries'),
-
-    url(
-        r'^api/hazards[.](?P<extension>[^.]+)$',
-        views.api_hazards.as_view(),
-        name='api_hazards'),
 
     url(
         r'^api/dashboard/home[.](?P<extension>[^.]+)$',
@@ -80,16 +71,40 @@ urlpatterns = [
         views.api_state_schema.as_view(),
         name='api_state_schema'),
 
+
+    ############## Data Services ##############
+    url(
+        r'^api/data/(?P<dataset>[^/]+)[.](?P<extension>[^.]+)$',
+        views.api_data.as_view(),
+        name='api_data'),
+
     url(
         r'^api/data/country/(?P<iso3>[^/]+)/dataset/(?P<dataset>[^/]+)[.](?P<extension>[^.]+)$',
         views.api_data_country.as_view(),
         name='api_data_country'),
 
     url(
-        r'^api/data/country/(?P<iso3>[^/]+)/hazard/(?P<hazard>[^/]+)/dataset/(?P<dataset>[^/]+)[.](?P<extension>[^.]+)$',
+        r'^api/data/country/(?P<iso3>[^/]+)/hazard/(?P<hazard>[^/]+)/dataset/(?P<dataset>[^/]+)/(?P<title>[^/]+)[.](?P<extension>[^.]+)$',
         views.api_data_countryhazard.as_view(),
         name='api_data_countryhazard'),
 
+    ############## Metadata Services ##############
+    url(
+        r'^api/metadata/(?P<dataset>[^/]+)[.](?P<extension>[^.]+)$',
+        views.api_metadata.as_view(),
+        name='api_metadata'),
+
+    url(
+        r'^api/metadata/country/(?P<iso3>[^/]+)/dataset/(?P<dataset>[^/]+)[.](?P<extension>[^.]+)$',
+        views.api_metadata_country.as_view(),
+        name='api_metadata_country'),
+
+    url(
+        r'^api/metadata/country/(?P<iso3>[^/]+)/hazard/(?P<hazard>[^/]+)/dataset/(?P<dataset>[^/]+)[.](?P<extension>[^.]+)$',
+        views.api_metadata_countryhazard.as_view(),
+        name='api_metadata_countryhazard'),
+
+    ############## Cache Management ##############
     url(
         r'^api/cache/data/flush$',
         views.api_cache_data_flush,

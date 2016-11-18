@@ -9,59 +9,62 @@ attributes:
   - label: gaul_admin0_code
     label_shp: g_a0_code
     path: properties.admin0_code
-    description: "GAUL Admin 0 Code"
+    description: "GAUL Administrative area level 0 (code)\n(Nation)"
   - label: gaul_admin0_name
     label_shp: g_a0_name
     path: properties.admin0_name
-    description: "GAUL Admin 0 Name"
+    description: "GAUL Administrative area level 0 (name)\n(Nation)"
   - label: gaul_admin1_code
     label_shp: g_a1_code
     path: properties.admin1_code
-    description: "GAUL Admin 1 Code"
+    description: "GAUL Administrative area level 1 (code)\n(Region)"
   - label: gaul_admin1_name
     label_shp: g_a1_name
     path: properties.admin1_name
-    description: "GAUL Admin 1 Name"
+    description: "GAUL Administrative area level 1 (name)\n(Region)"
   - label: gaul_admin2_code
     label_shp: g_a2_code
     path: properties.admin2_code
-    description: "GAUL Admin 2 Code"
+    description: "GAUL Administrative area level 2 (code)\n(District)"
   - label: gaul_admin2_name
     label_shp: g_a2_name
     path: properties.admin2_name
-    description: "GAUL Admin 2 Name"
+    description: "GAUL Administrative area level 2 (name)\n(District)"
   - label: context_ldi
     label_shp: ldi
     path: properties.ldi
     type: integer
-    description: "Land Degredation index"
+    description: "Land Degradation index\n(Vegetation loss and Erosion info combined)\nThis value can be considered as an aggregated index (adimensional).\nLDI is useful to higlight the areas most affected by the land degradation process."
   - label: context_delta_mean
     label_shp: delta_mean
     path: properties.delta_mean
     type: float
-    description: "Mean Landcover change"
+    description: "Balance between Vegetation loss and Vegetation gain (between 2001 - 2012).\nValue that combines the vegetation loss and gain for the same administrative areas.\nThis values can be considered as an overview on land cover change by qualitative prospective (loss or gain of 'ecosystem services' related to the presence of vegetation).\n(performed by MODIS-land cover data)"
   - label: context_delta_negative
     label_shp: delta_neg
     path: properties.delta_negative
     type: float
-    description: "Negative Landcover Change"
+    description: "Vegetation loss (between 2001 - 2012) expressed in percentage of administrative surface interested by the vegetation decrease.\n(temporal comparison of MODIS data from the highest vegetated land cover class to the lowest)"
   - label: context_delta_positive
     label_shp: delta_pos
     path: properties.delta_positive
     type: float
-    description: "Positive Landcover Change"
+    description: "Vegetation gain (between 2001 - 2012) expressed in percentage of administrative surface interested by the vegetation increase.\n(temporal comparison of MODIS data from the highest vegetated land cover class to the lowest)"
   - label: context_delta_forest
     label_shp: delta_for
     path: properties.delta_forest
     type: float
-    description: "Forest Change"
+    description: "Forest Change (between 2001 - 2012) expressed in percentage of administrative surfaces interested by the change.\nThe change assumes positive (gain) or negative (loss) values.\n(performed by MODIS-land cover data)"
   - label: context_delta_crop
     label_shp: delta_crp
     path: properties.delta_crop
     type: float
-    description: "Cropland Change"
+    description: "Cropland Change (between 2001 - 2012) expressed in percentage of administrative surfaces interested by the change.\nThe change assumes positive (gain) or negative (loss) values.\n(performed by MODIS-land cover data)"
   - label: context_erosion_propensity
     label_shp: erosion
     path: properties.erosion_propensity
     type: float
-    description: "Erosion Propensity"
+    description: "Erosion Propensity expressed in percentage of administrative areas affected by erosion process >5 Tons/ha per year.\nErosion propensity analysis elaborated by RUSLE equation combining, Slope, Land cover, Lithology, and Rain information."
+geometry:
+  type: multipolygon
+  path: geometry
