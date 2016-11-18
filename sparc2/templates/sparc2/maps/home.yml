@@ -52,8 +52,7 @@ featurelayers:
     source:
       name: "World Food Programme, Emergency Preparedness & Support Response Division, GIS (WFP/OSEP/GIS)"
       attribution: "WFP/OSEP/GIS"
-    geojson:
-      url: "/api/data/country/all/hazard/flood/dataset/events.json"
+    geojson: { url: "/api/data/country/all/hazard/flood/dataset/events/WLD_NHR_FloodEvents.json" }
     heatmap:
       radius: 4
       blur: 10
