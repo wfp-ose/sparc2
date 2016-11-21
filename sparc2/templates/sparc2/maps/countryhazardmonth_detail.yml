@@ -247,17 +247,17 @@ featurelayers:
         - id: "popup_context"
           tab: { label: "Context" }
           fields:
-            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code,'ldi') }}"
+            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code,'ldi')  }}"
               label: LDI
-            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_mean') }}"
+            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_mean') | formatFloat: 2 | add '%' }}"
               label: Mean Change (2001 - 2012)
-            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_positive') }}"
+            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_positive') | formatFloat: 2 | add '%' }}"
               label: Positive Change (2001 - 2012)
-            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_negative') }}"
+            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_negative') | formatFloat: 2 | add '%' }}"
               label: Negative Change (2001 - 2012)
-            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_forest') }}"
+            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_forest') | formatFloat: 2 | add '%' }}"
               label: Forest Change (2001 - 2012)
-            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_crop') }}"
+            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_crop') | formatFloat: 2 | add '%' }}"
               label: Crop Change (2001 - 2012)
             - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'erosion_propensity') }}"
               label: Erosion Propensity
@@ -1231,8 +1231,8 @@ featurelayers:
               label: VAM CSI high
   - id: context_mean_change
     type: geojson
-    title: "Land Cover Change (2001 - 2012)"
-    description: "Context Factors, Land Cover Change (2001 - 2012)"
+    title: "Vegetation Balance (2001 vs. 2012)"
+    description: "Data Elaborated from NASA – MODIS 2001 & 2012. Vegetation balance performed between the total vegetation gains versus the total vegetation loss per administrative area."
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
     geojson: { local: "layers.context.data.geojson", projection: "EPSG:4326" }
     legend: { ui: { source: false } }
@@ -1253,16 +1253,16 @@ featurelayers:
     carto:
       styles:
         - id: delta_mean
-          title: "Mean Change"
-          description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.  Mean change highlights the balance between positive and negative changes information.  Positive values indicate areas with majority positive land cover change.  Negative values indicate areas with majority negative land cover change."
+          title: "Vegetation Balance (2001 vs. 2012)"
+          description: "Data Elaborated from NASA – MODIS 2001 & 2012. Vegetation balance performed between the total vegetation gains versus the total vegetation loss per administrative area."
           legend: { type: graduated }
           symbolizers:
             - id: default
               title: Default Symbolizer
-              description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.  Mean change highlights the balance between positive and negative changes information.  Positive values indicate areas with majority positive land cover change.  Negative values indicate areas with majority negative land cover change."
+              description: "Data Elaborated from NASA – MODIS 2001 & 2012. Vegetation balance performed between the total vegetation gains versus the total vegetation loss per administrative area."
               type: polygon
               metadata:
-                range: [{ label: "| Negative Mean Change" }, { label: "Positive Mean Change |" }]
+                range: [{ label: "| Overall Vegetation Loss" }, { label: "Overall Vegetation Gain |" }]
               static:
                 properties:
                   weight: 1
@@ -1305,7 +1305,7 @@ featurelayers:
               label: Admin 2
   - id: context_positive_change
     type: geojson
-    title: "Vegetation Gain (2001 - 2012)"
+    title: "Surface % of Vegetation Gain"
     description: "Context Factors, Vegetation Gain (2001 - 2012)"
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
     geojson: { local: "layers.context.data.geojson", projection: "EPSG:4326" }
@@ -1327,16 +1327,16 @@ featurelayers:
     carto:
       styles:
         - id: delta_positive
-          title: "Positive Change"
-          description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.  Percentage of surfaces that experienced positive land cover change, ecological improve."
+          title: "Surface % of Vegetation Gain"
+          description: "Data elaborated considering NASA – MODIS 2001 & 2012. Percentage of surfaces that experienced increase in vegetated surface."
           legend: { type: graduated }
           symbolizers:
             - id: default
               title: Default Symbolizer
-              description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.  Percentage of surfaces that experienced positive land cover change, ecological improve."
+              description: "Data elaborated considering NASA – MODIS 2001 & 2012. Percentage of surfaces that experienced increase in vegetated surface."
               type: polygon
               metadata:
-                range: [{ label: "| Low Positive Change" }, { label: "High Positive Change |" }]
+                range: [{ label: "| Low Vegetation Gain" }, { label: "High Vegetation Gain |" }]
               static:
                 properties:
                   weight: 1
@@ -1364,7 +1364,7 @@ featurelayers:
         - id: "popup_overview"
           tab: { label: "overview" }
           fields:
-            - { label: "Positive Change", value: "{{ feature.attributes.delta_positive }}" }
+            - { label: "{{ layer.title }}", value: "{{ feature.attributes.delta_positive | formatFloat : 2 | add : '%' }}" }
             - attribute: iso_alpha3
               label: ISO Alpha-3 Country Code
             - value: "{{ feature.attributes.admin0_name }} ({{ feature.attributes.admin0_code }})"
@@ -1375,8 +1375,8 @@ featurelayers:
               label: Admin 2
   - id: context_negative_change
     type: geojson
-    title: "Vegetation Loss (2001 - 2012)"
-    description: "Context Factors, Vegetation Loss (2001 - 2012)"
+    title: "Surface % of Vegetation Loss"
+    description: "Surface % of Vegetation Loss"
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
     geojson: { local: "layers.context.data.geojson", projection: "EPSG:4326" }
     legend: { ui: { source: false } }
@@ -1397,16 +1397,16 @@ featurelayers:
     carto:
       styles:
         - id: delta_positive
-          title: "Negative Change"
-          description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.  Percentage of areas that experienced negative land cover change, ecological deterioration."
+          title: "Surface % of Vegetation Loss"
+          description: "Data elaborated considering NASA – MODIS 2001 & 2012. Percentage of Surface that experienced decrease in vegetated surface."
           legend: { type: graduated }
           symbolizers:
             - id: default
               title: Default Symbolizer
-              description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.  Percentage of areas that  experienced negative land cover change, ecological deterioration."
+              description: "Data elaborated considering NASA – MODIS 2001 & 2012. Percentage of Surface that experienced decrease in vegetated surface."
               type: polygon
               metadata:
-                range: [{ label: "| Low Negative Change" }, { label: "High Negative Change |" }]
+                range: [{ label: "| Low Vegetation Loss" }, { label: "High Vegetation Loss |" }]
               static:
                 properties:
                   weight: 1
@@ -1434,7 +1434,7 @@ featurelayers:
         - id: "popup_overview"
           tab: { label: "overview" }
           fields:
-            - { label: "Negative Change", value: "{{ feature.attributes.delta_negative}}" }
+            - { label: "{{ layer.title }}", value: "{{ feature.attributes.delta_negative | formatFloat : 2 | add : '%' }}" }
             - attribute: iso_alpha3
               label: ISO Alpha-3 Country Code
             - value: "{{ feature.attributes.admin0_name }} ({{ feature.attributes.admin0_code }})"
@@ -1445,8 +1445,8 @@ featurelayers:
               label: Admin 2
   - id: context_forest_change
     type: geojson
-    title: "Forest Change (2001 - 2012)"
-    description: "Context Factors, Forest Change (2001 - 2012)"
+    title: "Surface % of Forest Change"
+    description: "Surface % of Forest Change"
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
     geojson: { local: "layers.context.data.geojson", projection: "EPSG:4326" }
     legend: { ui: { source: false } }
@@ -1467,16 +1467,16 @@ featurelayers:
     carto:
       styles:
         - id: delta_forest
-          title: "Forest Change"
+          title: "Surface % of Forest Change"
           description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.  Positive percentage indicates increase in Forest surfaces.  Negative percentage indicates decrease in Forest surfaces."
           legend: { type: graduated }
           symbolizers:
             - id: default
-              title: Default Symbolizer
+              title: "Surface % of Forest Change"
               description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.  Positive percentage indicates increase in Forest surfaces.  Negative percentage indicates decrease in Forest surfaces."
               type: polygon
               metadata:
-                range: [{ label: "| Negative Forest Change" }, { label: "Positive Forest Change |" }]
+                range: [{ label: "| Forest Decrease" }, { label: "Forest Increase |" }]
               static:
                 properties:
                   weight: 1
@@ -1507,7 +1507,7 @@ featurelayers:
         - id: "popup_overview"
           tab: { label: "overview" }
           fields:
-            - { label: "Forest Change (2001 - 2012)", value: "{{ feature.attributes.delta_forest }}" }
+            - { label: "{{ layer.title }}", value: "{{ feature.attributes.delta_forest | formatFloat : 2 | add : '%' }}" }
             - attribute: iso_alpha3
               label: ISO Alpha-3 Country Code
             - value: "{{ feature.attributes.admin0_name }} ({{ feature.attributes.admin0_code }})"
@@ -1518,8 +1518,8 @@ featurelayers:
               label: Admin 2
   - id: context_crop_change
     type: geojson
-    title: "Cropland Change (2001 - 2012)"
-    description: "Context Factors, Cropland Change (2001 - 2012)"
+    title: "Surface % of Cropland Change"
+    description: "Surface % of Cropland Change"
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
     geojson: { local: "layers.context.data.geojson", projection: "EPSG:4326" }
     legend: { ui: { source: false } }
@@ -1540,16 +1540,16 @@ featurelayers:
     carto:
       styles:
         - id: delta_forest
-          title: "Cropland Change"
+          title: "Surface % of Cropland Change"
           description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.  Positive percentage indicates increase in Cropland surfaces.  Negative percentage indicates decrease in Cropland surfaces."
           legend: { type: graduated }
           symbolizers:
             - id: default
-              title: Default Symbolizer
+              title: "Surface % of Cropland Change"
               description: "Land Cover Data elaborated considering NASA – MODIS 2001 & 2012.  Positive percentage indicates increase in Cropland surfaces.  Negative percentage indicates decrease in Cropland surfaces."
               type: polygon
               metadata:
-                range: [{ label: "| Negative Cropland Change" }, { label: "Positive Cropland Change |" }]
+                range: [{ label: "| Cropland Decrease" }, { label: "Cropland Increase |" }]
               static:
                 properties:
                   weight: 1
@@ -1580,7 +1580,7 @@ featurelayers:
         - id: "popup_overview"
           tab: { label: "overview" }
           fields:
-            - { label: "Crop Change", value: "{{ feature.attributes.delta_crop }}" }
+            - { label: "{{ layer.title }}", value: "{{ feature.attributes.delta_crop | formatFloat : 2 | add : '%' }}" }
             - attribute: iso_alpha3
               label: ISO Alpha-3 Country Code
             - value: "{{ feature.attributes.admin0_name }} ({{ feature.attributes.admin0_code }})"

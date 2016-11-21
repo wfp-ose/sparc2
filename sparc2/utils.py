@@ -256,7 +256,13 @@ def get_geojson_flood(request, iso_alpha3=None):
             for feature in collection["features"]:
                 admin1_code = str(feature["properties"]["admin1_code"])
                 admin2_code = str(feature["properties"]["admin2_code"])
-                feature["properties"]["RP"+str(rp)] = values_by_admin2[admin2_code]
+
+                values = values_by_admin2.get(admin2_code, None)
+                if values:
+                    feature["properties"]["RP"+str(rp)] = values
+                else:
+                    feature["properties"]["RP"+str(rp)] = {x: 0 for x in MONTHS_SHORT3}
+
                 if admin2_code in context_by_admin2:
                     feature["properties"]["ldi"] = context_by_admin2[admin2_code]["ldi"]
                     feature["properties"]["delta_mean"] = context_by_admin2[admin2_code]["delta_mean"]
@@ -265,6 +271,7 @@ def get_geojson_flood(request, iso_alpha3=None):
                     feature["properties"]["delta_crop"] = context_by_admin2[admin2_code]["delta_crop"]
                     feature["properties"]["delta_forest"] = context_by_admin2[admin2_code]["delta_forest"]
                     feature["properties"]["erosion_propensity"] = context_by_admin2[admin2_code]["erosion_propensity"]
+
                 if admin1_code in vam_by_admin1:
                     feature["properties"].update(vam_by_admin1[admin1_code])
 
