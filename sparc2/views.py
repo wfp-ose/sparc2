@@ -25,7 +25,7 @@ from lsibdjango.models import GeographicThesaurusEntry
 from gauldjango.models import GAULAdmin0
 
 from geodash.cache import provision_memcached_client
-from geodash.enumerations import MONTHS_SHORT3, GEOMETRY_TYPE_TO_OGR
+from geodash.enumerations import MONTHS_SHORT3, MONTHS_LONG, GEOMETRY_TYPE_TO_OGR
 from geodash.transport import writeToByteArray
 from geodash.utils import extract, getRequestParameter, getRequestParameterAsInteger, getRequestParameterAsFloat, getRequestParameterAsList, getRequestParameters
 from geodash.views import geodash_data_view
@@ -505,11 +505,18 @@ class api_data_countryhazard(geodash_data_view):
                                     "grep": ["prob_class_min>="+str(prob_class_max)],
                                     "path": unicode(MONTHS_SHORT3[month-1].lower()),
                                     "operation": "sum"
-                                }]
+                                }],
+                                "description": "The population at risk for "+hazard+" in "+MONTHS_LONG[month-1]+" at the admin 2 level with a probability greater than or equal to "+str(prob_class_max)+"."
                             }
                             fcs = getRequestParameterAsList(request, "fcs", None)
                             if fcs:
-                                ds['attributes'].append({ "label": "vam_fcs_filter", "label_shp": "fcs_filter", "value": ",".join(fcs), "type": "string" });
+                                ds['attributes'].append({
+                                    "label": "vam_fcs_filter",
+                                    "label_shp": "fcs_filter",
+                                    "value": ",".join(fcs),
+                                    "type": "string",
+                                    "description": "The selected VAM Food Consumption Score (FCS) classes."
+                                });
                                 attribute['reduce'].append({
                                     "operation": "profile",
                                     "paths": ["properties.vam_fcs_"+x for x in fcs],
@@ -517,7 +524,13 @@ class api_data_countryhazard(geodash_data_view):
                                 })
                             csi = getRequestParameterAsList(request, "csi", None)
                             if csi:
-                                ds['attributes'].append({ "label": "vam_csi_filter", "label_shp": "csi_filter", "value": ",".join(csi), "type": "string" });
+                                ds['attributes'].append({
+                                    "label": "vam_csi_filter",
+                                    "label_shp": "csi_filter",
+                                    "value": ",".join(csi),
+                                    "type": "string",
+                                    "description": "The selected VAM Coping Strategies Index (CSI) classes."
+                                });
                                 attribute['reduce'].append({
                                     "operation": "profile",
                                     "paths": ["properties.vam_csi_"+x for x in csi],
@@ -535,11 +548,18 @@ class api_data_countryhazard(geodash_data_view):
                                 "label_shp": MONTHS_SHORT3[month-1].upper()+"_RP"+str(rp),
                                 "path": path,
                                 "type": "float",
-                                "reduce": []
+                                "reduce": [],
+                                "description": "The population at risk of "+hazard+" for "+MONTHS_LONG[month-1]+" at the admin 2 level with a return period (rp) greater than or requal to"+str(rp)+"."
                             }
                             fcs = getRequestParameterAsList(request, "fcs", None)
                             if fcs:
-                                ds['attributes'].append({ "label": "vam_fcs_filter", "label_shp": "fcs_filter", "value": ",".join(fcs), "type": "string" });
+                                ds['attributes'].append({
+                                    "label": "vam_fcs_filter",
+                                    "label_shp": "fcs_filter",
+                                    "value": ",".join(fcs),
+                                    "type": "string",
+                                    "description": "The selected VAM Food Consumption Score (FCS) classes."
+                                });
                                 attribute['reduce'].append({
                                     "operation": "profile",
                                     "paths": ["properties.vam_fcs_"+x for x in fcs],
@@ -547,7 +567,13 @@ class api_data_countryhazard(geodash_data_view):
                                 })
                             csi = getRequestParameterAsList(request, "csi", None)
                             if csi:
-                                ds['attributes'].append({ "label": "vam_csi_filter", "label_shp": "csi_filter", "value": ",".join(csi), "type": "string" });
+                                ds['attributes'].append({
+                                    "label": "vam_csi_filter",
+                                    "label_shp": "csi_filter",
+                                    "value": ",".join(csi),
+                                    "type": "string",
+                                    "description": "The selected VAM Coping Strategies Index (CSI) classes."
+                                });
                                 attribute['reduce'].append({
                                     "operation": "profile",
                                     "paths": ["properties.vam_csi_"+x for x in csi],

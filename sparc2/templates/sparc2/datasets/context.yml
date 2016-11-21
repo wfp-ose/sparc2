@@ -31,37 +31,37 @@ attributes:
     path: properties.admin2_name
     description: "GAUL Administrative area level 2 (name)\n(District)"
   - label: context_ldi
-    label_shp: ldi
+    label_shp: LDI
     path: properties.ldi
     type: integer
     description: "Land Degradation index\n(Vegetation loss and Erosion info combined)\nThis value can be considered as an aggregated index (adimensional).\nLDI is useful to higlight the areas most affected by the land degradation process."
   - label: context_delta_mean
-    label_shp: delta_mean
+    label_shp: Vgt_mean
     path: properties.delta_mean
     type: float
     description: "Balance between Vegetation loss and Vegetation gain (between 2001 - 2012).\nValue that combines the vegetation loss and gain for the same administrative areas.\nThis values can be considered as an overview on land cover change by qualitative prospective (loss or gain of 'ecosystem services' related to the presence of vegetation).\n(performed by MODIS-land cover data)"
   - label: context_delta_negative
-    label_shp: delta_neg
+    label_shp: Vgt_loss
     path: properties.delta_negative
     type: float
     description: "Vegetation loss (between 2001 - 2012) expressed in percentage of administrative surface interested by the vegetation decrease.\n(temporal comparison of MODIS data from the highest vegetated land cover class to the lowest)"
   - label: context_delta_positive
-    label_shp: delta_pos
+    label_shp: Vgt_gain
     path: properties.delta_positive
     type: float
     description: "Vegetation gain (between 2001 - 2012) expressed in percentage of administrative surface interested by the vegetation increase.\n(temporal comparison of MODIS data from the highest vegetated land cover class to the lowest)"
   - label: context_delta_forest
-    label_shp: delta_for
+    label_shp: Forest
     path: properties.delta_forest
     type: float
     description: "Forest Change (between 2001 - 2012) expressed in percentage of administrative surfaces interested by the change.\nThe change assumes positive (gain) or negative (loss) values.\n(performed by MODIS-land cover data)"
   - label: context_delta_crop
-    label_shp: delta_crp
+    label_shp: Cropland
     path: properties.delta_crop
     type: float
     description: "Cropland Change (between 2001 - 2012) expressed in percentage of administrative surfaces interested by the change.\nThe change assumes positive (gain) or negative (loss) values.\n(performed by MODIS-land cover data)"
   - label: context_erosion_propensity
-    label_shp: erosion
+    label_shp: Erosion
     path: properties.erosion_propensity
     type: float
     description: "Erosion Propensity expressed in percentage of administrative areas affected by erosion process >5 Tons/ha per year.\nErosion propensity analysis elaborated by RUSLE equation combining, Slope, Land cover, Lithology, and Rain information."
