@@ -2118,49 +2118,75 @@ featurelayers:
   - id: flood_events
     enabled: true
     type: geojson
-    title: "Flood Events (Heatmap)"
+    title: "Heatmap of Flood Events"
     description: "This layer contains a heatmap of flood events."
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
-    geojson: { url: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/flood/dataset/events.json" }
+    geojson: { url: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/flood/dataset/events/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_FloodEvents.json" }
     heatmap: { radius: 15, blur: 15, weight: count }
     legend: { ui: { source: false } }
     download:
       links:
         - type: json
           title: GeoJSON
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/flood/dataset/events.json"
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/flood/dataset/events/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_FloodEvents.json"
         - type: yaml
           title: YAML
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/flood/dataset/events.yml"
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/flood/dataset/events/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_FloodEvents.yml"
         - type: csv
           title: CSV
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/flood/dataset/events.csv"
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/flood/dataset/events/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_FloodEvents.csv"
         - type: zipped_shapefile
           title: "Zipped Shapefile"
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/flood/dataset/events.zip"
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/flood/dataset/events/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_FloodEvents.zip"
+    carto:
+      styles:
+        - id: flood_events
+          title: "Heatmap of Flood Events"
+          description: "Heatmap of flood events for visual interpretability."
+          legend: { type: heatmap }
+          symbolizers:
+            - id: default
+              title: "Heatmap of Flood Events"
+              description: "Heatmap of flood events for visual interpretability."
+              type: polygon
+              metadata:
+                range: [{ label: "| Low Intensity" }, { label: "High Intensity |" }]
   - id: landslide_events
     enabled: true
     type: geojson
-    title: "Landslide Events (Heatmap)"
+    title: "Heatmap of Landslide Events"
     description: "This layer contains a heatmap of landslide events."
     source: {% endverbatim %}{% include "sparc2/_includes/dashboard/layer/source.yml" %}{% verbatim %}
-    geojson: { url: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/landslide/dataset/events.json" }
+    geojson: { url: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/landslide/dataset/events/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_LandslideEvents.json" }
     heatmap: { radius: 6, blur: 8, weight: count }
     legend: { ui: { source: false } }
     download:
       links:
         - type: json
           title: GeoJSON
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/landslide/dataset/events.json"
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/landslide/dataset/events/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_LandslideEvents.json"
         - type: yaml
           title: YAML
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/landslide/dataset/events.yml"
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/landslide/dataset/events/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_LandslideEvents.yml"
         - type: csv
           title: CSV
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/landslide/dataset/events.csv"
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/landslide/dataset/events/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_LandslideEvents.csv"
         - type: zipped_shapefile
           title: "Zipped Shapefile"
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/landslide/dataset/events.zip"
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/landslide/dataset/events/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_LandslideEvents.zip"
+    carto:
+      styles:
+        - id: landslide_events
+          title: "Heatmap of Landslide Events"
+          description: "Heatmap of landslide events for visual interpretability."
+          legend: { type: heatmap }
+          symbolizers:
+            - id: default
+              title: "Heatmap of Landslide Events"
+              description: "Heatmap of landslide events for visual interpretability."
+              type: polygon
+              metadata:
+                range: [{ label: "| Low Intensity" }, { label: "High Intensity |" }]
     {% endverbatim %}{% endif %}
 {% endblock %}
 
