@@ -133,21 +133,25 @@ featurelayers:
     legend: { ui: { source: false } }
     download:
       links:
-        - type: json
+        - type: api
+          format: json
           title: GeoJSON
           baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/{% endverbatim %}{{ hazard }}{% verbatim %}/dataset/popatrisk/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_PopAtRisk_{% endverbatim %}{{ hazard | title }}{% verbatim %}.json"
           tooltip: { title: "API for systems integration.  Can be used with QGIS." }
-        - type: yaml
+        - type: api
+          format: yaml
           title: YAML
           baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/{% endverbatim %}{{ hazard }}{% verbatim %}/dataset/popatrisk/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_PopAtRisk_{% endverbatim %}{{ hazard | title }}{% verbatim %}.yml"
           tooltip: { title: "Useful for reading." }
-        - type: csv
+        - type: export
+          format: csv
           title: CSV
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/{% endverbatim %}{{ hazard }}{% verbatim %}/dataset/popatrisk/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_PopAtRisk_{% endverbatim %}{{ hazard | title }}{% verbatim %}.csv"
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/{% endverbatim %}{{ hazard }}{% verbatim %}/dataset/popatrisk/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_PopAtRisk_{% endverbatim %}{{ hazard | title }}{% verbatim %}_{{ state.month | formatMonth: 'short3' | title }}.csv"
           tooltip: { title: "Can be used with Microsoft Excel." }
-        - type: zipped_shapefile
+        - type: export
+          format: zipped_shapefile
           title: "Zipped Shapefile"
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/{% endverbatim %}{{ hazard }}{% verbatim %}/dataset/popatrisk/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_PopAtRisk_{% endverbatim %}{{ hazard | title }}{% verbatim %}.zip"
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/{% endverbatim %}{{ hazard }}{% verbatim %}/dataset/popatrisk/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_PopAtRisk_{% endverbatim %}{{ hazard | title }}{% verbatim %}_{{ state.month | formatMonth: 'short3' | title }}.zip"
           tooltip: { title: "Can be use with GIS systems, e.g., GeoNode, ArcMap, and QGIS." }
     carto:
       styles:

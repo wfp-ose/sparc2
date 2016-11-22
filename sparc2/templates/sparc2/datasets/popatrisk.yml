@@ -1,6 +1,6 @@
 ---
 name: popatrisk
-description: "This dataset contains information about the population at risk for a certain hazard for a certain month."
+description: "This dataset contains information about the population at risk for {{ country_title }} for {{ hazard }}."
 attributes:
   - label: iso_alpha3
     label_shp: iso_alpha3

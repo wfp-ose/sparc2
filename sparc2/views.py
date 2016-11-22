@@ -488,10 +488,31 @@ class api_data_countryhazard(geodash_data_view):
             if response:
                 ds = response.json()
                 if dataset == "popatrisk" or dataset == u"popatrisk":
-                    if hazard == "drought":
-                        month = getRequestParameterAsInteger(request, "month", None)
+                    month = getRequestParameterAsInteger(request, "month", None)
+                    attribute = None
+                    if hazard == "cyclone":
+                        category = getRequestParameter(request, "cat", "cat1_5")
                         prob_class_max = getRequestParameterAsFloat(request, "prob_class_max", None)
-                        if month and prob_class_max:
+                        if month and category and (prob_class_max is not None):
+                            attribute = {
+                                "label": "POPATRISK_"+MONTHS_SHORT3[month-1].upper()+"_"+str(int(prob_class_max*100)),
+                                "label_shp": MONTHS_SHORT3[month-1].upper()+"_"+str(int(prob_class_max*100)),
+                                "path": "properties.addinfo",
+                                "type": "float",
+                                "reduce": [{
+                                    "attributes": [
+                                        {'path': "prob_class_min", 'type': 'float'},
+                                        {'path': unicode(MONTHS_SHORT3[month-1].lower()), 'type': 'integer'}
+                                    ],
+                                    "grep": ["category="+category, "prob_class_min>="+str(prob_class_max)],
+                                    "path": unicode(MONTHS_SHORT3[month-1].lower()),
+                                    "operation": "sum"
+                                }],
+                                "description": "The population at risk for "+hazard+" in "+MONTHS_LONG[month-1]+" at the admin 2 level with a probability greater than or equal to probability level "+str(prob_class_max)+"."
+                            }
+                    elif hazard == "drought":
+                        prob_class_max = getRequestParameterAsFloat(request, "prob_class_max", None)
+                        if month and (prob_class_max is not None):
                             attribute = {
                                 "label": "POPATRISK_"+MONTHS_SHORT3[month-1].upper()+"_"+str(int(prob_class_max*100)),
                                 "label_shp": MONTHS_SHORT3[month-1].upper()+"_"+str(int(prob_class_max*100)),
@@ -506,40 +527,9 @@ class api_data_countryhazard(geodash_data_view):
                                     "path": unicode(MONTHS_SHORT3[month-1].lower()),
                                     "operation": "sum"
                                 }],
-                                "description": "The population at risk for "+hazard+" in "+MONTHS_LONG[month-1]+" at the admin 2 level with a probability greater than or equal to "+str(prob_class_max)+"."
+                                "description": "The population at risk for "+hazard+" in "+MONTHS_LONG[month-1]+" at the admin 2 level with a probability greater than or equal to probability level "+str(prob_class_max)+"."
                             }
-                            fcs = getRequestParameterAsList(request, "fcs", None)
-                            if fcs:
-                                ds['attributes'].append({
-                                    "label": "vam_fcs_filter",
-                                    "label_shp": "fcs_filter",
-                                    "value": ",".join(fcs),
-                                    "type": "string",
-                                    "description": "The selected VAM Food Consumption Score (FCS) classes."
-                                });
-                                attribute['reduce'].append({
-                                    "operation": "profile",
-                                    "paths": ["properties.vam_fcs_"+x for x in fcs],
-                                    "denominator": 100
-                                })
-                            csi = getRequestParameterAsList(request, "csi", None)
-                            if csi:
-                                ds['attributes'].append({
-                                    "label": "vam_csi_filter",
-                                    "label_shp": "csi_filter",
-                                    "value": ",".join(csi),
-                                    "type": "string",
-                                    "description": "The selected VAM Coping Strategies Index (CSI) classes."
-                                });
-                                attribute['reduce'].append({
-                                    "operation": "profile",
-                                    "paths": ["properties.vam_csi_"+x for x in csi],
-                                    "denominator": 100
-                                })
-                            ds['attributes'].append(attribute)
-
                     elif hazard == "flood":
-                        month = getRequestParameterAsInteger(request, "month", None)
                         rp = getRequestParameterAsInteger(request, "rp", None)
                         if month and rp:
                             path = ".".join(["properties", "RP"+str(rp), MONTHS_SHORT3[month-1].lower()])
@@ -549,37 +539,58 @@ class api_data_countryhazard(geodash_data_view):
                                 "path": path,
                                 "type": "float",
                                 "reduce": [],
-                                "description": "The population at risk of "+hazard+" for "+MONTHS_LONG[month-1]+" at the admin 2 level with a return period (rp) greater than or requal to"+str(rp)+"."
+                                "description": "The population at risk of "+hazard+" for "+MONTHS_LONG[month-1]+" at the admin 2 level with a return period (rp) greater than or equal to"+str(rp)+" years."
                             }
-                            fcs = getRequestParameterAsList(request, "fcs", None)
-                            if fcs:
-                                ds['attributes'].append({
-                                    "label": "vam_fcs_filter",
-                                    "label_shp": "fcs_filter",
-                                    "value": ",".join(fcs),
-                                    "type": "string",
-                                    "description": "The selected VAM Food Consumption Score (FCS) classes."
-                                });
-                                attribute['reduce'].append({
-                                    "operation": "profile",
-                                    "paths": ["properties.vam_fcs_"+x for x in fcs],
-                                    "denominator": 100
-                                })
-                            csi = getRequestParameterAsList(request, "csi", None)
-                            if csi:
-                                ds['attributes'].append({
-                                    "label": "vam_csi_filter",
-                                    "label_shp": "csi_filter",
-                                    "value": ",".join(csi),
-                                    "type": "string",
-                                    "description": "The selected VAM Coping Strategies Index (CSI) classes."
-                                });
-                                attribute['reduce'].append({
-                                    "operation": "profile",
-                                    "paths": ["properties.vam_csi_"+x for x in csi],
-                                    "denominator": 100
-                                })
-                            ds['attributes'].append(attribute)
+                    elif hazard == "landslide":
+                        prob_class_max = getRequestParameterAsInteger(request, "prob_class_max", None)
+                        if month and (prob_class_max is not None):
+                            attribute = {
+                                "label": "POPATRISK_"+MONTHS_SHORT3[month-1].upper()+"_"+str(prob_class_max),
+                                "label_shp": MONTHS_SHORT3[month-1].upper()+"_"+str(prob_class_max),
+                                "path": "properties.addinfo",
+                                "type": "float",
+                                "reduce": [{
+                                    "attributes": [
+                                        {'path': "prob_class_min", 'type': 'float'},
+                                        {'path': unicode(MONTHS_SHORT3[month-1].lower()), 'type': 'integer'}
+                                    ],
+                                    "grep": ["prob_class_min>="+str(prob_class_max)],
+                                    "path": unicode(MONTHS_SHORT3[month-1].lower()),
+                                    "operation": "sum"
+                                }],
+                                "description": "The population at risk for "+hazard+" in "+MONTHS_LONG[month-1]+" at the admin 2 level with a probability greater than or equal to probability level "+str(prob_class_max)+"."
+                            }
+
+                    if attribute:
+                        fcs = getRequestParameterAsList(request, "fcs", None)
+                        if fcs:
+                            ds['attributes'].append({
+                                "label": "vam_fcs_filter",
+                                "label_shp": "fcs_filter",
+                                "value": ",".join(fcs),
+                                "type": "string",
+                                "description": "The selected VAM Food Consumption Score (FCS) classes."
+                            });
+                            attribute['reduce'].append({
+                                "operation": "profile",
+                                "paths": ["properties.vam_fcs_"+x for x in fcs],
+                                "denominator": 100
+                            })
+                        csi = getRequestParameterAsList(request, "csi", None)
+                        if csi:
+                            ds['attributes'].append({
+                                "label": "vam_csi_filter",
+                                "label_shp": "csi_filter",
+                                "value": ",".join(csi),
+                                "type": "string",
+                                "description": "The selected VAM Coping Strategies Index (CSI) classes."
+                            });
+                            attribute['reduce'].append({
+                                "operation": "profile",
+                                "paths": ["properties.vam_csi_"+x for x in csi],
+                                "denominator": 100
+                            })
+                        ds['attributes'].append(attribute)
 
         return ds
 
@@ -629,8 +640,35 @@ class api_data_countryhazard(geodash_data_view):
         attributes = []
         popatrisk = getRequestParameterAsList(request, "popatrisk", None)
         if popatrisk:
-            if hazard == "flood":
-                month = getRequestParameterAsInteger(request, "month", None)
+            month = getRequestParameterAsInteger(request, "month", None)
+            if hazard == "cyclone":
+                category = getRequestParameter(request, "cat", "cat1_5")
+                prob_class_max = getRequestParameterAsFloat(request, "prob_class_max", None)
+                if month and category and (prob_class_max is not None):
+                    if extension == "zip":
+                        attributes.append({
+                            "path": "properties."+MONTHS_SHORT3[month-1].upper()+"_"+str(int(prob_class_max*100)),
+                            "type": "integer"
+                        })
+                    else:
+                        attributes.append({
+                            "path": "properties.POPATRISK_"+MONTHS_SHORT3[month-1].upper()+"_"+str(int(prob_class_max*100)),
+                            "type": "integer"
+                        })
+            elif hazard == "drought":
+                prob_class_max = getRequestParameterAsFloat(request, "prob_class_max", None)
+                if month and (prob_class_max is not None):
+                    if extension == "zip":
+                        attributes.append({
+                            "path": "properties."+MONTHS_SHORT3[month-1].upper()+"_"+str(int(prob_class_max*100)),
+                            "type": "integer"
+                        })
+                    else:
+                        attributes.append({
+                            "path": "properties.POPATRISK_"+MONTHS_SHORT3[month-1].upper()+"_"+str(int(prob_class_max*100)),
+                            "type": "integer"
+                        })
+            elif hazard == "flood":
                 rp = getRequestParameterAsInteger(request, "rp", None)
                 if month and rp:
                     if extension == "zip":
@@ -643,20 +681,20 @@ class api_data_countryhazard(geodash_data_view):
                             "path": "properties.POPATRISK_"+MONTHS_SHORT3[month-1].upper()+"_RP"+str(rp),
                             "type": "integer"
                         })
-            elif hazard == "drought":
-                month = getRequestParameterAsInteger(request, "month", None)
-                prob_class_max = getRequestParameterAsFloat(request, "prob_class_max", None)
-                if month and prob_class_max:
+            elif hazard == "landslide":
+                prob_class_max = getRequestParameterAsInteger(request, "prob_class_max", None)
+                if month and (prob_class_max is not None):
                     if extension == "zip":
                         attributes.append({
-                            "path": "properties."+MONTHS_SHORT3[month-1].upper()+"_"+str(int(prob_class_max*100)),
+                            "path": "properties."+MONTHS_SHORT3[month-1].upper()+"_"+str(prob_class_max),
                             "type": "integer"
                         })
                     else:
                         attributes.append({
-                            "path": "properties.POPATRISK_"+MONTHS_SHORT3[month-1].upper()+"_"+str(int(prob_class_max*100)),
+                            "path": "properties.POPATRISK_"+MONTHS_SHORT3[month-1].upper()+"_"+str(prob_class_max),
                             "type": "integer"
                         })
+
         return attributes
 
     def _build_grep_post_filters(self, request, *args, **kwargs):
@@ -668,22 +706,36 @@ class api_data_countryhazard(geodash_data_view):
         grep_post = []
         popatrisk = getRequestParameterAsList(request, "popatrisk", None)
         if popatrisk:
-            if hazard == "flood":
-                month = getRequestParameterAsInteger(request, "month", None)
+            month = getRequestParameterAsInteger(request, "month", None)
+            if hazard == "cyclone":
+                category = getRequestParameter(request, "cat", "cat1_5")
+                prob_class_max = getRequestParameterAsFloat(request, "prob_class_max", None)
+                if month and category and (prob_class_max is not None):
+                    if extension == "zip":
+                        grep_post.append("properties."+MONTHS_SHORT3[month-1].upper()+"_"+str(int(prob_class_max*100))+" between "+str(popatrisk[0])+" and "+str(popatrisk[1]))
+                    else:
+                        grep_post.append("properties.POPATRISK_"+MONTHS_SHORT3[month-1].upper()+"_"+str(int(prob_class_max*100))+" between "+str(popatrisk[0])+" and "+str(popatrisk[1]))
+            elif hazard == "drought":
+                prob_class_max = getRequestParameterAsFloat(request, "prob_class_max", None)
+                if month and (prob_class_max is not None):
+                    if extension == "zip":
+                        grep_post.append("properties."+MONTHS_SHORT3[month-1].upper()+"_"+str(int(prob_class_max*100))+" between "+str(popatrisk[0])+" and "+str(popatrisk[1]))
+                    else:
+                        grep_post.append("properties.POPATRISK_"+MONTHS_SHORT3[month-1].upper()+"_"+str(int(prob_class_max*100))+" between "+str(popatrisk[0])+" and "+str(popatrisk[1]))
+            elif hazard == "flood":
                 rp = getRequestParameterAsInteger(request, "rp", None)
                 if month and rp:
                     if extension == "zip":
                         grep_post.append("properties."+MONTHS_SHORT3[month-1].upper()+"_RP"+str(rp)+" between "+str(popatrisk[0])+" and "+str(popatrisk[1]))
                     else:
                         grep_post.append("properties.POPATRISK_"+MONTHS_SHORT3[month-1].upper()+"_RP"+str(rp)+" between "+str(popatrisk[0])+" and "+str(popatrisk[1]))
-            elif hazard == "drought":
-                month = getRequestParameterAsInteger(request, "month", None)
-                prob_class_max = getRequestParameterAsFloat(request, "prob_class_max", None)
-                if month and prob_class_max:
+            elif hazard == "landslide":
+                prob_class_max = getRequestParameterAsInteger(request, "prob_class_max", None)
+                if month and (prob_class_max is not None):
                     if extension == "zip":
-                        grep_post.append("properties."+MONTHS_SHORT3[month-1].upper()+"_"+str(int(prob_class_max*100))+" between "+str(popatrisk[0])+" and "+str(popatrisk[1]))
+                        grep_post.append("properties."+MONTHS_SHORT3[month-1].upper()+"_"+str(prob_class_max)+" between "+str(popatrisk[0])+" and "+str(popatrisk[1]))
                     else:
-                        grep_post.append("properties.POPATRISK_"+MONTHS_SHORT3[month-1].upper()+"_"+str(int(prob_class_max*100))+" between "+str(popatrisk[0])+" and "+str(popatrisk[1]))
+                        grep_post.append("properties.POPATRISK_"+MONTHS_SHORT3[month-1].upper()+"_"+str(prob_class_max)+" between "+str(popatrisk[0])+" and "+str(popatrisk[1]))
 
         return grep_post
 
@@ -731,11 +783,19 @@ class api_metadata_countryhazard(geodash_data_view):
 
     def _build_data(self, request, *args, **kwargs):
 
+        iso3 = kwargs.get('iso3', None)
+        hazard = kwargs.get('hazard', None)
         dataset = kwargs.get('dataset', None)
         extension = kwargs.get('extension', None)
         ext_lc = extension.lower()
 
-        ds = yaml.load(get_template("sparc2/datasets/{dataset}.yml".format(**kwargs)).render({}))
+        country_title = WFPCountry.objects.filter(thesaurus__iso_alpha3=iso3).values_list('gaul__admin0_name', flat=True)[0]
+
+        ds = yaml.load(get_template("sparc2/datasets/{dataset}.yml".format(**kwargs)).render({
+            "iso3": iso3,
+            "hazard": hazard,
+            "country_title": country_title
+        }))
         return ds
 
 
