@@ -1287,6 +1287,7 @@ featurelayers:
                     - { label: "Low", color: 'rgb(227, 252, 216)' }
                     - { label: "Medium", color: 'rgb(122, 199, 123)' }
                     - { label: "High", color: 'rgb(0, 68, 27)' }
+                  outside: { label: "No Change", placement: "middle", attribute: "mask", "color": "#333333" }
                   colors:
                     outside: "#333333"
                   breakpoints: "context_natural_adjusted"
@@ -1358,6 +1359,7 @@ featurelayers:
                     - { label: "Low", color: 'rgb(227, 252, 216)' }
                     - { label: "Medium", color: 'rgb(122, 199, 123)' }
                     - { label: "High", color: 'rgb(0, 68, 27)' }
+                  outside: { label: "No Change", placement: "start", attribute: "mask", "color": "#333333" }
                   colors: { outside: "#333333" }
                   breakpoints: "context_natural_positive"
                   filters: ["vam_filter_fcs", "vam_filter_csi"]
@@ -1428,6 +1430,7 @@ featurelayers:
                     - { label: "Low", color: 'rgb(222, 197, 192)' }
                     - { label: "Medium", color: 'rgb(251, 112, 80)' }
                     - { label: "High", color: 'rgb(181, 0, 22)' }
+                  outside: { label: "No Change", placement: "start", attribute: "mask", "color": "#333333" }
                   colors: { outside: "#333333" }
                   breakpoints: "context_natural_negative"
                   filters: ["vam_filter_fcs", "vam_filter_csi"]
@@ -1501,6 +1504,7 @@ featurelayers:
                     - { label: "Low", color: 'rgb(227, 252, 216)' }
                     - { label: "Medium", color: 'rgb(122, 199, 123)' }
                     - { label: "High", color: 'rgb(0, 68, 27)' }
+                  outside: { label: "No Change", placement: "middle", attribute: "mask", "color": "#333333" }
                   colors: { outside: "#333333" }
                   breakpoints: "context_natural_forest"
                   filters: ["vam_filter_fcs", "vam_filter_csi"]
@@ -1574,6 +1578,7 @@ featurelayers:
                     - { label: "Low", color: 'rgb(227, 252, 216)' }
                     - { label: "Medium", color: 'rgb(122, 199, 123)' }
                     - { label: "High", color: 'rgb(0, 68, 27)' }
+                  outside: { label: "No Change", placement: "middle", attribute: "mask", "color": "#333333" }
                   colors: { outside: "#333333" }
                   breakpoints: "context_natural_crop"
                   filters: ["vam_filter_fcs", "vam_filter_csi"]

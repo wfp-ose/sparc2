@@ -3412,20 +3412,40 @@ geodash.controllers.GeoDashControllerLegend = function($scope, $element, $contro
             var symbolizer = symbolizers[i];
             if(symbolizer.type == "polygon")
             {
-              classes = extract(["dynamic", "options", "classes"], symbolizer);
+              classes = geodash.util.deepCopy(extract(["dynamic", "options", "classes"], symbolizer));
               if(angular.isDefined(classes))
               {
                 break;
               }
               else
               {
-                var ramp = extract(["dynamic", "options", "colors", "ramp"], symbolizer);
+                var ramp = geodash.util.deepCopy(extract(["dynamic", "options", "colors", "ramp"], symbolizer));
                 if(angular.isDefined(ramp))
                 {
                   classes = ramp.map(function(x){ return {"label": undefined, "color": x}; });
                   break;
                 }
               }
+            }
+          }
+          var outside = extract(["dynamic", "options", "outside"], symbolizer);
+          if(angular.isDefined(outside))
+          {
+            var rgba = geodash.normalize.color(extract("color", outside, "#AAAAAA"));
+            rgba[3] = extract(["static", "properties", "fillOpacity"], symbolizer, 1.0);
+            var class_outside = {"label": extract("label", outside, "Outside"), "color": "rgba("+rgba.join(", ")+")"};
+            var placement = extract("placement", outside, "start");
+            if(placement == "start")
+            {
+              classes = [].concat([class_outside], classes);
+            }
+            else if(placement == "middle")
+            {
+              classes.splice((classes.length / 2), 0, class_outside);
+            }
+            else if(placement == "end")
+            {
+              classes = [].concat(classes, [class_outside]);
             }
           }
         }
