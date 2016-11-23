@@ -21,7 +21,7 @@ from geodash.enumerations import MONTHS_SHORT3
 from geodash.data import GeoDashDatabaseConnection, calc_breaks_natural, insertIntoObject, valuesByMonthToList, rowsToDict
 from geodash.utils import extract
 
-from sparc2.data import data_lgocal_country_admin, data_local_country_hazard_all, data_local_country_context_all
+from sparc2.data import data_local_country_admin, data_local_country_hazard_all, data_local_country_context_all
 from sparc2.enumerations import URL_VAM
 
 
