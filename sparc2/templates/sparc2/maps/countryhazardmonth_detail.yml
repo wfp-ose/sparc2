@@ -143,12 +143,12 @@ featurelayers:
           title: YAML
           baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/{% endverbatim %}{{ hazard }}{% verbatim %}/dataset/popatrisk/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_PopAtRisk_{% endverbatim %}{{ hazard | title }}{% verbatim %}.yml"
           tooltip: { title: "Useful for reading." }
-        - type: export
+        - type: export_month
           format: csv
           title: CSV
           baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/{% endverbatim %}{{ hazard }}{% verbatim %}/dataset/popatrisk/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_PopAtRisk_{% endverbatim %}{{ hazard | title }}{% verbatim %}_{{ state.month | formatMonth: 'short3' | title }}.csv"
           tooltip: { title: "Can be used with Microsoft Excel." }
-        - type: export
+        - type: export_month
           format: zipped_shapefile
           title: "Zipped Shapefile"
           baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/hazard/{% endverbatim %}{{ hazard }}{% verbatim %}/dataset/popatrisk/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_PopAtRisk_{% endverbatim %}{{ hazard | title }}{% verbatim %}_{{ state.month | formatMonth: 'short3' | title }}.zip"
@@ -1131,16 +1131,16 @@ featurelayers:
       links:
         - type: json
           title: GeoJSON
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/vam.json"
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/vam/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_VAM.json"
         - type: yaml
           title: YAML
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/vam.yml"
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/vam/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_VAM.yml"
         - type: csv
           title: CSV
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/vam.csv"
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/vam/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_VAM.csv"
         - type: zipped_shapefile
           title: "Zipped Shapefile"
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/vam.zip"
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/vam/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_VAM.zip"
     carto:
       styles:
         - id: default
@@ -1242,18 +1242,26 @@ featurelayers:
     legend: { ui: { source: false } }
     download:
       links:
-        - type: json
+        - type: api
+          format: json
           title: GeoJSON
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.json"
-        - type: yaml
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_ContextLayers.json"
+          tooltip: { title: "API for systems integration.  Can be used with QGIS." }
+        - type: api
+          format: yaml
           title: YAML
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.yml"
-        - type: csv
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_ContextLayers.yml"
+          tooltip: { title: "Useful for reading." }
+        - type: export
+          format: csv
           title: CSV
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.csv"
-        - type: zipped_shapefile
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_ContextLayers.csv"
+          tooltip: { title: "Can be used with Microsoft Excel." }
+        - type: export
+          format: zipped_shapefile
           title: "Zipped Shapefile"
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.zip"
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_ContextLayers.zip"
+          tooltip: { title: "Can be use with GIS systems, e.g., GeoNode, ArcMap, and QGIS." }
     carto:
       styles:
         - id: delta_mean
@@ -1317,18 +1325,26 @@ featurelayers:
     legend: { ui: { source: false } }
     download:
       links:
-        - type: json
+        - type: api
+          format: json
           title: GeoJSON
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.json"
-        - type: yaml
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_ContextLayers.json"
+          tooltip: { title: "API for systems integration.  Can be used with QGIS." }
+        - type: api
+          format: yaml
           title: YAML
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.yml"
-        - type: csv
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_ContextLayers.yml"
+          tooltip: { title: "Useful for reading." }
+        - type: export
+          format: csv
           title: CSV
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.csv"
-        - type: zipped_shapefile
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_ContextLayers.csv"
+          tooltip: { title: "Can be used with Microsoft Excel." }
+        - type: export
+          format: zipped_shapefile
           title: "Zipped Shapefile"
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.zip"
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_ContextLayers.zip"
+          tooltip: { title: "Can be use with GIS systems, e.g., GeoNode, ArcMap, and QGIS." }
     carto:
       styles:
         - id: delta_positive
@@ -1388,18 +1404,26 @@ featurelayers:
     legend: { ui: { source: false } }
     download:
       links:
-        - type: json
+        - type: api
+          format: json
           title: GeoJSON
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.json"
-        - type: yaml
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_ContextLayers.json"
+          tooltip: { title: "API for systems integration.  Can be used with QGIS." }
+        - type: api
+          format: yaml
           title: YAML
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.yml"
-        - type: csv
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_ContextLayers.yml"
+          tooltip: { title: "Useful for reading." }
+        - type: export
+          format: csv
           title: CSV
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.csv"
-        - type: zipped_shapefile
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_ContextLayers.csv"
+          tooltip: { title: "Can be used with Microsoft Excel." }
+        - type: export
+          format: zipped_shapefile
           title: "Zipped Shapefile"
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.zip"
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_ContextLayers.zip"
+          tooltip: { title: "Can be use with GIS systems, e.g., GeoNode, ArcMap, and QGIS." }
     carto:
       styles:
         - id: delta_positive
@@ -1459,18 +1483,26 @@ featurelayers:
     legend: { ui: { source: false } }
     download:
       links:
-        - type: json
+        - type: api
+          format: json
           title: GeoJSON
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.json"
-        - type: yaml
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_ContextLayers.json"
+          tooltip: { title: "API for systems integration.  Can be used with QGIS." }
+        - type: api
+          format: yaml
           title: YAML
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.yml"
-        - type: csv
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_ContextLayers.yml"
+          tooltip: { title: "Useful for reading." }
+        - type: export
+          format: csv
           title: CSV
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.csv"
-        - type: zipped_shapefile
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_ContextLayers.csv"
+          tooltip: { title: "Can be used with Microsoft Excel." }
+        - type: export
+          format: zipped_shapefile
           title: "Zipped Shapefile"
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.zip"
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_ContextLayers.zip"
+          tooltip: { title: "Can be use with GIS systems, e.g., GeoNode, ArcMap, and QGIS." }
     carto:
       styles:
         - id: delta_forest
@@ -1533,18 +1565,26 @@ featurelayers:
     legend: { ui: { source: false } }
     download:
       links:
-        - type: json
+        - type: api
+          format: json
           title: GeoJSON
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.json"
-        - type: yaml
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_ContextLayers.json"
+          tooltip: { title: "API for systems integration.  Can be used with QGIS." }
+        - type: api
+          format: yaml
           title: YAML
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.yml"
-        - type: csv
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_ContextLayers.yml"
+          tooltip: { title: "Useful for reading." }
+        - type: export
+          format: csv
           title: CSV
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.csv"
-        - type: zipped_shapefile
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_ContextLayers.csv"
+          tooltip: { title: "Can be used with Microsoft Excel." }
+        - type: export
+          format: zipped_shapefile
           title: "Zipped Shapefile"
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.zip"
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_ContextLayers.zip"
+          tooltip: { title: "Can be use with GIS systems, e.g., GeoNode, ArcMap, and QGIS." }
     carto:
       styles:
         - id: delta_forest
@@ -1607,18 +1647,26 @@ featurelayers:
     legend: { ui: { source: false } }
     download:
       links:
-        - type: json
+        - type: api
+          format: json
           title: GeoJSON
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.json"
-        - type: yaml
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_ContextLayers.json"
+          tooltip: { title: "API for systems integration.  Can be used with QGIS." }
+        - type: api
+          format: yaml
           title: YAML
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.yml"
-        - type: csv
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_ContextLayers.yml"
+          tooltip: { title: "Useful for reading." }
+        - type: export
+          format: csv
           title: CSV
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.csv"
-        - type: zipped_shapefile
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_ContextLayers.csv"
+          tooltip: { title: "Can be used with Microsoft Excel." }
+        - type: export
+          format: zipped_shapefile
           title: "Zipped Shapefile"
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.zip"
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_ContextLayers.zip"
+          tooltip: { title: "Can be use with GIS systems, e.g., GeoNode, ArcMap, and QGIS." }
     carto:
       styles:
         - id: erosion_propensity
@@ -1676,18 +1724,26 @@ featurelayers:
     legend: { ui: { source: false } }
     download:
       links:
-        - type: json
+        - type: api
+          format: json
           title: GeoJSON
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.json"
-        - type: yaml
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_ContextLayers.json"
+          tooltip: { title: "API for systems integration.  Can be used with QGIS." }
+        - type: api
+          format: yaml
           title: YAML
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.yml"
-        - type: csv
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_ContextLayers.yml"
+          tooltip: { title: "Useful for reading." }
+        - type: export
+          format: csv
           title: CSV
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.csv"
-        - type: zipped_shapefile
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_ContextLayers.csv"
+          tooltip: { title: "Can be used with Microsoft Excel." }
+        - type: export
+          format: zipped_shapefile
           title: "Zipped Shapefile"
-          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context.zip"
+          baseurl: "/api/data/country/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}/dataset/context/{% endverbatim %}{{ iso_alpha3|upper }}{% verbatim %}_NHR_ContextLayers.zip"
+          tooltip: { title: "Can be use with GIS systems, e.g., GeoNode, ArcMap, and QGIS." }
     carto:
       styles:
         - id: ldi

@@ -79,7 +79,7 @@ urlpatterns = [
         name='api_data'),
 
     url(
-        r'^api/data/country/(?P<iso3>[^/]+)/dataset/(?P<dataset>[^/]+)[.](?P<extension>[^.]+)$',
+        r'^api/data/country/(?P<iso3>[^/]+)/dataset/(?P<dataset>[^/]+)/(?P<title>[^/]+)[.](?P<extension>[^.]+)$',
         views.api_data_country.as_view(),
         name='api_data_country'),
 

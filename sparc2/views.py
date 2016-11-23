@@ -539,7 +539,7 @@ class api_data_countryhazard(geodash_data_view):
                                 "path": path,
                                 "type": "float",
                                 "reduce": [],
-                                "description": "The population at risk of "+hazard+" for "+MONTHS_LONG[month-1]+" at the admin 2 level with a return period (rp) greater than or equal to"+str(rp)+" years."
+                                "description": "The population at risk of "+hazard+" for "+MONTHS_LONG[month-1]+" at the admin 2 level with a return period (rp) greater than or equal to "+str(rp)+" years."
                             }
                     elif hazard == "landslide":
                         prob_class_max = getRequestParameterAsInteger(request, "prob_class_max", None)
@@ -986,15 +986,15 @@ def countryhazardmonth_detail(request, iso3=None, hazard=None, month=None):
         },
         {
             "loader": "context_summary",
-            "url": "/api/data/country/{iso3}/dataset/context_summary.json".format(iso3=iso3)
+            "url": "/api/data/country/{iso3}/dataset/context_summary/{iso3}_NHR_ContextLayers_Summary.json".format(iso3=iso3)
         },
         {
             "loader": "context_geojson",
-            "url": "/api/data/country/{iso3}/dataset/context.json".format(iso3=iso3)
+            "url": "/api/data/country/{iso3}/dataset/context/{iso3}_NHR_ContextLayers.json".format(iso3=iso3)
         },
         {
             "loader": "vam_geojson",
-            "url": "/api/data/country/{iso3}/dataset/vam.json".format(iso3=iso3)
+            "url": "/api/data/country/{iso3}/dataset/vam/{iso3}_VAM.json".format(iso3=iso3)
         }
     ];
     #geojson: {% endverbatim %}{ url: "/api/data/country/{{ iso_alpha3|upper }}/dataset/context.json" }{% verbatim %}
