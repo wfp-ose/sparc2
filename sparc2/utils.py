@@ -21,7 +21,7 @@ from geodash.enumerations import MONTHS_SHORT3
 from geodash.data import GeoDashDatabaseConnection, calc_breaks_natural, insertIntoObject, valuesByMonthToList, rowsToDict
 from geodash.utils import extract
 
-from sparc2.data import data_local_country_admin, data_local_country_hazard_all, data_local_country_context_all
+from sparc2.data import data_lgocal_country_admin, data_local_country_hazard_all, data_local_country_context_all
 from sparc2.enumerations import URL_VAM
 
 
@@ -61,6 +61,7 @@ def get_context_by_admin2(geodash_conn=None, iso_alpha3=None):
     url = settings.SITEURL[:-1]+reverse("api_data_country", kwargs={
         "iso3": iso_alpha3,
         "dataset": "context",
+        "title": iso_alpha3.upper()+"_NHR_ContextLayers",
         "extension": "json"
     })
     response = requests.get(url)
