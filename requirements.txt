@@ -16,7 +16,6 @@ requests
 pyyaml
 django-taggit
 django-taggit-templatetags
-django-leaflet
 django-autocomplete-light==2.3.3
 pymemcache
 bleach

@@ -76,3 +76,22 @@ URL_VAM = {
     "FCS": "http://reporting.vam.wfp.org/API/Get_FCS.aspx?adm0={admin0}&adm1={admin1}&indTypeID=2",
     "CSI":"http://reporting.vam.wfp.org/API/Get_CSI.aspx?type=cs&adm0={admin0}&adm1={admin1}&indTypeID=2"
 }
+
+
+ENDPOINTS = {
+    "sparc2_vam_geojson": '/api/data/country/{{ iso3 }}/dataset/vam.json',
+    "sparc2_context_geojson": '/api/data/country/{{ iso3 }}/dataset/context.json',
+    "sparc2_context_summary": '/api/data/country/{{ iso3 }}/dataset/context_summary.json',
+    "sparc2_popatrisk_geojson": '/api/data/country/{{ iso3 }}/hazard/{{ hazard }}/dataset/popatrisk.json',
+    "sparc2_popatrisk_summary": '/api/data/country/{{ iso3 }}/hazard/{{ hazard }}/dataset/summary.json',
+    "sparc2_countries_json": '/api/data/countries.json',
+    "sparc2_hazards_json": "/api/data/hazards.json"
+}
+
+PAGES = {
+    "home" : "/",
+    "explore": "/explore",
+    "country_detail": "/country/{{ iso3 }}",
+    "countryhazard_detail": "/country/{{ iso3 }}/hazard/{{ hazard }}",
+    "countryhazardmonth_detail": "/country/{{ iso3 }}/hazard/{{ hazard }}/month/{{ month }}"
+}

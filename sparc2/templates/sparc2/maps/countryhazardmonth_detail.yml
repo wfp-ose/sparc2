@@ -199,7 +199,7 @@ featurelayers:
               label: "Population at Risk for {{ state.month | formatMonth: 'long' }}"
           charts:
             - id: "sparc-popup-chart-popatrisk"
-              label: "Population at Risk for {{ feature.attributes.admin2_name }} by Month"
+              title: "Population at Risk for {{ feature.attributes.admin2_name }} by Month"
               type: "bar"
               axis:
                 x:
@@ -209,6 +209,7 @@ featurelayers:
                     text: 'Pop at Risk'
                     position: 'outer-middle'
               hazard: cyclone
+              tooltip: { value: cyclone_value }
         - id: "popup_location"
           tab: { label: "Location" }
           fields:
@@ -253,15 +254,15 @@ featurelayers:
           fields:
             - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code,'ldi')  }}"
               label: LDI
-            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_mean') | formatFloat: 2 | add '%' }}"
+            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_mean') | formatFloat: 2 | add : '%' }}"
               label: Mean Change (2001 - 2012)
-            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_positive') | formatFloat: 2 | add '%' }}"
+            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_positive') | formatFloat: 2 | add : '%' }}"
               label: Positive Change (2001 - 2012)
-            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_negative') | formatFloat: 2 | add '%' }}"
+            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_negative') | formatFloat: 2 | add : '%' }}"
               label: Negative Change (2001 - 2012)
-            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_forest') | formatFloat: 2 | add '%' }}"
+            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_forest') | formatFloat: 2 | add : '%' }}"
               label: Forest Change (2001 - 2012)
-            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_crop') | formatFloat: 2 | add '%' }}"
+            - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'delta_crop') | formatFloat: 2 | add : '%' }}"
               label: Crop Change (2001 - 2012)
             - value: "{{ context(feature.attributes.admin1_code, feature.attributes.admin2_code, 'erosion_propensity') }}"
               label: Erosion Propensity
@@ -445,7 +446,7 @@ featurelayers:
               label: "Population at Risk for {{ state.month | formatMonth: 'long' }}"
           charts:
             - id: "sparc-popup-chart-popatrisk"
-              label: "Population at Risk for {{ feature.attributes.admin2_name }} by Month"
+              title: "Population at Risk for {{ feature.attributes.admin2_name }} by Month"
               type: "bar"
               axis:
                 x:
@@ -460,6 +461,7 @@ featurelayers:
                 0.06-0.10: "#6baed6"
                 0.11-0.19: "#2171b5"
                 0.20-1.0: "#08306b"
+              tooltip: { value: drought_value }
         - id: "popup_location"
           tab:
             label: "Location"
@@ -677,7 +679,7 @@ featurelayers:
               label: "Population at Risk for {{ state.month | formatMonth: 'long' }}"
           charts:
             - id: "sparc-popup-chart-popatrisk"
-              label: "Population at Risk for {{ feature.attributes.admin2_name }} by Month"
+              title: "**Population at Risk for {{ feature.attributes.admin2_name }} by Month**\n(RP = Return Period)"
               type: "bar"
               axis:
                 x:
@@ -693,6 +695,7 @@ featurelayers:
                 rp100: "#B0C4FF"
                 rp1000: "#B0C4DE"
               returnPeriods: [25, 100, 1000]
+              tooltip: { name: flood_name, value: flood_value }
         - id: "popup_location"
           tab:
             label: "Location"
@@ -909,7 +912,7 @@ featurelayers:
               label: "Population at Risk for {{ state.month | formatMonth: 'long' }}"
           charts:
             - id: "sparc-popup-chart-popatrisk"
-              label: "Population at Risk for {{ feature.attributes.admin2_name }} by Month"
+              title: "Population at Risk for {{ feature.attributes.admin2_name }} by Month"
               type: "bar"
               axis:
                 x:
@@ -919,6 +922,7 @@ featurelayers:
                     text: 'Pop at Risk'
                     position: 'outer-middle'
               hazard: landslide
+              tooltip: { value: landslide_value }
         - id: "popup_location"
           tab:
             label: "Location"
@@ -2478,11 +2482,13 @@ sidebar:
         element: "sparc-chart-popatrisk"
         type: "bar"
         {% if hazard == "flood" %}
-        title: "Population at Risk of Floods by Month for {{ country_title }}"
+        title: "**Population at Risk of Floods by Month for {{ country_title }}**\n(RP = Return Period)"
         description: "The chart above displays the number of people living in flood-prone areas, who may potentially be exposed to flood per month. The different colours indicate the probability expressed as or “return period” (rp) of those people being affected. The darker the shade, the more likely that they will be affected, as shown below.\n- **rp25**: 1 in 25 probability of occurrence in any given year (4% chance).\n- **rp100**: 1 in 100 probability of occurrence in any given year (1% chance)\n- **rp1000**: 1 in 1000 probability of occurrence in any given year (0.1% chance)\n\nThese recurrence intervals give the estimated time interval between events of a similar size or intensity, and the greater the magnitude of the flood event the less chance of occurrence and viceversa.  You can choose to display only certain levels of probability by toggling the interactive legend under the chart: click on a probability class once to turn it off, click it again to turn it back on."
+        tooltip: { name: flood_name, value: flood_value }
         {% else %}
-        title: "Population at Risk by Month for {{ country_title }}"
+        title: "**Population at Risk by Month for {{ country_title }}**"
         description: "The chart above displays the number of people living in `{{ hazard }}-prone areas`, who may potentially be exposed to `{{ hazard }}` per month. The different colours indicate the probability of those people being affected; the darker the shade, the more likely that they will be affected. You can choose to display only certain levels of probability by toggling the interactive legend under the chart: click on a probability class once to turn it off, click it again to turn it back on."
+        tooltip: { name: flood_name, value: {{ hazard }}_value }
         {% endif %}
         axis:
           x:

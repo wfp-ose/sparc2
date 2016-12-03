@@ -51,20 +51,6 @@ download:
       content: "SPARC is a digital service provided by the World Foood Programme (WFP), Emergency Preparedness and Support Response Division (OSE).\n\nPlease contact the HQ GIS team for support at HQ[dot]GIS[at]wfp.org."
 {% endblock %}
 
-{% block pages %}{% verbatim %}
-pages:
-  - id: "home"
-    url: "/"
-  - id: "explore"
-    url: "/explore"
-  - id: country_detail
-    url: "/country/{{ iso3 }}"
-  - id: countryhazard_detail
-    url: "/country/{{ iso3 }}/hazard/{{ hazard }}"
-  - id: countryhazardmonth_detail
-    url: "/country/{{ iso3 }}/hazard/{{ hazard }}/month/{{ month }}"
-{% endverbatim %}{% endblock %}
-
 {% block assets %}{% verbatim %}
 assets:
   - id: "wfp_logo"

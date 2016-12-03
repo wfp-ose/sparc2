@@ -30,16 +30,32 @@ from geodash.transport import writeToByteArray
 from geodash.utils import extract, getRequestParameter, getRequestParameterAsInteger, getRequestParameterAsFloat, getRequestParameterAsList, getRequestParameters
 from geodash.views import geodash_data_view
 
-from sparc2.enumerations import URL_EMDAT_BY_HAZARD, SPARC_HAZARDS_CONFIG
+from sparc2.enumerations import URL_EMDAT_BY_HAZARD, SPARC_HAZARDS_CONFIG, ENDPOINTS, PAGES
 from sparc2.models import SPARCCountry
 from sparc2.utils import get_month_number, get_json_admin0, get_geojson_cyclone, get_geojson_drought, get_geojson_flood, get_geojson_landslide, get_geojson_context, get_summary_context, get_events_cyclone, get_events_flood, get_events_landslide, get_geojson_vam
 from sparc2.stats.cyclone import get_summary_cyclone
 from sparc2.stats.drought import get_summary_drought
 from sparc2.stats.flood import get_summary_flood
 from sparc2.stats.landslide import get_summary_landslide
+from sparc2.soa import get_country
 
-ENDPOINTS_PATH = "sparc2/static/sparc2/build/api/endpoints.yml"
 
+class api_endpoints(geodash_data_view):
+
+    def _build_key(self, request, *args, **kwargs):
+        return "endpoints"
+
+    def _build_data(self, request, *args, **kwargs):
+        return ENDPOINTS
+
+
+class api_pages(geodash_data_view):
+
+    def _build_key(self, request, *args, **kwargs):
+        return "pages"
+
+    def _build_data(self, request, *args, **kwargs):
+        return PAGES
 
 class api_data(geodash_data_view):
 
@@ -47,7 +63,7 @@ class api_data(geodash_data_view):
         return request.GET.get('root', None) or kwargs.get('dataset')
 
     def _build_key(self, request, *args, **kwargs):
-        return "data/local/{dataset}/{extension}".format(**kwargs)
+        return "data/local/dataset/{dataset}".format(**kwargs)
 
     def _build_dataset(self, request, *args, **kwargs):
         ds = None
@@ -146,7 +162,8 @@ class api_dashboard_countryhazard(geodash_data_view):
 
         now = datetime.datetime.now()
         current_month = now.month
-        country_title = WFPCountry.objects.filter(thesaurus__iso_alpha3=iso3).values_list('gaul__admin0_name', flat=True)[0]
+
+        country_title = extract("gaul.admin0_name", get_country(iso_alpha3=iso3), "")
         hazard_title = [h for h in SPARC_HAZARDS_CONFIG if h["id"]==hazard][0]["title"]
         month_num = get_month_number(month)
         if month_num == -1:
@@ -217,7 +234,7 @@ class api_state_countryhazardmonth(geodash_data_view):
 
         now = datetime.datetime.now()
         current_month = now.month
-        country_title = WFPCountry.objects.filter(thesaurus__iso_alpha3=iso3).values_list('gaul__admin0_name', flat=True)[0]
+        country_title = extract("gaul.admin0_name", get_country(iso_alpha3=iso3), "")
         hazard_title = [h for h in SPARC_HAZARDS_CONFIG if h["id"]==hazard][0]["title"]
         month_num = get_month_number(month)
         if month_num == -1:
@@ -295,7 +312,27 @@ class api_state_countryhazardmonth(geodash_data_view):
 
         return data
 
-class api_state_schema(geodash_data_view):
+
+class api_state_schema_home(geodash_data_view):
+
+    def _build_key(self, request, *args, **kwargs):
+        return "state/schema/home"
+
+    def _build_data(self, request, *args, **kwargs):
+
+        data = {
+            "view": {
+              "lat": "float",
+              "lon": "float",
+              "z": "integer"
+            },
+            "filters": {},
+            "styles": {}
+        }
+
+        return data
+
+class api_state_schema_hazard(geodash_data_view):
 
     def _build_key(self, request, *args, **kwargs):
         return "state/schema/hazard/{hazard}".format(**kwargs)
@@ -789,7 +826,7 @@ class api_metadata_countryhazard(geodash_data_view):
         extension = kwargs.get('extension', None)
         ext_lc = extension.lower()
 
-        country_title = WFPCountry.objects.filter(thesaurus__iso_alpha3=iso3).values_list('gaul__admin0_name', flat=True)[0]
+        country_title = extract("gaul.admin0_name", get_country(iso_alpha3=iso3), "")
 
         ds = yaml.load(get_template("sparc2/datasets/{dataset}.yml".format(**kwargs)).render({
             "iso3": iso3,
@@ -810,32 +847,29 @@ def home(request, template="sparc2/home.html"):
     current_month = now.month
 
     dashboard = yaml.load(get_template("sparc2/maps/home.yml").render({}))
-    endpoints = yaml.load(file(ENDPOINTS_PATH, 'r'))
 
-    ##############
-    state_schema = {
-        "view": {
-          "lat": "float",
-          "lon": "float",
-          "z": "integer"
+    dashboard_resources = [
+        {
+            "loader": "endpoints",
+            "url": reverse("api_endpoints", kwargs={"extension": "json"})
         },
-        "filters": {},
-        "styles": {}
-    }
+        {
+            "loader": "pages",
+            "url": reverse("api_pages", kwargs={"extension": "json"})
+        }
+    ];
 
     ctx = {
         "dashboard_url": "/api/dashboard/home.json",
         "state_url": "/api/state/home.json",
-        "state_schema": state_schema,
-        "endpoints": endpoints,
+        "state_schema_url": reverse("api_state_schema_home", kwargs={"extension": "json"}),
         "geodash_main_id": "geodash-main",
         "include_sidebar_left": False,
         "modal_welcome": True
     }
 
     ctx.update({
-      "endpoints_json": json.dumps(ctx["endpoints"]),
-      "state_schema_json": json.dumps(ctx["state_schema"])
+      "dashboard_resources_json": json.dumps(dashboard_resources)
     })
 
     ctx.update({
@@ -852,29 +886,16 @@ def explore(request, template="sparc2/home.html"):
     current_month = now.month
 
     dashboard = yaml.load(get_template("sparc2/maps/home.yml").render({}))
-    endpoints = yaml.load(file(ENDPOINTS_PATH, 'r'))
-
-    state_schema = {
-        "view": {
-          "lat": "float",
-          "lon": "float",
-          "z": "integer"
-        },
-        "filters": {},
-        "styles": {}
-    }
 
     ctx = {
         "dashboard_url": "/api/dashboard/home.json",
-        "state_schema": state_schema,
-        "endpoints": endpoints,
+        "state_schema_url": reverse("api_state_schema_home", kwargs={"extension": "json"}),
         "geodash_main_id": "geodash-main",
         "include_sidebar_left": False,
         "modal_welcome": True
     }
 
     ctx.update({
-      "endpoints_json": json.dumps(ctx["endpoints"]),
       "state_schema_json": json.dumps(ctx["state_schema"])
     })
 
@@ -893,14 +914,13 @@ def country_detail(request, iso3=None, hazard=None, month=None):
 
     t = "sparc2/country_detail.html"
 
-    country_title = WFPCountry.objects.filter(thesaurus__iso_alpha3=iso3).values_list('gaul__admin0_name', flat=True)[0]
+    country_title = extract("gaul.admin0_name", get_country(iso_alpha3=iso3), "")
 
     map_config_yml = get_template("sparc2/maps/country_detail.yml").render({
         "iso_alpha3": iso3,
         "country_title": country_title
     })
     map_config = yaml.load(map_config_yml)
-    endpoints = yaml.load(file(ENDPOINTS_PATH, 'r'))
 
     ##############
     state_schema = {
@@ -921,7 +941,6 @@ def country_detail(request, iso3=None, hazard=None, month=None):
         "map_config_json": json.dumps(map_config),
         "state_schema": state_schema,
         "state_schema_json": json.dumps(state_schema),
-        "endpoints_json": json.dumps(endpoints),
         "init_function": "init_country",
         "geodash_main_id": "geodash-main",
         "include_sidebar_left": False
@@ -945,7 +964,7 @@ def countryhazardmonth_detail(request, iso3=None, hazard=None, month=None):
 
     t = "sparc2/countryhazardmonth_detail.html"
 
-    country_title = WFPCountry.objects.filter(thesaurus__iso_alpha3=iso3).values_list('gaul__admin0_name', flat=True)[0]
+    country_title = extract("gaul.admin0_name", get_country(iso_alpha3=iso3), "")
 
     hazard_title = [h for h in SPARC_HAZARDS_CONFIG if h["id"]==hazard][0]["title"]
     month_num = get_month_number(month)
@@ -953,7 +972,6 @@ def countryhazardmonth_detail(request, iso3=None, hazard=None, month=None):
         month_num = current_month
     month_title = MONTHS_SHORT3[month_num-1]
 
-    endpoints = yaml.load(file(ENDPOINTS_PATH, 'r'))
     ##############
 
     #############
@@ -974,6 +992,14 @@ def countryhazardmonth_detail(request, iso3=None, hazard=None, month=None):
     #}
 
     dashboard_resources = [
+        {
+            "loader": "endpoints",
+            "url": reverse("api_endpoints", kwargs={"extension": "json"})
+        },
+        {
+            "loader": "pages",
+            "url": reverse("api_pages", kwargs={"extension": "json"})
+        },
         {
             "loader": "popatrisk_summary",
             "url": reverse("api_data_countryhazard", kwargs={
@@ -1001,8 +1027,7 @@ def countryhazardmonth_detail(request, iso3=None, hazard=None, month=None):
     ctx = {
         "dashboard_url": "/api/dashboard/country/{iso3}/hazard/{hazard}.json".format(iso3=iso3, hazard=hazard),
         "state_url": "/api/state/country/{iso3}/hazard/{hazard}/month/{month}.json".format(iso3=iso3, hazard=hazard, month=month_num),
-        "state_schema_url": "/api/state/schema/hazard/{hazard}.json".format(hazard=hazard),
-        "endpoints": endpoints,
+        "state_schema_url": reverse("api_state_schema_hazard", kwargs={"hazard": hazard, "extension": "json"}),
         "geodash_main_id": "geodash-main",
         "include_sidebar_left": True,
         "sidebar_left_open": True,
@@ -1010,7 +1035,6 @@ def countryhazardmonth_detail(request, iso3=None, hazard=None, month=None):
     }
 
     ctx.update({
-      "endpoints_json": json.dumps(ctx["endpoints"]),
       "dashboard_resources_json": json.dumps(dashboard_resources)
     })
 

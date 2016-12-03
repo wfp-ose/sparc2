@@ -1,8 +1,19 @@
 geodash.config = {
+  'bootloader': {
+    "loaders": [sparc2.loaders, geodash.bootloader.loaders],
+    "ui": {
+      "padding": "4px",
+      "heading": "h6",
+      "fontSize": "2rem"
+    }
+  },
   'click_radius': 2.0,
   'search': {
     'datasets': [sparc2.typeahead.datasets, geodash.typeahead.datasets],
     'codecs': [sparc2.bloodhound.codec, geodash.bloodhound.codec]
+  },
+  'charts': {
+    'tooltips': [sparc2.charts.tooltips]
   },
   'dynamicStyleFunctionWorkspaces': [
     sparc2.dynamicStyleFn,

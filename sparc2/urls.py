@@ -46,6 +46,20 @@ urlpatterns = [
 
     # SPARC-specific APIS
 
+    ############## GeoDash Framework Services ##############
+
+    url(
+        r'^api/endpoints[.](?P<extension>[^.]+)$',
+        views.api_endpoints.as_view(),
+        name='api_endpoints'),
+
+    url(
+        r'^api/pages[.](?P<extension>[^.]+)$',
+        views.api_pages.as_view(),
+        name='api_pages'),
+
+    ############## SPARC Services ##############
+
     url(
         r'^api/dashboard/home[.](?P<extension>[^.]+)$',
         views.api_dashboard_home.as_view(),
@@ -67,9 +81,14 @@ urlpatterns = [
         name='api_state_countryhazardmonth'),
 
     url(
+        r'^api/state/schema/home[.](?P<extension>[^.]+)$',
+        views.api_state_schema_home.as_view(),
+        name='api_state_schema_home'),
+
+    url(
         r'^api/state/schema/hazard/(?P<hazard>[^/]+)[.](?P<extension>[^.]+)$',
-        views.api_state_schema.as_view(),
-        name='api_state_schema'),
+        views.api_state_schema_hazard.as_view(),
+        name='api_state_schema_hazard'),
 
 
     ############## Data Services ##############
